@@ -17,8 +17,12 @@
  */
 package org.apache.flink.table.api
 
-import _root_.java.util.TimeZone
+import org.apache.flink.configuration.{Configuration, GlobalConfiguration}
+import org.apache.flink.table.calcite.CalciteConfig
+import org.apache.flink.util.Preconditions
+
 import _root_.java.math.MathContext
+import _root_.java.util.TimeZone
 
 /**
  * A config to define the runtime behavior of the Table API.
@@ -46,6 +50,16 @@ class TableConfig {
     * maximum method length of 64 KB. This setting allows for finer granularity if necessary.
     */
   private var maxGeneratedCodeLength: Int = 64000 // just an estimate
+
+  /**
+    * Defines the configuration of Calcite for Table API and SQL queries.
+    */
+  private var calciteConfig = CalciteConfig.createBuilder().build()
+
+  /**
+    * Defines user-defined configuration
+    */
+  private var conf = GlobalConfiguration.loadConfiguration()
 
   /**
    * Sets the timezone for date/time/timestamp conversions.
@@ -104,6 +118,33 @@ class TableConfig {
     }
     this.maxGeneratedCodeLength = maxGeneratedCodeLength
   }
+
+  /**
+    * Returns user-defined configuration
+    */
+  def getConf: Configuration = conf
+
+  /**
+    * Sets user-defined configuration
+    */
+  def setConf(conf: Configuration): Unit = {
+    this.conf = GlobalConfiguration.loadConfiguration()
+    this.conf.addAll(conf)
+  }
+
+  /**
+    * Returns the current configuration of Calcite for Table API and SQL queries.
+    */
+  def getCalciteConfig: CalciteConfig = calciteConfig
+
+  /**
+    * Sets the configuration of Calcite for Table API and SQL queries.
+    * Changing the configuration has no effect after the first query has been defined.
+    */
+  def setCalciteConfig(calciteConfig: CalciteConfig): Unit = {
+    this.calciteConfig = Preconditions.checkNotNull(calciteConfig)
+  }
+
 }
 
 object TableConfig {
