@@ -32,6 +32,7 @@ import java.util.Arrays;
 
 /**
  * A simple and efficient serializer for the {@link java.io.DataOutput} interface.
+ * 一个简单而高效的DataOutput接口的序列化器
  */
 public class DataOutputSerializer implements DataOutputView {
 

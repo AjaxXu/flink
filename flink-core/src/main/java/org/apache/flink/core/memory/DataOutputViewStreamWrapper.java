@@ -26,6 +26,7 @@ import java.io.OutputStream;
 
 /**
  * Utility class that turns an {@link OutputStream} into a {@link DataOutputView}.
+ * 将OutputStream转为DataOutputView的工具类
  */
 @PublicEvolving
 public class DataOutputViewStreamWrapper extends DataOutputStream implements DataOutputView {
@@ -38,6 +39,7 @@ public class DataOutputViewStreamWrapper extends DataOutputStream implements Dat
 
 	@Override
 	public void skipBytesToWrite(int numBytes) throws IOException {
+		// 往outputStream里写入numBytes个0
 		if (tempBuffer == null) {
 			tempBuffer = new byte[4096];
 		}
@@ -54,7 +56,7 @@ public class DataOutputViewStreamWrapper extends DataOutputStream implements Dat
 		if (tempBuffer == null) {
 			tempBuffer = new byte[4096];
 		}
-
+		// 先从source中取，再写入OutputStream
 		while (numBytes > 0) {
 			int toCopy = Math.min(numBytes, tempBuffer.length);
 			source.readFully(tempBuffer, 0, toCopy);

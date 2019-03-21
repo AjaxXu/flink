@@ -22,6 +22,7 @@ import org.apache.flink.annotation.Internal;
 
 /**
  * Interface describing entities that can provide memory segments.
+ * 能提供MemorySegment的实体类接口
  */
 @Internal
 public interface MemorySegmentSource {
