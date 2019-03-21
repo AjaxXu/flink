@@ -16,28 +16,34 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.expressions;
+package org.apache.flink.table.runtime.functions;
 
-import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.common.typeutils.TypeSerializer;
+import org.apache.flink.table.dataformat.BaseRow;
 
 /**
- * A visitor for all API-specific {@link Expression}s.
+ * A ExecutionContext contains information about the context in which functions are executed and
+ * the APIs to create state.
  */
-@Internal
-public interface ApiExpressionVisitor<R> extends ExpressionVisitor<R> {
+public interface ExecutionContext {
 
-	R visitTableReference(TableReferenceExpression tableReference);
+	// TODO add create state method.
 
-	R visitUnresolvedCall(UnresolvedCallExpression unresolvedCall);
+	/**
+	 * @return the key serializer of state key
+	 */
+	<K> TypeSerializer<K> getKeySerializer();
 
-	default R visit(Expression other) {
-		if (other instanceof TableReferenceExpression) {
-			return visitTableReference((TableReferenceExpression) other);
-		} else if (other instanceof UnresolvedCallExpression) {
-			return visitUnresolvedCall((UnresolvedCallExpression) other);
-		}
-		return visitNonApiExpression(other);
-	}
+	/**
+	 * @return key of the current processed element.
+	 */
+	BaseRow currentKey();
 
-	R visitNonApiExpression(Expression other);
+	/**
+	 * Sets current key.
+	 */
+	void setCurrentKey(BaseRow key);
+
+	RuntimeContext getRuntimeContext();
 }

@@ -70,12 +70,8 @@ public final class ApiExpressionUtils {
 		return new SymbolExpression(symbol);
 	}
 
-	public static FieldReferenceExpression fieldRef(String name) {
-		return new FieldReferenceExpression(name);
-	}
-
-	public static FieldReferenceExpression fieldRef(String name, TypeInformation<?> type) {
-		return new FieldReferenceExpression(name, type);
+	public static UnresolvedFieldReferenceExpression unresolvedFieldRef(String name) {
+		return new UnresolvedFieldReferenceExpression(name);
 	}
 
 	public static TableReferenceExpression tableRef(String name, Table table) {
@@ -105,10 +101,10 @@ public final class ApiExpressionUtils {
 
 	public static Expression toMilliInterval(Expression e, long multiplier) {
 		final Optional<Expression> intInterval = extractValue(e, BasicTypeInfo.INT_TYPE_INFO)
-			.map((v) -> (Expression) valueLiteral(v * multiplier, TimeIntervalTypeInfo.INTERVAL_MILLIS));
+			.map((v) -> valueLiteral(v * multiplier, TimeIntervalTypeInfo.INTERVAL_MILLIS));
 
 		final Optional<Expression> longInterval = extractValue(e, BasicTypeInfo.LONG_TYPE_INFO)
-			.map((v) -> (Expression) valueLiteral(v * multiplier, TimeIntervalTypeInfo.INTERVAL_MILLIS));
+			.map((v) -> valueLiteral(v * multiplier, TimeIntervalTypeInfo.INTERVAL_MILLIS));
 
 		if (intInterval.isPresent()) {
 			return intInterval.get();
@@ -128,10 +124,10 @@ public final class ApiExpressionUtils {
 
 	public static Expression toRowInterval(Expression e) {
 		final Optional<Expression> intInterval = extractValue(e, BasicTypeInfo.INT_TYPE_INFO)
-			.map((v) -> (Expression) valueLiteral((long) v, RowIntervalTypeInfo.INTERVAL_ROWS));
+			.map((v) -> valueLiteral((long) v, RowIntervalTypeInfo.INTERVAL_ROWS));
 
 		final Optional<Expression> longInterval = extractValue(e, BasicTypeInfo.LONG_TYPE_INFO)
-			.map((v) -> (Expression) valueLiteral(v, RowIntervalTypeInfo.INTERVAL_ROWS));
+			.map((v) -> valueLiteral(v, RowIntervalTypeInfo.INTERVAL_ROWS));
 
 		if (intInterval.isPresent()) {
 			return intInterval.get();
