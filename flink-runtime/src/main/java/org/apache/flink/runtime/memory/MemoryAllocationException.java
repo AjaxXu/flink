@@ -20,6 +20,7 @@ package org.apache.flink.runtime.memory;
 
 /**
  * An exception to be thrown when a memory allocation operation is not successful.
+ * 内存分配操作不成功时抛出的异常
  */
 public class MemoryAllocationException extends Exception {
 
