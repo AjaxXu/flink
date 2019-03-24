@@ -16,26 +16,23 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.api
+package org.apache.flink.runtime.webmonitor.handlers;
 
-import org.apache.calcite.rel.RelNode
+import org.apache.flink.runtime.rest.HttpMethodWrapper;
 
 /**
-  * A Table is the core component of the Table API.
-  * Similar to how the batch and streaming APIs have DataSet and DataStream,
-  * the Table API is built around [[Table]].
-  *
-  * NOTE: This class is only a placeholder to support end-to-end tests for Blink planner.
-  * Will be removed when [[Table]] is moved to "flink-table-api-java" module.
-  *
-  * @param tableEnv The [[TableEnvironment]] to which the table is bound.
-  * @param relNode  The Calcite RelNode representation
-  */
-class Table(val tableEnv: TableEnvironment, relNode: RelNode) {
+ * Message headers for {@link JarPlanHandler}.
+ */
+public class JarPlanGetHeaders extends AbstractJarPlanHeaders {
 
-  /**
-    * Returns the Calcite RelNode represent this Table.
-    */
-  def getRelNode: RelNode = relNode
+	private static final JarPlanGetHeaders INSTANCE = new JarPlanGetHeaders();
 
+	@Override
+	public HttpMethodWrapper getHttpMethod() {
+		return HttpMethodWrapper.GET;
+	}
+
+	public static JarPlanGetHeaders getInstance() {
+		return INSTANCE;
+	}
 }
