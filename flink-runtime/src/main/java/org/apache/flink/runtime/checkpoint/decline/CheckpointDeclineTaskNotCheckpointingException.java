@@ -21,6 +21,7 @@ package org.apache.flink.runtime.checkpoint.decline;
 /**
  * Exception indicating that a checkpoint was declined because a task does not support
  * checkpointing.
+ * 原因：task不支持checkpoint
  */
 public final class CheckpointDeclineTaskNotCheckpointingException extends CheckpointDeclineException {
 

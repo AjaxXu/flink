@@ -20,6 +20,7 @@ package org.apache.flink.runtime.messages;
 
 /**
  * Interface for message decorators
+ * 消息修饰器的接口
  */
 public interface MessageDecorator extends java.io.Serializable {
 

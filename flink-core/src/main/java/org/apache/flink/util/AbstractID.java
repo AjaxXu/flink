@@ -185,6 +185,8 @@ public class AbstractID implements Comparable<AbstractID>, java.io.Serializable 
 
 	/**
 	 * Converts the given byte array to a long.
+	 * Like byte[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88}
+	 * the return is long l = 0x 1122334455667788;
 	 *
 	 * @param ba the byte array to be converted
 	 * @param offset the offset indicating at which byte inside the array the conversion shall begin
@@ -194,6 +196,7 @@ public class AbstractID implements Comparable<AbstractID>, java.io.Serializable 
 		long l = 0;
 
 		for (int i = 0; i < SIZE_OF_LONG; ++i) {
+			// i << 3 means multiple of 8
 			l |= (ba[offset + SIZE_OF_LONG - 1 - i] & 0xffL) << (i << 3);
 		}
 
@@ -210,6 +213,7 @@ public class AbstractID implements Comparable<AbstractID>, java.io.Serializable 
 	private static void longToByteArray(long l, byte[] ba, int offset) {
 		for (int i = 0; i < SIZE_OF_LONG; ++i) {
 			final int shift = i << 3; // i * 8
+			// ba[] filled from offset + SIZE_OF_LONG - 1 to offset
 			ba[offset + SIZE_OF_LONG - 1 - i] = (byte) ((l & (0xffL << shift)) >>> shift);
 		}
 	}

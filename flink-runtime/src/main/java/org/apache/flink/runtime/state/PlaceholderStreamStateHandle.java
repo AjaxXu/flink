@@ -26,6 +26,7 @@ import org.apache.flink.runtime.state.memory.ByteStreamStateHandle;
  * created in a previous checkpoint. So we don't have to send a state handle twice, e.g. in
  * case of {@link ByteStreamStateHandle}. This class is used in the referenced states of
  * {@link IncrementalRemoteKeyedStateHandle}.
+ * 共享状态的占位符状态句柄，将替换为在先前检查点中创建的原始状态
  */
 public class PlaceholderStreamStateHandle implements StreamStateHandle {
 

@@ -22,13 +22,14 @@ import java.util.concurrent.Executor;
 
 /**
  * Simple factory to produce {@link SharedStateRegistry} objects.
+ * 生产{@link SharedStateRegistry}对象的简单工厂类
  */
 public interface SharedStateRegistryFactory {
 
 	/**
 	 * Factory method for {@link SharedStateRegistry}.
 	 *
-	 * @param deleteExecutor executor used to run (async) deletes.
+	 * @param deleteExecutor executor used to run (async) deletes. 用于执行(异步)删除的executor
 	 * @return a SharedStateRegistry object
 	 */
 	SharedStateRegistry create(Executor deleteExecutor);

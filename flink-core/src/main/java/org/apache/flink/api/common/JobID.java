@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 /**
  * Unique (at least statistically unique) identifier for a Flink Job. Jobs in Flink correspond
  * to dataflow graphs.
+ * Flink Job唯一的Id，Flink中的Job对应于数据流图
  * 
  * <p>Jobs act simultaneously as <i>sessions</i>, because jobs can be created and submitted
  * incrementally in different parts. Newer fragments of a graph can be attached to existing

@@ -28,9 +28,11 @@ import org.apache.flink.runtime.executiongraph.ExecutionAttemptID;
  * This message is sent from the {@link org.apache.flink.runtime.taskexecutor.TaskExecutor} to the
  * {@link org.apache.flink.runtime.jobmaster.JobMaster} to signal that the checkpoint of an
  * individual task is completed.
+ * 独立task的检查点已经完成的确认消息
  *
  * <p>This message may carry the handle to the task's chained operator state and the key group
  * state.
+ * 此消息可以携带任务的链接运算符状态和键组状态的句柄
  */
 public class AcknowledgeCheckpoint extends AbstractCheckpointMessage {
 

@@ -21,6 +21,7 @@ package org.apache.flink.runtime.checkpoint.decline;
 /**
  * Exception indicating that a checkpoint was declined because a task was not
  * ready to perform a checkpoint.
+ * 原因：task not ready 执行checkpoint
  */
 public final class CheckpointDeclineTaskNotReadyException extends CheckpointDeclineException {
 

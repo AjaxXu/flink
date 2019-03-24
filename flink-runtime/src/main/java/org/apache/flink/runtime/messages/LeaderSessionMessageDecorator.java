@@ -23,6 +23,10 @@ import java.util.UUID;
 /**
  * Message decorator which wraps message which implement {@link RequiresLeaderSessionID} into
  * a {@link org.apache.flink.runtime.messages.JobManagerMessages.LeaderSessionMessage}.
+ *
+ * 消息装饰器将实现{@link RequiresLeaderSessionID}的消息包装成
+ * {@link org.apache.flink.runtime.messages.JobManagerMessages.LeaderSessionMessage}中。
+ * 为消息额外加一个 leaderSessionID, 返回一个LeaderSessionMessage实例
  */
 public class LeaderSessionMessageDecorator implements MessageDecorator {
 

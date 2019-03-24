@@ -23,6 +23,7 @@ import org.apache.flink.util.StringUtils;
 
 /**
  * A class for statistically unique job vertex IDs.
+ * 用于统计上唯一的作业顶点ID的类
  */
 public class JobVertexID extends AbstractID {
 	

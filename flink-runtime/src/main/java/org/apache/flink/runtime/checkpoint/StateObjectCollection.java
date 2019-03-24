@@ -34,6 +34,7 @@ import java.util.function.Predicate;
  * This class represents a generic collection for {@link StateObject}s. Being a state object itself, it delegates
  * {@link #discardState()} to all contained state objects and computes {@link #getStateSize()} as sum of the state
  * sizes of all contained objects.
+ * 该类代表StateObject集合。同时它本身也是一个StateObject，代理了所有包含对象的discardState方法，同时getStateSize返回所有包含对象的state size 的和
  *
  * @param <T> type of the contained state objects.
  */

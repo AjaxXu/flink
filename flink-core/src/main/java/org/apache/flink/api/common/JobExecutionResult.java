@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 /**
  * The result of a job execution. Gives access to the execution time of the job,
  * and to all accumulators created by this job.
+ * 作业执行的结果。可以访问作业的执行时间以及此作业创建的所有累加器
  */
 @Public
 public class JobExecutionResult extends JobSubmissionResult {

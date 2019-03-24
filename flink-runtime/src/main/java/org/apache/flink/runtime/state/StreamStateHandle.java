@@ -25,12 +25,14 @@ import java.io.IOException;
 /**
  * A {@link StateObject} that represents state that was written to a stream. The data can be read
  * back via {@link #openInputStream()}.
+ * 代表写入到流中的一个StateObject
  */
 public interface StreamStateHandle extends StateObject {
 
 	/**
 	 * Returns an {@link FSDataInputStream} that can be used to read back the data that
 	 * was previously written to the stream.
+	 * 返回{@link FSDataInputStream}，可用于回读先前写入流的数据
 	 */
 	FSDataInputStream openInputStream() throws IOException;
 }

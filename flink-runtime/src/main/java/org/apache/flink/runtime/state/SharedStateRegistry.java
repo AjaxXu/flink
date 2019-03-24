@@ -34,6 +34,8 @@ import java.util.concurrent.RejectedExecutionException;
  * This registry manages state that is shared across (incremental) checkpoints, and is responsible
  * for deleting shared state that is no longer used in any valid checkpoint.
  *
+ * 此注册表管理跨（增量）检查点共享的状态，并负责删除任何有效检查点中不再使用的共享状态
+ *
  * A {@code SharedStateRegistry} will be deployed in the 
  * {@link org.apache.flink.runtime.checkpoint.CheckpointCoordinator} to
  * maintain the reference count of {@link StreamStateHandle}s by a key that (logically) identifies
@@ -52,7 +54,7 @@ public class SharedStateRegistry implements AutoCloseable {
 	/** This flag indicates whether or not the registry is open or if close() was called */
 	private boolean open;
 
-	/** Executor for async state deletion */
+	/** Executor for async state deletion 异步状态删除的Executor*/
 	private final Executor asyncDisposalExecutor;
 
 	/** Default uses direct executor to delete unreferenced state */
@@ -99,6 +101,7 @@ public class SharedStateRegistry implements AutoCloseable {
 
 				// Additional check that should never fail, because only state handles that are not placeholders should
 				// ever be inserted to the registry.
+				// 应该永远不会失败的附加检查，因为只应该将非占位符的状态句柄插入到注册表中
 				Preconditions.checkState(!isPlaceholder(state), "Attempt to reference unknown state: " + registrationKey);
 
 				entry = new SharedStateRegistry.SharedStateEntry(state);
@@ -107,6 +110,7 @@ public class SharedStateRegistry implements AutoCloseable {
 				// delete if this is a real duplicate
 				if (!Objects.equals(state, entry.stateHandle)) {
 					scheduledStateDeletion = state;
+					// 确认重复状态注册
 					LOG.trace("Identified duplicate state registration under key {}. New state {} was determined to " +
 							"be an unnecessary copy of existing state {} and will be dropped.",
 						registrationKey,
@@ -222,6 +226,7 @@ public class SharedStateRegistry implements AutoCloseable {
 
 	/**
 	 * An entry in the registry, tracking the handle and the corresponding reference count.
+	 * 注册表中的条目，跟踪句柄和相应的引用计数
 	 */
 	private static class SharedStateEntry {
 
@@ -303,6 +308,7 @@ public class SharedStateRegistry implements AutoCloseable {
 
 	/**
 	 * Encapsulates the operation the delete state handles asynchronously.
+	 * 封装异步删除状态句柄的操作
 	 */
 	private static final class AsyncDisposalRunnable implements Runnable {
 

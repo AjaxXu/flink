@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * A variant of the {@link org.apache.flink.api.common.JobExecutionResult} that holds
  * its accumulator data in serialized form.
+ * JobExecutionResult的变种，以序列化的形式拥有累加器data
  */
 public class SerializedJobExecutionResult implements java.io.Serializable {
 
