@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
+ * 从flink-conf.yaml中加载配置
  * Global configuration object for Flink. Similar to Java properties configuration
  * objects it includes key-value pairs which represent the framework's configuration.
  */

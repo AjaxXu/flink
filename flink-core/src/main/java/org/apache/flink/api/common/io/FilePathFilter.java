@@ -22,6 +22,7 @@ import org.apache.flink.core.fs.Path;
 import java.io.Serializable;
 
 /**
+ * 文件路径过滤器
  * The {@link #filterPath(Path)} method is responsible for deciding if a path is eligible for further
  * processing or not. This can serve to exclude temporary or partial files that
  * are still being written.
@@ -67,6 +68,7 @@ public abstract class FilePathFilter implements Serializable {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * 过滤. _ _COPYING_ 文件
 	 * The default file path filtering method and is used
 	 * if no other such function is provided. This filter leaves out
 	 * files starting with ".", "_", and "_COPYING_".

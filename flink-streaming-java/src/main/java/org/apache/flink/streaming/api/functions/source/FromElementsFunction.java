@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 该Source接收一个元素迭代器（一组元素的集合），以Flink的类型序列化机制将其序列化为二进制数据，然后在发射元素的循环体中，进行反序列化为初始类型，再发射数据
  * A stream source function that returns a sequence of elements.
  *
  * <p>Upon construction, this source function serializes the elements using Flink's type information.

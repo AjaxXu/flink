@@ -23,6 +23,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.Public;
 
 /**
+ * 能从input中获取的基本统计信息接口
  * Interface describing the basic statistics that can be obtained from the input.
  */
 @Public

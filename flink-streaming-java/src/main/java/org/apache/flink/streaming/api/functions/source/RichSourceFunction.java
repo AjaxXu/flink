@@ -21,6 +21,7 @@ import org.apache.flink.annotation.Public;
 import org.apache.flink.api.common.functions.AbstractRichFunction;
 
 /**
+ * 抽象类
  * Base class for implementing a parallel data source that has access to context information
  * (via {@link #getRuntimeContext()}) and additional life-cycle methods
  * ({@link #open(org.apache.flink.configuration.Configuration)} and {@link #close()}.

@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 决定包含还是不包含，exclude优先级大于include
  * Class for determining if a particular file should be included or excluded
  * based on a set of include and exclude glob filters.
  *

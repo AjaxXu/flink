@@ -23,6 +23,7 @@ import org.apache.flink.annotation.Public;
 import java.io.Serializable;
 
 /**
+ * 能被指派给input format 的所有input split必须实现的接口
  * This interface must be implemented by all kind of input splits that can be assigned to input formats.
  * 
  * <p>Input splits are transferred in serialized form via the messages, so they need to be serializable

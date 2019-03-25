@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 
 /**
+ * Path、startPosition、endPosition
  * This is used together with {@link FileMonitoringFunction} to read from files that the
  * monitoring functions discovers.
  *

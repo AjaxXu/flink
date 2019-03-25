@@ -28,6 +28,7 @@ import org.apache.flink.streaming.api.watermark.Watermark;
 import java.io.Serializable;
 
 /**
+ * Stream data source 的基础接口
  * Base interface for all stream data sources in Flink. The contract of a stream source
  * is the following: When the source should start emitting elements, the {@link #run} method
  * is called with a {@link SourceContext} that can be used for emitting elements.
@@ -181,6 +182,7 @@ public interface SourceFunction<T> extends Function, Serializable {
 
 	// ------------------------------------------------------------------------
 	//  source context
+	// Flink将Source的运行机制跟其如何emit元素进行了分离。具体如何emit元素，取决于另外一个独立的接口SourceContext
 	// ------------------------------------------------------------------------
 
 	/**

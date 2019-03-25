@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.util.Iterator;
 
 /**
+ * 从Iterator中读取elements
  * A {@link SourceFunction} that reads elements from an {@link Iterator} and emits them.
  */
 @PublicEvolving

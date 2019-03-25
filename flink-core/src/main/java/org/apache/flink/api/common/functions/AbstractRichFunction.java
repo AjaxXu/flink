@@ -24,6 +24,7 @@ import org.apache.flink.configuration.Configuration;
 import java.io.Serializable;
 
 /**
+ * 用于rich用户定义函数的抽象存根实现
  * An abstract stub implementation for rich user-defined functions.
  * Rich functions have additional methods for initialization ({@link #open(Configuration)}) and
  * teardown ({@link #close()}), as well as access to their runtime execution context via

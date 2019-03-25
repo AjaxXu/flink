@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 以消息队列作为数据源的抽象类。和{@link MessageAcknowledgingSourceBase}的区别是处理2种类型的id：Session ids 和 Unique message ids
  * Abstract base class for data sources that receive elements from a message queue and
  * acknowledge them back by IDs. In contrast to {@link MessageAcknowledgingSourceBase}, this source
  * handles two types of ids:

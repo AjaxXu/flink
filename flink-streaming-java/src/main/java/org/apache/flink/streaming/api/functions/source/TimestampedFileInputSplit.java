@@ -24,6 +24,7 @@ import org.apache.flink.util.Preconditions;
 import java.io.Serializable;
 
 /**
+ * 提供信息包括：modification time和splitstate
  * An extended {@link FileInputSplit} that also includes information about:
  * <ul>
  *     <li>The modification time of the file this split belongs to.</li>
