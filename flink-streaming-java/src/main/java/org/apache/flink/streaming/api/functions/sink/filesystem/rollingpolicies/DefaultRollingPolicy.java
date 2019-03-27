@@ -26,6 +26,7 @@ import org.apache.flink.util.Preconditions;
 import java.io.IOException;
 
 /**
+ * 默认实现
  * The default implementation of the {@link RollingPolicy}.
  *
  * <p>This policy rolls a part file if:

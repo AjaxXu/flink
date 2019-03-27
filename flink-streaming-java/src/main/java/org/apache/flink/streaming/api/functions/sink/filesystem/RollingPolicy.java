@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
+ * 该策略基于{@link StreamingFileSink}中的{@link Bucket}滚动其当前打开的分区文件并打开一个新文件
  * The policy based on which a {@link Bucket} in the {@link StreamingFileSink}
  * rolls its currently open part file and opens a new one.
  */

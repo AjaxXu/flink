@@ -23,6 +23,7 @@ import org.apache.flink.api.common.functions.Function;
 import java.io.Serializable;
 
 /**
+ * 用户自定义的sink function接口
  * Interface for implementing user defined sink functionality.
  *
  * @param <IN> Input type parameter.
@@ -42,7 +43,7 @@ public interface SinkFunction<IN> extends Function, Serializable {
 	 * <p>You have to override this method when implementing a {@code SinkFunction}, this is a
 	 * {@code default} method for backward compatibility with the old-style method only.
 	 *
-	 * @param value The input record.
+	 * @param value The input record. 需要记录的值
 	 * @param context Additional context about the input record.
 	 *
 	 * @throws Exception This method may throw exceptions. Throwing an exception will cause the operation

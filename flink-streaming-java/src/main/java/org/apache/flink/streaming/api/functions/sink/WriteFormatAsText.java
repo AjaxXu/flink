@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
+ * 以原样文本的形式写入指定路径的文件
  * Writes tuples in text format.
  *
  * @param <IN>

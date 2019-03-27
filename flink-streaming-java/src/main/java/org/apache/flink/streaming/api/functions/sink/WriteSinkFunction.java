@@ -24,6 +24,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
+ * WriteSinkFunction是一个抽象类。
+ * 该类的主要作用是将需要输出的tuples（元组）作为简单的文本输出到指定路径的文件中去，元组被收集到一个list中去，然后周期性得写入文件。
  * Simple implementation of the SinkFunction writing tuples as simple text to
  * the file specified by path. Tuples are collected to a list and written to the
  * file periodically. The file specified by path is created if it does not
@@ -83,6 +85,11 @@ public abstract class WriteSinkFunction<IN> implements SinkFunction<IN> {
 	 * the incoming tuples in tupleList and appends the list to the end of the
 	 * target file if updateCondition() is true or the current tuple is the
 	 * endTuple.
+	 * 从实现来看，其先将需要sink的元组加入内部集合。然后调用updateCondition方法。
+	 * 该方法是WriteSinkFunction定义的抽象方法。用于实现判断将tupleList写入文件以及清空tupleList的条件。
+	 * 接着将集合中的tuple写入到指定的文件中。
+	 * 最后又调用了resetParameters方法。该方法同样是一个抽象方法，它的主要用途是当写入的场景是批量写入时，
+	 * 可能会有一些状态参数，该方法就是用于对状态进行reset
 	 */
 	@Override
 	public void invoke(IN tuple) {

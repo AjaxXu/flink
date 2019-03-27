@@ -44,6 +44,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 桶是{@link StreamingFileSink}输出的目录组织
  * A bucket is the directory organization of the output of the {@link StreamingFileSink}.
  *
  * <p>For each incoming element in the {@code StreamingFileSink}, the user-specified

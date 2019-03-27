@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.io.Serializable;
 
 /**
+ * 将每条记录输出到标准输出流（stdOut）或标准错误流(stdErr)
  * Print sink output writer for DataStream and DataSet print API.
  */
 @Internal

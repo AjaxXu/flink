@@ -21,6 +21,7 @@ package org.apache.flink.streaming.runtime.tasks;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * 可以在{@link ProcessingTimeService}注册的processing-time 回调接口。
  * Interface for processing-time callbacks that can be registered at a
  * {@link ProcessingTimeService}.
  */

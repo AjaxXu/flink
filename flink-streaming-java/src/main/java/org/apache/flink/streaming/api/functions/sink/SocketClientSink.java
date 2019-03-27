@@ -33,6 +33,9 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 支持以socket的方式将数据发送到特定目标主机所在的服务器作为flink stream的sink。
+ * 数据被序列化为byte array然后写入到socket。
+ * 该sink支持失败重试模式的消息发送。该sink 可启用autoFlush，如果启用，那么会导致吞吐量显著下降，延迟也会降低。
  * Socket client that acts as a streaming sink. The data is sent to a Socket as a byte array.
  *
  * <p>The sink can be set to retry message sends after the sending failed.

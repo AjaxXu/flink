@@ -28,6 +28,7 @@ import org.apache.flink.util.Preconditions;
 import java.io.IOException;
 
 /**
+ * 特定{@link Bucket}中当前打开的分区文件的抽象writer
  * An abstract writer for the currently open part file in a specific {@link Bucket}.
  *
  * <p>Currently, there are two subclasses, of this class:
@@ -104,6 +105,7 @@ abstract class PartFileWriter<IN, BucketID> implements PartFileInfo<BucketID> {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * 创建不同PartFileWriter的工厂类接口
 	 * An interface for factories that create the different {@link PartFileWriter writers}.
 	 */
 	interface PartFileFactory<IN, BucketID> {
@@ -112,7 +114,7 @@ abstract class PartFileWriter<IN, BucketID> implements PartFileInfo<BucketID> {
 		 * Used upon recovery from a failure to recover a {@link PartFileWriter writer}.
 		 * @param bucketId the id of the bucket this writer is writing to.
 		 * @param stream the filesystem-specific output stream to use when writing to the filesystem.
-		 * @param resumable the state of the stream we are resurrecting.
+		 * @param resumable the state of the stream we are resurrecting. 我们正在恢复的流的状态
 		 * @param creationTime the creation time of the stream.
 		 * @return the recovered {@link PartFileWriter writer}.
 		 * @throws IOException

@@ -25,6 +25,7 @@ import org.apache.flink.annotation.Public;
 import org.apache.flink.configuration.Configuration;
 
 /**
+ * 定义被消费记录的输出接口。指定了最终的记录如何被存储，比如文件就是一种存储实现。
  * The base interface for outputs that consumes records. The output format
  * describes how to store the final records, for example in a file.
  * <p>

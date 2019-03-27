@@ -23,6 +23,9 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.operators.StreamingRuntimeContext;
 
 /**
+ * 该实现用于将每条记录输出到标准输出流（stdOut）或标准错误流(stdErr)。
+ * 在输出时，如果当前task的并行subtask实例个数大于1，也就是说当前task是并行执行的（同时存在多个实例），
+ * 那么在输出每条记录之前会输出一个prefix前缀。prefix为在全局上下文中当前subtask的位置
  * Implementation of the SinkFunction writing every tuple to the standard
  * output or standard error stream.
  *

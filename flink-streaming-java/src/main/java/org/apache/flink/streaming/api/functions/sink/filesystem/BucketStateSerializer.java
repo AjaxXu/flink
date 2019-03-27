@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
+ * 用于序列化{@link BucketState BucketState}的{@code SimpleVersionedSerializer}
  * A {@code SimpleVersionedSerializer} used to serialize the {@link BucketState BucketState}.
  */
 @Internal

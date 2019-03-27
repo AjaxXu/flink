@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 被checkpointed 的 Bucket 状态
  * The state of the {@link Bucket} that is to be checkpointed.
  */
 @Internal

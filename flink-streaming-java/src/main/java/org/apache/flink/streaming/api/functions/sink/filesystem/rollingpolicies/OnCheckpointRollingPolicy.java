@@ -23,6 +23,7 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.PartFileInfo;
 import org.apache.flink.streaming.api.functions.sink.filesystem.RollingPolicy;
 
 /**
+ * 每次checkpoint 都 roll
  * A {@link RollingPolicy} which rolls on every checkpoint.
  */
 @PublicEvolving

@@ -20,6 +20,7 @@ package org.apache.flink.streaming.api.functions.sink;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * 每隔 {@code #millis} ms 把tuple写入文件
  * Implementation of WriteSinkFunction. Writes tuples to file in every millis
  * milliseconds.
  *
