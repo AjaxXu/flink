@@ -23,6 +23,7 @@ import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamstatus.StreamStatus;
 
 /**
+ * 数据流中的一个element，可以是一个record或者Watermark
  * An element in a data stream. Can be a record or a Watermark.
  */
 @Internal

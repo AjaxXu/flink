@@ -42,6 +42,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 状态描述符的基类。 {@code StateDescriptor}用于在有状态操作中创建分区{@link State}。
  * Base class for state descriptors. A {@code StateDescriptor} is used for creating partitioned
  * {@link State} in stateful operations.
  *
@@ -54,6 +55,7 @@ import static org.apache.flink.util.Preconditions.checkState;
 public abstract class StateDescriptor<S extends State, T> implements Serializable {
 
 	/**
+	 * 支持的state 类型 枚举
 	 * An enumeration of the types of supported states. Used to identify the state type
 	 * when writing and restoring checkpoints and savepoints.
 	 */
@@ -108,7 +110,7 @@ public abstract class StateDescriptor<S extends State, T> implements Serializabl
 	 * Create a new {@code StateDescriptor} with the given name and the given type serializer.
 	 *
 	 * @param name The name of the {@code StateDescriptor}.
-	 * @param serializer The type serializer for the values in the state.
+	 * @param serializer The type serializer for the values in the state. 值的序列化器
 	 * @param defaultValue The default value that will be set when requesting state without setting
 	 *                     a value before.
 	 */

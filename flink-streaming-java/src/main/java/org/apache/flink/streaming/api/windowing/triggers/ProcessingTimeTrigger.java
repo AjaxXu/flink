@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 
 /**
+ * 当前系统时间超过window的endtime
  * A {@link Trigger} that fires once the current system time passes the end of the window
  * to which a pane belongs.
  */

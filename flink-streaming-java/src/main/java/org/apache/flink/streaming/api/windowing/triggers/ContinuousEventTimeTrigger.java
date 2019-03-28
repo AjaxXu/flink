@@ -28,6 +28,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.Window;
 
 /**
+ * 该触发器是基于事件时间的按照指定时间间隔持续触发的触发器，它的首次触发取决于Watermark。
  * A {@link Trigger} that continuously fires based on a given time interval. This fires based
  * on {@link org.apache.flink.streaming.api.watermark.Watermark Watermarks}.
  *
@@ -49,6 +50,7 @@ public class ContinuousEventTimeTrigger<W extends Window> extends Trigger<Object
 		this.interval = interval;
 	}
 
+	 /** 首次触发的判断位于onElement中，它注册下一次（也是首次）触发eventTime 定时器的时机 */
 	@Override
 	public TriggerResult onElement(Object element, long timestamp, W window, TriggerContext ctx) throws Exception {
 
@@ -70,6 +72,7 @@ public class ContinuousEventTimeTrigger<W extends Window> extends Trigger<Object
 		return TriggerResult.CONTINUE;
 	}
 
+	// 持续的触发依赖于在onEventTime中不断注册下一次触发的定时器
 	@Override
 	public TriggerResult onEventTime(long time, W window, TriggerContext ctx) throws Exception {
 

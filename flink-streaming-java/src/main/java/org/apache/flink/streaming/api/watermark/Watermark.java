@@ -22,6 +22,12 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.streaming.runtime.streamrecord.StreamElement;
 
 /**
+ * A Watermark告诉operators，没有时间戳大于或等于watermark时间戳的元素会到达该operator
+ * Watermark在源处发射并通过拓扑的operators传播。
+ * Operators必须使用{@link org.apache.flink.streaming.api.operators.Output＃emitsWatermark（Watermark）}向下游Operators发放Watermark。
+ * 不在内部缓冲元素的operators总是可以转发它们收到的Watermark。
+ * 缓冲元素的operators（例如窗口operators）必须在发出由到达的watermark触发的元素之后再转发Watermark。
+ *
  * A Watermark tells operators that no elements with a timestamp older or equal
  * to the watermark timestamp should arrive at the operator. Watermarks are emitted at the
  * sources and propagate through the operators of the topology. Operators must themselves emit
@@ -31,10 +37,13 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamElement;
  * that buffer elements, such as window operators, must forward a watermark after emission of
  * elements that is triggered by the arriving watermark.
  *
+ * 在某些情况下，watermark只是一种启发式算法，operators应该能够处理后期元素。
+ * 他们可以丢弃这些或更新结果并向下游operators发出更新/撤消。
  * <p>In some cases a watermark is only a heuristic and operators should be able to deal with
  * late elements. They can either discard those or update the result and emit updates/retractions
  * to downstream operations.
  *
+ * 当一个源关闭时，它将发出一个带有时间戳{@code Long.MAX_VALUE}的最终watermark。 当operator收到它时，它将知道将来不再有输入。
  * <p>When a source closes it will emit a final watermark with timestamp {@code Long.MAX_VALUE}.
  * When an operator receives this it will know that no more input will be arriving in the future.
  */

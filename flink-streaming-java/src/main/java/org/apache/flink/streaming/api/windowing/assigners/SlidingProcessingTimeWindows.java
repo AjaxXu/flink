@@ -31,6 +31,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * Sliding窗口不同于Tumbling窗口，它除了指定窗口的大小，还要指定一个滑动值，即slide。
+ * 所谓的滑动窗口可以这么理解，比如：一分钟里每十秒钟。这里一分钟是窗口大小，每十秒即为滑动值。
+ *
  * A {@link WindowAssigner} that windows elements into sliding windows based on the current
  * system time of the machine the operation is running on. Windows can possibly overlap.
  *
@@ -62,6 +65,8 @@ public class SlidingProcessingTimeWindows extends WindowAssigner<Object, TimeWin
 		this.offset = offset;
 	}
 
+	// 在Sliding窗口中，assignWindows方法返回的就不再是单个窗口了，而是窗口的集合
+	// 首先计算出窗口的个数：size/slide，然后循环初始化给定的size内不同slide的窗口对象
 	@Override
 	public Collection<TimeWindow> assignWindows(Object element, long timestamp, WindowAssignerContext context) {
 		timestamp = context.getCurrentProcessingTime();

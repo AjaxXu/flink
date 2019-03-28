@@ -36,6 +36,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * state TTL 逻辑配置
  * Configuration of state TTL logic.
  *
  * <p>Note: The map state with TTL currently supports {@code null} user values
@@ -53,6 +54,7 @@ public class StateTtlConfig implements Serializable {
 		newBuilder(Time.milliseconds(Long.MAX_VALUE)).setUpdateType(UpdateType.Disabled).build();
 
 	/**
+	 * 何时更新last access 时间 的选项
 	 * This option value configures when to update last access timestamp which prolongs state TTL.
 	 */
 	public enum UpdateType {
@@ -65,6 +67,7 @@ public class StateTtlConfig implements Serializable {
 	}
 
 	/**
+	 * 是否返回过期的用户值 的 选项
 	 * This option configures whether expired user value can be returned or not.
 	 */
 	public enum StateVisibility {
@@ -256,6 +259,8 @@ public class StateTtlConfig implements Serializable {
 		/**
 		 * Cleanup expired state incrementally cleanup local state.
 		 *
+		 * 在每个状态访问时，此清理策略会检查一堆状态密钥是否过期并清除过期状态密钥。
+		 * 如果后端支持它，它会通过所有键保持一个懒惰的迭代器，并具有宽松的一致性。 这样，如果经常访问任何状态，则应该定期检查和清除所有密钥。
 		 * <p>Upon every state access this cleanup strategy checks a bunch of state keys for expiration
 		 * and cleans up expired ones. It keeps a lazy iterator through all keys with relaxed consistency
 		 * if backend supports it. This way all keys should be regularly checked and cleaned eventually over time
@@ -265,11 +270,14 @@ public class StateTtlConfig implements Serializable {
 		 * Caution: if there are a lot of registered states using this option,
 		 * they all will be iterated for every record to check if there is something to cleanup.
 		 *
+		 * 如果在{@code runCleanupForEveryRecord}的情况下没有访问此状态或没有处理任何记录，则过期状态将持续存在。
 		 * <p>Note: if no access happens to this state or no records are processed
 		 * in case of {@code runCleanupForEveryRecord}, expired state will persist.
 		 *
+		 * 增量清理所花费的时间会增加记录处理延迟
 		 * <p>Note: Time spent for the incremental cleanup increases record processing latency.
 		 *
+		 * incremental cleanup只对使用Heap作为状态后端有效，对RocksDB没有作用
 		 * <p>Note: At the moment incremental cleanup is implemented only for Heap state backend.
 		 * Setting it for RocksDB will have no effect.
 		 *
@@ -313,6 +321,7 @@ public class StateTtlConfig implements Serializable {
 		/**
 		 * Cleanup expired state while Rocksdb compaction is running.
 		 *
+		 * 处理了{@code queryTimeAfterNumEntries} 个 state entries后，RocksDB compaction filter会去检查过去state
 		 * <p>RocksDB compaction filter will query current timestamp,
 		 * used to check expiration, from Flink every time after processing {@code queryTimeAfterNumEntries} number of state entries.
 		 * Updating the timestamp more often can improve cleanup speed
@@ -349,6 +358,7 @@ public class StateTtlConfig implements Serializable {
 	}
 
 	/**
+	 * TTL 清洗 策略
 	 * TTL cleanup strategies.
 	 *
 	 * <p>This class configures when to cleanup expired state with TTL.
@@ -437,7 +447,8 @@ public class StateTtlConfig implements Serializable {
 	public static class RocksdbCompactFilterCleanupStrategy implements CleanupStrategies.CleanupStrategy {
 		private static final long serialVersionUID = 3109278796506988980L;
 
-		/** Number of state entries to process by compaction filter before updating current timestamp. */
+		/** 在更新当前时间戳之前由压缩过滤器处理的状态条目数。
+		 * Number of state entries to process by compaction filter before updating current timestamp. */
 		private final long queryTimeAfterNumEntries;
 
 		private RocksdbCompactFilterCleanupStrategy(long queryTimeAfterNumEntries) {

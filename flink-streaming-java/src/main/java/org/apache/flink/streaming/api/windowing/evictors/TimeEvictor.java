@@ -27,6 +27,7 @@ import org.apache.flink.streaming.runtime.operators.windowing.TimestampedValue;
 import java.util.Iterator;
 
 /**
+ * 这个Evitor基于给定的保留时间{@code #windowSize}作为剔除规则
  * An {@link Evictor} that keeps elements for a certain amount of time. Elements older
  * than {@code current_time - keep_time} are evicted. The current_time is time associated
  * with {@link TimestampedValue}

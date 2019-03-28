@@ -27,6 +27,7 @@ import org.apache.flink.streaming.runtime.operators.windowing.TimestampedValue;
 import java.io.Serializable;
 
 /**
+ * 它剔除元素的时机是：在触发器触发之后，在窗口被处理(apply windowFunction)之前
  * An {@code Evictor} can remove elements from a pane before/after the evaluation of WindowFunction
  * and after the window evaluation gets triggered by a
  * {@link org.apache.flink.streaming.api.windowing.triggers.Trigger}
@@ -44,7 +45,7 @@ import java.io.Serializable;
 public interface Evictor<T, W extends Window> extends Serializable {
 
 	/**
-	 * Optionally evicts elements. Called before windowing function.
+	 * Optionally evicts elements. Called before windowing function. 窗口函数(子类的evit函数)前调用
 	 *
 	 * @param elements The elements currently in the pane.
 	 * @param size The current number of elements in the pane.
@@ -54,7 +55,7 @@ public interface Evictor<T, W extends Window> extends Serializable {
 	void evictBefore(Iterable<TimestampedValue<T>> elements, int size, W window, EvictorContext evictorContext);
 
 	/**
-	 * Optionally evicts elements. Called after windowing function.
+	 * Optionally evicts elements. Called after windowing function.窗口函数(子类的evit函数)后调用
 	 *
 	 * @param elements The elements currently in the pane.
 	 * @param size The current number of elements in the pane.

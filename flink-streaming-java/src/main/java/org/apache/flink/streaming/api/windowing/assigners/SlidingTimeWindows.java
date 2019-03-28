@@ -25,6 +25,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
  * A {@link WindowAssigner} that windows elements into sliding windows based on the timestamp of the
  * elements. Windows can possibly overlap.
  *
+ * 使用{@link SlidingEventTimeWindows}.
  * @deprecated Please use {@link SlidingEventTimeWindows}.
  */
 @PublicEvolving

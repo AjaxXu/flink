@@ -70,6 +70,7 @@ public class GlobalWindows extends WindowAssigner<Object, GlobalWindow> {
 	}
 
 	/**
+	 * 从不触发的触发器
 	 * A trigger that never fires, as default Trigger for GlobalWindows.
 	 */
 	@Internal

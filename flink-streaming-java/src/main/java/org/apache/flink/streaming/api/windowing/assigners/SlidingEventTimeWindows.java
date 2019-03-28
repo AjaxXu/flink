@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * Sliding窗口不同于Tumbling窗口，它除了指定窗口的大小，还要指定一个滑动值，即slide.
+ * 窗口的start参数的计算方式依赖于系统时间戳。
  * A {@link WindowAssigner} that windows elements into sliding windows based on the timestamp of the
  * elements. Windows can possibly overlap.
  *

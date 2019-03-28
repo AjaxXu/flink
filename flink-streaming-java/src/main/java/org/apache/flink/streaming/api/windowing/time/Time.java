@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 窗口的时间间隔，所指的时间特性是在执行环境中设置的默认时间特性。将会被{@link org.apache.flink.api.common.time.Time} 代替在Flink 2.0
  * The definition of a time interval for windowing. The time characteristic referred
  * to is the default time characteristic set on the execution environment.
  */

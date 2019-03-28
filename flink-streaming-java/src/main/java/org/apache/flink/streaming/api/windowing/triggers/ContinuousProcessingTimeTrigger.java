@@ -28,6 +28,9 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.Window;
 
 /**
+ * 基于系统时间的按照指定时间间隔持续触发的触发器，
+ * 它也是基于保存的状态值fire-timestamp来判断是否需要触发
+ *
  * A {@link Trigger} that continuously fires based on a given time interval as measured by
  * the clock of the machine on which the job is running.
  *

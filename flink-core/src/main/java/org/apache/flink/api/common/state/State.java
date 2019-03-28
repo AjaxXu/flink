@@ -21,8 +21,11 @@ package org.apache.flink.api.common.state;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * 不同类型的分区状态必须实现的接口
  * Interface that different types of partitioned state must implement.
  *
+ * 只能通过{@code KeyedStream}上应用的函数访问状态。
+ * The key由系统自动提供，因此函数始终会看到映射到当前元素的key的value。 这样，系统可以一致地处理流和状态分区。
  * <p>The state is only accessible by functions applied on a {@code KeyedStream}. The key is
  * automatically supplied by the system, so the function always sees the value mapped to the
  * key of the current element. That way, the system can handle stream and state partitioning

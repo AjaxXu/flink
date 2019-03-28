@@ -58,6 +58,7 @@ public abstract class Trigger<T, W extends Window> implements Serializable {
 	private static final long serialVersionUID = -4104633972991191369L;
 
 	/**
+	 * 每个元素添加到pane时调用。 此结果将确定是否评估窗格以发出结果。
 	 * Called for every element that gets added to a pane. The result of this will determine
 	 * whether the pane is evaluated to emit results.
 	 *
@@ -69,6 +70,7 @@ public abstract class Trigger<T, W extends Window> implements Serializable {
 	public abstract TriggerResult onElement(T element, long timestamp, W window, TriggerContext ctx) throws Exception;
 
 	/**
+	 * 当使用触发器上下文设置的processing-time计时器触发时调用。
 	 * Called when a processing-time timer that was set using the trigger context fires.
 	 *
 	 * @param time The timestamp at which the timer fired.
@@ -99,10 +101,11 @@ public abstract class Trigger<T, W extends Window> implements Serializable {
 	}
 
 	/**
+	 * 多个窗口被merge到一个窗口后被调用
 	 * Called when several windows have been merged into one window by the
 	 * {@link org.apache.flink.streaming.api.windowing.assigners.WindowAssigner}.
 	 *
-	 * @param window The new window that results from the merge.
+	 * @param window The new window that results from the merge. merge返回的结果
 	 * @param ctx A context object that can be used to register timer callbacks and access state.
 	 */
 	public void onMerge(W window, OnMergeContext ctx) throws Exception {
@@ -110,6 +113,7 @@ public abstract class Trigger<T, W extends Window> implements Serializable {
 	}
 
 	/**
+	 * 清除触发器可能仍为给定窗口保留的任何状态。
 	 * Clears any state that the trigger might still hold for the given window. This is called
 	 * when a window is purged. Timers set using {@link TriggerContext#registerEventTimeTimer(long)}
 	 * and {@link TriggerContext#registerProcessingTimeTimer(long)} should be deleted here as
@@ -120,6 +124,7 @@ public abstract class Trigger<T, W extends Window> implements Serializable {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * 为{@link Trigger}方法提供的上下文对象，允许它们注册计时器回调并处理状态。
 	 * A context object that is given to {@link Trigger} methods to allow them to register timer
 	 * callbacks and deal with state.
 	 */
@@ -131,6 +136,8 @@ public abstract class Trigger<T, W extends Window> implements Serializable {
 		long getCurrentProcessingTime();
 
 		/**
+		 * 返回此{@link Trigger}的度量标准组。
+		 * 这是将在用户函数中从{@link RuntimeContext＃getMetricGroup()}返回的相同度量标准组。
 		 * Returns the metric group for this {@link Trigger}. This is the same metric
 		 * group that would be returned from {@link RuntimeContext#getMetricGroup()} in a user
 		 * function.
@@ -147,6 +154,7 @@ public abstract class Trigger<T, W extends Window> implements Serializable {
 		long getCurrentWatermark();
 
 		/**
+		 * 注册系统时间回调。当系统时间超过指定的时间，{@link Trigger#onProcessingTime(long, Window, TriggerContext)}将被调用
 		 * Register a system time callback. When the current system time passes the specified
 		 * time {@link Trigger#onProcessingTime(long, Window, TriggerContext)} is called with the time specified here.
 		 *
@@ -155,6 +163,7 @@ public abstract class Trigger<T, W extends Window> implements Serializable {
 		void registerProcessingTimeTimer(long time);
 
 		/**
+		 * 注册一个事件时间的定时器，触发onEventTime
 		 * Register an event-time callback. When the current watermark passes the specified
 		 * time {@link Trigger#onEventTime(long, Window, TriggerContext)} is called with the time specified here.
 		 *
@@ -164,16 +173,20 @@ public abstract class Trigger<T, W extends Window> implements Serializable {
 		void registerEventTimeTimer(long time);
 
 		/**
+		 * 删除系统时间的定时器
 		 * Delete the processing time trigger for the given time.
 		 */
 		void deleteProcessingTimeTimer(long time);
 
 		/**
+		 * 删除事件时间的定时器
 		 * Delete the event-time trigger for the given time.
 		 */
 		void deleteEventTimeTimer(long time);
 
 		/**
+		 * 用于失败恢复的获取状态的接口
+		 * 取回可用于与容错状态交互的{@link State}对象，该容错状态的范围限定为当前触发器调用的窗口和键。
 		 * Retrieves a {@link State} object that can be used to interact with
 		 * fault-tolerant state that is scoped to the window and key of the current
 		 * trigger invocation.

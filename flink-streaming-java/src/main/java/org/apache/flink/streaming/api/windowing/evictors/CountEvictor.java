@@ -25,6 +25,7 @@ import org.apache.flink.streaming.runtime.operators.windowing.TimestampedValue;
 import java.util.Iterator;
 
 /**
+ * 保持确定数量的元素个数
  * An {@link Evictor} that keeps up to a certain amount of elements.
  *
  * @param <W> The type of {@link Window Windows} on which this {@code Evictor} can operate.

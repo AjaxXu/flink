@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * 依据给定的窗口大小，结合event-time，返回存储TimeWindow单实例的集合
  * A {@link WindowAssigner} that windows elements into windows based on the timestamp of the
  * elements. Windows cannot overlap.
  *
@@ -59,6 +60,7 @@ public class TumblingEventTimeWindows extends WindowAssigner<Object, TimeWindow>
 		this.offset = offset;
 	}
 
+	// getDefaultTrigger方法返回EventTimeTrigger类型的实例
 	@Override
 	public Collection<TimeWindow> assignWindows(Object element, long timestamp, WindowAssignerContext context) {
 		if (timestamp > Long.MIN_VALUE) {

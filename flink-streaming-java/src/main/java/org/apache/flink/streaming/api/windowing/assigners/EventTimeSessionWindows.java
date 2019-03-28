@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * 基于事件时间的 session window 分配器
  * A {@link WindowAssigner} that windows elements into sessions based on the timestamp of the
  * elements. Windows cannot overlap.
  *

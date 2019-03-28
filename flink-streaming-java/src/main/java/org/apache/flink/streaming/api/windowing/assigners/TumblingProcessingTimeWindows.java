@@ -30,6 +30,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * 依据给定窗口的大小，结合processing-time，返回存储TimeWindow单实例的集合。
+ * 需要注意的是，这里依据的是运行当前任务所在主机的本地时间戳
  * A {@link WindowAssigner} that windows elements into windows based on the current
  * system time of the machine the operation is running on. Windows cannot overlap.
  *

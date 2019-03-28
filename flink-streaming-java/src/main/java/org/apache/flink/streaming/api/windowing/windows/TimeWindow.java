@@ -263,7 +263,7 @@ public class TimeWindow extends Window {
 	 * Method to get the window start for a timestamp.
 	 *
 	 * @param timestamp epoch millisecond to get the window start.
-	 * @param offset The offset which window start would be shifted by.
+	 * @param offset The offset which window start would be shifted by. 针对0来说的，比如offset为3，windowSize为7，那么0之后的第一个窗口就是[3，10)
 	 * @param windowSize The size of the generated windows.
 	 * @return window start
 	 */

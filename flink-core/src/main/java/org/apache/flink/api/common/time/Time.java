@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 时间间隔定义。类似于{@link java.time.Duration}的简单版本
  * The definition of a time interval. Similar to a simpler version of {@link java.time.Duration}.
  *
  * <p>Note: This class will fully replace org.apache.flink.streaming.api.windowing.time.Time in Flink 2.0

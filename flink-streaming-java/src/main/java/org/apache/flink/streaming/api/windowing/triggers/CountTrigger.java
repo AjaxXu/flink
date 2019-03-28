@@ -26,6 +26,7 @@ import org.apache.flink.api.common.typeutils.base.LongSerializer;
 import org.apache.flink.streaming.api.windowing.windows.Window;
 
 /**
+ * 基于一个给定的累加值触发，由于累加值不是基于时间而是基于元素的，所有其触发机制实现在onElement中
  * A {@link Trigger} that fires once the count of elements in a pane reaches the given count.
  *
  * @param <W> The type of {@link Window Windows} on which this trigger can operate.

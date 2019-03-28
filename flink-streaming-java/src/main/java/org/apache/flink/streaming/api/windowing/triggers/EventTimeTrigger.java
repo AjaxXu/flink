@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 
 /**
+ * 水位线过了window的entime会触发
  * A {@link Trigger} that fires once the watermark passes the end of the window
  * to which a pane belongs.
  *

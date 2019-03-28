@@ -26,6 +26,7 @@ import org.apache.flink.streaming.runtime.tasks.SourceStreamTask;
 import org.apache.flink.streaming.runtime.tasks.StreamTask;
 
 /**
+ * StreamStatus元素通知流任务是否应该继续等待从发送它们的输入流传来的记录和水印。
  * A Stream Status element informs stream tasks whether or not they should continue to expect records and watermarks
  * from the input stream that sent them. There are 2 kinds of status, namely {@link StreamStatus#IDLE} and
  * {@link StreamStatus#ACTIVE}. Stream Status elements are generated at the sources, and may be propagated through

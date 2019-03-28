@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * 基于系统时间把element放入不同的session窗口，session gap是动态的
  * A {@link WindowAssigner} that windows elements into sessions based on the current processing
  * time. Windows cannot overlap.
  *

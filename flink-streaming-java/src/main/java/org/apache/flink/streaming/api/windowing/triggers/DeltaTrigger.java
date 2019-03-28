@@ -26,6 +26,8 @@ import org.apache.flink.streaming.api.functions.windowing.delta.DeltaFunction;
 import org.apache.flink.streaming.api.windowing.windows.Window;
 
 /**
+ * 基于DeltaFunction和一个给定的阈值触发，该触发器在最后一个到达元素和当前元素之间计算一个delta值跟给定的阈值比较，
+ * 如果高于给定的阈值，则触发。因为是基于元素的，所以主要逻辑实现在onElement中。
  * A {@link Trigger} that fires based on a {@link DeltaFunction} and a threshold.
  *
  * <p>This trigger calculates a delta between the data point which triggered last

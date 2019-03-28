@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.io.Serializable;
 
 /**
+ * 该接口允许实现计算两个数据点之间的增量的函数。
  * This interface allows the implementation of a function which calculates the
  * delta between two data points. Delta functions might be used in delta
  * policies and allow flexible adaptive windowing based on the arriving data

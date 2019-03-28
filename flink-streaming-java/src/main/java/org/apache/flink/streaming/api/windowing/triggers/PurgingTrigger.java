@@ -23,6 +23,9 @@ import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.streaming.api.windowing.windows.Window;
 
 /**
+ * 该触发器类似于一个包装器，用于将任何给定的触发器转变成purging触发器。
+ * 它的实现机制是，它接收一个trigger实例，然后在各个onXXX回调上执行该实例的相应的onXXX并获得TriggerResult的实例，
+ * 进行相应的判断，最后返回FIRE_AND_PURGE枚举值。
  * A trigger that can turn any {@link Trigger} into a purging {@code Trigger}.
  *
  * <p>When the nested trigger fires, this will return a {@code FIRE_AND_PURGE}

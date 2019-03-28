@@ -24,6 +24,7 @@ import org.apache.flink.streaming.api.windowing.windows.Window;
 import java.util.Collection;
 
 /**
+ * 能merge window的WindowAssigner
  * A {@code WindowAssigner} that can merge windows.
  *
  * @param <T> The type of elements that this WindowAssigner can assign windows to.
@@ -38,6 +39,7 @@ public abstract class MergingWindowAssigner<T, W extends Window> extends WindowA
 	 *
 	 * @param windows The window candidates.
 	 * @param callback A callback that can be invoked to signal which windows should be merged.
+	 *                 可以调用的回调，用于指示应合并哪些窗口。
 	 */
 	public abstract void mergeWindows(Collection<W> windows, MergeCallback<W> callback);
 
@@ -51,7 +53,7 @@ public abstract class MergingWindowAssigner<T, W extends Window> extends WindowA
 		 * Specifies that the given windows should be merged into the result window.
 		 *
 		 * @param toBeMerged The list of windows that should be merged into one window.
-		 * @param mergeResult The resulting merged window.
+		 * @param mergeResult The resulting merged window. 合并后的window
 		 */
 		void merge(Collection<W> toBeMerged, W mergeResult);
 	}

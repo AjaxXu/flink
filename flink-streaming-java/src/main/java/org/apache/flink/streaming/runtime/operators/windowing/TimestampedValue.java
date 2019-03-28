@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * 存储记录的value和时间戳
  * Stores the value and the timestamp of the record.
  *
  * @param <T> The type encapsulated value
