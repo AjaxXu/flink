@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * TypeSerializerSnapshots的简单基类，适用于没有参数的序列化程序。 序列化程序仅由其类名定义。
  * A simple base class for TypeSerializerSnapshots, for serializers that have no
  * parameters. The serializer is defined solely by its class name.
  *

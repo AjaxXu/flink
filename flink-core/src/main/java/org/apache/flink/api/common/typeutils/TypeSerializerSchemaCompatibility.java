@@ -24,6 +24,7 @@ import org.apache.flink.util.Preconditions;
 import javax.annotation.Nullable;
 
 /**
+ * 代表一个{@link TypeSerializer}是否能被安全的用于读取被之前序列化器存储的数据
  * A {@code TypeSerializerSchemaCompatibility} represents information about whether or not a {@link TypeSerializer}
  * can be safely used to read data written by a previous type serializer.
  *
@@ -45,7 +46,8 @@ public class TypeSerializerSchemaCompatibility<T> {
 	 */
 	enum Type {
 
-		/** This indicates that the new serializer continued to be used as is. */
+		/** 能继续使用
+		 * This indicates that the new serializer continued to be used as is. */
 		COMPATIBLE_AS_IS,
 
 		/**
@@ -57,6 +59,7 @@ public class TypeSerializerSchemaCompatibility<T> {
 		COMPATIBLE_AFTER_MIGRATION,
 
 		/**
+		 * 这表明新serializer的重新配置版本是兼容的，应该使用它而不是原始的新序列化器。
 		 * This indicates that a reconfigured version of the new serializer
 		 * is compatible, and should be used instead of the original new serializer.
 		 */

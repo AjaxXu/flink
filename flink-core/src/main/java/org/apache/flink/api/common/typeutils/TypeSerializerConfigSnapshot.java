@@ -30,6 +30,7 @@ import java.io.IOException;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 此类在旧的serializer config snapshot接口（此类）和新的序列器配置快照接口（{@link TypeSerializerSnapshot}）之间架起桥梁
  * This class bridges between the old serializer config snapshot interface (this class) and the new
  * serializer config snapshot interface ({@link TypeSerializerSnapshot}).
  *

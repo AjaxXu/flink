@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 /**
+ * 元素的窗口分配器。用于将元素分配给一个或者多个窗口
  * A {@code WindowAssigner} assigns zero or more {@link Window Windows} to an element.
  *
  * <p>In a window operation, elements are grouped by their key (if available) and by the windows to
@@ -37,14 +38,15 @@ import java.util.Collection;
  * {@link org.apache.flink.streaming.api.functions.windowing.WindowFunction} is applied
  * to produce output elements for that pane.
  *
- * @param <T> The type of elements that this WindowAssigner can assign windows to.
- * @param <W> The type of {@code Window} that this assigner assigns.
+ * @param <T> The type of elements that this WindowAssigner can assign windows to. 元素类型
+ * @param <W> The type of {@code Window} that this assigner assigns. 窗口类型
  */
 @PublicEvolving
 public abstract class WindowAssigner<T, W extends Window> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
+	 * 将某个带有时间戳timestamp的元素element分配给一个或多个窗口，并返回窗口集合
 	 * Returns a {@code Collection} of windows that should be assigned to the element.
 	 *
 	 * @param element The element to which windows should be assigned.
@@ -54,11 +56,13 @@ public abstract class WindowAssigner<T, W extends Window> implements Serializabl
 	public abstract Collection<W> assignWindows(T element, long timestamp, WindowAssignerContext context);
 
 	/**
+	 * 返回跟WindowAssigner关联的默认触发器
 	 * Returns the default trigger associated with this {@code WindowAssigner}.
 	 */
 	public abstract Trigger<T, W> getDefaultTrigger(StreamExecutionEnvironment env);
 
 	/**
+	 * 返回WindowAssigner分配的窗口的序列化器
 	 * Returns a {@link TypeSerializer} for serializing windows that are assigned by
 	 * this {@code WindowAssigner}.
 	 */
