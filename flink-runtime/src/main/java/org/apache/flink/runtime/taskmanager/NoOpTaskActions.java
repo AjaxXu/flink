@@ -16,22 +16,23 @@
  * limitations under the License.
  */
 
-package org.apache.flink.client.program;
+package org.apache.flink.runtime.taskmanager;
 
-import org.apache.flink.util.FlinkException;
-
-import akka.actor.ActorSystem;
+import org.apache.flink.api.common.JobID;
+import org.apache.flink.runtime.io.network.partition.ResultPartitionID;
+import org.apache.flink.runtime.jobgraph.IntermediateDataSetID;
 
 /**
- * Interface which allows to load an {@link ActorSystem}.
+ * A dummy implementation of the {@link TaskActions} which is mainly used for tests.
  */
-public interface ActorSystemLoader extends AutoCloseable {
+public class NoOpTaskActions implements TaskActions {
 
-	/**
-	 * Get an {@link ActorSystem}.
-	 *
-	 * @return {@link ActorSystem}
-	 * @throws FlinkException
-	 */
-	ActorSystem get() throws FlinkException;
+	@Override
+	public void triggerPartitionProducerStateCheck(
+		JobID jobId,
+		IntermediateDataSetID intermediateDataSetId,
+		ResultPartitionID resultPartitionId) {}
+
+	@Override
+	public void failExternally(Throwable cause) {}
 }

@@ -16,32 +16,19 @@
  * limitations under the License.
  */
 
-package org.apache.flink.client.program;
+package org.apache.flink.table.expressions.catalog;
 
-import akka.actor.ActorSystem;
-
-import javax.annotation.Nonnull;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.expressions.FunctionDefinition;
 
 /**
- * {@link ActorSystemLoader} which simply returns the given {@link ActorSystem} at
- * construction time.
+ * Catalog of functions that can resolve the name of a function to a {@link FunctionDefinition}.
  */
-public class DefaultActorSystemLoader implements ActorSystemLoader {
+@Internal
+public interface FunctionDefinitionCatalog {
 
-	@Nonnull
-	private final ActorSystem actorSystem;
-
-	public DefaultActorSystemLoader(@Nonnull ActorSystem actorSystem) {
-		this.actorSystem = actorSystem;
-	}
-
-	@Override
-	public ActorSystem get() {
-		return actorSystem;
-	}
-
-	@Override
-	public void close() throws Exception {
-		// noop
-	}
+	/**
+	 * Lookup a function by name and return the {@link FunctionDefinition}. The lookup is case insensitive.
+	 */
+	FunctionDefinition lookupFunction(String name);
 }
