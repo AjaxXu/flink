@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
+ * 接收器将其输入元素发送到桶中。 它与检查点机制集成在一起，提供一次语义
  * Sink that emits its input elements to {@link FileSystem} files within buckets. This is
  * integrated with the checkpointing mechanism to provide exactly once semantics.
  *
@@ -178,6 +179,7 @@ public class StreamingFileSink<IN>
 	}
 
 	/**
+	 * 用于为row方式编码格式配置接收器的构建器。
 	 * A builder for configuring the sink for row-wise encoding formats.
 	 */
 	@PublicEvolving

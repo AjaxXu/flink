@@ -21,6 +21,7 @@ package org.apache.flink.runtime.checkpoint.decline;
 /**
  * Exception indicating that a checkpoint was declined because a cancellation
  * barrier was received.
+ * 原因：接收到取消标记
  */
 public final class CheckpointDeclineOnCancellationBarrierException extends CheckpointDeclineException {
 

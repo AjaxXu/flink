@@ -23,6 +23,7 @@ import org.apache.flink.annotation.Internal;
 import java.io.IOException;
 
 /**
+ * 用于版本化序列化的简单序列化程序接口
  * A simple serializer interface for versioned serialization.
  *
  * <p>The serializer has a version (returned by {@link #getVersion()}) which can be attached

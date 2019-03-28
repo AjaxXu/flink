@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * Simple memory segment source that draws segments from a list.
+ * 从MemorySegment列表中提供MemorySegment
  *
  */
 public class ListMemorySegmentSource implements MemorySegmentSource {
@@ -37,6 +38,7 @@ public class ListMemorySegmentSource implements MemorySegmentSource {
 	@Override
 	public MemorySegment nextSegment() {
 		if (this.segments.size() > 0) {
+			// 提供列表的最后一个
 			return this.segments.remove(this.segments.size() - 1);
 		} else {
 			return null;

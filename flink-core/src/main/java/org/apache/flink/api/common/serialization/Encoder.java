@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 
 /**
+ * 流文件接收器使用{@link Encoder}来执行将传入的元素实际写入存储桶中的文件
  * A {@link Encoder} is used by the streaming file sink to perform the actual writing
  * of the incoming elements to the files in a bucket.
  *
@@ -34,9 +35,10 @@ import java.io.Serializable;
 public interface Encoder<IN> extends Serializable {
 
 	/**
+	 * 把element 写入 bucket
 	 * Writes one element to the bucket file.
 	 * @param element the element to be written.
-	 * @param stream the stream to write the element to.
+	 * @param stream the stream to write the element to. 写入的地方
 	 */
 	void encode(IN element, OutputStream stream) throws IOException;
 

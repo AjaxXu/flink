@@ -25,6 +25,7 @@ import org.apache.flink.runtime.executiongraph.ExecutionAttemptID;
  * This message is sent from the {@link org.apache.flink.runtime.jobmaster.JobMaster} to the
  * {@link org.apache.flink.runtime.taskexecutor.TaskExecutor} to tell a task that the checkpoint
  * has been confirmed and that the task can commit the checkpoint to the outside world.
+ * JobMaster发送给TaskExecutor的消息：告诉taskcheckpoint已经完成，任务可以将检查点提交给外部世界
  */
 public class NotifyCheckpointComplete extends AbstractCheckpointMessage implements java.io.Serializable {
 

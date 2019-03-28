@@ -31,6 +31,7 @@ import org.apache.flink.streaming.api.windowing.windows.Window;
 import java.io.Serializable;
 
 /**
+ * Trigger(触发器)用于决定某个窗口的元素集合什么时候触发计算以及结果什么时候被emit
  * A {@code Trigger} determines when a pane of a window should be evaluated to emit the
  * results for that part of the window.
  *

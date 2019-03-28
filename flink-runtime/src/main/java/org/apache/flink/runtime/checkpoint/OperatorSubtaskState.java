@@ -42,6 +42,7 @@ import java.util.List;
  *
  * <p>The full state of the logical operator is represented by {@link OperatorState} which consists of
  * {@link OperatorSubtaskState}s.
+ * 逻辑operator的所有状态由包含全部OperatorSubtaskState的OperatorState表示
  *
  * <p>Typically, we expect all collections in this class to be of size 0 or 1, because there is up to one state handle
  * produced per state type (e.g. managed-keyed, raw-operator, ...). In particular, this holds when taking a snapshot.

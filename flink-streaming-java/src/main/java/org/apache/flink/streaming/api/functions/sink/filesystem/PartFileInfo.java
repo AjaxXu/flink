@@ -23,6 +23,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.io.IOException;
 
 /**
+ * 一个接口，暴露有关{@link RollingPolicy}所需的当前（打开）分区文件的信息，以确定是否应该滚动分区文件
  * An interface exposing the information concerning the current (open) part file
  * that is necessary to the {@link RollingPolicy} in order to determine if it
  * should roll the part file or not.

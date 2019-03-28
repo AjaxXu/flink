@@ -27,9 +27,9 @@ import org.apache.flink.annotation.PublicEvolving;
 @PublicEvolving
 public enum FileProcessingMode {
 
-	/** Processes the current contents of the path and exits. */
+	/** Processes the current contents of the path and exits. 一次即退出*/
 	PROCESS_ONCE,
 
-	/** Periodically scans the path for new data. */
+	/** Periodically scans the path for new data. 周期性扫描新的数据*/
 	PROCESS_CONTINUOUSLY
 }

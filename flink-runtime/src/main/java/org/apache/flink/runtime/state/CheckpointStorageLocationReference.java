@@ -27,6 +27,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 存储位置的引用，以byte array的形式
  * A reference to a storage location. This is a wrapper around an array of bytes that
  * are subject to interpretation by the state backend's storage locations (similar as
  * a serializer needs to interpret byte streams). There is special handling for a

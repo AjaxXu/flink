@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 监控某个目录
  * A {@link SourceFunction} that monitors a directory and sends events downstream when it detects
  * new files. Used together with {@link FileReadFunction}.
  *

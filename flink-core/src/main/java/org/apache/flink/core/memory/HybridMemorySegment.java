@@ -49,6 +49,7 @@ public final class HybridMemorySegment extends MemorySegment {
 	 * The direct byte buffer that allocated the off-heap memory. This memory segment holds a
 	 * reference to that buffer, so as long as this memory segment lives, the memory will not be
 	 * released.
+	 * 分配堆外内存的ByteBuffer，MemorySegment保持对该buffer的引用，因此只要MemorySegment存活，这块内存就不会释放
 	 */
 	private final ByteBuffer offHeapBuffer;
 
@@ -56,6 +57,7 @@ public final class HybridMemorySegment extends MemorySegment {
 	 * Creates a new memory segment that represents the memory backing the given direct byte buffer.
 	 * Note that the given ByteBuffer must be direct {@link java.nio.ByteBuffer#allocateDirect(int)},
 	 * otherwise this method with throw an IllegalArgumentException.
+	 * ByteBuffer必须是直接内存
 	 *
 	 * <p>The owner referenced by this memory segment is null.
 	 *
@@ -131,6 +133,7 @@ public final class HybridMemorySegment extends MemorySegment {
 			}
 			else {
 				try {
+					// Creates a new byte buffer that shares this buffer's content.
 					ByteBuffer wrapper = offHeapBuffer.duplicate();
 					wrapper.limit(offset + length);
 					wrapper.position(offset);
@@ -148,6 +151,13 @@ public final class HybridMemorySegment extends MemorySegment {
 
 	// ------------------------------------------------------------------------
 	//  Random Access get() and put() methods
+	//
+	// unsafe.XXX(Object o, int offset/position, ...)
+	// 如果对象o不为null，并且后面的地址或者位置是相对位置，那么会直接对当前对象（比如数组）的相对位置进行操作，
+	// 既然这里对象不为null，那么这种情况自然满足on-heap的场景；
+	//
+	// 如果对象o为null，并且后面的地址是某个内存块的绝对地址，那么这些方法的调用也相当于对该内存块进行操作。
+	// 这里对象o为null，所操作的内存块不是JVM堆内存，这种情况满足了off-heap的场景。
 	// ------------------------------------------------------------------------
 
 	@Override

@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
+ * 这是简单的monitor task(非并行)，state存的是最晚修改时间
  * This is the single (non-parallel) monitoring task which takes a {@link FileInputFormat}
  * and, depending on the {@link FileProcessingMode} and the {@link FilePathFilter}, it is responsible for:
  *
@@ -73,7 +74,7 @@ public class ContinuousFileMonitoringFunction<OUT>
 
 	/**
 	 * The minimum interval allowed between consecutive path scans.
-	 *
+	 * 连续监控的最小间隔
 	 * <p><b>NOTE:</b> Only applicable to the {@code PROCESS_CONTINUOUSLY} mode.
 	 */
 	public static final long MIN_MONITORING_INTERVAL = 1L;
@@ -93,7 +94,7 @@ public class ContinuousFileMonitoringFunction<OUT>
 	/** Which new data to process (see {@link FileProcessingMode}. */
 	private final FileProcessingMode watchType;
 
-	/** The maximum file modification time seen so far. */
+	/** The maximum file modification time seen so far. 目前为止最大的文件修改时间 */
 	private volatile long globalModificationTime = Long.MIN_VALUE;
 
 	private transient Object checkpointLock;

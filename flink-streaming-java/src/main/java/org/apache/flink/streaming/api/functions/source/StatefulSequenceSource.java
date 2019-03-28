@@ -31,6 +31,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
+ * 一个有状态的流式源，它可以从给定的间隔中精确地发出一次，可能是并行的
  * A stateful streaming source that emits each number from a given interval exactly once,
  * possibly in parallel.
  *

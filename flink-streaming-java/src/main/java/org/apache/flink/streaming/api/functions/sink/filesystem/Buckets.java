@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * {@link StreamingFileSink}中不同活动桶的管理员
  * The manager of the different active buckets in the {@link StreamingFileSink}.
  *
  * <p>This class is responsible for all bucket-related operations and the actual

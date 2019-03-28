@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * TimeWindow表示一个时间间隔窗口
  * A {@link Window} that represents a time interval from {@code start} (inclusive) to
  * {@code end} (exclusive).
  */

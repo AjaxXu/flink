@@ -29,6 +29,7 @@ import org.apache.flink.core.memory.DataOutputView;
 import java.io.IOException;
 
 /**
+ * GlobalWindow是一个全局窗口，被实现为单例模式。其maxTimestamp被设置为Long.MAX_VALUE
  * The default window into which all data is placed (via
  * {@link org.apache.flink.streaming.api.windowing.assigners.GlobalWindows}).
  */

@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
+ * 一个写入格式的抽象类
  * Abstract class for formatting the output of the writeAsText and writeAsCsv
  * functions.
  *

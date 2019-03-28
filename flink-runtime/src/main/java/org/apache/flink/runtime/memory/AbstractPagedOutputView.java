@@ -30,6 +30,8 @@ import java.io.UTFDataFormatException;
  * The base class for all output views that are backed by multiple memory pages. This base class contains all
  * encoding methods to write data to a page and detect page boundary crossing. The concrete sub classes must
  * implement the methods to collect the current page and provide the next memory page once the boundary is crossed.
+ * 由多个内存页支持的所有输出视图的基类。此基类包含将数据写入页面并检测页面边界交叉的所有编码方法。
+ * 具体的子类必须实现收集当前页面的方法，并在跨越边界后提供下一个内存页面。
  *
  * <p>The paging assumes that all memory segments are of the same size.
  */
@@ -147,6 +149,7 @@ public abstract class AbstractPagedOutputView implements DataOutputView {
 
 	/**
 	 * Sets the internal state to the given memory segment and the given position within the segment.
+	 * 将内部状态设置为给定的内存段和段内的给定位置。
 	 *
 	 * @param seg The memory segment to write the next bytes to.
 	 * @param position The position to start writing the next bytes to.

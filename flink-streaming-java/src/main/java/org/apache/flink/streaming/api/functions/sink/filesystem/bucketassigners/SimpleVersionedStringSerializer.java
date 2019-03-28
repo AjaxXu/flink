@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * 针对Strings的 实现
  * A {@link SimpleVersionedSerializer} implementation for Strings.
  */
 @PublicEvolving

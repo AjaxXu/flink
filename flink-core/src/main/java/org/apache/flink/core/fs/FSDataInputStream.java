@@ -25,6 +25,7 @@ import java.io.InputStream;
 
 /**
  * Interface for a data input stream to a file on a {@link FileSystem}.
+ * {@link FileSystem}中文件的输入流接口
  *
  * <p>This extends the {@link java.io.InputStream} with methods for accessing
  * the stream's {@link #getPos() current position} and
@@ -36,6 +37,7 @@ public abstract class FSDataInputStream extends InputStream {
 	/**
 	 * Seek to the given offset from the start of the file. The next read() will be from that location.
 	 * Can't seek past the end of the stream.
+	 * 跳到指定的offset
 	 *
 	 * @param desired
 	 *        the desired offset

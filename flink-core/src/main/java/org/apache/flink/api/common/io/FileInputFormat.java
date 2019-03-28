@@ -51,6 +51,7 @@ import java.util.Set;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 从文件中读取的抽象类，继承RichInputFormat
  * The base class for {@link RichInputFormat}s that read from files. For specific input types the
  * {@link #nextRecord(Object)} and {@link #reachedEnd()} methods need to be implemented.
  * Additionally, one may override {@link #open(FileInputSplit)} and {@link #close()} to
@@ -885,6 +886,7 @@ public abstract class FileInputFormat<OT> extends RichInputFormat<OT, FileInputS
 	// ============================================================================================
 	
 	/**
+	 * 封装一个文件的基本统计信息，修改时间、大小、record的平均大小
 	 * Encapsulation of the basic statistics the optimizer obtains about a file. Contained are the size of the file
 	 * and the average bytes of a single record. The statistics also have a time-stamp that records the modification
 	 * time of the file and indicates as such for which time the statistics were valid.

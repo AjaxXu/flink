@@ -50,6 +50,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * Operator读取TimestampedFileInputSplit
  * The operator that reads the {@link TimestampedFileInputSplit splits} received from the preceding
  * {@link ContinuousFileMonitoringFunction}. Contrary to the {@link ContinuousFileMonitoringFunction}
  * which has a parallelism of 1, this operator can have DOP > 1.
@@ -58,6 +59,8 @@ import static org.apache.flink.util.Preconditions.checkState;
  * thread read the actual data of the split. This architecture allows the separation of the
  * reading thread from the one emitting the checkpoint barriers, thus removing any potential
  * back-pressure.
+ * 一旦收到拆分描述符，它就被放入一个队列中，并让另一个线程读取拆分的实际数据。
+ * 这种结构允许将读取线与发射检查点障碍的读取线分开，从而消除任何潜在的背压。
  */
 @Internal
 public class ContinuousFileReaderOperator<OUT> extends AbstractStreamOperator<OUT>

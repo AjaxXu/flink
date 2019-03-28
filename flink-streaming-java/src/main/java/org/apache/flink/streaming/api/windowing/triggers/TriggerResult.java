@@ -30,23 +30,27 @@ package org.apache.flink.streaming.api.windowing.triggers;
 public enum TriggerResult {
 
 	/**
+	 * 不做任何操作
 	 * No action is taken on the window.
 	 */
 	CONTINUE(false, false),
 
 	/**
+	 * 同时具备FIRE和PURGE两种属性产生的行为
 	 * {@code FIRE_AND_PURGE} evaluates the window function and emits the window
 	 * result.
 	 */
 	FIRE_AND_PURGE(true, true),
 
 	/**
+	 * window将会被应用window Function进行计算，然后将结果emit出去，但元素并没有被清洗，仍然在window中
 	 * On {@code FIRE}, the window is evaluated and results are emitted.
 	 * The window is not purged, though, all elements are retained.
 	 */
 	FIRE(true, false),
 
 	/**
+	 * 清除window中的元素，丢弃该window
 	 * All elements in the window are cleared and the window is discarded,
 	 * without evaluating the window function or emitting any elements.
 	 */

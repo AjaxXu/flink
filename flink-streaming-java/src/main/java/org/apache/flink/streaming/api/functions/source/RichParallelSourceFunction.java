@@ -21,6 +21,7 @@ import org.apache.flink.annotation.Public;
 import org.apache.flink.api.common.functions.AbstractRichFunction;
 
 /**
+ * 实现并行化数据源的抽象类
  * Base class for implementing a parallel data source. Upon execution, the runtime will
  * execute as many parallel instances of this function as configured parallelism
  * of the source.

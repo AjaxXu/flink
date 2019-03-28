@@ -36,7 +36,7 @@ public class CheckpointOptions implements Serializable {
 
 	private static final long serialVersionUID = 5010126558083292915L;
 
-	/** Type of the checkpoint. */
+	/** Type of the checkpoint. checkpoint or savepoint */
 	private final CheckpointType checkpointType;
 
 	/** Target location for the checkpoint. */

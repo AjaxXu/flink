@@ -27,6 +27,8 @@ import java.io.IOException;
 import static org.apache.flink.api.common.typeutils.TypeSerializerConfigSnapshot.ADAPTER_VERSION;
 
 /**
+ * {@code TypeSerializerSnapshot}是{@link TypeSerializer}配置的时间点视图。
+ * checkpoint过程中序列化器的配置快照是checkpoint中序列化数据模式的元信息的单一来源
  * A {@code TypeSerializerSnapshot} is a point-in-time view of a {@link TypeSerializer}'s configuration.
  * The configuration snapshot of a serializer is persisted within checkpoints
  * as a single source of meta information about the schema of serialized data in the checkpoint.
@@ -82,6 +84,7 @@ public interface TypeSerializerSnapshot<T> {
 	int getCurrentVersion();
 
 	/**
+	 * 把serializer 快照写入{@link DataOutputView}
 	 * Writes the serializer snapshot to the provided {@link DataOutputView}.
 	 * The current version of the written serializer snapshot's binary format
 	 * is specified by the {@link #getCurrentVersion()} method.
@@ -107,6 +110,7 @@ public interface TypeSerializerSnapshot<T> {
 	void readSnapshot(int readVersion, DataInputView in, ClassLoader userCodeClassLoader) throws IOException;
 
 	/**
+	 * 从快照中恢复serializer
 	 * Recreates a serializer instance from this snapshot. The returned
 	 * serializer can be safely used to read data written by the prior serializer
 	 * (i.e., the serializer that created this snapshot).
@@ -116,6 +120,7 @@ public interface TypeSerializerSnapshot<T> {
 	TypeSerializer<T> restoreSerializer();
 
 	/**
+	 * 检查新serializer的兼容性 to read data written by 之前的serializer
 	 * Checks a new serializer's compatibility to read data written by the prior serializer.
 	 *
 	 * <p>When a checkpoint/savepoint is restored, this method checks whether the serialization

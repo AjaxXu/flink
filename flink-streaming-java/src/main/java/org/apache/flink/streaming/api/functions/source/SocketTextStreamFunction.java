@@ -32,6 +32,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 从socket中读取string
  * A source function that reads strings from a socket. The source will read bytes from the socket
  * stream and convert them to characters, each byte individually. When the delimiter character is
  * received, the function will output the current string, and begin a new string.

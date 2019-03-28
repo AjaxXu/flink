@@ -22,6 +22,7 @@ import java.io.Serializable;
 
 /**
  * A generic acknowledgement message.
+ * 通用确认消息
  */
 public class Acknowledge implements Serializable {
 
@@ -62,6 +63,8 @@ public class Acknowledge implements Serializable {
 
 	/**
 	 * Read resolve to preserve the singleton object property.
+	 * 读取解析以保留单例对象属性。
+	 * 反正序列化，反序列化时破坏单例模式
 	 * (per best practices, this should have visibility 'protected')
 	 */
 	protected Object readResolve() throws java.io.ObjectStreamException {

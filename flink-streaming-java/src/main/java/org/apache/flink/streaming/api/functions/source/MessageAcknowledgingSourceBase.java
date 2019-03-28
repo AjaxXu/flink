@@ -44,6 +44,7 @@ import java.util.Set;
 /**
  * Abstract base class for data sources that receive elements from a message queue and
  * acknowledge them back by IDs.
+ * 接收来自消息队列的元素并通过ID确认它们的数据源的抽象基类
  *
  * <p>The mechanism for this source assumes that messages are identified by a unique ID.
  * When messages are taken from the message queue, the message must not be dropped immediately,

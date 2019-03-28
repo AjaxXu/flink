@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * 该分配器对应于窗口GlobalWindow，它将所有的元素分配给同一个GlobalWindow
  * A {@link WindowAssigner} that assigns all elements to the same {@link GlobalWindow}.
  *
  * <p>Use this if you want to use a {@link Trigger} and

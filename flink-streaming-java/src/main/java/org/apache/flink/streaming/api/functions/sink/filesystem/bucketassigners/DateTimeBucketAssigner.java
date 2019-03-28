@@ -28,6 +28,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 /**
+ * 基于当前系统时间的BucketAssigner
  * A {@link BucketAssigner} that assigns to buckets based on current system time.
  *
  *

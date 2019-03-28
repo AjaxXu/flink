@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
+ * 一个将记录写入OutputFormat的SinkFunction的实现
  * Simple implementation of the SinkFunction writing tuples in the specified
  * OutputFormat format.
  *

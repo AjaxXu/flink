@@ -52,6 +52,7 @@ final class RowWisePartWriter<IN, BucketID> extends PartFileWriter<IN, BucketID>
 	}
 
 	/**
+	 * 创建RowWisePartWriter的工厂类
 	 * A factory that creates {@link RowWisePartWriter RowWisePartWriters}.
 	 * @param <IN> The type of input elements.
 	 * @param <BucketID> The type of ids for the buckets, as returned by the {@link BucketAssigner}.
@@ -81,7 +82,7 @@ final class RowWisePartWriter<IN, BucketID> extends PartFileWriter<IN, BucketID>
 		public PartFileWriter<IN, BucketID> openNew(
 				final BucketID bucketId,
 				final RecoverableFsDataOutputStream stream,
-				final Path path,
+				final Path path, // not use for RowWisePartWriter
 				final long creationTime) throws IOException {
 
 			Preconditions.checkNotNull(stream);

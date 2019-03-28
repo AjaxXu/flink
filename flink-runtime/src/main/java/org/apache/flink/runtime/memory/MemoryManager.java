@@ -38,15 +38,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * The memory manager governs the memory that Flink uses for sorting, hashing, and caching. Memory
  * is represented in segments of equal size. Operators allocate the memory by requesting a number
  * of memory segments.
+ * 内存管理器管理Flink用于排序，散列和缓存的内存。内存以相同大小的段表示。运算符通过请求多个内存段来分配内存。
  *
  * <p>The memory may be represented as on-heap byte arrays or as off-heap memory regions
  * (both via {@link HybridMemorySegment}). Which kind of memory the MemoryManager serves can
  * be passed as an argument to the initialization.
+ * 内存可以表示为Java堆上字节数组或堆外存储区域（均通过HybridMemorySegment）。 MemoryManager提供的内存类型可以在初始化时提供参数指定。
  *
  * <p>The memory manager can either pre-allocate all memory, or allocate the memory on demand. In the
  * former version, memory will be occupied and reserved from start on, which means that no OutOfMemoryError
@@ -54,11 +57,16 @@ import java.util.Set;
  * On-demand allocation means that the memory manager only keeps track how many memory segments are
  * currently allocated (bookkeeping only). Releasing a memory segment will not add it back to the pool,
  * but make it re-claimable by the garbage collector.
+ * 内存管理器可以预先分配所有内存，也可以按需分配内存。在以前的版本中，内存将从开始时被占用和保留，
+ * 这意味着在请求内存时不会出现OutOfMemoryError。释放的内存也将返回到MemoryManager的池中。
+ * 按需分配意味着内存管理器仅跟踪当前分配的内存段数（仅限簿记）。释放内存段不会将其添加回池中，
+ * 但可以通过垃圾收集器对其进行重新回收。
  */
 public class MemoryManager {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MemoryManager.class);
-	/** The default memory page size. Currently set to 32 KiBytes. */
+	/** The default memory page size. Currently set to 32 KiBytes.
+	 * 默认的内存页大小，32KB*/
 	public static final int DEFAULT_PAGE_SIZE = 32 * 1024;
 
 	/** The minimal memory page size. Currently set to 4 KiBytes. */
@@ -66,37 +74,46 @@ public class MemoryManager {
 
 	// ------------------------------------------------------------------------
 
-	/** The lock used on the shared structures. */
+	/** The lock used on the shared structures.
+	 * MemoryManager提供了一个对象作为锁，以在某些方法上进行同步操作*/
 	private final Object lock = new Object();
 
-	/** The memory pool from which we draw memory segments. Specific to on-heap or off-heap memory */
+	/** The memory pool from which we draw memory segments. Specific to on-heap or off-heap memory
+	 * 从中抽取内存段的内存池。必须指定是堆上或堆外内存 */
 	private final MemoryPool memoryPool;
 
 	/** Memory segments allocated per memory owner. */
 	private final HashMap<Object, Set<MemorySegment>> allocatedSegments;
 
-	/** The type of memory governed by this memory manager. */
+	/** The type of memory governed by this memory manager.
+	 * 由此内存管理器管理的内存类型。*/
 	private final MemoryType memoryType;
 
-	/** Mask used to round down sizes to multiples of the page size. */
+	/** Mask used to round down sizes to multiples of the page size.
+	 * 掩码用于将大小向下舍入到页面大小的倍数。*/
 	private final long roundingMask;
 
 	/** The size of the memory segments. */
 	private final int pageSize;
 
-	/** The initial total size, for verification. */
+	/** The initial total size, for verification.
+	 * 总页数*/
 	private final int totalNumPages;
 
-	/** The total size of the memory managed by this memory manager. */
+	/** The total size of the memory managed by this memory manager.
+	 * 内存管理器管理的内存总大小*/
 	private final long memorySize;
 
-	/** Number of slots of the task manager. */
+	/** Number of slots of the task manager.
+	 * 任务管理器的槽数*/
 	private final int numberOfSlots;
 
-	/** Flag marking whether the memory manager immediately allocates the memory. */
+	/** Flag marking whether the memory manager immediately allocates the memory.
+	 * 标记内存管理器是否立即分配内存的标志。*/
 	private final boolean isPreAllocated;
 
-	/** The number of memory pages that have not been allocated and are available for lazy allocation. */
+	/** The number of memory pages that have not been allocated and are available for lazy allocation.
+	 * 尚未分配且可用于延迟分配的内存页数。*/
 	private int numNonAllocatedPages;
 
 	/** Flag whether the close() has already been invoked. */
@@ -105,6 +122,7 @@ public class MemoryManager {
 
 	/**
 	 * Creates a memory manager with the given capacity, using the default page size.
+	 * 创建具有给定容量的内存管理器，使用默认页面大小
 	 *
 	 * @param memorySize The total size of the memory to be managed by this memory manager.
 	 * @param numberOfSlots The number of slots of the task manager.
@@ -115,6 +133,7 @@ public class MemoryManager {
 
 	/**
 	 * Creates a memory manager with the given capacity and given page size.
+	 * 创建具有给定容量和给定页大小的内存管理器
 	 *
 	 * @param memorySize The total size of the memory to be managed by this memory manager.
 	 * @param numberOfSlots The number of slots of the task manager.
@@ -125,7 +144,7 @@ public class MemoryManager {
 	 */
 	public MemoryManager(long memorySize, int numberOfSlots, int pageSize,
 							MemoryType memoryType, boolean preAllocateMemory) {
-		// sanity checks
+		// sanity checks 理智检查，健康检查
 		if (memoryType == null) {
 			throw new NullPointerException();
 		}
@@ -145,7 +164,7 @@ public class MemoryManager {
 
 		// assign page size and bit utilities
 		this.pageSize = pageSize;
-		this.roundingMask = ~((long) (pageSize - 1));
+		this.roundingMask = ~((long) (pageSize - 1)); // pageSize - 1 的 反码
 
 		final long numPagesLong = memorySize / pageSize;
 		if (numPagesLong > Integer.MAX_VALUE) {
@@ -160,9 +179,11 @@ public class MemoryManager {
 		this.allocatedSegments = new HashMap<Object, Set<MemorySegment>>();
 		this.isPreAllocated = preAllocateMemory;
 
+		// 如果是预分配，则使用内存池，否则按需分配
 		this.numNonAllocatedPages = preAllocateMemory ? 0 : this.totalNumPages;
-		final int memToAllocate = preAllocateMemory ? this.totalNumPages : 0;
+		final int memToAllocate = preAllocateMemory ? this.totalNumPages : 0; // 预分配的MemorySegment数量
 
+		// 实例化构造器的时候就已经将需要预分配的内存分配到位
 		switch (memoryType) {
 			case HEAP:
 				this.memoryPool = new HybridHeapMemoryPool(memToAllocate, pageSize);
@@ -197,6 +218,8 @@ public class MemoryManager {
 	 * on implementation details, the memory does not necessarily become reclaimable by the
 	 * garbage collector, because there might still be references to allocated segments in the
 	 * code that allocated them from the memory manager.
+	 * 关闭内存管理器，尝试释放它管理的所有内存。根据实现细节，内存不一定可以被垃圾收集器回收，
+	 * 因为在代码中可能仍然存在对从内存管理器已分配段的引用。
 	 */
 	public void shutdown() {
 		// -------------------- BEGIN CRITICAL SECTION -------------------
@@ -559,6 +582,7 @@ public class MemoryManager {
 	 * Computes to how many pages the given number of bytes corresponds. If the given number of bytes is not an
 	 * exact multiple of a page size, the result is rounded down, such that a portion of the memory (smaller
 	 * than the page size) is not included.
+	 * 计算给定字节数对应的页数。如果给定的字节数不是页面大小的精确倍数，则向下舍入结果，使得不包括存储器的一部分（小于页面大小）。
 	 *
 	 * @param fraction the fraction of the total memory per slot
 	 * @return The number of pages to which
@@ -608,13 +632,16 @@ public class MemoryManager {
 		abstract void clear();
 	}
 
+	// on-heap内存使用byte[]表示
 	static final class HybridHeapMemoryPool extends MemoryPool {
 
-		/** The collection of available memory segments. */
+		/** The collection of available memory segments.
+		 * 采用JDK的ArrayDeque（双端队列）作为存储所有内存块引用的数据结构 */
 		private final ArrayDeque<byte[]> availableMemory;
 
 		private final int segmentSize;
 
+		// MemorySegment数量、单个segment大小
 		HybridHeapMemoryPool(int numInitialSegments, int segmentSize) {
 			this.availableMemory = new ArrayDeque<>(numInitialSegments);
 			this.segmentSize = segmentSize;
@@ -632,6 +659,7 @@ public class MemoryManager {
 		@Override
 		MemorySegment requestSegmentFromPool(Object owner) {
 			byte[] buf = availableMemory.remove();
+			// 将byte数组封装成HybridMemorySegment
 			return  MemorySegmentFactory.wrapPooledHeapMemory(buf, owner);
 		}
 
@@ -639,6 +667,7 @@ public class MemoryManager {
 		void returnSegmentToPool(MemorySegment segment) {
 			if (segment.getClass() == HybridMemorySegment.class) {
 				HybridMemorySegment heapSegment = (HybridMemorySegment) segment;
+				// 归还byte数组
 				availableMemory.add(heapSegment.getArray());
 				heapSegment.free();
 			}
@@ -658,6 +687,7 @@ public class MemoryManager {
 		}
 	}
 
+	// 代表的off-heap内存使用ByteBuffer表示
 	static final class HybridOffHeapMemoryPool extends MemoryPool {
 
 		/** The collection of available memory segments. */

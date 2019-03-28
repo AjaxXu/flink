@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 
 /**
+ * BucketAssigner与{@link StreamingFileSink}一起用于确定每个传入元素应该放入的{@link Bucket}
  * A BucketAssigner is used with a {@link StreamingFileSink} to determine the {@link Bucket} each incoming element
  * should be put into.
  *

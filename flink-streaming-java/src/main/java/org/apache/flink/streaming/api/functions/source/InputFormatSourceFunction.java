@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
+ * 使用InputFormat来读取数据，InputSplit使用provider提供
  * A {@link SourceFunction} that reads data using an {@link InputFormat}.
  */
 @Internal

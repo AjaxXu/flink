@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
+ * 工厂能够为{@link StreamingFileSink}创建{@link Bucket}
  * A factory able to create {@link Bucket buckets} for the {@link StreamingFileSink}.
  */
 @Internal

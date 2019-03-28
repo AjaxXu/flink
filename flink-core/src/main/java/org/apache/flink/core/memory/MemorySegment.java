@@ -29,7 +29,9 @@ import java.nio.ReadOnlyBufferException;
 
 /**
  * This class represents a piece of memory managed by Flink.
+ * 类代表了由Flink管理的那部分内存
  * The segment may be backed by heap memory (byte array) or by off-heap memory.
+ * 该段可能是堆内存，也可能是堆外内存
  *
  * <p>The methods for individual memory access are specialized in the classes
  * {@link org.apache.flink.core.memory.HeapMemorySegment} and
@@ -220,6 +222,7 @@ public abstract class MemorySegment {
 	 * <p>After this operation has been called, no further operations are possible on the memory
 	 * segment and will fail. The actual memory (heap or off-heap) will only be released after this
 	 * memory segment object has become garbage collected.
+	 * 调用此操作后，内存段上无法进一步操作，并且将失败。实际内存（堆或堆外）仅在此MemorySegment对象被回收后才会释放。
 	 */
 	public void free() {
 		// this ensures we can place no more data and trigger
@@ -272,6 +275,8 @@ public abstract class MemorySegment {
 	/**
 	 * Wraps the chunk of the underlying memory located between <tt>offset</tt> and
 	 * <tt>length</tt> in a NIO ByteBuffer.
+	 * 封装offset后length大小的内存块到NIO ByteBuffer中
+	 * 封装后的ByteBuffer和MemorySegment共享byte数组，对ByteBuffer内容的修改将改变MemorySegment的内容
 	 *
 	 * @param offset The offset in the memory segment.
 	 * @param length The number of bytes to be wrapped as a buffer.
@@ -1320,6 +1325,7 @@ public abstract class MemorySegment {
 
 	/**
 	 * Compares two memory segment regions.
+	 * 2个MemorySegment区域的比较，seg1 < seg2 返回-1，seg1 > seg2 返回 1， 否则返回0
 	 *
 	 * @param seg2 Segment to compare this segment with
 	 * @param offset1 Offset of this segment to start comparing
@@ -1357,6 +1363,7 @@ public abstract class MemorySegment {
 
 	/**
 	 * Swaps bytes between two memory segments, using the given auxiliary buffer.
+	 * 使用辅助byte数组来交换2个MemorySegment中的len个bytes
 	 *
 	 * @param tempBuffer The auxiliary buffer in which to put data during triangle swap.
 	 * @param seg2 Segment to swap bytes with

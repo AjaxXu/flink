@@ -28,6 +28,7 @@ import java.util.Map;
 
 /**
  * Interface of a state handle for operator state.
+ * 操作符状态的状态句柄接口
  */
 public interface OperatorStateHandle extends StreamStateHandle {
 
@@ -44,6 +45,7 @@ public interface OperatorStateHandle extends StreamStateHandle {
 
 	/**
 	 * Returns the underlying stream state handle that points to the state data.
+	 * 返回指向状态数据的基础流状态句柄
 	 */
 	StreamStateHandle getDelegateStateHandle();
 

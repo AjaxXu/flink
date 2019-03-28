@@ -26,6 +26,7 @@ import java.io.InputStream;
 
 /**
  * Un-synchronized stream similar to Java's ByteArrayInputStream that also exposes the current position.
+ * 从buffer中提供数据的类
  */
 @Internal
 public class ByteArrayInputStreamWithPos extends InputStream {

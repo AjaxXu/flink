@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
+ * 以csv格式写入指定文件
  * Writes tuples in csv format.
  *
  * @param <IN>

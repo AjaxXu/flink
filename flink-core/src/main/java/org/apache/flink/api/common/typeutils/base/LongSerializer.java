@@ -27,6 +27,7 @@ import org.apache.flink.core.memory.DataOutputView;
 import java.io.IOException;
 
 /**
+ * Long类型的序列化器
  * Type serializer for {@code Long}.
  */
 @Internal

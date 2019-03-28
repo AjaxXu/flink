@@ -20,7 +20,8 @@ package org.apache.flink.runtime.checkpoint.decline;
 
 /**
  * Exception indicating that a checkpoint was declined because a newer checkpoint
- * barrier was received on an input before the pending checkpoint's barrier. 
+ * barrier was received on an input before the pending checkpoint's barrier.
+ *  原因：新的checkpoing barrier接收到
  */
 public final class CheckpointDeclineSubsumedException extends CheckpointDeclineException {
 

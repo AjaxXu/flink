@@ -22,10 +22,14 @@ import org.apache.flink.util.StringBasedID;
 
 /**
  * Unique ID that allows for logical comparison between state handles.
+ * 唯一ID，允许在状态句柄之间进行逻辑比较
+ *
  * <p>
  * Two state handles that are considered as logically equal should always return the same ID
  * (whatever logically equal means is up to the implementation). For example, this could be based
  * on the string representation of the full filepath for a state that is based on a file.
+ * 被视为逻辑上相等的两个状态句柄应始终返回相同的ID（无论逻辑上相同的方式取决于实现）。
+ * 例如，基于文件的状态，可以用代表该文件的完整路径的字符串表示
  */
 public class StateHandleID extends StringBasedID {
 

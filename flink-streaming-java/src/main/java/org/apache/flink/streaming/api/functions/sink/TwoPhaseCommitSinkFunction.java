@@ -62,6 +62,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 两阶段提交Sink Function，目的是实现exactly-once语义
  * This is a recommended base class for all of the {@link SinkFunction} that intend to implement exactly-once semantic.
  * It does that by implementing two phase commit algorithm on top of the {@link CheckpointedFunction} and
  * {@link CheckpointListener}. User should provide custom {@code TXN} (transaction handle) and implement abstract

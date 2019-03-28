@@ -21,6 +21,8 @@ import org.apache.flink.annotation.Public;
 import org.apache.flink.api.common.functions.AbstractRichFunction;
 
 /**
+ * RichSinkFunction通过继承AbstractRichFunction为实现一个rich SinkFunction
+ * 提供基础(AbstractRichFunction提供了一个open/close方法对，以及获取运行时上下文对象手段)。
  * A {@link org.apache.flink.api.common.functions.RichFunction} version of {@link SinkFunction}.
  */
 @Public

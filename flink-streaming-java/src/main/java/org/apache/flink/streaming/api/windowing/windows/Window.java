@@ -21,6 +21,8 @@ package org.apache.flink.streaming.api.windowing.windows;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * 一个Window代表有限对象的集合。
+ * 一个窗口有一个最大的时间戳，该时间戳意味着在其代表的某时间点：所有应该进入这个窗口的元素都已经到达。
  * A {@code Window} is a grouping of elements into finite buckets. Windows have a maximum timestamp
  * which means that, at some point, all elements that go into one window will have arrived.
  *

@@ -44,6 +44,7 @@ public final class HeapMemorySegment extends MemorySegment {
 	/**
 	 * An extra reference to the heap memory, so we can let byte array checks fail by the built-in
 	 * checks automatically without extra checks.
+	 * 父类heapMemory字段的额外引用
 	 */
 	private byte[] memory;
 
@@ -82,6 +83,7 @@ public final class HeapMemorySegment extends MemorySegment {
 	@Override
 	public ByteBuffer wrap(int offset, int length) {
 		try {
+			// 封装后的ByteBuffer和MemorySegment共享byte数组，对ByteBuffer内容的修改将改变MemorySegment的内容
 			return ByteBuffer.wrap(this.memory, offset, length);
 		}
 		catch (NullPointerException e) {

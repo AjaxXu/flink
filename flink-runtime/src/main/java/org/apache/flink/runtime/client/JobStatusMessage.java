@@ -23,6 +23,7 @@ import org.apache.flink.runtime.jobgraph.JobStatus;
 
 /**
  * A simple message that holds the state of a job execution.
+ * job执行的状态 信息
  */
 public class JobStatusMessage implements java.io.Serializable {
 

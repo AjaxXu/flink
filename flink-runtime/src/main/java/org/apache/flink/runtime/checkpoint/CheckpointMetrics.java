@@ -24,12 +24,14 @@ import java.io.Serializable;
 
 /**
  * A collection of simple metrics, around the triggering of a checkpoint.
+ * 围绕触发检查点的简单指标集合, checkpoint指标集合
  */
 public class CheckpointMetrics implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	/** The number of bytes that were buffered during the checkpoint alignment phase */
+	/** The number of bytes that were buffered during the checkpoint alignment phase
+	 * checkpoint对齐阶段缓存的bytes*/
 	private long bytesBufferedInAlignment;
 
 	/** The duration (in nanoseconds) that the stream alignment for the checkpoint took */

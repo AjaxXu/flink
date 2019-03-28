@@ -28,11 +28,13 @@ public enum MemoryType {
 
 	/**
 	 * Denotes memory that is part of the Java heap.
+	 * 表明内存是Java堆中的一部分
 	 */
 	HEAP,
 
 	/**
 	 * Denotes memory that is outside the Java heap (but still part of tha Java process).
+	 * 表明内存是Java堆外内存（但仍然是Java进程的一部分）
 	 */
 	OFF_HEAP
 }

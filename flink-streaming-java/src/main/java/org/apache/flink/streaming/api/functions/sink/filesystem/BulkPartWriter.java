@@ -28,6 +28,7 @@ import org.apache.flink.util.Preconditions;
 import java.io.IOException;
 
 /**
+ * {@link PartFileWriter}使用{@link BulkPartWriter}来批量编码格式写入
  * A {@link PartFileWriter} for bulk-encoding formats that use an {@link BulkPartWriter}.
  * This also implements the {@link PartFileInfo}.
  */
