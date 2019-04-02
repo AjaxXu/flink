@@ -41,6 +41,18 @@ public class TableConfigOptions {
 	//  Sort Options
 	// ------------------------------------------------------------------------
 
+	public static final ConfigOption<Boolean> SQL_EXEC_SORT_RANGE_ENABLED =
+			key("sql.exec.sort.range.enabled")
+					.defaultValue(false)
+					.withDescription("Sets whether to enable range sort, use range sort to sort all data in several partitions." +
+							"When it is false, sorting in only one partition");
+
+	public static final ConfigOption<Integer> SQL_EXEC_SORT_DEFAULT_LIMIT =
+			key("sql.exec.sort.default.limit")
+					.defaultValue(200)
+					.withDescription("Default limit when user don't set a limit after order by. " +
+							"This default value will be invalidated if " + SQL_EXEC_SORT_RANGE_ENABLED + " is set to be true.");
+
 	public static final ConfigOption<Integer> SQL_EXEC_SORT_FILE_HANDLES_MAX_NUM =
 			key("sql.exec.sort.file-handles.max.num")
 					.defaultValue(128)
@@ -76,6 +88,16 @@ public class TableConfigOptions {
 							" the better the compression ratio, but the more memory consumption.");
 
 	// ------------------------------------------------------------------------
+	//  Resource Options
+	// ------------------------------------------------------------------------
+
+	public static final ConfigOption<Integer> SQL_RESOURCE_DEFAULT_PARALLELISM =
+			key("sql.resource.default.parallelism")
+					.defaultValue(-1)
+					.withDescription("Default parallelism of the job. If any node do not have special parallelism, use it." +
+							"Its default value is the num of cpu cores in the client host.");
+
+	// ------------------------------------------------------------------------
 	//  MiniBatch Options
 	// ------------------------------------------------------------------------
 
@@ -92,5 +114,18 @@ public class TableConfigOptions {
 			key("sql.exec.statebackend.onheap")
 					.defaultValue(false)
 					.withDescription("Whether the statebackend is on heap.");
+
+	// ------------------------------------------------------------------------
+	//  Other Exec Options
+	// ------------------------------------------------------------------------
+
+	public static final ConfigOption<String> SQL_EXEC_DISABLED_OPERATORS =
+			key("sql.exec.disabled-operators")
+					.defaultValue("")
+					.withDescription("Mainly for testing. A comma-separated list of name of the OperatorType, each name " +
+							"means a kind of disabled operator. Its default value is empty that means no operators are disabled. " +
+							"If the configure's value is \"NestedLoopJoin, ShuffleHashJoin\", NestedLoopJoin and ShuffleHashJoin " +
+							"are disabled. If the configure's value is \"HashJoin\", " +
+							"ShuffleHashJoin and BroadcastHashJoin are disabled.");
 
 }

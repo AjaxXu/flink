@@ -27,7 +27,7 @@ import org.apache.calcite.jdbc.JavaTypeFactoryImpl
 import org.apache.calcite.rel.`type`._
 import org.apache.calcite.sql.SqlIntervalQualifier
 import org.apache.calcite.sql.`type`.SqlTypeName._
-import org.apache.calcite.sql.`type`.{BasicSqlType, SqlTypeName}
+import org.apache.calcite.sql.`type`.{BasicSqlType, SqlTypeName, SqlTypeUtil}
 import org.apache.calcite.sql.parser.SqlParserPos
 import org.apache.calcite.util.ConversionUtil
 
@@ -347,6 +347,26 @@ class FlinkTypeFactory(typeSystem: RelDataTypeSystem) extends JavaTypeFactoryImp
   override def getDefaultCharset: Charset = {
     Charset.forName(ConversionUtil.NATIVE_UTF16_CHARSET_NAME)
   }
+
+  /**
+    * Calcite's default impl for division is apparently borrowed from T-SQL,
+    * but the details are a little different, e.g. when Decimal(34,0)/Decimal(10,0)
+    * To avoid confusion, follow the exact T-SQL behavior.
+    * Note that for (+-*), Calcite is also different from T-SQL;
+    * however, Calcite conforms to SQL2003 while T-SQL does not.
+    * therefore we keep Calcite's behavior on (+-*).
+    */
+  override def createDecimalQuotient(type1: RelDataType, type2: RelDataType): RelDataType = {
+    if (SqlTypeUtil.isExactNumeric(type1) && SqlTypeUtil.isExactNumeric(type2) &&
+        (SqlTypeUtil.isDecimal(type1) || SqlTypeUtil.isDecimal(type2))) {
+      val result = DecimalType.inferDivisionType(
+        type1.getPrecision, type1.getScale,
+        type2.getPrecision, type2.getScale)
+      createSqlType(SqlTypeName.DECIMAL, result.precision, result.scale)
+    } else {
+      null
+    }
+  }
 }
 
 object FlinkTypeFactory {
@@ -356,8 +376,18 @@ object FlinkTypeFactory {
     case _ => false
   }
 
+  def isTimeIndicatorType(relDataType: RelDataType): Boolean = relDataType match {
+    case _: TimeIndicatorRelDataType => true
+    case _ => false
+  }
+
   def isRowtimeIndicatorType(relDataType: RelDataType): Boolean = relDataType match {
     case ti: TimeIndicatorRelDataType if ti.isEventTime => true
+    case _ => false
+  }
+
+  def isProctimeIndicatorType(relDataType: RelDataType): Boolean = relDataType match {
+    case ti: TimeIndicatorRelDataType if !ti.isEventTime => true
     case _ => false
   }
 
@@ -396,6 +426,11 @@ object FlinkTypeFactory {
     // symbol for special flags e.g. TRIM's BOTH, LEADING, TRAILING
     // are represented as Enum
     case SYMBOL => InternalTypes.createGenericType(classOf[Enum[_]])
+
+    // extract encapsulated Type
+    case ANY if relDataType.isInstanceOf[GenericRelDataType] =>
+      val genericRelDataType = relDataType.asInstanceOf[GenericRelDataType]
+      genericRelDataType.genericType
 
     case ROW if relDataType.isInstanceOf[RowRelDataType] =>
       val compositeRelDataType = relDataType.asInstanceOf[RowRelDataType]

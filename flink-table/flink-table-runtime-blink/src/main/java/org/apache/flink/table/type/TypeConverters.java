@@ -30,11 +30,13 @@ import org.apache.flink.api.java.typeutils.PojoTypeInfo;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.api.java.typeutils.TupleTypeInfo;
 import org.apache.flink.table.typeutils.BaseRowTypeInfo;
+import org.apache.flink.table.typeutils.BigDecimalTypeInfo;
 import org.apache.flink.table.typeutils.BinaryArrayTypeInfo;
 import org.apache.flink.table.typeutils.BinaryGenericTypeInfo;
 import org.apache.flink.table.typeutils.BinaryMapTypeInfo;
 import org.apache.flink.table.typeutils.BinaryStringTypeInfo;
 import org.apache.flink.table.typeutils.DecimalTypeInfo;
+import org.apache.flink.table.typeutils.TimeIntervalTypeInfo;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,6 +68,8 @@ public class TypeConverters {
 		tiToType.put(SqlTimeTypeInfo.DATE, InternalTypes.DATE);
 		tiToType.put(SqlTimeTypeInfo.TIMESTAMP, InternalTypes.TIMESTAMP);
 		tiToType.put(SqlTimeTypeInfo.TIME, InternalTypes.TIME);
+		tiToType.put(TimeIntervalTypeInfo.INTERVAL_MONTHS, InternalTypes.INTERVAL_MONTHS);
+		tiToType.put(TimeIntervalTypeInfo.INTERVAL_MILLIS, InternalTypes.INTERVAL_MILLIS);
 
 		// BigDecimal have infinity precision and scale, but we converted it into a limited
 		// Decimal(38, 18). If the user's BigDecimal is more precision than this, we will
@@ -91,6 +95,8 @@ public class TypeConverters {
 		internalTypeToInfo.put(InternalTypes.TIMESTAMP, BasicTypeInfo.LONG_TYPE_INFO);
 		internalTypeToInfo.put(InternalTypes.TIME, BasicTypeInfo.INT_TYPE_INFO);
 		internalTypeToInfo.put(InternalTypes.BINARY, PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO);
+		internalTypeToInfo.put(InternalTypes.INTERVAL_MONTHS, BasicTypeInfo.INT_TYPE_INFO);
+		internalTypeToInfo.put(InternalTypes.INTERVAL_MILLIS, BasicTypeInfo.LONG_TYPE_INFO);
 		INTERNAL_TYPE_TO_INTERNAL_TYPE_INFO = Collections.unmodifiableMap(internalTypeToInfo);
 
 		Map<InternalType, TypeInformation> itToEti = new HashMap<>();
@@ -165,6 +171,9 @@ public class TypeConverters {
 		} else if (typeInfo instanceof BinaryArrayTypeInfo) {
 			BinaryArrayTypeInfo arrayType = (BinaryArrayTypeInfo) typeInfo;
 			return InternalTypes.createArrayType(arrayType.getElementType());
+		} else if (typeInfo instanceof BigDecimalTypeInfo) {
+			BigDecimalTypeInfo decimalType = (BigDecimalTypeInfo) typeInfo;
+			return new DecimalType(decimalType.precision(), decimalType.scale());
 		} else {
 			return InternalTypes.createGenericType(typeInfo);
 		}
@@ -230,7 +239,8 @@ public class TypeConverters {
 					createExternalTypeInfoFromInternalType(mapType.getKeyType()),
 					createExternalTypeInfoFromInternalType(mapType.getValueType()));
 		} else if (type instanceof DecimalType) {
-			return BasicTypeInfo.BIG_DEC_TYPE_INFO;
+			DecimalType decimalType = (DecimalType) type;
+			return new BigDecimalTypeInfo(decimalType.precision(), decimalType.scale());
 		}  else if (type instanceof GenericType) {
 			GenericType genericType = (GenericType) type;
 			return genericType.getTypeInfo();
