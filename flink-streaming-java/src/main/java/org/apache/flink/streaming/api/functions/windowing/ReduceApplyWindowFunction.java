@@ -27,6 +27,7 @@ import org.apache.flink.util.Collector;
 import java.util.Collections;
 
 /**
+ * WindowFunction内部实现
  * Internal {@link WindowFunction} that is used for implementing a fold on a window configuration
  * that only allows {@link WindowFunction} and cannot directly execute a {@link ReduceFunction}.
  */

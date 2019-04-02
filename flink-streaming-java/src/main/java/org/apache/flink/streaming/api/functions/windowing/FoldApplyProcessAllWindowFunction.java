@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 /**
+ * 内部ProcessAllWindowFunction
  * Internal {@link ProcessAllWindowFunction} that is used for implementing a fold on a window
  * configuration that only allows {@link ProcessAllWindowFunction} and cannot directly execute a
  * {@link FoldFunction}.

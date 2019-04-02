@@ -26,6 +26,7 @@ import org.apache.flink.api.common.functions.util.FunctionUtils;
 import org.apache.flink.configuration.Configuration;
 
 /**
+ * Function的包装类
  * Wrapper around {@link Function}.
  * @param <T>
  */

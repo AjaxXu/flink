@@ -26,6 +26,7 @@ import org.apache.flink.util.Collector;
 import java.io.Serializable;
 
 /**
+ * 针对全局的不基于某个key进行分组的window的窗口函数的实现
  * Base interface for functions that are evaluated over non-keyed windows.
  *
  * @param <IN> The type of the input value.

@@ -24,6 +24,7 @@ import org.apache.flink.streaming.api.windowing.windows.Window;
 import org.apache.flink.util.OutputTag;
 
 /**
+ * 内部可重用的context包装器
  * Internal reusable context wrapper.
  *
  * @param <IN> The type of the input value.

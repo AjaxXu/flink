@@ -37,6 +37,10 @@ import java.io.IOException;
 import java.util.Collections;
 
 /**
+ * FoldApplyAllWindowFunction用于对窗口中的数据先进行fold操作，得到一个最终合并的元素，再进行apply操作
+ * 这里有一点需要区分一下，因为ReduceFunction和FoldFuction都具有将一组元素合并为单个元素的功能，所以他们看起来非常相似。
+ * 不过他们还是有区别的，其中的一个区别就是，FoldFunction在进行fold操作的时候，还会进行潜在的类型转换。
+ *
  * Internal {@link AllWindowFunction} that is used for implementing a fold on a window configuration
  * that only allows {@link AllWindowFunction} and cannot directly execute a {@link FoldFunction}.
  *

@@ -29,6 +29,7 @@ import org.apache.flink.util.Collector;
 import java.util.Collections;
 
 /**
+ * ProcessWindowFunction内部实现
  * Internal {@link ProcessWindowFunction} that is used for implementing a fold on a window
  * configuration that only allows {@link AllWindowFunction} and cannot directly execute a
  * {@link ReduceFunction}.

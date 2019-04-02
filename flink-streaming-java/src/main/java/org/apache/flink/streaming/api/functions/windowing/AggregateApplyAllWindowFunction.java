@@ -27,6 +27,7 @@ import org.apache.flink.util.Collector;
 import java.util.Collections;
 
 /**
+ * ReduceApplyAllWindowFunction用于对窗口内的所有元素进行aggregate操作后再进行调用apply
  * A {@link AllWindowFunction} that composes an {@link AggregateFunction} and {@link AllWindowFunction}.
  * Upon invocation, this first applies {@code AggregateFunction} to the input, and then
  * finally the {@code AllWindowFunction} to the single result element.

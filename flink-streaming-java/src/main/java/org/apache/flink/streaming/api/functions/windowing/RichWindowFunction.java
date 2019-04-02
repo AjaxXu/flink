@@ -24,6 +24,7 @@ import org.apache.flink.api.common.functions.RichFunction;
 import org.apache.flink.streaming.api.windowing.windows.Window;
 
 /**
+ * WindowFunction的rich
  * Rich variant of the {@link WindowFunction}. As a {@link RichFunction}, it gives access to the
  * {@link org.apache.flink.api.common.functions.RuntimeContext} and provides setup and tear-down methods:
  * {@link RichFunction#open(org.apache.flink.configuration.Configuration)} and

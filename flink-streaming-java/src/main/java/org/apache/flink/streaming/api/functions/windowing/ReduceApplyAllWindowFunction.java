@@ -27,6 +27,11 @@ import org.apache.flink.util.Collector;
 import java.util.Collections;
 
 /**
+ * AllWindowFunction内部实现
+ * ReduceApplyAllWindowFunction用于对窗口内的所有元素进行reduce操作后再进行调用apply
+ * reduceFunction ： 提供reduce操作的ReduceFunction
+ * windowFunction ： 提供apply操作的AllWindowFunction，该参数用于对window中元素进行reduce之后产生的单个元素再进行最终的apply操作。
+ *
  * Internal {@link AllWindowFunction} that is used for implementing a fold on a window configuration
  * that only allows {@link AllWindowFunction} and cannot directly execute a {@link ReduceFunction}.
  */

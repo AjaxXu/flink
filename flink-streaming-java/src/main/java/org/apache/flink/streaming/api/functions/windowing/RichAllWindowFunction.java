@@ -23,6 +23,7 @@ import org.apache.flink.api.common.functions.AbstractRichFunction;
 import org.apache.flink.streaming.api.windowing.windows.Window;
 
 /**
+ * 抽象类，继承AbstractRichFunction以提供rich 的AllWindowFunction
  * A {@link org.apache.flink.api.common.functions.RichFunction} version of
  * {@link AllWindowFunction}.
  */

@@ -25,6 +25,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 
 /**
+ * Function的工具类，基本是调用RichFunction的对应方法
  * Utility class that contains helper methods to work with Flink {@link Function} class.
  */
 @Internal
