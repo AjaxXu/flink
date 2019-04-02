@@ -28,6 +28,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 该转换器用于改变输入元素的分区，其名称为：Partition。
+ * 因此，工作时除了提供一个StreamTransformation作为输入，还需要提供一个StreamPartitioner的实例来进行分区。
+ *
  * This transformation represents a change of partitioning of the input elements.
  *
  * <p>This does not create a physical operation, it only affects how upstream operations are

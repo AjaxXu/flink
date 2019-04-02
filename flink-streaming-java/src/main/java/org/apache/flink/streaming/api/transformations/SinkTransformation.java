@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 它表示一个sink，创建的时候构造器需要operator 它是 StreamSink的实例，是最终做转换的operator。
  * This Transformation represents a Sink.
  *
  * @param <T> The type of the elements in the input {@code SinkTransformation}
@@ -43,6 +44,7 @@ public class SinkTransformation<T> extends StreamTransformation<Object> {
 	private final StreamSink<T> operator;
 
 	// We need this because sinks can also have state that is partitioned by key
+	// 这两个属性的目的是因为sink的状态也可能是基于key分区的。
 	private KeySelector<T, ?> stateKeySelector;
 
 	private TypeInformation<?> stateKeyType;

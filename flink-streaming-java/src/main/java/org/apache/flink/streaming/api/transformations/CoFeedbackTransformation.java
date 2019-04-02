@@ -29,6 +29,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 某种程度上跟FeedbackTransformation类似。
+ * feedback元素的类型不需要跟上游的StreamTransformation元素的类型一致，因为CoFeedbackTransformation之后只允许跟TwoInputTransformations。
+ * 上游的StreamTransformation将会连接到TwoInputTransformations第一个输入，而feedback edge将会连接到其第二个输入。
+ * 因此上游的StreamTransformation其实是跟CoFeedbackTransformation无关的，它跟TwoInputTransformation有关。
+ *
  * This represents a feedback point in a topology. The type of the feedback elements need not match
  * the type of the upstream {@code StreamTransformation} because the only allowed operations
  * after a {@code CoFeedbackTransformation} are

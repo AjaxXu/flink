@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 合并转换器，该转换器用于将多个输入StreamTransformation进行合并。因此该转换器接收StreamTransformation的集合。
  * This transformation represents a union of several input
  * {@link StreamTransformation StreamTransformations}.
  *

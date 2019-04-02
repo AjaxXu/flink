@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 该选择转换器用于从上游流中筛选出特定的元素。
+ * 它在使用时，必须跟随在SplitTransformation之后（SplitTransformation通过指定的名称将元素分配到多个逻辑流中）。
  * This transformation represents a selection of only certain upstream elements. This must
  * follow a {@link org.apache.flink.streaming.api.transformations.SplitTransformation} that
  * splits elements into several logical streams with assigned names.
@@ -43,6 +45,8 @@ public class SelectTransformation<T> extends StreamTransformation<T> {
 	private final List<String> selectedNames;
 
 	/**
+	 * 构造SelectTransformation需要前一个转换器作为输入，以及上游用于分流的SplitTransformation所使用的名称。
+	 *
 	 * Creates a new {@code SelectionTransformation} from the given input that only selects
 	 * the streams with the selected names.
 	 *

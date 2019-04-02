@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * 它表示一个source，它并不真正做转换工作，因为它没有输入，但它是任何拓扑的根StreamTransformation。
  * This represents a Source. This does not actually transform anything since it has no inputs but
  * it is the root {@code StreamTransformation} of any topology.
  *
@@ -38,6 +39,9 @@ public class SourceTransformation<T> extends StreamTransformation<T> {
 	private final StreamSource<T, ?> operator;
 
 	/**
+	 * 除了StreamTransformation构造器需要的那三个参数，
+	 * SourceTransformation还需要StreamSource类型的参数，它是真正执行转换的operator
+	 *
 	 * Creates a new {@code SourceTransformation} from the given operator.
 	 *
 	 * @param name The name of the {@code SourceTransformation}, this will be shown in Visualizations and the Log
@@ -61,6 +65,7 @@ public class SourceTransformation<T> extends StreamTransformation<T> {
 		return operator;
 	}
 
+	// 因为其没有前置转换器，所以其返回只存储自身实例的集合对象。
 	@Override
 	public Collection<StreamTransformation<?>> getTransitivePredecessors() {
 		return Collections.<StreamTransformation<?>>singleton(this);

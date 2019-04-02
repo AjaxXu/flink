@@ -30,6 +30,7 @@ import static java.util.Objects.requireNonNull;
 
 
 /**
+ * 此转换表示使用给定的{@link OutputTag}选择上游操作的侧输出。
  * This transformation represents a selection of a side output of an upstream operation with a
  * given {@link OutputTag}.
  *

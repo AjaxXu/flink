@@ -30,6 +30,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 接受一种输入的StreamTransformation（换句话说，只接收一个输入流）。跟上面的SinkTransformation构造器类似，
+ * 需要input和operator两个参数（只不过这里的operator类型是对应的OneInputStreamOperator）。
+ *
  * This Transformation represents the application of a
  * {@link org.apache.flink.streaming.api.operators.OneInputStreamOperator} to one input
  * {@link org.apache.flink.streaming.api.transformations.StreamTransformation}.

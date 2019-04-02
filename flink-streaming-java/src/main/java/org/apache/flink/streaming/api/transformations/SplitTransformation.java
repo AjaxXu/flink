@@ -28,6 +28,10 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 可将其看作分流转换器，该转换用于将一个流拆分成多个流(通过OutputSelector来达到这个目的)，
+ * 当然这个操作只是逻辑上的拆分（它只影响上游的流如何跟下游的流连接）。
+ * 无需operator
+ *
  * This transformation represents a split of one
  * {@link org.apache.flink.streaming.api.datastream.DataStream} into several {@code DataStreams}
  * using an {@link org.apache.flink.streaming.api.collector.selector.OutputSelector}.

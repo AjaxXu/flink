@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 表示接收两种输入的StreamTransformation（接收两种流作为输入）。其他的实现同OneInputTransformation
  * This Transformation represents the application of a
  * {@link TwoInputStreamOperator} to two input {@code StreamTransformations}.
  * The result is again only one stream.

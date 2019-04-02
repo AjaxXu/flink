@@ -27,6 +27,10 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 该转换器用于表示Flink DAG中的一个反馈点（feedback point）。
+ * 所谓反馈点，可用于连接一个或者多个StreamTransformation，这些StreamTransformation被称为反馈边（feedback edges）。
+ * 处于反馈点下游的operation将可以从反馈点和反馈边获得元素输入。
+ *
  * This represents a feedback point in a topology.
  *
  * <p>This is different from how iterations work in batch processing. Once a feedback point is
@@ -54,6 +58,13 @@ public class FeedbackTransformation<T> extends StreamTransformation<T> {
 	private final Long waitTime;
 
 	/**
+	 * 实例化FeedbackTransformation时，会自动创建一个用于存储反馈边的集合feedbackEdges。
+	 * 那么反馈边如何收集呢？FeedbackTransformation通过定义一个实例方法：addFeedbackEdge来进行收集，
+	 * 而这里所谓的“收集”就是将下游StreamTransformation的实例加入feedbackEdges集合中（这里可以理解为将两个点建立连接关系，也就形成了边）。
+	 * 不过，这里加入的StreamTransformation的实例有一个要求：也就是当前FeedbackTransformation的实例跟待加入StreamTransformation实例的并行度一致。
+	 *
+	 * 某种程度上，你可以将其类比于pub-sub机制
+	 *
 	 * Creates a new {@code FeedbackTransformation} from the given input.
 	 *
 	 * @param input The input {@code StreamTransformation}

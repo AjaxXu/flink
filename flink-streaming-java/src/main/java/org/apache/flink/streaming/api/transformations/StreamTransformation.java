@@ -37,16 +37,23 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * StreamTransformation是所有transformation的抽象类，提供了实现transformation的基础功能。
+ * 每一个DataStream都有一个与之对应的StreamTransformation。
+ *
  * A {@code StreamTransformation} represents the operation that creates a
  * {@link org.apache.flink.streaming.api.datastream.DataStream}. Every
  * {@link org.apache.flink.streaming.api.datastream.DataStream} has an underlying
  * {@code StreamTransformation} that is the origin of said DataStream.
+ *
+ * 一些API操作，比如DataStream#map，将会在底层创建一个StreamTransformation树，
+ * 而在程序的运行时，该拓扑结构会被翻译为StreamGraph。
  *
  * <p>API operations such as {@link org.apache.flink.streaming.api.datastream.DataStream#map} create
  * a tree of {@code StreamTransformation}s underneath. When the stream program is to be executed
  * this graph is translated to a {@link StreamGraph} using
  * {@link org.apache.flink.streaming.api.graph.StreamGraphGenerator}.
  *
+ * StreamTransformation无关运行时的执行，它只是逻辑上的概念。
  * <p>A {@code StreamTransformation} does not necessarily correspond to a physical operation
  * at runtime. Some operations are only logical concepts. Examples of this are union,
  * split/select data stream, partitioning.
@@ -424,6 +431,7 @@ public abstract class StreamTransformation<T> {
 	}
 
 	/**
+	 * 设置chaining策略
 	 * Sets the chaining strategy of this {@code StreamTransformation}.
 	 */
 	public abstract void setChainingStrategy(ChainingStrategy strategy);
@@ -454,6 +462,7 @@ public abstract class StreamTransformation<T> {
 	}
 
 	/**
+	 * 返回中间过渡阶段的前置StreamTransformation集合，该方法的可能的应用场景是用来决定在迭代中的feedback edge(反馈边)最终是有前置StreamTransformation
 	 * Returns all transitive predecessor {@code StreamTransformation}s of this {@code StreamTransformation}. This
 	 * is, for example, used when determining whether a feedback edge of an iteration
 	 * actually has the iteration head as a predecessor.
