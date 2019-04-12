@@ -31,6 +31,7 @@ import org.apache.flink.util.Disposable;
 import java.io.Serializable;
 
 /**
+ * 所有operator的最终基类
  * Basic interface for stream operators. Implementers would implement one of
  * {@link org.apache.flink.streaming.api.operators.OneInputStreamOperator} or
  * {@link org.apache.flink.streaming.api.operators.TwoInputStreamOperator} to create operators
@@ -53,11 +54,14 @@ public interface StreamOperator<OUT> extends CheckpointListener, KeyContext, Dis
 	// ------------------------------------------------------------------------
 
 	/**
+	 * 实例化operator
 	 * Initializes the operator. Sets access to the context and the output.
 	 */
 	void setup(StreamTask<?, ?> containingTask, StreamConfig config, Output<StreamRecord<OUT>> output);
 
 	/**
+	 * 该方法会在任何元素被处理之前执行，它的实现通常包含了operator的初始化逻辑
+	 *
 	 * This method is called immediately before any elements are processed, it should contain the
 	 * operator's initialization logic.
 	 *
@@ -66,6 +70,8 @@ public interface StreamOperator<OUT> extends CheckpointListener, KeyContext, Dis
 	void open() throws Exception;
 
 	/**
+	 * 该方法在所有的元素都进入到operator被处理之后调用
+	 *
 	 * This method is called after all records have been added to the operators via the methods
 	 * {@link org.apache.flink.streaming.api.operators.OneInputStreamOperator#processElement(StreamRecord)}, or
 	 * {@link org.apache.flink.streaming.api.operators.TwoInputStreamOperator#processElement1(StreamRecord)} and
@@ -80,6 +86,8 @@ public interface StreamOperator<OUT> extends CheckpointListener, KeyContext, Dis
 	void close() throws Exception;
 
 	/**
+	 * 该方法在operator生命周期的最后阶段执行，主要用于回收资源
+	 *
 	 * This method is called at the very end of the operator's life, both in the case of a successful
 	 * completion of the operation, and in the case of a failure and canceling.
 	 *

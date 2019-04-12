@@ -33,6 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
+ * 分组的fold operator，fold函数的执行依赖于一个初始化值initialValue。因此这里涉及到状态保存。并且状态是跟具体的分区关联的
  * A {@link StreamOperator} for executing a {@link FoldFunction} on a
  * {@link org.apache.flink.streaming.api.datastream.KeyedStream}.
  *
@@ -81,6 +82,8 @@ public class StreamGroupedFold<IN, OUT, KEY>
 		values = getPartitionedState(stateId);
 	}
 
+	// processElement方法的实现，涉及到一系列的操作：从ValueState中获取数据，作为“新”的初始值跟当前元素一起进行fold函数运算，
+	// 获得结果后更新ValueState，然后将获得的结果emit出去
 	@Override
 	public void processElement(StreamRecord<IN> element) throws Exception {
 		OUT value = values.value();

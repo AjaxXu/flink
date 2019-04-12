@@ -30,6 +30,7 @@ import org.apache.flink.util.Preconditions;
 import java.util.concurrent.ScheduledFuture;
 
 /**
+ * Source上下文对应不同的时间特性
  * Source contexts for various stream time characteristics.
  */
 public class StreamSourceContexts {
@@ -83,6 +84,7 @@ public class StreamSourceContexts {
 	}
 
 	/**
+	 * 没有时间长的实现，对应processingTime
 	 * A source context that attached {@code -1} as a timestamp to all records, and that
 	 * does not forward watermarks.
 	 */
@@ -131,6 +133,7 @@ public class StreamSourceContexts {
 	}
 
 	/**
+	 * 该类是自动发送watermark的实现，在构造器中接收参数watermarkInterval来指定自动发送watermark的时间间隔。
 	 * {@link SourceFunction.SourceContext} to be used for sources with automatic timestamps
 	 * and watermark emission.
 	 */
@@ -194,6 +197,8 @@ public class StreamSourceContexts {
 			processAndCollect(element);
 		}
 
+		// 停止自动发送的触发条件是收到最后一个元素的信号（将最后一个元素的时间戳设置为Long.MAX_VALUE），
+		// emitWatermark收到该标识后，再将其往下游传递并关闭定时发送线程
 		@Override
 		protected boolean allowWatermark(Watermark mark) {
 			// allow Long.MAX_VALUE since this is the special end-watermark that for example the Kafka source emits

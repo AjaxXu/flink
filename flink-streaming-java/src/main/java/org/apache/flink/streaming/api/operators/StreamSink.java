@@ -25,6 +25,7 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 
 /**
+ * sink operator，通常是流处理的最后一个operator。它接收SinkFunction的实例。在processElement中依次调用其invoke方法。
  * A {@link StreamOperator} for executing {@link SinkFunction SinkFunctions}.
  */
 @Internal

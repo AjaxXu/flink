@@ -22,6 +22,8 @@ import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * flatmap operator接收FlatMapFunction函数，有一些特别之处：在其open方法中，它初始化了一个TimestampedCollector，
+ * 作为传递给FlatMapFunction的collector，该collector是给那些特定的userFunction使用的，并且用于给他们操作的元素设置时间戳
  * A {@link StreamOperator} for executing {@link FlatMapFunction FlatMapFunctions}.
  */
 @Internal

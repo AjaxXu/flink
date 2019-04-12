@@ -22,6 +22,7 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * map operator，根据传入的MapFunction，对每个元素应用map操作后将其发射出去
  * A {@link StreamOperator} for executing {@link MapFunction MapFunctions}.
  */
 @Internal

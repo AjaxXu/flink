@@ -75,6 +75,7 @@ import java.io.Serializable;
 import java.util.Locale;
 
 /**
+ * 该抽象类为实现一个具体的operator提供基本的支持，Flink内置提供的operator全部都直接或间接继承自AbstractStreamOperator。
  * Base class for all stream operators. Operators that contain a user function should extend the class
  * {@link AbstractUdfStreamOperator} instead (which is a specialized subclass of this class).
  *
@@ -107,7 +108,7 @@ public abstract class AbstractStreamOperator<OUT>
 	/** The task that contains this operator (and other operators in the same chain). */
 	private transient StreamTask<?, ?> container;
 
-	protected transient StreamConfig config;
+	protected transient StreamConfig config; // 配置属性
 
 	protected transient Output<StreamRecord<OUT>> output;
 

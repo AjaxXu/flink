@@ -23,6 +23,8 @@ import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * 此处的project，并非通常所指的项目的意思，而是投射、投影的意思。你可以将其类比于SQL中的SELECT子句。
+ * 因此他允许你选择你需要的fields集合。这通过其构造器的一个字段索引数组来指定：
  * A {@link StreamOperator} for executing projections on streams.
  */
 @Internal
@@ -46,6 +48,8 @@ public class StreamProject<IN, OUT extends Tuple>
 		chainingStrategy = ChainingStrategy.ALWAYS;
 	}
 
+	// 在processElement方法中，它依次遍历所有需要的字段索引，将元素中需要的字段提取出来，
+	// 放入一个用于输出的outTuple，最后再将其发射出去
 	@Override
 	public void processElement(StreamRecord<IN> element) throws Exception {
 		for (int i = 0; i < this.numFields; i++) {

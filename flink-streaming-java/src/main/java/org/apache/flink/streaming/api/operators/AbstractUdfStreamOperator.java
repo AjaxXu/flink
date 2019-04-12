@@ -37,6 +37,8 @@ import org.apache.flink.streaming.util.functions.StreamingFunctionUtils;
 import static java.util.Objects.requireNonNull;
 
 /**
+ * 该类主要针对operator生命周期相关的方法(open/close/dispose)提供了模板实现。
+ * 而这些实现都统一针对用户定义的Function的实例（简称udf）。
  * This is used as the base class for operators that have a user-defined
  * function. This class handles the opening and closing of the user-defined functions,
  * as part of the operator life cycle.

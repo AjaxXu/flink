@@ -22,6 +22,7 @@ import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * filter operator，处理逻辑很简单，根据自定义的FilterFunction方法，对每个元素进行过滤，如果满足过滤条件，则将该元素emit出去
  * A {@link StreamOperator} for executing {@link FilterFunction FilterFunctions}.
  */
 @Internal

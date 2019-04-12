@@ -33,6 +33,7 @@ import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import java.util.concurrent.ScheduledFuture;
 
 /**
+ * 流数据源的StreamOperator
  * {@link StreamOperator} for streaming sources.
  *
  * @param <OUT> Type of the output elements

@@ -23,6 +23,7 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.util.Collector;
 
 /**
+ * Output的包装器实现，它用于给元素设置时间戳
  * Wrapper around an {@link Output} for user functions that expect a {@link Collector}.
  * Before giving the {@link TimestampedCollector} to a user function you must set
  * the timestamp that should be attached to emitted elements. Most operators

@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * StreamOperator内部配置，这是由{@link StreamingJobGraphGenerator}创建和填充的。
  * Internal configuration for a {@link StreamOperator}. This is created and populated by the
  * {@link StreamingJobGraphGenerator}.
  */

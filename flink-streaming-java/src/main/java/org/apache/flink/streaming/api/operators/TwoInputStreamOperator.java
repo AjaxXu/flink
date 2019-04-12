@@ -24,6 +24,7 @@ import org.apache.flink.streaming.runtime.streamrecord.LatencyMarker;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * 支持两个流作为输入的operator，同样继承自StreamOperator。
  * Interface for stream operators with two inputs. Use
  * {@link org.apache.flink.streaming.api.operators.AbstractStreamOperator} as a base class if
  * you want to implement a custom operator.
@@ -36,18 +37,21 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 public interface TwoInputStreamOperator<IN1, IN2, OUT> extends StreamOperator<OUT> {
 
 	/**
+	 * 处理来自第一个输入的某个元素
 	 * Processes one element that arrived on the first input of this two-input operator.
 	 * This method is guaranteed to not be called concurrently with other methods of the operator.
 	 */
 	void processElement1(StreamRecord<IN1> element) throws Exception;
 
 	/**
+	 * 处理来自第二个输入的某个元素
 	 * Processes one element that arrived on the second input of this two-input operator.
 	 * This method is guaranteed to not be called concurrently with other methods of the operator.
 	 */
 	void processElement2(StreamRecord<IN2> element) throws Exception;
 
 	/**
+	 * 处理来自第一个输入的一个Watermark
 	 * Processes a {@link Watermark} that arrived on the first input of this two-input operator.
 	 * This method is guaranteed to not be called concurrently with other methods of the operator.
 	 *
@@ -56,6 +60,7 @@ public interface TwoInputStreamOperator<IN1, IN2, OUT> extends StreamOperator<OU
 	void processWatermark1(Watermark mark) throws Exception;
 
 	/**
+	 * 处理来自第二个输入的一个Watermark
 	 * Processes a {@link Watermark} that arrived on the second input of this two-input operator.
 	 * This method is guaranteed to not be called concurrently with other methods of the operator.
 	 *

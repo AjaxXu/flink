@@ -24,6 +24,7 @@ import org.apache.flink.streaming.runtime.streamrecord.LatencyMarker;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * 单一输入流的operator接口，继承自StreamOperator
  * Interface for stream operators with one input. Use
  * {@link org.apache.flink.streaming.api.operators.AbstractStreamOperator} as a base class if
  * you want to implement a custom operator.
@@ -35,12 +36,14 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 public interface OneInputStreamOperator<IN, OUT> extends StreamOperator<OUT> {
 
 	/**
+	 * 处理到达该operator的一个元素
 	 * Processes one element that arrived at this operator.
 	 * This method is guaranteed to not be called concurrently with other methods of the operator.
 	 */
 	void processElement(StreamRecord<IN> element) throws Exception;
 
 	/**
+	 * 处理一个Watermark
 	 * Processes a {@link Watermark}.
 	 * This method is guaranteed to not be called concurrently with other methods of the operator.
 	 *
