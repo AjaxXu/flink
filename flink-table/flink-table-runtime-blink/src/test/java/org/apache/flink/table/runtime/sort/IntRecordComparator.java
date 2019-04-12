@@ -22,7 +22,7 @@ import org.apache.flink.table.dataformat.BaseRow;
 import org.apache.flink.table.generated.RecordComparator;
 
 /**
- * Example String {@link RecordComparator}.
+ * Example Int {@link RecordComparator}.
  */
 public class IntRecordComparator implements RecordComparator {
 

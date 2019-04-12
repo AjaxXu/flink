@@ -24,6 +24,7 @@ import org.apache.flink.table.api._
 import org.apache.flink.table.calcite.FlinkRelBuilder.NamedWindowProperty
 import org.apache.flink.table.calcite.FlinkTypeFactory._
 import org.apache.flink.table.functions.sql.StreamRecordTimestampSqlFunction
+import org.apache.flink.table.operations.TableOperation
 import org.apache.flink.table.typeutils.TimeIndicatorTypeInfo
 import org.apache.flink.table.validate.{ValidationFailure, ValidationResult, ValidationSuccess}
 
@@ -98,8 +99,6 @@ case class Alias(child: PlannerExpression, name: String, extraNames: Seq[String]
   override private[flink] def validateInput(): ValidationResult = {
     if (name == "*") {
       ValidationFailure("Alias can not accept '*' as name.")
-    } else if (extraNames.nonEmpty) {
-      ValidationFailure("Invalid call to Alias with multiple names.")
     } else {
       ValidationSuccess
     }
@@ -139,7 +138,9 @@ case class WindowReference(name: String, tpe: Option[TypeInformation[_]] = None)
   override def toString: String = s"'$name"
 }
 
-case class TableReference(name: String, table: Table) extends LeafExpression with NamedExpression {
+case class TableReference(name: String, tableOperation: TableOperation)
+  extends LeafExpression
+  with NamedExpression {
 
   override private[flink] def toRexNode(implicit relBuilder: RelBuilder): RexNode =
     throw new UnsupportedOperationException(s"Table reference '$name' can not be used solely.")

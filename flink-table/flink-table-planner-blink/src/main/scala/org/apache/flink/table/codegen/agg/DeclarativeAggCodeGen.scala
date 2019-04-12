@@ -22,7 +22,7 @@ import org.apache.flink.table.`type`.TypeConverters.createInternalTypeFromTypeIn
 import org.apache.flink.table.codegen.CodeGenUtils.primitiveTypeTermForType
 import org.apache.flink.table.codegen.{CodeGeneratorContext, ExprCodeGenerator, GeneratedExpression}
 import org.apache.flink.table.expressions.{ResolvedDistinctKeyReference, _}
-import org.apache.flink.table.functions.DeclarativeAggregateFunction
+import org.apache.flink.table.functions.aggfunctions.DeclarativeAggregateFunction
 import org.apache.flink.table.plan.util.AggregateInfo
 
 import org.apache.calcite.tools.RelBuilder
@@ -233,7 +233,7 @@ class DeclarativeAggCodeGen(
       typeLiteral
     }
 
-    private def visitUnresolvedFieldReference(input: UnresolvedFieldReferenceExpression)
+    private def visitUnresolvedReference(input: UnresolvedReferenceExpression)
       : Expression = {
       function.aggBufferAttributes.indexOf(input) match {
         case -1 =>
@@ -287,7 +287,7 @@ class DeclarativeAggCodeGen(
 
     override def visit(other: Expression): Expression = {
       other match {
-        case u : UnresolvedFieldReferenceExpression => visitUnresolvedFieldReference(u)
+        case u : UnresolvedReferenceExpression => visitUnresolvedReference(u)
         case _ => other
       }
     }

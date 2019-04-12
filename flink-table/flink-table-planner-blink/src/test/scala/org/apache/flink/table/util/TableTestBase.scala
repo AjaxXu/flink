@@ -202,6 +202,14 @@ abstract class TableTestUtil(test: TableTestBase) {
       printPlanBefore = true)
   }
 
+  def verifyPlanWithType(sql: String): Unit = {
+    doVerifyPlan(
+      sql,
+      explainLevel = SqlExplainLevel.EXPPLAN_ATTRIBUTES,
+      withRowType = true,
+      printPlanBefore = true)
+  }
+
   def verifyExplain(): Unit = doVerifyExplain()
 
   def verifyExplain(sql: String): Unit = {
@@ -392,6 +400,12 @@ case class StreamTableTestUtil(test: TableTestBase) extends TableTestUtil(test) 
     val calciteConfig = CalciteConfig.createBuilder(tableEnv.getConfig.getCalciteConfig)
       .replaceStreamProgram(program).build()
     tableEnv.getConfig.setCalciteConfig(calciteConfig)
+  }
+
+  def enableMiniBatch(): Unit = {
+    tableEnv.getConfig.getConf.setLong(
+      TableConfigOptions.SQL_EXEC_MINIBATCH_ALLOW_LATENCY, 1000L)
+    tableEnv.getConfig.getConf.setLong(TableConfigOptions.SQL_EXEC_MINIBATCH_SIZE, 3L)
   }
 }
 

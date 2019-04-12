@@ -19,6 +19,7 @@ package org.apache.flink.table.plan.util
 
 import org.apache.flink.table.CalcitePair
 import org.apache.flink.table.api.TableException
+import org.apache.flink.table.functions.aggfunctions.DeclarativeAggregateFunction
 import org.apache.flink.table.functions.utils.TableSqlFunction
 import org.apache.flink.table.functions.{AggregateFunction, UserDefinedFunction}
 import org.apache.flink.table.plan.FlinkJoinRelType
@@ -188,9 +189,13 @@ object RelExplainUtil {
               val argList = List(offset)
               offset = offset + 1
               argList
+            case daf: DeclarativeAggregateFunction =>
+              val aggBufferTypes = daf.getAggBufferTypes
+              val argList = aggBufferTypes.indices.map(offset + _).toList
+              offset = offset + aggBufferTypes.length
+              argList
             case _ =>
-              // TODO supports DeclarativeAggregateFunction
-              throw new TableException("Unsupported now")
+              throw new TableException(s"Unsupported function: $udf")
           }
         }
         val argListNames = if (aggToDistinctMapping.contains(index)) {
@@ -209,7 +214,7 @@ object RelExplainUtil {
         }
     }
 
-    //output for agg
+    // output for agg
     val aggFunctions = aggCallToAggFunction.map(_._2)
     offset = fullGrouping.length
     val outFieldNames = aggFunctions.map { udf =>
@@ -223,9 +228,15 @@ object RelExplainUtil {
             val name = outputFieldNames(offset)
             offset = offset + 1
             name
+          case daf: DeclarativeAggregateFunction =>
+            val aggBufferTypes = daf.getAggBufferTypes
+            val name = aggBufferTypes.indices
+              .map(i => outputFieldNames(offset + i))
+              .mkString(", ")
+            offset = offset + aggBufferTypes.length
+            if (aggBufferTypes.length > 1) s"($name)" else name
           case _ =>
-            // TODO supports DeclarativeAggregateFunction
-            throw new TableException("Unsupported now")
+            throw new TableException(s"Unsupported function: $udf")
         }
       }
       outFieldName
@@ -317,6 +328,7 @@ object RelExplainUtil {
     }
     val isIncremental: Boolean = shuffleKey.isDefined
 
+    // TODO output local/global agg call names like Partial_XXX, Final_XXX
     val aggStrings = if (isLocal) {
       stringifyLocalAggregates(aggInfos, distinctInfos, distinctAggs, aggFilters, inFieldNames)
     } else if (isGlobal || isIncremental) {
@@ -412,9 +424,15 @@ object RelExplainUtil {
           val name = accNames(offset)
           offset = offset + 1
           name
+        case daf: DeclarativeAggregateFunction =>
+          val aggBufferTypes = daf.getAggBufferTypes
+          val name = aggBufferTypes.indices
+            .map(i => accNames(offset + i))
+            .mkString(", ")
+          offset = offset + aggBufferTypes.length
+          if (aggBufferTypes.length > 1) s"($name)" else name
         case _ =>
-          // TODO supports DeclarativeAggregateFunction
-          throw new TableException("Unsupported now")
+          throw new TableException(s"Unsupported function: ${info.function}")
       }
     }
     val distinctFieldNames = (offset until accNames.length).map(accNames)
@@ -623,5 +641,38 @@ object RelExplainUtil {
     val udtfName = sqlFunction.toString
     val operands = rexCall.getOperands.map(expression(_, inFields, None)).mkString(",")
     s"table($udtfName($operands))"
+  }
+
+  def aggOperatorName(
+      prefix: String,
+      grouping: Array[Int],
+      auxGrouping: Array[Int],
+      inputRowType: RelDataType,
+      outputRowType: RelDataType,
+      aggCallToAggFunction: Seq[(AggregateCall, UserDefinedFunction)],
+      isMerge: Boolean,
+      isFinal: Boolean): String = {
+    val groupingStr = if (grouping.nonEmpty) {
+      s"groupBy:(${fieldToString(grouping, inputRowType)}),"
+    } else {
+      ""
+    }
+    val auxGroupingStr = if (auxGrouping.nonEmpty) {
+      s"auxGrouping:(${fieldToString(auxGrouping, inputRowType)}),"
+    } else {
+      ""
+    }
+
+    val selectString = s"select:(${
+      groupAggregationToString(
+        inputRowType,
+        outputRowType,
+        grouping,
+        auxGrouping,
+        aggCallToAggFunction,
+        isMerge,
+        isFinal)
+    }),"
+    s"$prefix($groupingStr$auxGroupingStr$selectString)"
   }
 }

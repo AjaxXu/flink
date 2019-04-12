@@ -22,11 +22,10 @@ import _root_.java.util.function.Supplier
 
 import org.apache.calcite.rel.RelNode
 import org.apache.flink.api.java.operators.join.JoinType
-import org.apache.flink.table.expressions.ApiExpressionUtils.{extractAggregationsAndProperties, extractFieldReferences, replaceAggregationsAndProperties}
-import org.apache.flink.table.expressions._
+import org.apache.flink.table.expressions.{Expression, ExpressionParser, LookupCallResolver}
 import org.apache.flink.table.functions.{TemporalTableFunction, TemporalTableFunctionImpl}
-import org.apache.flink.table.operations.TableOperation
-import org.apache.flink.table.plan.OperationTreeBuilder
+import org.apache.flink.table.operations.OperationExpressionsUtils.{extractAggregationsAndProperties, extractFieldReferences}
+import org.apache.flink.table.operations.{OperationTreeBuilder, TableOperation}
 import org.apache.flink.table.plan.logical._
 import org.apache.flink.table.util.JavaScalaConversionUtil.toJava
 
@@ -63,6 +62,8 @@ class TableImpl(
 
   override def printSchema(): Unit = print(tableSchema.toString)
 
+  override def getTableOperation: TableOperation = operationTree
+
   override def select(fields: String): Table = {
     select(ExpressionParser.parseExpressionList(fields).asScala: _*)
   }
@@ -83,24 +84,17 @@ class TableImpl(
       expressionsWithResolvedCalls,
       getUniqueAttributeSupplier)
 
-    val aggNames = extracted.getAggregations
-    val propNames = extracted.getWindowProperties
-    if (!propNames.isEmpty) {
+    if (!extracted.getWindowProperties.isEmpty) {
       throw new ValidationException("Window properties can only be used on windowed tables.")
     }
 
-    if (!aggNames.isEmpty) {
-      val projectsOnAgg =
-        replaceAggregationsAndProperties(
-          expressionsWithResolvedCalls,
-          aggNames,
-          propNames)
+    if (!extracted.getAggregations.isEmpty) {
       val projectFields = extractFieldReferences(expressionsWithResolvedCalls)
 
       wrap(
-        operationTreeBuilder.project(projectsOnAgg,
-          operationTreeBuilder.aggregate(emptyList[Expression], aggNames,
-            operationTreeBuilder.project(projectFields, operationTree.asInstanceOf[LogicalNode])
+        operationTreeBuilder.project(extracted.getProjections,
+          operationTreeBuilder.aggregate(emptyList[Expression], extracted.getAggregations,
+            operationTreeBuilder.project(projectFields, operationTree)
           )
         )
       )
@@ -122,15 +116,13 @@ class TableImpl(
       timeAttribute: Expression,
       primaryKey: Expression)
     : TemporalTableFunction = {
-    val temporalTable = operationTreeBuilder.createTemporalTable(
-      timeAttribute,
-      primaryKey,
-      operationTree)
+    val resolvedTimeAttribute = operationTreeBuilder.resolveExpression(timeAttribute, operationTree)
+    val resolvedPrimaryKey = operationTreeBuilder.resolveExpression(primaryKey, operationTree)
 
     TemporalTableFunctionImpl.create(
       operationTree,
-      temporalTable.timeAttribute,
-      temporalTable.primaryKey)
+      resolvedTimeAttribute,
+      resolvedPrimaryKey)
   }
 
   override def as(fields: String): Table = {
@@ -154,8 +146,7 @@ class TableImpl(
   }
 
   private def filterInternal(predicate: Expression): Table = {
-    val resolvedCallPredicate = predicate.accept(callResolver)
-    new TableImpl(tableEnv, operationTreeBuilder.filter(resolvedCallPredicate, operationTree))
+    new TableImpl(tableEnv, operationTreeBuilder.filter(predicate, operationTree))
   }
 
   override def where(predicate: String): Table = {
@@ -235,7 +226,7 @@ class TableImpl(
 
     wrap(operationTreeBuilder.join(
         this.operationTree,
-        right.asInstanceOf[TableImpl].operationTree,
+        right.getTableOperation,
         joinType,
         toJava(joinPredicate),
         correlated = false))
@@ -296,10 +287,10 @@ class TableImpl(
     }
     wrap(operationTreeBuilder.joinLateral(
         operationTree,
-        callExpr.accept(callResolver),
+        callExpr,
         joinType,
-        toJava(joinPredicate.map(_.accept(callResolver))
-      )))
+        toJava(joinPredicate)
+      ))
   }
 
   override def minus(right: Table): Table = {
@@ -374,7 +365,7 @@ class TableImpl(
   }
 
   private def orderByInternal(fields: Seq[Expression]): Table = {
-    wrap(operationTreeBuilder.sort(fields.map(_.accept(callResolver)).asJava, operationTree))
+    wrap(operationTreeBuilder.sort(fields.asJava, operationTree))
   }
 
   override def offset(offset: Int): Table = {
@@ -414,7 +405,7 @@ class TableImpl(
   }
 
   override def addColumns(fields: String): Table = {
-    addColumns(ExpressionParser.parseExpressionList(fields): _*);
+    addColumns(ExpressionParser.parseExpressionList(fields): _*)
   }
 
   override def addColumns(fields: Expression*): Table = {
@@ -438,7 +429,7 @@ class TableImpl(
     val aggNames = extracted.getAggregations
 
     if(aggNames.nonEmpty){
-      throw new TableException(
+      throw new ValidationException(
         s"The added field expression cannot be an aggregation, found [${aggNames.head}].")
     }
 
@@ -460,6 +451,14 @@ class TableImpl(
 
   override def dropColumns(fields: Expression*): Table = {
     wrap(operationTreeBuilder.dropColumns(fields, operationTree))
+  }
+
+  override def map(mapFunction: String): Table = {
+    map(ExpressionParser.parseExpression(mapFunction))
+  }
+
+  override def map(mapFunction: Expression): Table = {
+    wrap(operationTreeBuilder.map(mapFunction, operationTree))
   }
 
   /**
@@ -502,25 +501,18 @@ class GroupedTableImpl(
     val extracted = extractAggregationsAndProperties(expressionsWithResolvedCalls,
       tableImpl.getUniqueAttributeSupplier)
 
-    val aggNames = extracted.getAggregations
-    val propNames = extracted.getWindowProperties
-    if (!propNames.isEmpty) {
+    if (!extracted.getWindowProperties.isEmpty) {
       throw new ValidationException("Window properties can only be used on windowed tables.")
     }
 
-    val projectsOnAgg =
-      replaceAggregationsAndProperties(
-        expressionsWithResolvedCalls,
-        aggNames,
-        propNames)
     val projectFields = extractFieldReferences((expressionsWithResolvedCalls.asScala ++ groupKey)
       .asJava)
 
     new TableImpl(tableImpl.tableEnv,
-      tableImpl.operationTreeBuilder.project(projectsOnAgg,
+      tableImpl.operationTreeBuilder.project(extracted.getProjections,
         tableImpl.operationTreeBuilder.aggregate(
           groupKey.asJava,
-          aggNames,
+          extracted.getAggregations,
           tableImpl.operationTreeBuilder.project(projectFields, tableImpl.operationTree)
         )
       ))
@@ -582,26 +574,18 @@ class WindowGroupedTableImpl(
       expressionsWithResolvedCalls,
       tableImpl.getUniqueAttributeSupplier)
 
-    val aggNames = extracted.getAggregations
-    val propNames = extracted.getWindowProperties
-
-    val projectsOnAgg =
-      replaceAggregationsAndProperties(
-        expressionsWithResolvedCalls,
-        aggNames,
-        propNames)
     val projectFields = extractFieldReferences(
       (expressionsWithResolvedCalls.asScala ++ groupKeys :+ this.window.getTimeField)
         .asJava)
 
     new TableImpl(tableImpl.tableEnv,
       tableImpl.operationTreeBuilder.project(
-        projectsOnAgg,
+        extracted.getProjections,
         tableImpl.operationTreeBuilder.windowAggregate(
           groupKeys.asJava,
           window,
-          propNames,
-          aggNames,
+          extracted.getWindowProperties,
+          extracted.getAggregations,
           tableImpl.operationTreeBuilder.project(projectFields, tableImpl.operationTree)
         ),
         // required for proper resolution of the time attribute in multi-windows
@@ -634,12 +618,11 @@ class OverWindowedTableImpl(
     fields: Seq[Expression],
     logicalOverWindows: Seq[OverWindow])
   : Table = {
-    val expressionsWithResolvedCalls = fields.map(_.accept(tableImpl.callResolver))
 
     new TableImpl(
       tableImpl.tableEnv,
       tableImpl.operationTreeBuilder
-        .project(expressionsWithResolvedCalls.asJava,
+        .project(fields.asJava,
           tableImpl.operationTree,
           logicalOverWindows.asJava)
     )

@@ -25,8 +25,8 @@ import org.apache.flink.runtime.io.network.buffer.NetworkBufferPool;
 import org.apache.flink.runtime.io.network.partition.ResultPartition;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionManager;
 import org.apache.flink.runtime.io.network.partition.consumer.SingleInputGate;
+import org.apache.flink.runtime.taskexecutor.TaskExecutor;
 import org.apache.flink.runtime.taskmanager.Task;
-import org.apache.flink.runtime.taskmanager.TaskManager;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.Preconditions;
 
@@ -39,7 +39,7 @@ import java.util.Optional;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * Network I/O components of each {@link TaskManager} instance. The network environment contains
+ * Network I/O components of each {@link TaskExecutor} instance. The network environment contains
  * the data structures that keep track of all intermediate results and all data exchanges.
  */
 public class NetworkEnvironment {
@@ -54,7 +54,7 @@ public class NetworkEnvironment {
 
 	private final ResultPartitionManager resultPartitionManager;
 
-	private final TaskEventDispatcher taskEventDispatcher;
+	private final TaskEventPublisher taskEventPublisher;
 
 	private final int partitionRequestInitialBackoff;
 
@@ -94,7 +94,7 @@ public class NetworkEnvironment {
 			NetworkBufferPool networkBufferPool,
 			ConnectionManager connectionManager,
 			ResultPartitionManager resultPartitionManager,
-			TaskEventDispatcher taskEventDispatcher,
+			TaskEventPublisher taskEventPublisher,
 			int partitionRequestInitialBackoff,
 			int partitionRequestMaxBackoff,
 			int networkBuffersPerChannel,
@@ -104,7 +104,7 @@ public class NetworkEnvironment {
 		this.networkBufferPool = checkNotNull(networkBufferPool);
 		this.connectionManager = checkNotNull(connectionManager);
 		this.resultPartitionManager = checkNotNull(resultPartitionManager);
-		this.taskEventDispatcher = checkNotNull(taskEventDispatcher);
+		this.taskEventPublisher = checkNotNull(taskEventPublisher);
 
 		this.partitionRequestInitialBackoff = partitionRequestInitialBackoff;
 		this.partitionRequestMaxBackoff = partitionRequestMaxBackoff;
@@ -122,10 +122,6 @@ public class NetworkEnvironment {
 
 	public ResultPartitionManager getResultPartitionManager() {
 		return resultPartitionManager;
-	}
-
-	public TaskEventDispatcher getTaskEventDispatcher() {
-		return taskEventDispatcher;
 	}
 
 	public ConnectionManager getConnectionManager() {
@@ -200,8 +196,6 @@ public class NetworkEnvironment {
 				throw new IOException(t.getMessage(), t);
 			}
 		}
-
-		taskEventDispatcher.registerPartition(partition.getPartitionId());
 	}
 
 	@VisibleForTesting
@@ -251,7 +245,6 @@ public class NetworkEnvironment {
 			}
 
 			for (ResultPartition partition : task.getProducedPartitions()) {
-				taskEventDispatcher.unregisterPartition(partition.getPartitionId());
 				partition.close();
 			}
 
@@ -280,7 +273,7 @@ public class NetworkEnvironment {
 
 			try {
 				LOG.debug("Starting network connection manager");
-				connectionManager.start(resultPartitionManager, taskEventDispatcher);
+				connectionManager.start(resultPartitionManager, taskEventPublisher);
 			} catch (IOException t) {
 				throw new IOException("Failed to instantiate network connection manager.", t);
 			}
@@ -315,8 +308,6 @@ public class NetworkEnvironment {
 			catch (Throwable t) {
 				LOG.warn("Cannot shut down the result partition manager.", t);
 			}
-
-			taskEventDispatcher.clearAll();
 
 			// make sure that the global buffer pool re-acquires all buffers
 			networkBufferPool.destroyAllBufferPools();
