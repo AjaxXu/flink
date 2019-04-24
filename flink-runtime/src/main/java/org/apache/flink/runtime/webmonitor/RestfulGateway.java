@@ -58,15 +58,6 @@ public interface RestfulGateway extends RpcGateway {
 	CompletableFuture<Acknowledge> cancelJob(JobID jobId, @RpcTimeout Time timeout);
 
 	/**
-	 * Stop the given job.
-	 *
-	 * @param jobId identifying the job to stop
-	 * @param timeout of the operation
-	 * @return A future acknowledge if the stopping succeeded
-	 */
-	CompletableFuture<Acknowledge> stopJob(JobID jobId, @RpcTimeout Time timeout);
-
-	/**
 	 * Requests the {@link ArchivedExecutionGraph} for the given jobId. If there is no such graph, then
 	 * the future is completed with a {@link FlinkJobNotFoundException}.
 	 *
@@ -132,6 +123,25 @@ public interface RestfulGateway extends RpcGateway {
 			String targetDirectory,
 			boolean cancelJob,
 			@RpcTimeout Time timeout) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Stops the job with a savepoint.
+	 *
+	 * @param jobId ID of the job for which the savepoint should be triggered.
+	 * @param targetDirectory to which to write the savepoint data or null if the
+	 *                           default savepoint directory should be used
+	 * @param advanceToEndOfEventTime Flag indicating if the source should inject a {@code MAX_WATERMARK} in the pipeline
+	 *                              to fire any registered event-time timers
+	 * @param timeout for the rpc call
+	 * @return Future which is completed with the savepoint path once completed
+	 */
+	default CompletableFuture<String> stopWithSavepoint(
+			final JobID jobId,
+			final String targetDirectory,
+			final boolean advanceToEndOfEventTime,
+			@RpcTimeout final Time timeout) {
 		throw new UnsupportedOperationException();
 	}
 

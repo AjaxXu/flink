@@ -26,6 +26,7 @@ import org.apache.flink.runtime.blob.BlobCacheService;
 import org.apache.flink.runtime.blob.TransientBlobCache;
 import org.apache.flink.runtime.blob.TransientBlobKey;
 import org.apache.flink.runtime.checkpoint.CheckpointOptions;
+import org.apache.flink.runtime.checkpoint.CheckpointType;
 import org.apache.flink.runtime.checkpoint.JobManagerTaskRestore;
 import org.apache.flink.runtime.clusterframework.types.AllocationID;
 import org.apache.flink.runtime.clusterframework.types.ResourceID;
@@ -268,6 +269,12 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 		this.currentRegistrationTimeoutId = null;
 
 		this.stackTraceSampleService = new StackTraceSampleService(rpcService.getScheduledExecutor());
+	}
+
+	@Override
+	public CompletableFuture<Boolean> canBeReleased() {
+		return CompletableFuture.completedFuture(
+			taskExecutorServices.getNetworkEnvironment().getResultPartitionManager().areAllPartitionsReleased());
 	}
 
 	// ------------------------------------------------------------------------
@@ -593,25 +600,6 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 		}
 	}
 
-	@Override
-	public CompletableFuture<Acknowledge> stopTask(ExecutionAttemptID executionAttemptID, Time timeout) {
-		final Task task = taskSlotTable.getTask(executionAttemptID);
-
-		if (task != null) {
-			try {
-				task.stopExecution();
-				return CompletableFuture.completedFuture(Acknowledge.get());
-			} catch (Throwable t) {
-				return FutureUtils.completedExceptionally(new TaskException("Cannot stop task for execution " + executionAttemptID + '.', t));
-			}
-		} else {
-			final String message = "Cannot find task to stop for execution " + executionAttemptID + '.';
-
-			log.debug(message);
-			return FutureUtils.completedExceptionally(new TaskException(message));
-		}
-	}
-
 	// ----------------------------------------------------------------------
 	// Partition lifecycle RPCs
 	// ----------------------------------------------------------------------
@@ -697,13 +685,19 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 			ExecutionAttemptID executionAttemptID,
 			long checkpointId,
 			long checkpointTimestamp,
-			CheckpointOptions checkpointOptions) {
+			CheckpointOptions checkpointOptions,
+			boolean advanceToEndOfEventTime) {
 		log.debug("Trigger checkpoint {}@{} for {}.", checkpointId, checkpointTimestamp, executionAttemptID);
+
+		final CheckpointType checkpointType = checkpointOptions.getCheckpointType();
+		if (advanceToEndOfEventTime && !(checkpointType.isSynchronous() && checkpointType.isSavepoint())) {
+			throw new IllegalArgumentException("Only synchronous savepoints are allowed to advance the watermark to MAX.");
+		}
 
 		final Task task = taskSlotTable.getTask(executionAttemptID);
 
 		if (task != null) {
-			task.triggerCheckpointBarrier(checkpointId, checkpointTimestamp, checkpointOptions);
+			task.triggerCheckpointBarrier(checkpointId, checkpointTimestamp, checkpointOptions, advanceToEndOfEventTime);
 
 			return CompletableFuture.completedFuture(Acknowledge.get());
 		} else {

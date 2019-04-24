@@ -23,16 +23,18 @@ import java.util.{Collections, Optional, List => JList}
 import org.apache.flink.api.java.operators.join.JoinType
 import org.apache.flink.table.api._
 import org.apache.flink.table.expressions.ExpressionResolver.resolverFor
-import org.apache.flink.table.expressions.FunctionDefinition.Type.SCALAR_FUNCTION
+import org.apache.flink.table.expressions.FunctionDefinition.Type.{SCALAR_FUNCTION, TABLE_FUNCTION}
 import org.apache.flink.table.expressions._
 import org.apache.flink.table.expressions.catalog.FunctionDefinitionCatalog
 import org.apache.flink.table.expressions.lookups.TableReferenceLookup
 import org.apache.flink.table.functions.utils.UserDefinedFunctionUtils
+import org.apache.flink.table.operations.AliasOperationUtils.createAliasList
 import org.apache.flink.table.plan.logical.{Minus => LMinus, _}
 import org.apache.flink.table.util.JavaScalaConversionUtil
 import org.apache.flink.table.util.JavaScalaConversionUtil.toScala
 import org.apache.flink.util.Preconditions
 
+import _root_.scala.collection.JavaConversions._
 import _root_.scala.collection.JavaConverters._
 
 /**
@@ -43,7 +45,10 @@ class OperationTreeBuilder(private val tableEnv: TableEnvironment) {
   private val expressionBridge: ExpressionBridge[PlannerExpression] = tableEnv.expressionBridge
   private val functionCatalog: FunctionDefinitionCatalog = tableEnv.functionCatalog
 
+  private val isStreaming = tableEnv.isInstanceOf[StreamTableEnvironment]
   private val projectionOperationFactory = new ProjectionOperationFactory(expressionBridge)
+  private val sortOperationFactory = new SortOperationFactory(expressionBridge, isStreaming)
+  private val calculatedTableFactory = new CalculatedTableFactory(expressionBridge)
   private val noWindowPropertyChecker = new NoWindowPropertyChecker(
     "Window start and end properties are not available for Over windows.")
 
@@ -126,8 +131,10 @@ class OperationTreeBuilder(private val tableEnv: TableEnvironment) {
       child: TableOperation)
     : TableOperation = {
 
+    val resolver = resolverFor(tableCatalog, functionCatalog, child).build()
     val inputFieldNames = child.getTableSchema.getFieldNames.toList.asJava
-    val validateAliases = ColumnOperationUtils.renameColumns(inputFieldNames, aliases)
+    val validateAliases =
+      ColumnOperationUtils.renameColumns(inputFieldNames, resolver.resolve(aliases))
 
     project(validateAliases, child)
   }
@@ -137,8 +144,9 @@ class OperationTreeBuilder(private val tableEnv: TableEnvironment) {
       child: TableOperation)
     : TableOperation = {
 
+    val resolver = resolverFor(tableCatalog, functionCatalog, child).build()
     val inputFieldNames = child.getTableSchema.getFieldNames.toList.asJava
-    val finalFields = ColumnOperationUtils.dropFields(inputFieldNames, fieldLists)
+    val finalFields = ColumnOperationUtils.dropFields(inputFieldNames, resolver.resolve(fieldLists))
 
     project(finalFields, child)
   }
@@ -229,15 +237,15 @@ class OperationTreeBuilder(private val tableEnv: TableEnvironment) {
     val resolver = resolverFor(tableCatalog, functionCatalog, leftNode).build()
     val resolvedFunction = resolveSingleExpression(tableFunction, resolver)
 
-    val temporalTable = UserDefinedFunctionUtils.createLogicalFunctionCall(
-      expressionBridge.bridge(resolvedFunction),
-      leftNode).validate(tableEnv)
+    val temporalTable = calculatedTableFactory.create(
+      resolvedFunction,
+      leftNode)
 
     join(left, temporalTable, joinType, condition, correlated = true)
   }
 
   def resolveExpression(expression: Expression, tableOperation: TableOperation*)
-    : PlannerExpression = {
+    : Expression = {
     val resolver = resolverFor(tableCatalog, functionCatalog, tableOperation: _*).build()
 
     resolveSingleExpression(expression, resolver)
@@ -246,12 +254,12 @@ class OperationTreeBuilder(private val tableEnv: TableEnvironment) {
   private def resolveSingleExpression(
       expression: Expression,
       resolver: ExpressionResolver)
-    : PlannerExpression = {
-    val resolvedTimeAttributes = resolver.resolve(List(expression).asJava)
-    if (resolvedTimeAttributes.size() != 1) {
+    : Expression = {
+    val resolvedExpression = resolver.resolve(List(expression).asJava)
+    if (resolvedExpression.size() != 1) {
       throw new ValidationException("Expected single expression")
     } else {
-      expressionBridge.bridge(resolvedTimeAttributes.get(0))
+      resolvedExpression.get(0)
     }
   }
 
@@ -259,13 +267,11 @@ class OperationTreeBuilder(private val tableEnv: TableEnvironment) {
       fields: JList[Expression],
       child: TableOperation)
     : TableOperation = {
-    val childNode = child.asInstanceOf[LogicalNode]
 
-    val resolver = resolverFor(tableCatalog, functionCatalog, childNode).build()
-    val resolvedExpressions = resolver.resolve(fields)
-    val order = SortOperationUtils.wrapInOrder(resolvedExpressions).asScala.map(bridgeExpression)
+    val resolver = resolverFor(tableCatalog, functionCatalog, child).build()
+    val resolvedFields = resolver.resolve(fields)
 
-    Sort(order, childNode).validate(tableEnv)
+    sortOperationFactory.createSort(resolvedFields, child)
   }
 
   def limitWithOffset(offset: Int, child: TableOperation): TableOperation = {
@@ -289,7 +295,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvironment) {
   }
 
   def limit(offset: Int, fetch: Int, child: TableOperation): TableOperation = {
-    Limit(offset, fetch, child.asInstanceOf[LogicalNode]).validate(tableEnv)
+    sortOperationFactory.createLimit(offset, fetch, child)
   }
 
   def alias(
@@ -297,10 +303,9 @@ class OperationTreeBuilder(private val tableEnv: TableEnvironment) {
       child: TableOperation)
     : TableOperation = {
 
-    val childNode = child.asInstanceOf[LogicalNode]
-    val convertedFields = fields.asScala.map(expressionBridge.bridge)
+    val newFields = createAliasList(fields, child)
 
-    AliasNode(convertedFields, childNode).validate(tableEnv)
+    project(newFields, child, explicitAlias = true)
   }
 
   def filter(
@@ -348,18 +353,68 @@ class OperationTreeBuilder(private val tableEnv: TableEnvironment) {
 
   def map(mapFunction: Expression, child: TableOperation): TableOperation = {
 
-    if (!isScalarFunction(mapFunction)) {
+    val resolver = resolverFor(tableCatalog, functionCatalog, child).build()
+    val resolvedMapFunction = resolveSingleExpression(mapFunction, resolver)
+
+    if (!isScalarFunction(resolvedMapFunction)) {
       throw new ValidationException("Only ScalarFunction can be used in the map operator.")
     }
 
     val expandedFields = new CallExpression(BuiltInFunctionDefinitions.FLATTEN,
-      List(mapFunction).asJava)
+      List(resolvedMapFunction).asJava)
     project(Collections.singletonList(expandedFields), child)
   }
 
   private def isScalarFunction(mapFunction: Expression) = {
     mapFunction.isInstanceOf[CallExpression] &&
       mapFunction.asInstanceOf[CallExpression].getFunctionDefinition.getType == SCALAR_FUNCTION
+  }
+
+  def flatMap(tableFunction: Expression, child: TableOperation): TableOperation = {
+
+    val resolver = resolverFor(tableCatalog, functionCatalog, child).build()
+    val resolvedTableFunction = resolveSingleExpression(tableFunction, resolver)
+
+    if (!isTableFunction(resolvedTableFunction)) {
+      throw new ValidationException("Only TableFunction can be used in the flatMap operator.")
+    }
+
+    val originFieldNames: Seq[String] =
+      resolvedTableFunction.asInstanceOf[CallExpression].getFunctionDefinition match {
+        case tfd: TableFunctionDefinition =>
+          UserDefinedFunctionUtils.getFieldInfo(tfd.getResultType)._1
+      }
+
+    def getUniqueName(inputName: String, usedFieldNames: Seq[String]): String = {
+      var i = 0
+      var resultName = inputName
+      while (usedFieldNames.contains(resultName)) {
+        resultName = resultName + "_" + i
+        i += 1
+      }
+      resultName
+    }
+
+    val usedFieldNames = child.asInstanceOf[LogicalNode].output.map(_.name).toBuffer
+    val newFieldNames = originFieldNames.map({ e =>
+      val resultName = getUniqueName(e, usedFieldNames)
+      usedFieldNames.append(resultName)
+      resultName
+    })
+
+    val renamedTableFunction = ApiExpressionUtils.call(
+      BuiltInFunctionDefinitions.AS,
+      resolvedTableFunction +: newFieldNames.map(ApiExpressionUtils.valueLiteral(_)): _*)
+    val joinNode = joinLateral(child, renamedTableFunction, JoinType.INNER, Optional.empty())
+    val rightNode = dropColumns(
+      child.getTableSchema.getFieldNames.map(a => new UnresolvedReferenceExpression(a)).toList,
+      joinNode)
+    alias(originFieldNames.map(a => new UnresolvedReferenceExpression(a)), rightNode)
+  }
+
+  private def isTableFunction(tableFunction: Expression) = {
+    tableFunction.isInstanceOf[CallExpression] &&
+      tableFunction.asInstanceOf[CallExpression].getFunctionDefinition.getType == TABLE_FUNCTION
   }
 
   class NoWindowPropertyChecker(val exceptionMessage: String)

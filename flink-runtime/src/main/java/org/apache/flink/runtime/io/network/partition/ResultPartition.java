@@ -36,6 +36,8 @@ import org.apache.flink.runtime.taskmanager.TaskActions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -331,6 +333,10 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 		}
 	}
 
+	public void fail(@Nullable Throwable throwable) {
+		partitionManager.releasePartitionsProducedBy(partitionId.getProducerId(), throwable);
+	}
+
 	/**
 	 * Returns the requested subpartition.
 	 */
@@ -376,6 +382,16 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 				break;
 			}
 		}
+	}
+
+	/**
+	 * Whether this partition is released.
+	 *
+	 * <p>A partition is released when each subpartition is either consumed and communication is closed by consumer
+	 * or failed. A partition is also released if task is cancelled.
+	 */
+	public boolean isReleased() {
+		return isReleased.get();
 	}
 
 	@Override

@@ -101,6 +101,7 @@ Usage:
      -d,--detached                   Start detached
      -jm,--jobManagerMemory <arg>    Memory for JobManager Container with optional unit (default: MB)
      -nm,--name                      Set a custom name for the application on YARN
+     -at,--applicationType           Set a custom application type on YARN
      -q,--query                      Display available YARN resources (memory, cores)
      -qu,--queue <arg>               Specify YARN queue.
      -s,--slots <arg>                Number of slots per TaskManager
@@ -212,7 +213,7 @@ Use the *run* action to submit a job to YARN. The client is able to determine th
 wget -O LICENSE-2.0.txt http://www.apache.org/licenses/LICENSE-2.0.txt
 hadoop fs -copyFromLocal LICENSE-2.0.txt hdfs:/// ...
 ./bin/flink run ./examples/batch/WordCount.jar \
-        hdfs:///..../LICENSE-2.0.txt hdfs:///.../wordcount-result.txt
+       --input hdfs:///..../LICENSE-2.0.txt --output hdfs:///.../wordcount-result.txt
 {% endhighlight %}
 
 If there is the following error, make sure that all TaskManagers started:

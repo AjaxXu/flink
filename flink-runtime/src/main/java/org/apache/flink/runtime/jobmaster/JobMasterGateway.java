@@ -66,14 +66,6 @@ public interface JobMasterGateway extends
 	CompletableFuture<Acknowledge> cancel(@RpcTimeout Time timeout);
 
 	/**
-	 * Cancel the currently executed job.
-	 *
-	 * @param timeout of this operation
-	 * @return Future acknowledge if the cancellation was successful
-	 */
-	CompletableFuture<Acknowledge> stop(@RpcTimeout Time timeout);
-
-	/**
 	 * Triggers rescaling of the executed job.
 	 *
 	 * @param newParallelism new parallelism of the job
@@ -261,6 +253,21 @@ public interface JobMasterGateway extends
 	CompletableFuture<String> triggerSavepoint(
 		@Nullable final String targetDirectory,
 		final boolean cancelJob,
+		@RpcTimeout final Time timeout);
+
+	/**
+	 * Stops the job with a savepoint.
+	 *
+	 * @param targetDirectory to which to write the savepoint data or null if the
+	 *                           default savepoint directory should be used
+	 * @param advanceToEndOfEventTime Flag indicating if the source should inject a {@code MAX_WATERMARK} in the pipeline
+	 *                              to fire any registered event-time timers
+	 * @param timeout for the rpc call
+	 * @return Future which is completed with the savepoint path once completed
+	 */
+	CompletableFuture<String> stopWithSavepoint(
+		@Nullable final String targetDirectory,
+		final boolean advanceToEndOfEventTime,
 		@RpcTimeout final Time timeout);
 
 	/**

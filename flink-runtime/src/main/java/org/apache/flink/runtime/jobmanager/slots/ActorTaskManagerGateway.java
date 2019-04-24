@@ -106,19 +106,6 @@ public class ActorTaskManagerGateway implements TaskManagerGateway {
 	}
 
 	@Override
-	public CompletableFuture<Acknowledge> stopTask(ExecutionAttemptID executionAttemptID, Time timeout) {
-		Preconditions.checkNotNull(executionAttemptID);
-		Preconditions.checkNotNull(timeout);
-
-		scala.concurrent.Future<Acknowledge> stopResult = actorGateway.ask(
-			new TaskMessages.StopTask(executionAttemptID),
-			new FiniteDuration(timeout.getSize(), timeout.getUnit()))
-			.mapTo(ClassTag$.MODULE$.<Acknowledge>apply(Acknowledge.class));
-
-		return FutureUtils.toJava(stopResult);
-	}
-
-	@Override
 	public CompletableFuture<Acknowledge> cancelTask(ExecutionAttemptID executionAttemptID, Time timeout) {
 		Preconditions.checkNotNull(executionAttemptID);
 		Preconditions.checkNotNull(timeout);
@@ -174,7 +161,10 @@ public class ActorTaskManagerGateway implements TaskManagerGateway {
 			JobID jobId,
 			long checkpointId,
 			long timestamp,
-			CheckpointOptions checkpointOptions) {
+			CheckpointOptions checkpointOptions,
+			boolean advanceToEndOfEventTime) {
+
+		// we ignore the `advanceToEndOfEventTime` because this is dead code.
 
 		Preconditions.checkNotNull(executionAttemptID);
 		Preconditions.checkNotNull(jobId);

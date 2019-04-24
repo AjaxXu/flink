@@ -48,6 +48,8 @@ public class StreamSource<OUT, SRC extends SourceFunction<OUT>> extends Abstract
 
 	private transient volatile boolean canceledOrStopped = false;
 
+	private transient volatile boolean hasSentMaxWatermark = false;
+
 	public StreamSource(SRC sourceFunction) {
 		super(sourceFunction);
 
@@ -97,7 +99,7 @@ public class StreamSource<OUT, SRC extends SourceFunction<OUT>> extends Abstract
 			// or the function was canceled or stopped. For the finite source case, we should emit
 			// a final watermark that indicates that we reached the end of event-time
 			if (!isCanceledOrStopped()) {
-				ctx.emitWatermark(Watermark.MAX_WATERMARK);
+				advanceToEndOfEventTime();
 			}
 		} finally {
 			// make sure that the context is closed in any case
@@ -105,6 +107,13 @@ public class StreamSource<OUT, SRC extends SourceFunction<OUT>> extends Abstract
 			if (latencyEmitter != null) {
 				latencyEmitter.close();
 			}
+		}
+	}
+
+	public void advanceToEndOfEventTime() {
+		if (!hasSentMaxWatermark) {
+			ctx.emitWatermark(Watermark.MAX_WATERMARK);
+			hasSentMaxWatermark = true;
 		}
 	}
 

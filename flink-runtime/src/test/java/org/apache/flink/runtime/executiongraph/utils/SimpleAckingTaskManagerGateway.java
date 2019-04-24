@@ -84,11 +84,6 @@ public class SimpleAckingTaskManagerGateway implements TaskManagerGateway {
 	}
 
 	@Override
-	public CompletableFuture<Acknowledge> stopTask(ExecutionAttemptID executionAttemptID, Time timeout) {
-		return CompletableFuture.completedFuture(Acknowledge.get());
-	}
-
-	@Override
 	public CompletableFuture<Acknowledge> cancelTask(ExecutionAttemptID executionAttemptID, Time timeout) {
 		cancelConsumer.accept(executionAttemptID);
 		return CompletableFuture.completedFuture(Acknowledge.get());
@@ -115,7 +110,8 @@ public class SimpleAckingTaskManagerGateway implements TaskManagerGateway {
 			JobID jobId,
 			long checkpointId,
 			long timestamp,
-			CheckpointOptions checkpointOptions) {}
+			CheckpointOptions checkpointOptions,
+			boolean advanceToEndOfEventTime) {}
 
 	@Override
 	public CompletableFuture<Acknowledge> freeSlot(AllocationID allocationId, Throwable cause, Time timeout) {

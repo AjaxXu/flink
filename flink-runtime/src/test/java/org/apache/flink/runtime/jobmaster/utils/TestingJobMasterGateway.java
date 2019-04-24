@@ -82,9 +82,6 @@ public class TestingJobMasterGateway implements JobMasterGateway {
 	private final Supplier<CompletableFuture<Acknowledge>> cancelFunction;
 
 	@Nonnull
-	private final Supplier<CompletableFuture<Acknowledge>> stopFunction;
-
-	@Nonnull
 	private final BiFunction<Integer, RescalingBehaviour, CompletableFuture<Acknowledge>> rescalingJobFunction;
 
 	@Nonnull
@@ -136,6 +133,9 @@ public class TestingJobMasterGateway implements JobMasterGateway {
 	private final BiFunction<String, Boolean, CompletableFuture<String>> triggerSavepointFunction;
 
 	@Nonnull
+	private final BiFunction<String, Boolean, CompletableFuture<String>> stopWithSavepointFunction;
+
+	@Nonnull
 	private final Function<JobVertexID, CompletableFuture<OperatorBackPressureStatsResponse>> requestOperatorBackPressureStatsFunction;
 
 	@Nonnull
@@ -166,7 +166,6 @@ public class TestingJobMasterGateway implements JobMasterGateway {
 			@Nonnull String address,
 			@Nonnull String hostname,
 			@Nonnull Supplier<CompletableFuture<Acknowledge>> cancelFunction,
-			@Nonnull Supplier<CompletableFuture<Acknowledge>> stopFunction,
 			@Nonnull BiFunction<Integer, RescalingBehaviour, CompletableFuture<Acknowledge>> rescalingJobFunction,
 			@Nonnull TriFunction<Collection<JobVertexID>, Integer, RescalingBehaviour, CompletableFuture<Acknowledge>> rescalingOperatorsFunction,
 			@Nonnull Function<TaskExecutionState, CompletableFuture<Acknowledge>> updateTaskExecutionStateFunction,
@@ -184,6 +183,7 @@ public class TestingJobMasterGateway implements JobMasterGateway {
 			@Nonnull Supplier<CompletableFuture<JobDetails>> requestJobDetailsSupplier,
 			@Nonnull Supplier<CompletableFuture<ArchivedExecutionGraph>> requestJobSupplier,
 			@Nonnull BiFunction<String, Boolean, CompletableFuture<String>> triggerSavepointFunction,
+			@Nonnull BiFunction<String, Boolean, CompletableFuture<String>> stopWithSavepointFunction,
 			@Nonnull Function<JobVertexID, CompletableFuture<OperatorBackPressureStatsResponse>> requestOperatorBackPressureStatsFunction,
 			@Nonnull BiConsumer<AllocationID, Throwable> notifyAllocationFailureConsumer,
 			@Nonnull Consumer<Tuple5<JobID, ExecutionAttemptID, Long, CheckpointMetrics, TaskStateSnapshot>> acknowledgeCheckpointConsumer,
@@ -196,7 +196,6 @@ public class TestingJobMasterGateway implements JobMasterGateway {
 		this.address = address;
 		this.hostname = hostname;
 		this.cancelFunction = cancelFunction;
-		this.stopFunction = stopFunction;
 		this.rescalingJobFunction = rescalingJobFunction;
 		this.rescalingOperatorsFunction = rescalingOperatorsFunction;
 		this.updateTaskExecutionStateFunction = updateTaskExecutionStateFunction;
@@ -214,6 +213,7 @@ public class TestingJobMasterGateway implements JobMasterGateway {
 		this.requestJobDetailsSupplier = requestJobDetailsSupplier;
 		this.requestJobSupplier = requestJobSupplier;
 		this.triggerSavepointFunction = triggerSavepointFunction;
+		this.stopWithSavepointFunction = stopWithSavepointFunction;
 		this.requestOperatorBackPressureStatsFunction = requestOperatorBackPressureStatsFunction;
 		this.notifyAllocationFailureConsumer = notifyAllocationFailureConsumer;
 		this.acknowledgeCheckpointConsumer = acknowledgeCheckpointConsumer;
@@ -228,11 +228,6 @@ public class TestingJobMasterGateway implements JobMasterGateway {
 	@Override
 	public CompletableFuture<Acknowledge> cancel(Time timeout) {
 		return cancelFunction.get();
-	}
-
-	@Override
-	public CompletableFuture<Acknowledge> stop(Time timeout) {
-		return stopFunction.get();
 	}
 
 	@Override
@@ -318,6 +313,11 @@ public class TestingJobMasterGateway implements JobMasterGateway {
 	@Override
 	public CompletableFuture<String> triggerSavepoint(@Nullable final String targetDirectory, final boolean cancelJob, final Time timeout) {
 		return triggerSavepointFunction.apply(targetDirectory, cancelJob);
+	}
+
+	@Override
+	public CompletableFuture<String> stopWithSavepoint(@Nullable final String targetDirectory, final boolean advanceToEndOfEventTime, final Time timeout) {
+		return stopWithSavepointFunction.apply(targetDirectory, advanceToEndOfEventTime);
 	}
 
 	@Override

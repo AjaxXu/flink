@@ -22,10 +22,10 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.tuple.{Tuple2 => JTuple2}
 import org.apache.flink.metrics.Gauge
 import org.apache.flink.table.`type`.{InternalType, RowType}
-import org.apache.flink.table.api.TableConfig
 import org.apache.flink.table.codegen.CodeGenUtils.{binaryRowFieldSetAccess, binaryRowSetNull}
 import org.apache.flink.table.codegen.agg.batch.AggCodeGenHelper.buildAggregateArgsMapping
-import org.apache.flink.table.codegen.{CodeGenUtils, CodeGeneratorContext, ExprCodeGenerator, GenerateUtils, GeneratedExpression, OperatorCodeGenerator, SortCodeGenerator}
+import org.apache.flink.table.codegen.sort.SortCodeGenerator
+import org.apache.flink.table.codegen.{CodeGenUtils, CodeGeneratorContext, ExprCodeGenerator, GenerateUtils, GeneratedExpression, OperatorCodeGenerator}
 import org.apache.flink.table.dataformat.{BaseRow, BinaryRow, GenericRow, JoinedRow}
 import org.apache.flink.table.expressions.{CallExpression, Expression, ExpressionVisitor, FieldReferenceExpression, ResolvedAggInputReference, RexNodeConverter, SymbolExpression, TypeLiteralExpression, UnresolvedReferenceExpression, ValueLiteralExpression}
 import org.apache.flink.table.functions.aggfunctions.DeclarativeAggregateFunction
@@ -55,7 +55,6 @@ object HashAggCodeGenHelper {
 
   private[flink] def prepareHashAggMap(
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       reservedManagedMemory: Long,
       maxManagedMemory: Long,
       groupKeyTypesTerm: String,
@@ -109,7 +108,6 @@ object HashAggCodeGenHelper {
       isMerge: Boolean,
       isFinal: Boolean,
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       builder: RelBuilder,
       groupingAndAuxGrouping: (Array[Int], Array[Int]),
       inputTerm: String,
@@ -131,7 +129,7 @@ object HashAggCodeGenHelper {
     val aggBuffMapping = buildAggregateAggBuffMapping(aggBufferTypes)
     // gen code to create empty agg buffer
     val initedAggBuffer = genReusableEmptyAggBuffer(
-      ctx, config, builder, inputTerm, inputType, auxGrouping, aggregates, aggBufferRowType)
+      ctx, builder, inputTerm, inputType, auxGrouping, aggregates, aggBufferRowType)
     if (auxGrouping.isEmpty) {
       // create an empty agg buffer and initialized make it reusable
       ctx.addReusableOpenStatement(initedAggBuffer.code)
@@ -140,7 +138,6 @@ object HashAggCodeGenHelper {
     val aggregate = genAggregate(
       isMerge,
       ctx,
-      config,
       builder,
       inputType,
       inputTerm,
@@ -156,7 +153,6 @@ object HashAggCodeGenHelper {
       isMerge,
       isFinal,
       ctx,
-      config,
       builder,
       auxGrouping,
       aggregates,
@@ -190,7 +186,6 @@ object HashAggCodeGenHelper {
     */
   private[flink] def genReusableEmptyAggBuffer(
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       builder: RelBuilder,
       inputTerm: String,
       inputType: RowType,
@@ -226,7 +221,6 @@ object HashAggCodeGenHelper {
   private[flink] def genAggregate(
       isMerge: Boolean,
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       builder: RelBuilder,
       inputType: RowType,
       inputTerm: String,
@@ -240,7 +234,6 @@ object HashAggCodeGenHelper {
     if (isMerge) {
       genMergeAggBuffer(
         ctx,
-        config,
         builder,
         inputTerm,
         inputType,
@@ -253,7 +246,6 @@ object HashAggCodeGenHelper {
     } else {
       genAccumulateAggBuffer(
         ctx,
-        config,
         builder,
         inputTerm,
         inputType,
@@ -270,7 +262,6 @@ object HashAggCodeGenHelper {
       isMerge: Boolean,
       isFinal: Boolean,
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       builder: RelBuilder,
       auxGrouping: Array[Int],
       aggregates: Seq[UserDefinedFunction],
@@ -393,7 +384,6 @@ object HashAggCodeGenHelper {
     */
   private[flink] def genMergeAggBuffer(
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       builder: RelBuilder,
       inputTerm: String,
       inputType: RowType,
@@ -448,7 +438,6 @@ object HashAggCodeGenHelper {
     */
   private[flink] def genAccumulateAggBuffer(
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       builder: RelBuilder,
       inputTerm: String,
       inputType: RowType,
@@ -487,7 +476,7 @@ object HashAggCodeGenHelper {
         val t = aggBufferType.getTypeAt(idx)
         val writeCode = binaryRowFieldSetAccess(
           idx, currentAggBufferTerm, t, accumulateExpr.resultTerm)
-        val innerCode = if (config.getNullCheck) {
+        val innerCode =
           s"""
              |${accumulateExpr.code}
              |if (${accumulateExpr.nullTerm}) {
@@ -496,13 +485,6 @@ object HashAggCodeGenHelper {
              |  $writeCode;
              |}
              |""".stripMargin.trim
-        }
-        else {
-          s"""
-             |${accumulateExpr.code}
-             |$writeCode;
-             |""".stripMargin.trim
-        }
 
         if (filterArg >= 0) {
           s"""
@@ -525,7 +507,6 @@ object HashAggCodeGenHelper {
     */
   private[flink] def genAggMapIterationAndOutput(
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       isFinal: Boolean,
       aggregateMapTerm: String,
       reuseAggMapEntryTerm: String,
@@ -571,7 +552,6 @@ object HashAggCodeGenHelper {
   private[flink] def genAggMapOOMHandling(
       isFinal: Boolean,
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       builder: RelBuilder,
       groupingAndAuxGrouping: (Array[Int], Array[Int]),
       aggCallToAggFunction: Seq[(AggregateCall, UserDefinedFunction)],
@@ -604,7 +584,6 @@ object HashAggCodeGenHelper {
         ctx, groupKeyRowType, groupKeyTypesTerm, aggBufferTypesTerm, sorterTerm)
       val fallbackToSortAggCode = genFallbackToSortAgg(
         ctx,
-        config,
         builder,
         grouping,
         auxGrouping,
@@ -732,7 +711,6 @@ object HashAggCodeGenHelper {
 
   private[flink] def genFallbackToSortAgg(
       ctx: CodeGeneratorContext,
-      config: TableConfig,
       builder: RelBuilder,
       grouping: Array[Int],
       auxGrouping: Array[Int],
@@ -764,7 +742,6 @@ object HashAggCodeGenHelper {
       isMerge = true,
       isFinal = true,
       ctx,
-      config,
       builder,
       grouping,
       auxGrouping,

@@ -27,7 +27,6 @@ import org.apache.flink.api.common.accumulators.AccumulatorHelper;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.JobException;
-import org.apache.flink.runtime.StoppingException;
 import org.apache.flink.runtime.accumulators.AccumulatorSnapshot;
 import org.apache.flink.runtime.accumulators.StringifiedAccumulatorResult;
 import org.apache.flink.runtime.blob.BlobWriter;
@@ -1093,21 +1092,6 @@ public class ExecutionGraph implements AccessExecutionGraph {
 		}
 	}
 
-	public void stop() throws StoppingException {
-
-		assertRunningInJobMasterMainThread();
-
-		if (isStoppable) {
-			for (ExecutionVertex ev : this.getAllExecutionVertices()) {
-				if (ev.getNumberOfInputs() == 0) { // send signal to sources only
-					ev.stop();
-				}
-			}
-		} else {
-			throw new StoppingException("This job is not stoppable.");
-		}
-	}
-
 	/**
 	 * Suspends the current ExecutionGraph.
 	 *
@@ -1287,26 +1271,6 @@ public class ExecutionGraph implements AccessExecutionGraph {
 		catch (Throwable t) {
 			LOG.warn("Failed to restart the job.", t);
 			failGlobal(t);
-		}
-	}
-
-	/**
-	 * Restores the latest checkpointed state.
-	 *
-	 * <p>The recovery of checkpoints might block. Make sure that calls to this method don't
-	 * block the job manager actor and run asynchronously.
-	 *
-	 * @param errorIfNoCheckpoint Fail if there is no checkpoint available
-	 * @param allowNonRestoredState Allow to skip checkpoint state that cannot be mapped
-	 * to the ExecutionGraph vertices (if the checkpoint contains state for a
-	 * job vertex that is not part of this ExecutionGraph).
-	 */
-	public void restoreLatestCheckpointedState(boolean errorIfNoCheckpoint, boolean allowNonRestoredState) throws Exception {
-		assertRunningInJobMasterMainThread();
-		synchronized (progressLock) {
-			if (checkpointCoordinator != null) {
-				checkpointCoordinator.restoreLatestCheckpointedState(getAllVertices(), errorIfNoCheckpoint, allowNonRestoredState);
-			}
 		}
 	}
 

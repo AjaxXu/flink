@@ -76,11 +76,6 @@ public class RpcTaskManagerGateway implements TaskManagerGateway {
 	}
 
 	@Override
-	public CompletableFuture<Acknowledge> stopTask(ExecutionAttemptID executionAttemptID, Time timeout) {
-		return taskExecutorGateway.stopTask(executionAttemptID, timeout);
-	}
-
-	@Override
 	public CompletableFuture<Acknowledge> cancelTask(ExecutionAttemptID executionAttemptID, Time timeout) {
 		return taskExecutorGateway.cancelTask(executionAttemptID, timeout);
 	}
@@ -101,12 +96,13 @@ public class RpcTaskManagerGateway implements TaskManagerGateway {
 	}
 
 	@Override
-	public void triggerCheckpoint(ExecutionAttemptID executionAttemptID, JobID jobId, long checkpointId, long timestamp, CheckpointOptions checkpointOptions) {
+	public void triggerCheckpoint(ExecutionAttemptID executionAttemptID, JobID jobId, long checkpointId, long timestamp, CheckpointOptions checkpointOptions, boolean advanceToEndOfEventTime) {
 		taskExecutorGateway.triggerCheckpoint(
 			executionAttemptID,
 			checkpointId,
 			timestamp,
-			checkpointOptions);
+			checkpointOptions,
+			advanceToEndOfEventTime);
 	}
 
 	@Override

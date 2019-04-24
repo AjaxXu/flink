@@ -29,8 +29,9 @@ import org.apache.flink.streaming.api.datastream.DataStream
 import org.apache.flink.table.`type`.RowType
 import org.apache.flink.table.`type`.TypeConverters.createInternalTypeFromTypeInfo
 import org.apache.flink.table.api.{Table, TableConfig, TableException, Types}
-import org.apache.flink.table.codegen.CodeGenUtils.{BASE_ROW, genToExternal}
+import org.apache.flink.table.codegen.CodeGenUtils.genToExternal
 import org.apache.flink.table.codegen.OperatorCodeGenerator.generateCollect
+import org.apache.flink.table.dataformat.util.BaseRowUtil
 import org.apache.flink.table.dataformat.{BaseRow, GenericRow}
 import org.apache.flink.table.runtime.OneInputOperatorWrapper
 import org.apache.flink.table.sinks.{DataStreamTableSink, TableSink}
@@ -93,6 +94,10 @@ object SinkCodeGenerator {
         new RowTypeInfo(
           inputTypeInfo.getFieldTypes,
           inputTypeInfo.getFieldNames)
+      case gt: GenericTypeInfo[BaseRow] if gt.getTypeClass == classOf[BaseRow] =>
+        new BaseRowTypeInfo(
+          inputTypeInfo.getInternalTypes,
+          inputTypeInfo.getFieldNames)
       case _ => requestedTypeInfo
     }
 
@@ -154,13 +159,14 @@ object SinkCodeGenerator {
     val retractProcessCode = if (!withChangeFlag) {
       generateCollect(genToExternal(ctx, outputTypeInfo, afterIndexModify))
     } else {
-      val flagResultTerm = s"$afterIndexModify.getHeader() == $BASE_ROW.ACCUMULATE_MSG"
+      val flagResultTerm =
+        s"${classOf[BaseRowUtil].getCanonicalName}.isAccumulateMsg($afterIndexModify)"
       val resultTerm = CodeGenUtils.newName("result")
       val genericRowField = classOf[GenericRow].getCanonicalName
       s"""
          |$genericRowField $resultTerm = new $genericRowField(2);
-         |$resultTerm.update(0, $flagResultTerm);
-         |$resultTerm.update(1, $afterIndexModify);
+         |$resultTerm.setField(0, $flagResultTerm);
+         |$resultTerm.setField(1, $afterIndexModify);
          |${generateCollect(genToExternal(ctx, outputTypeInfo, resultTerm))}
           """.stripMargin
     }
