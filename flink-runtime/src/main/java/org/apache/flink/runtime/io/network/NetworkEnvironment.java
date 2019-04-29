@@ -19,6 +19,8 @@
 package org.apache.flink.runtime.io.network;
 
 import org.apache.flink.annotation.VisibleForTesting;
+import org.apache.flink.metrics.Gauge;
+import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.runtime.io.network.buffer.BufferPool;
 import org.apache.flink.runtime.io.network.buffer.NetworkBufferPool;
 import org.apache.flink.runtime.io.network.netty.NettyConfig;
@@ -50,6 +52,10 @@ public class NetworkEnvironment {
 
 	private static final Logger LOG = LoggerFactory.getLogger(NetworkEnvironment.class);
 
+	private static final String METRIC_GROUP_NETWORK = "Network";
+	private static final String METRIC_TOTAL_MEMORY_SEGMENT = "TotalMemorySegments";
+	private static final String METRIC_AVAILABLE_MEMORY_SEGMENT = "AvailableMemorySegments";
+
 	private final Object lock = new Object();
 
 	private final NetworkEnvironmentConfiguration config;
@@ -68,7 +74,10 @@ public class NetworkEnvironment {
 
 	private boolean isShutdown;
 
-	public NetworkEnvironment(NetworkEnvironmentConfiguration config, TaskEventPublisher taskEventPublisher) {
+	public NetworkEnvironment(
+			NetworkEnvironmentConfiguration config,
+			TaskEventPublisher taskEventPublisher,
+			MetricGroup metricGroup) {
 		this.config = checkNotNull(config);
 
 		// 首先根据配置创建网络缓冲池（NetworkBufferPool）
@@ -85,7 +94,19 @@ public class NetworkEnvironment {
 
 		this.taskEventPublisher = checkNotNull(taskEventPublisher);
 
+		registerNetworkMetrics(metricGroup, networkBufferPool);
+
 		isShutdown = false;
+	}
+
+	private static void registerNetworkMetrics(MetricGroup metricGroup, NetworkBufferPool networkBufferPool) {
+		checkNotNull(metricGroup);
+
+		MetricGroup networkGroup = metricGroup.addGroup(METRIC_GROUP_NETWORK);
+		networkGroup.<Integer, Gauge<Integer>>gauge(METRIC_TOTAL_MEMORY_SEGMENT,
+			networkBufferPool::getTotalNumberOfMemorySegments);
+		networkGroup.<Integer, Gauge<Integer>>gauge(METRIC_AVAILABLE_MEMORY_SEGMENT,
+			networkBufferPool::getNumberOfAvailableMemorySegments);
 	}
 
 	// --------------------------------------------------------------------------------------------
@@ -100,6 +121,7 @@ public class NetworkEnvironment {
 		return connectionManager;
 	}
 
+	@VisibleForTesting
 	public NetworkBufferPool getNetworkBufferPool() {
 		return networkBufferPool;
 	}
