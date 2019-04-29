@@ -31,6 +31,7 @@ import java.util.List;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
+ * 高可用模式为None是使用的存储方式
  * {@link CompletedCheckpointStore} for JobManagers running in {@link HighAvailabilityMode#NONE}.
  */
 public class StandaloneCompletedCheckpointStore implements CompletedCheckpointStore {

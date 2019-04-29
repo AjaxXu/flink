@@ -23,6 +23,7 @@ import org.apache.flink.runtime.iterative.concurrent.Broker;
 import java.util.concurrent.BlockingQueue;
 
 /**
+ * BlockingQueueBroker是Broker针对BlockingQueue类型的特定实现
  * {@link Broker} for the {@link BlockingQueue} used in
  * {@link org.apache.flink.streaming.runtime.tasks.StreamIterationHead} and
  * {@link org.apache.flink.streaming.runtime.tasks.StreamIterationTail} for implementing feedback

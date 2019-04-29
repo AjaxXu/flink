@@ -20,12 +20,17 @@ package org.apache.flink.test.streaming.runtime;
 import org.apache.flink.api.common.InvalidProgramException;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.collector.selector.OutputSelector;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.IterativeStream;
@@ -183,7 +188,7 @@ public class IterateITCase extends AbstractTestBase {
 	}
 
 	@Test
-	public void testImmutabilityWithCoiteration() {
+	public void testImmutabilityWithCoiteration() throws Exception {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
 		DataStream<Integer> source = env.fromElements(1, 10).map(noOpIntMap); // for rebalance
@@ -203,6 +208,7 @@ public class IterateITCase extends AbstractTestBase {
 			assertEquals(graph.getTargetVertex(sourceSinkPair.f0.getOutEdges().get(0)),
 				graph.getSourceVertex(sourceSinkPair.f1.getInEdges().get(0)));
 		}
+		env.execute();
 	}
 
 	@Test
@@ -505,7 +511,7 @@ public class IterateITCase extends AbstractTestBase {
 	}
 
 	/**
-	 * This test relies on the hash function used by the {@link DataStream#keyBy}, which is
+	 * This test relies on the hash function used by the {@link DataStream keyBy }, which is
 	 * assumed to be {@link MathUtils#murmurHash}.
 	 *
 	 * <p>For the test to pass all FlatMappers must see at least two records in the iteration,
@@ -632,6 +638,60 @@ public class IterateITCase extends AbstractTestBase {
 				}
 			}
 		}
+	}
+
+	@Test
+	public void testFibonacci() throws Exception {
+		int OVERFLOW_THRESHOLD = 1000;
+		String ITERATE_FLAG = "iterate";
+		String OUTPUT_FLAG = "output";
+
+		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+		IterativeStream<Tuple5<Integer, Integer, Integer, Integer, Integer>> iterativeStream = env.fromElements("1,2", "20,30")
+			.map(new MapFunction<String, Tuple2<Integer, Integer>>() {
+				@Override
+				public Tuple2<Integer, Integer> map(String s) throws Exception {
+					String[] split = s.split(",");
+					System.out.println(s);
+					return Tuple2.of(Integer.valueOf(split[0]), Integer.valueOf(split[1]));
+				}
+			})
+			.map(new MapFunction<Tuple2<Integer, Integer>, Tuple5<Integer, Integer, Integer, Integer, Integer>>() {
+				@Override
+				public Tuple5<Integer, Integer, Integer, Integer, Integer> map(Tuple2<Integer, Integer> t) throws Exception {
+					return new Tuple5<Integer, Integer, Integer, Integer, Integer>(t.f0, t.f1, t.f0, t.f1, 0);
+				}
+			})
+			.iterate(5000);
+
+		SplitStream<Tuple5<Integer, Integer, Integer, Integer, Integer>> branchStream = iterativeStream
+			.map(new MapFunction<Tuple5<Integer, Integer, Integer, Integer, Integer>, Tuple5<Integer, Integer, Integer, Integer, Integer>>() {
+				@Override
+				public Tuple5<Integer, Integer, Integer, Integer, Integer> map(Tuple5<Integer, Integer, Integer, Integer, Integer> t) throws Exception {
+					return new Tuple5<Integer, Integer, Integer, Integer, Integer>(t.f0, t.f1, t.f3, t.f2 + t.f3, ++t.f4);
+				}
+			})
+			.split(new OutputSelector<Tuple5<Integer, Integer, Integer, Integer, Integer>>() {
+				@Override
+				public Iterable<String> select(Tuple5<Integer, Integer, Integer, Integer, Integer> t) {
+					if (t.f2 < OVERFLOW_THRESHOLD && t.f3 < OVERFLOW_THRESHOLD) {
+						return Collections.singleton(ITERATE_FLAG);
+					}
+					return Collections.singleton(OUTPUT_FLAG);
+				}
+			});
+		iterativeStream.closeWith(branchStream.select(ITERATE_FLAG));
+		branchStream.select(OUTPUT_FLAG)
+			.map(new MapFunction<Tuple5<Integer, Integer, Integer, Integer, Integer>, Tuple3<Integer, Integer, Integer>>() {
+				@Override
+				public Tuple3<Integer, Integer, Integer> map(Tuple5<Integer, Integer, Integer, Integer, Integer> t) throws Exception {
+					return new Tuple3(t.f0, t.f1, t.f4);
+				}
+			})
+			.print();
+		System.out.println(env.getStreamGraph().getStreamingPlanAsJSON());
+		env.execute("Streaming Iteration Example");
 	}
 
 	private static final class IterationHead extends RichFlatMapFunction<Boolean, Boolean> {

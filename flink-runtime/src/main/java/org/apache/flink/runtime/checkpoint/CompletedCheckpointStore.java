@@ -23,6 +23,7 @@ import org.apache.flink.runtime.jobgraph.JobStatus;
 import java.util.List;
 
 /**
+ * 已完成Checkpoint 存储接口
  * A bounded LIFO-queue of {@link CompletedCheckpoint} instances.
  */
 public interface CompletedCheckpointStore {

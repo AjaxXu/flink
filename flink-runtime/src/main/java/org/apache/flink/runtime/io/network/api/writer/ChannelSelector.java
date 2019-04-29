@@ -37,6 +37,7 @@ public interface ChannelSelector<T extends IOReadableWritable> {
 	void setup(int numberOfChannels);
 
 	/**
+	 * 该方法针对当前的record以及所有的channel数目，返回一个针对当前这条记录采用的output channel的索引
 	 * Returns the logical channel index, to which the given record should be written. It is
 	 * illegal to call this method for broadcast channel selectors and this method can remain
 	 * not implemented in that case (for example by throwing {@link UnsupportedOperationException}).

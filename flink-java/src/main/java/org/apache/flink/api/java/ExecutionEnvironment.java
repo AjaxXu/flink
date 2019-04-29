@@ -953,6 +953,7 @@ public abstract class ExecutionEnvironment {
 		}
 
 		OperatorTranslation translator = new OperatorTranslation();
+		// Flink会通过operator翻译器OperatorTranslation“翻译”出计划，计划对象会从sink开始向前逆向深度优先遍历直到source
 		Plan plan = translator.translateToPlan(this.sinks, jobName);
 
 		if (getParallelism() > 0) {

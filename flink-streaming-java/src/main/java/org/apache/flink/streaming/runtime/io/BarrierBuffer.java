@@ -160,23 +160,33 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 	public BufferOrEvent getNextNonBlocked() throws Exception {
 		while (true) {
 			// process buffered BufferOrEvents before grabbing new ones
+			// 获得下一个待缓存的buffer或者barrier事件
 			Optional<BufferOrEvent> next;
+			//如果当前的缓冲区为null，则从输入端获得
 			if (currentBuffered == null) {
 				next = inputGate.getNextBufferOrEvent();
 			}
+			//如果缓冲区不为空，则从缓冲区中获得数据
 			else {
 				next = Optional.ofNullable(currentBuffered.getNext());
+				//如果获得的数据为null，则表示缓冲区中已经没有更多地数据了
 				if (!next.isPresent()) {
+					//清空当前缓冲区，获取新的缓冲区并打开它
 					completeBufferedSequence();
+					//递归调用，处理下一条数据
 					return getNextNonBlocked();
 				}
 			}
 
+			//next 为null 同时流结束标识为false
 			if (!next.isPresent()) {
 				if (!endOfStream) {
 					// end of input stream. stream continues with the buffered data
+					//置流结束标识为true
 					endOfStream = true;
+					//解除阻塞，这种情况下我们会看到，缓冲区的数据会被加入队列，并等待处理
 					releaseBlocksAndResetBarriers();
+					//继续获取下一个待处理的记录
 					return getNextNonBlocked();
 				}
 				else {
@@ -185,28 +195,36 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 				}
 			}
 
+			//获取到一条记录，不为null
 			BufferOrEvent bufferOrEvent = next.get();
 			if (isBlocked(bufferOrEvent.getChannelIndex())) {
 				// if the channel is blocked, we just store the BufferOrEvent
+				//如果获取到得记录所在的channel已经处于阻塞状态，则该记录会被加入缓冲区
 				bufferBlocker.add(bufferOrEvent);
 				checkSizeLimit();
 			}
+			//如果该记录是一个正常的记录，而不是一个barrier(事件)，则直接返回
 			else if (bufferOrEvent.isBuffer()) {
 				return bufferOrEvent;
 			}
+			//如果是一个barrier
 			else if (bufferOrEvent.getEvent().getClass() == CheckpointBarrier.class) {
 				if (!endOfStream) {
 					// process barriers only if there is a chance of the checkpoint completing
+					//并且当前流还未处于结束状态，则处理该barrier
 					processBarrier((CheckpointBarrier) bufferOrEvent.getEvent(), bufferOrEvent.getChannelIndex());
 				}
 			}
+			// 如果是取消Checkpoint事件
 			else if (bufferOrEvent.getEvent().getClass() == CancelCheckpointMarker.class) {
 				processCancellationBarrier((CancelCheckpointMarker) bufferOrEvent.getEvent());
 			}
 			else {
+				//如果它是一个事件，表示当前已到达分区末尾
 				if (bufferOrEvent.getEvent().getClass() == EndOfPartitionEvent.class) {
 					processEndOfPartition();
 				}
+				//返回该事件
 				return bufferOrEvent;
 			}
 		}
@@ -224,6 +242,7 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 	}
 
 	private void processBarrier(CheckpointBarrier receivedBarrier, int channelIndex) throws Exception {
+		//获取接收到得barrier的ID
 		final long barrierId = receivedBarrier.getId();
 
 		// fast path for single channel cases
@@ -237,14 +256,17 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 		}
 
 		// -- general code path for multiple input channels --
+		//接收到的barrier数目 > 0 ，说明当前正在处理某个检查点的过程中
 
 		if (numBarriersReceived > 0) {
 			// this is only true if some alignment is already progress and was not canceled
-
+			//当前检查点的某个后续的barrierId
 			if (barrierId == currentCheckpointId) {
 				// regular case
+				//处理barrier
 				onBarrier(channelIndex);
 			}
+			//barrierId > 当前检查点Id
 			else if (barrierId > currentCheckpointId) {
 				// we did not complete the current checkpoint, another started before
 				LOG.warn("{}: Received checkpoint barrier for checkpoint {} before completing current checkpoint {}. " +
@@ -260,15 +282,18 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 				releaseBlocksAndResetBarriers();
 
 				// begin a the new checkpoint
+				// 开始新的Checkpoint
 				beginNewAlignment(barrierId, channelIndex);
 			}
 			else {
 				// ignore trailing barrier from an earlier checkpoint (obsolete now)
+				//忽略终止的检查点的barrier，barrierId < currentCheckpointId
 				return;
 			}
 		}
 		else if (barrierId > currentCheckpointId) {
 			// first barrier of a new checkpoint
+			//说明这是一个新检查点的初始barrier
 			beginNewAlignment(barrierId, channelIndex);
 		}
 		else {
@@ -279,6 +304,7 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 
 		// check if we have all barriers - since canceled checkpoints always have zero barriers
 		// this can only happen on a non canceled checkpoint
+		//接收到barriers的数目 + 关闭的channel的数目 = 输入channel的总数目
 		if (numBarriersReceived + numClosedChannels == totalNumberOfInputChannels) {
 			// actually trigger checkpoint
 			if (LOG.isDebugEnabled()) {
@@ -288,6 +314,7 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 					receivedBarrier.getTimestamp());
 			}
 
+			//解除阻塞
 			releaseBlocksAndResetBarriers();
 			notifyCheckpoint(receivedBarrier);
 		}
@@ -371,13 +398,16 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 	}
 
 	private void processEndOfPartition() throws Exception {
+		//以关闭的channel计数器加一
 		numClosedChannels++;
 
 		if (numBarriersReceived > 0) {
 			// let the task know we skip a checkpoint
+			// 通知task，将跳过这次checkpoint
 			notifyAbort(currentCheckpointId, new InputEndOfStreamException());
 
 			// no chance to complete this checkpoint
+			//此时已经没有机会完成该检查点，则解除阻塞
 			releaseBlocksAndResetBarriers();
 		}
 	}
@@ -476,7 +506,7 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 
 	/**
 	 * Blocks the given channel index, from which a barrier has been received.
-	 *
+	 * 将barrier关联的channel标识为阻塞状态同时将barrier计数器加一
 	 * @param channelIndex The channel index to block.
 	 */
 	private void onBarrier(int channelIndex) throws IOException {
@@ -504,13 +534,17 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 		LOG.debug("{}: End of stream alignment, feeding buffered data back.",
 			inputGate.getOwningTaskName());
 
+		//将所有channel的阻塞标识置为false
 		for (int i = 0; i < blockedChannels.length; i++) {
 			blockedChannels[i] = false;
 		}
 
+		//如果当前的缓冲区中的数据为空
 		if (currentBuffered == null) {
 			// common case: no more buffered data
+			//初始化新的缓冲区读写器
 			currentBuffered = bufferBlocker.rollOverReusingResources();
+			//打开缓冲区读写器
 			if (currentBuffered != null) {
 				currentBuffered.open();
 			}
@@ -523,11 +557,15 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 				inputGate.getOwningTaskName());
 
 			// since we did not fully drain the previous sequence, we need to allocate a new buffer for this one
+			//缓冲区中还有数据，则初始化一块新的存储空间来存储新的缓冲数据
 			BufferOrEventSequence bufferedNow = bufferBlocker.rollOverWithoutReusingResources();
 			if (bufferedNow != null) {
+				//打开新的缓冲区读写器
 				bufferedNow.open();
+				//将当前没有处理完的数据加入队列中
 				queuedBuffered.addFirst(currentBuffered);
 				numQueuedBytes += currentBuffered.size();
+				//将新开辟的缓冲区读写器置为新的当前缓冲区
 				currentBuffered = bufferedNow;
 			}
 		}
@@ -539,6 +577,7 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 		}
 
 		// the next barrier that comes must assume it is the first
+		//将接收到的barrier累加值重置为0
 		numBarriersReceived = 0;
 
 		if (startOfAlignmentTimestamp > 0) {

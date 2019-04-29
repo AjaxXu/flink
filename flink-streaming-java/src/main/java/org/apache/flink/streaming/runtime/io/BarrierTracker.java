@@ -36,15 +36,22 @@ import java.util.ArrayDeque;
 import java.util.Optional;
 
 /**
+ * BarrierTracker会对各个input channel接收到的检查点的barrier进行跟踪。
+ * 一旦它观察到某个检查点的所有barrier都已经到达，它将会通知监听器检查点已完成，以触发相应地回调处理
  * The BarrierTracker keeps track of what checkpoint barriers have been received from
  * which input channels. Once it has observed all checkpoint barriers for a checkpoint ID,
  * it notifies its listener of a completed checkpoint.
  *
+ * 不像BarrierBuffer，BarrierTracker不阻塞已经发送了barrier的input channel，所以它不能提供exactly-once的一致性保证。
+ * 但是它可以提供at least once的一致性保证。
  * <p>Unlike the {@link BarrierBuffer}, the BarrierTracker does not block the input
  * channels that have sent barriers, so it cannot be used to gain "exactly-once" processing
  * guarantees. It can, however, be used to gain "at least once" processing guarantees.
  *
  * <p>NOTE: This implementation strictly assumes that newer checkpoints have higher checkpoint IDs.
+ *
+ * 这里不阻塞input channel，也就说明不采用对齐机制，因此本检查点的数据会及时被处理，
+ * 并且因此下一个检查点的数据可能会在该检查点还没有完成时就已经到来。所以，在恢复时只能提供AT_LEAST_ONCE保证
  */
 @Internal
 public class BarrierTracker implements CheckpointBarrierHandler {
@@ -91,16 +98,20 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 	@Override
 	public BufferOrEvent getNextNonBlocked() throws Exception {
 		while (true) {
+			//从输入中获得数据，该操作将导致阻塞，直到获得一条记录
 			Optional<BufferOrEvent> next = inputGate.getNextBufferOrEvent();
 			if (!next.isPresent()) {
 				// buffer or input exhausted
+				//null表示没有数据了
 				return null;
 			}
 
 			BufferOrEvent bufferOrEvent = next.get();
+			//不管BufferOrEvent对应的channel是否已处于阻塞状态，这里不存在缓存数据的做法，直接返回
 			if (bufferOrEvent.isBuffer()) {
 				return bufferOrEvent;
 			}
+			//如果是barrier，则进入barrier的处理逻辑
 			else if (bufferOrEvent.getEvent().getClass() == CheckpointBarrier.class) {
 				processBarrier((CheckpointBarrier) bufferOrEvent.getEvent(), bufferOrEvent.getChannelIndex());
 			}
@@ -144,35 +155,45 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 		final long barrierId = receivedBarrier.getId();
 
 		// fast path for single channel trackers
+		//首先判断特殊情况：当前operator是否只有一个input channel
+		//如果是，那么就省略了统计的步骤，直接触发barrier handler回调
 		if (totalNumberOfInputChannels == 1) {
 			notifyCheckpoint(barrierId, receivedBarrier.getTimestamp(), receivedBarrier.getCheckpointOptions());
 			return;
 		}
 
 		// general path for multiple input channels
+		//判断通常状态：当前operator存在多个input channel
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Received barrier for checkpoint {} from channel {}", barrierId, channelIndex);
 		}
 
 		// find the checkpoint barrier in the queue of pending barriers
+		//所有未完成的检查点都存储在一个队列里，需要找到当前barrier对应的检查点
 		CheckpointBarrierCount cbc = null;
 		int pos = 0;
 
 		for (CheckpointBarrierCount next : pendingCheckpoints) {
 			if (next.checkpointId == barrierId) {
+				//如果找到则跳出循环
 				cbc = next;
 				break;
 			}
+			//没找到位置加一
 			pos++;
 		}
 
+		//最终找到了对应的未完成的检查点
 		if (cbc != null) {
 			// add one to the count to that barrier and check for completion
+			//将barrier计数器加一
 			int numBarriersNew = cbc.incrementBarrierCount();
+			//如果barrier计数器等于input channel的总数
 			if (numBarriersNew == totalNumberOfInputChannels) {
 				// checkpoint can be triggered (or is aborted and all barriers have been seen)
 				// first, remove this checkpoint and all all prior pending
 				// checkpoints (which are now subsumed)
+				//移除pos之前的所有检查点（检查点在队列中得先后顺序跟检查点的时序是一致的）
 				for (int i = 0; i <= pos; i++) {
 					pendingCheckpoints.pollFirst();
 				}
@@ -182,21 +203,24 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 					if (LOG.isDebugEnabled()) {
 						LOG.debug("Received all barriers for checkpoint {}", barrierId);
 					}
-
+					//触发检查点处理器事件
 					notifyCheckpoint(receivedBarrier.getId(), receivedBarrier.getTimestamp(), receivedBarrier.getCheckpointOptions());
 				}
 			}
 		}
+		//如果没有找到对应的检查点，则说明该barrier有可能是新检查点的第一个barrier
 		else {
 			// first barrier for that checkpoint ID
 			// add it only if it is newer than the latest checkpoint.
 			// if it is not newer than the latest checkpoint ID, then there cannot be a
 			// successful checkpoint for that ID anyways
+			//如果是比当前最新的检查点编号还大，则说明是新检查点
 			if (barrierId > latestPendingCheckpointID) {
 				latestPendingCheckpointID = barrierId;
 				pendingCheckpoints.addLast(new CheckpointBarrierCount(barrierId));
 
 				// make sure we do not track too many checkpoints
+				//如果超出阈值，则移除最老的检查点
 				if (pendingCheckpoints.size() > MAX_CHECKPOINTS_TO_TRACK) {
 					pendingCheckpoints.pollFirst();
 				}

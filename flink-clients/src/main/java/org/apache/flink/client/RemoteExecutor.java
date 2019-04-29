@@ -182,6 +182,8 @@ public class RemoteExecutor extends PlanExecutor {
 			throw new IllegalArgumentException("The plan may not be null.");
 		}
 
+		// Flink会将用户程序的Jar包、对应的classpath以及获得的计划封装到实体JobWithJars中，
+		// 并将其传递给executePlanWithJars方法。
 		JobWithJars p = new JobWithJars(plan, this.jarFiles, this.globalClasspaths);
 		return executePlanWithJars(p);
 	}

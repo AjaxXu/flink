@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 基于Zookeeper实现的一种分布式原子累加器。具体的做法是每一个计数器，在Zookeeper上新建一个ZNode，形如
  * {@link CheckpointIDCounter} instances for JobManagers running in {@link HighAvailabilityMode#ZOOKEEPER}.
  *
  * <p>Each counter creates a ZNode:

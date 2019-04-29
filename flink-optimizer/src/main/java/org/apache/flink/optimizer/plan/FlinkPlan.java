@@ -19,6 +19,7 @@
 package org.apache.flink.optimizer.plan;
 
 /**
+ * Flink在这里效仿的是数据库的执行SQL是产生执行计划的机制
  * A common interface for compiled Flink plans for both batch and streaming
  * processing programs.
  * 

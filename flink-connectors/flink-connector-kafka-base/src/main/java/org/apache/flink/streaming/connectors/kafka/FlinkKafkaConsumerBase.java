@@ -74,6 +74,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 是Flink实现基于Kafka的Source的基类，Kafka提供基于offset并且可重复消费的机制，使其非常容易实现Fault Tolerance机制
  * Base class of all Flink Kafka Consumer data sources.
  * This implements the common behavior across all Kafka versions.
  *

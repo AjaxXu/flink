@@ -19,6 +19,7 @@
 package org.apache.flink.runtime.event;
 
 /**
+ * 所有预先内置的事件都直接派生于此
  * Subclasses of this event are recognized as events exchanged by the core runtime.
  */
 public abstract class RuntimeEvent extends AbstractEvent {}

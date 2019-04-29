@@ -22,6 +22,7 @@ import org.apache.flink.runtime.plugable.SerializationDelegate;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * 广播分区器，用于将该记录广播给下游的所有的subtask
  * Partitioner that selects all the output channels.
  *
  * @param <T> Type of the elements in the Stream being broadcast

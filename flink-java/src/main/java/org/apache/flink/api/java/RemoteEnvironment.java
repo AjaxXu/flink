@@ -162,14 +162,18 @@ public class RemoteEnvironment extends ExecutionEnvironment {
 
 	@Override
 	public JobExecutionResult execute(String jobName) throws Exception {
+		// Flink首先会通过getExecutor方法来创建一个PlanExecutor，
+		// 这里因为我们的执行环境是远程执行，所以对应的它会创建一个RemoteExecutor，它是PlanExecutor的特例
 		PlanExecutor executor = getExecutor();
 
+		// 当计划执行器被创建完成之后，下一步就是获得它要执行的计划
 		Plan p = createProgramPlan(jobName);
 
 		// Session management is disabled, revert this commit to enable
 		//p.setJobId(jobID);
 		//p.setSessionTimeout(sessionTimeout);
 
+		// 当创建完计划之后，就通过计划执行器的executePlan方法对计划进行执行
 		JobExecutionResult result = executor.executePlan(p);
 
 		this.lastJobExecutionResult = result;

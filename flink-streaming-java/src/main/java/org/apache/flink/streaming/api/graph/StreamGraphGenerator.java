@@ -135,6 +135,8 @@ public class StreamGraphGenerator {
 	}
 
 	/**
+	 * 在transform方法中，它枚举了Flink中每一种转换类型，并对当前传入的转换类型进行判断，然后将其分发给特定的转换方法进行转换，
+	 * 最终返回当前StreamGraph对象中跟该转换有关的节点编号集合
 	 * Transforms one {@code StreamTransformation}.
 	 *
 	 * <p>This checks whether we already transformed it and exits early in that case. If not it
@@ -344,23 +346,30 @@ public class StreamGraphGenerator {
 	 */
 	private <T> Collection<Integer> transformFeedback(FeedbackTransformation<T> iterate) {
 
+		//检查迭代的反馈边，如果没有反馈边，则无法形成迭代的“环”，这时就抛出异常
 		if (iterate.getFeedbackEdges().size() <= 0) {
 			throw new IllegalStateException("Iteration " + iterate + " does not have any feedback edges.");
 		}
 
+		//获得迭代的上游输入端对应的转换
 		StreamTransformation<T> input = iterate.getInput();
 		List<Integer> resultIds = new ArrayList<>();
 
 		// first transform the input stream(s) and store the result IDs
+		//对上游输入进行（递归）转换以获得转换编号集合
 		Collection<Integer> inputIds = transform(input);
+		//将转换编号集合加入结果集合中
 		resultIds.addAll(inputIds);
 
 		// the recursive transform might have already transformed this
+		//因为转换是递归进行的，所以为防止重复转换，会将已转换过的对象将入alreadyTransformed集合中
+		//在对当前转换对象进行转换之前会预先检查该集合，如果当前转换对象已处于该集合中，则直接返回对应的编号集合，防止重复转换
 		if (alreadyTransformed.containsKey(iterate)) {
 			return alreadyTransformed.get(iterate);
 		}
 
 		// create the fake iteration source/sink pair
+		//这里将迭代这一在执行图中的环看作一个闭合的整体，认为它也有source和sink，为其创建source和sink的二元组
 		Tuple2<StreamNode, StreamNode> itSourceAndSink = streamGraph.createIterationSourceAndSink(
 			iterate.getId(),
 			getNewIterationNodeId(),
@@ -371,27 +380,36 @@ public class StreamGraphGenerator {
 			iterate.getMinResources(),
 			iterate.getPreferredResources());
 
+		//获得迭代source和sink
 		StreamNode itSource = itSourceAndSink.f0;
 		StreamNode itSink = itSourceAndSink.f1;
 
 		// We set the proper serializers for the sink/source
+		//在StreamGraph中为这两个顶点设置序列化器
 		streamGraph.setSerializers(itSource.getId(), null, null, iterate.getOutputType().createSerializer(env.getConfig()));
 		streamGraph.setSerializers(itSink.getId(), iterate.getOutputType().createSerializer(env.getConfig()), null, null);
 
 		// also add the feedback source ID to the result IDs, so that downstream operators will
 		// add both as input
+		//将迭代的source顶点的编号也作为结果集合的一部分，这是为了让下游的算子将其视为输入
 		resultIds.add(itSource.getId());
 
 		// at the iterate to the already-seen-set with the result IDs, so that we can transform
 		// the feedback edges and let them stop when encountering the iterate node
+		//将反馈转换对象以及其对应的结果集合的映射关系加入已遍历的Map中，这样在进行反馈边转换时，当它们向上递归转换时
+		//遇到当前的反馈转换对象将停止递归转换
 		alreadyTransformed.put(iterate, resultIds);
 
 		// so that we can determine the slot sharing group from all feedback edges
+		//遍历迭代的所有反馈边，并将所有反馈边对应的转换对象编号加入allFeedbackIds中
 		List<Integer> allFeedbackIds = new ArrayList<>();
 
 		for (StreamTransformation<T> feedbackEdge : iterate.getFeedbackEdges()) {
+			//对反馈边转换对象执行递归转换
 			Collection<Integer> feedbackIds = transform(feedbackEdge);
+			//将获取到的反馈边转换对象编号集合加入allFeedbackIds
 			allFeedbackIds.addAll(feedbackIds);
+			//遍历所有的反馈转换对象的编号，并在StreamGraph中构建从反馈转换对象到迭代sink之间的边
 			for (Integer feedbackId: feedbackIds) {
 				streamGraph.addEdge(feedbackId,
 						itSink.getId(),
@@ -400,11 +418,14 @@ public class StreamGraphGenerator {
 			}
 		}
 
+		//决定所有的反馈对象的”槽共享组“名
 		String slotSharingGroup = determineSlotSharingGroup(null, allFeedbackIds);
 
+		//为迭代sink设置槽共享组名称
 		itSink.setSlotSharingGroup(slotSharingGroup);
+		//为迭代source设置槽共享组名称
 		itSource.setSlotSharingGroup(slotSharingGroup);
-
+		//返回该转换对象对应的编号结果集
 		return resultIds;
 	}
 
@@ -543,6 +564,8 @@ public class StreamGraphGenerator {
 			return alreadyTransformed.get(transform);
 		}
 
+		// 在给StreamGraph创建并添加一个operator时，需要给该operator指定slotSharingGroup，
+		// 这时需要调用方法determineSlotSharingGroup来获得SlotSharingGroup的名称：
 		String slotSharingGroup = determineSlotSharingGroup(transform.getSlotSharingGroup(), inputIds);
 
 		streamGraph.addOperator(transform.getId(),
@@ -637,9 +660,12 @@ public class StreamGraphGenerator {
 	 * @param inputIds The IDs of the input operations.
 	 */
 	private String determineSlotSharingGroup(String specifiedGroup, Collection<Integer> inputIds) {
+		// 当用户指定了组名，则直接使用用户指定的名称
 		if (specifiedGroup != null) {
 			return specifiedGroup;
 		} else {
+			// 如果用户没有指定特定的名称，则需要结合输入节点来做决定：第一种情况如果所有的输入节点都拥有相同的slotSharingGroup名称，
+			// 那么就使用该组名；否则组名将被命名为default
 			String inputGroup = null;
 			for (int id: inputIds) {
 				String inputGroupCandidate = streamGraph.getSlotSharingGroup(id);

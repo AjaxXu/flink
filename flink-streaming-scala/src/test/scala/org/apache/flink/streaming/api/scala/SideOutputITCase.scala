@@ -66,11 +66,11 @@ class SideOutputITCase extends AbstractTestBase {
     passThroughtStream.addSink(resultSink)
 
     env.execute()
-    
+
     assertEquals(
       util.Arrays.asList("sideout-1", "sideout-2", "sideout-3", "sideout-4", "sideout-5"),
       sideOutputResultSink.getSortedResult)
-    
+
     assertEquals(util.Arrays.asList(1, 2, 3, 4, 5), resultSink.getSortedResult)
   }
 
@@ -183,7 +183,7 @@ class SideOutputITCase extends AbstractTestBase {
     windowOperator.addSink(resultSink)
 
     env.execute()
-    
+
     assertEquals(util.Arrays.asList("1", "2", "5"), resultSink.getResult)
     assertEquals(util.Arrays.asList(("3", 3), ("4", 4)), lateResultSink.getResult)
   }

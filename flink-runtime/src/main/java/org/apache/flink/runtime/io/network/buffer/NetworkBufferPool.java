@@ -42,6 +42,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * NetworkBufferPool缓存了固定数目的内存段，主要用于网络栈通信。
  * The NetworkBufferPool is a fixed size pool of {@link MemorySegment} instances
  * for the network stack.
  *
@@ -71,6 +72,7 @@ public class NetworkBufferPool implements BufferPoolFactory {
 
 	/**
 	 * Allocates all {@link MemorySegment} instances managed by this pool.
+	 * NetworkBufferPool在构造器的参数中要求指定其缓存的内存段数目，然后它会初始化固定大小的一个队列作为内存段池
 	 */
 	public NetworkBufferPool(int numberOfSegmentsToAllocate, int segmentSize) {
 
@@ -286,6 +288,8 @@ public class NetworkBufferPool implements BufferPoolFactory {
 
 			// We are good to go, create a new buffer pool and redistribute
 			// non-fixed size buffers.
+			// 因为BufferPool当前只有LocalBufferPool这一个实现，
+			// 所以NetworkBufferPool在实现BufferPoolFactory的createBufferPool方法时会直接实例化LocalBufferPool
 			LocalBufferPool localBufferPool =
 				new LocalBufferPool(this, numRequiredBuffers, maxUsedBuffers, owner);
 

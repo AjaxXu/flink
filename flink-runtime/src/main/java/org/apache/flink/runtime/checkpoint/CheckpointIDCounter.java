@@ -21,6 +21,7 @@ package org.apache.flink.runtime.checkpoint;
 import org.apache.flink.runtime.jobgraph.JobStatus;
 
 /**
+ * Checkpoint ID计数器
  * A checkpoint ID counter.
  */
 public interface CheckpointIDCounter {

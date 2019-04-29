@@ -41,6 +41,8 @@ import java.util.Optional;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 网络环境（NetworkEnvironment）是TaskManager进行网络通信的主对象，主要用于跟踪中间结果并负责所有的数据交换。
+ * 每个TaskManager的实例都包含一个网络环境对象，在TaskManager启动时创建
  * Network I/O components of each {@link TaskExecutor} instance. The network environment contains
  * the data structures that keep track of all intermediate results and all data exchanges.
  */
@@ -52,12 +54,16 @@ public class NetworkEnvironment {
 
 	private final NetworkEnvironmentConfiguration config;
 
+	// 网络缓冲池，负责申请一个TaskManager的所有的内存段用作缓冲池；
 	private final NetworkBufferPool networkBufferPool;
 
+	// 连接管理器，用于管理本地（远程）通信连接
 	private final ConnectionManager connectionManager;
 
+	// 结果分区管理器，用于跟踪一个TaskManager上所有生产/消费相关的ResultPartition
 	private final ResultPartitionManager resultPartitionManager;
 
+	// 任务事件分发器，从消费者任务分发事件给生产者任务；
 	private final TaskEventPublisher taskEventPublisher;
 
 	private boolean isShutdown;
@@ -65,6 +71,7 @@ public class NetworkEnvironment {
 	public NetworkEnvironment(NetworkEnvironmentConfiguration config, TaskEventPublisher taskEventPublisher) {
 		this.config = checkNotNull(config);
 
+		// 首先根据配置创建网络缓冲池（NetworkBufferPool）
 		this.networkBufferPool = new NetworkBufferPool(config.numNetworkBuffers(), config.networkBufferSize());
 
 		NettyConfig nettyConfig = config.nettyConfig();
@@ -103,9 +110,13 @@ public class NetworkEnvironment {
 
 	// --------------------------------------------------------------------------------------------
 	//  Task operations
+	//  NetworkEnvironment对象会为当前任务生产端的每个ResultPartition都创建本地缓冲池，缓冲池中的Buffer数为结果分区的子分区数，
+	//  同时为当前任务消费端的InputGate创建本地缓冲池，缓冲池的Buffer数为InputGate所包含的输入信道数。
+	//  这些缓冲池都是非固定大小的，也就是说他们会按照网络缓冲池内存段的使用情况进行重平衡。
 	// --------------------------------------------------------------------------------------------
 
 	public void registerTask(Task task) throws IOException {
+		//获得当前任务对象所生产的结果分区集合
 		final ResultPartition[] producedPartitions = task.getProducedPartitions();
 
 		synchronized (lock) {
@@ -118,7 +129,9 @@ public class NetworkEnvironment {
 			}
 
 			// Setup the buffer pool for each buffer reader
+			//获得任务的所有输入闸门
 			final SingleInputGate[] inputGates = task.getAllInputGates();
+			//遍历输入闸门，为它们设置缓冲池
 			for (SingleInputGate gate : inputGates) {
 				setupInputGate(gate);
 			}
@@ -135,12 +148,13 @@ public class NetworkEnvironment {
 					config.floatingNetworkBuffersPerGate() : Integer.MAX_VALUE;
 			// If the partition type is back pressure-free, we register with the buffer pool for
 			// callbacks to release memory.
+			// 用网络缓冲池创建本地缓冲池
 			bufferPool = networkBufferPool.createBufferPool(partition.getNumberOfSubpartitions(),
 				maxNumberOfMemorySegments,
 				partition.getPartitionType().hasBackPressure() ? Optional.empty() : Optional.of(partition));
-
+			//将本地缓冲池注册到结果分区
 			partition.registerBufferPool(bufferPool);
-
+			//结果分区会被注册到结果分区管理器
 			resultPartitionManager.registerResultPartition(partition);
 		} catch (Throwable t) {
 			if (bufferPool != null) {
@@ -166,12 +180,14 @@ public class NetworkEnvironment {
 
 				// assign exclusive buffers to input channels directly and use the rest for floating buffers
 				gate.assignExclusiveSegments(networkBufferPool, config.networkBuffersPerChannel());
+				//为每个输入闸门设置本地缓冲池
 				bufferPool = networkBufferPool.createBufferPool(0, maxNumberOfMemorySegments);
 			} else {
 				maxNumberOfMemorySegments = gate.getConsumedPartitionType().isBounded() ?
 					gate.getNumberOfInputChannels() * config.networkBuffersPerChannel() +
 						config.floatingNetworkBuffersPerGate() : Integer.MAX_VALUE;
 
+				//为每个输入闸门设置本地缓冲池，初始化的缓冲数为其包含的输入信道数
 				bufferPool = networkBufferPool.createBufferPool(gate.getNumberOfInputChannels(),
 					maxNumberOfMemorySegments);
 			}
@@ -193,6 +209,7 @@ public class NetworkEnvironment {
 
 			try {
 				LOG.debug("Starting network connection manager");
+				//启动网络连接管理器
 				connectionManager.start(resultPartitionManager, taskEventPublisher);
 			} catch (IOException t) {
 				throw new IOException("Failed to instantiate network connection manager.", t);

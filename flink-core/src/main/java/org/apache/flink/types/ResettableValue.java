@@ -21,6 +21,10 @@ package org.apache.flink.types;
 
 import org.apache.flink.annotation.Public;
 
+/**
+ * 用于将一个外部的value赋值给内部的同类型的对象。
+ * @param <T>
+ */
 @Public
 public interface ResettableValue<T extends Value> extends Value {
 

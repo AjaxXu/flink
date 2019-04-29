@@ -23,6 +23,7 @@ import org.apache.flink.core.memory.DataOutputView;
 import org.apache.flink.runtime.event.RuntimeEvent;
 
 /**
+ * 标识流分区已到达了一个超级步的结尾，起标识作用
  * Marks the end of a superstep of one particular iteration superstep.
  */
 public class EndOfSuperstepEvent extends RuntimeEvent {

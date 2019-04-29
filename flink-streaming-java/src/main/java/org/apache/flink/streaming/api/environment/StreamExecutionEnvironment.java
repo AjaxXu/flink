@@ -1502,7 +1502,7 @@ public abstract class StreamExecutionEnvironment {
 
 	/**
 	 * Getter of the {@link org.apache.flink.streaming.api.graph.StreamGraph} of the streaming job.
-	 *
+	 * 每调用一次静态方法generate才会在内部创建一个StreamGraphGenerator的实例，一个实例对应着一个StreamGraph对象
 	 * @return The streamgraph representing the transformations
 	 */
 	@Internal

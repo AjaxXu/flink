@@ -30,6 +30,7 @@ import org.apache.flink.annotation.Public;
 public interface Partitioner<K> extends java.io.Serializable, Function {
 
 	/**
+	 * 通过给定的key以及numPartitions返回partition的index.
 	 * Computes the partition for the given key.
 	 *
 	 * @param key The key.

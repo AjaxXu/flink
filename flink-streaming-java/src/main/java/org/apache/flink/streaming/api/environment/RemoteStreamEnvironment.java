@@ -256,6 +256,7 @@ public class RemoteStreamEnvironment extends StreamExecutionEnvironment {
 			LOG.info("Running remotely at {}:{}", host, port);
 		}
 
+		// 根据获取到的用户程序包的路径以及类路径创建加载用户代码的类加载器
 		ClassLoader userCodeClassLoader = JobWithJars.buildUserCodeClassLoader(jarFiles, globalClasspaths, envClassLoader);
 
 		Configuration configuration = new Configuration();
@@ -266,6 +267,7 @@ public class RemoteStreamEnvironment extends StreamExecutionEnvironment {
 
 		configuration.setInteger(RestOptions.PORT, port);
 
+		// 紧接着根据配置构建Client对象（Client对象是真正跟JobManager对接的内部代理）
 		final ClusterClient<?> client;
 		try {
 			client = new RestClusterClient<>(configuration, "RemoteStreamEnvironment");

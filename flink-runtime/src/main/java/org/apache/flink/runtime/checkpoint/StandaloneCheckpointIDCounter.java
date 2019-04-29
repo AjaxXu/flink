@@ -24,6 +24,7 @@ import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * {@link HighAvailabilityMode#NONE}模式下的ID计数器
  * {@link CheckpointIDCounter} instances for JobManagers running in {@link HighAvailabilityMode#NONE}.
  *
  * <p>Simple wrapper around an {@link AtomicLong}.

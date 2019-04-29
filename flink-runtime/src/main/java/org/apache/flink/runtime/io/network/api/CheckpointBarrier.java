@@ -28,6 +28,7 @@ import java.io.IOException;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 检查点屏障：用于隔离多个检查点之间的数据，保障快照数据的一致性
  * Checkpoint barriers are used to align checkpoints throughout the streaming topology. The
  * barriers are emitted by the sources when instructed to do so by the JobManager. When
  * operators receive a CheckpointBarrier on one of its inputs, it knows that this is the point

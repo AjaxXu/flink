@@ -22,6 +22,7 @@ import org.apache.flink.runtime.plugable.SerializationDelegate;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * 全局分区器，其实现很简单——默认选择了索引为0的channel进行输出。
  * Partitioner that sends all elements to the downstream operator with subtask ID=0.
  *
  * @param <T> Type of the elements in the Stream being partitioned

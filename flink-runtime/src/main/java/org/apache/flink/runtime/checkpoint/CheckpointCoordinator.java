@@ -469,6 +469,8 @@ public class CheckpointCoordinator {
 				}
 
 				// if too many checkpoints are currently in progress, we need to mark that a request is queued
+				// 如果未完成的检查点过多，大于允许的并发处理的检查点数目的阈值，则将当前检查点的触发请求设置为不能立即执行，
+				// 如果定时任务已经启动，则取消定时任务的执行，并返回。
 				if (pendingCheckpoints.size() >= maxConcurrentCheckpointAttempts) {
 					triggerRequestQueued = true;
 					if (currentPeriodicTrigger != null) {
@@ -519,6 +521,7 @@ public class CheckpointCoordinator {
 			}
 		}
 
+		// 然后检查是否所有需要ack检查点的task都处于运行状态：
 		// next, check if all tasks that need to acknowledge the checkpoint are running.
 		// if not, abort the checkpoint
 		Map<ExecutionAttemptID, ExecutionVertex> ackTasks = new HashMap<>(tasksToWaitFor.length);

@@ -313,6 +313,7 @@ public abstract class ClusterClient<T> {
 			throw new IllegalArgumentException("The given JobWithJars does not provide a usercode class loader.");
 		}
 
+		// 对批处理程序的执行计划进行优化后产生OptimizedPlan，之前我们已经提及过这是批处理独享的“待遇”
 		OptimizedPlan optPlan = getOptimizedPlan(compiler, jobWithJars, parallelism);
 		return run(optPlan, jobWithJars.getJarFiles(), jobWithJars.getClasspaths(), classLoader, savepointSettings);
 	}
@@ -325,6 +326,7 @@ public abstract class ClusterClient<T> {
 	public JobSubmissionResult run(FlinkPlan compiledPlan,
 			List<URL> libraries, List<URL> classpaths, ClassLoader classLoader, SavepointRestoreSettings savepointSettings)
 			throws ProgramInvocationException {
+		// 会调用getJobGraph方法获得JobGraph的实例
 		JobGraph job = getJobGraph(flinkConfig, compiledPlan, libraries, classpaths, savepointSettings);
 		return submitJob(job, classLoader);
 	}

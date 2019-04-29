@@ -21,6 +21,7 @@ package org.apache.flink.runtime.io.network.buffer;
 import java.io.IOException;
 
 /**
+ * 它约定了Buffer提供者如何以同步和异步的模式提供Buffer
  * A buffer provider to request buffers from in a synchronous or asynchronous fashion.
  *
  * <p>The data producing side (result partition writers) request buffers in a synchronous fashion,

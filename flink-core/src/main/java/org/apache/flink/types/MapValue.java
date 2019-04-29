@@ -31,6 +31,9 @@ import org.apache.flink.core.memory.DataOutputView;
 import org.apache.flink.util.ReflectionUtil;
 
 /**
+ * 容器中存储的元素的类型都是Value类型（通过泛型类型约束）
+ * 容器类型自身也实现了Value，也即自身也可被序列化
+ * 都实现了JDK Java集合框架中各自的接口（Map）
  * Generic map base type for PACT programs that implements the Value and Map interfaces.
  * The {@link MapValue} encapsulates a Java {@link HashMap} object.
  * 

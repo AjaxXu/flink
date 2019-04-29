@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
+ * 边在Flink中对应的数据结构是StreamEdge
  * An edge in the streaming topology. One edge like this does not necessarily
  * gets converted to a connection between two job vertices (due to
  * chaining/optimization).

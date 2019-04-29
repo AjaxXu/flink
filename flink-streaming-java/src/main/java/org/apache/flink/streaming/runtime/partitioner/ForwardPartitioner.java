@@ -22,6 +22,7 @@ import org.apache.flink.runtime.plugable.SerializationDelegate;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * 该分区器将记录转发给在本地运行的下游的(归属于subtask)的operattion
  * Partitioner that forwards elements only to the locally running downstream operation.
  *
  * @param <T> Type of the elements in the Stream

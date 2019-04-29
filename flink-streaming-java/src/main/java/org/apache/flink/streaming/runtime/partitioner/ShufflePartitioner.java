@@ -24,6 +24,7 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import java.util.Random;
 
 /**
+ * 混洗分区器，该分区器会在所有output channel中选择一个随机的进行输出。
  * Partitioner that distributes the data equally by selecting one output channel
  * randomly.
  *

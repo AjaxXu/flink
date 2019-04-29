@@ -67,6 +67,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * 该实例表示流的完整的拓扑结构并且包含了生成JobGraph所必要的相关信息（包含了source、sink的集合以及这些在图中的“节点”抽象化的表示、
+ * 一些虚拟的映射关系、执行和检查点的配置等）
  * Class representing the streaming topology. It contains all the information
  * necessary to build the jobgraph for the execution.
  *
@@ -596,6 +598,7 @@ public class StreamGraph extends StreamingPlan {
 		int maxParallelism,
 		ResourceSpec minResources,
 		ResourceSpec preferredResources) {
+		//创建一个source节点实例，这里我们尤其关注第三个参数，它对应的执行时的任务类是StreamIterationHead
 		StreamNode source = this.addNode(sourceId,
 			null,
 			null,
@@ -607,6 +610,7 @@ public class StreamGraph extends StreamingPlan {
 		setMaxParallelism(source.getId(), maxParallelism);
 		setResources(source.getId(), minResources, preferredResources);
 
+		//创建一个sink节点实例，它对应的执行时的任务类是StreamIterationTail
 		StreamNode sink = this.addNode(sinkId,
 			null,
 			null,
@@ -619,6 +623,7 @@ public class StreamGraph extends StreamingPlan {
 
 		iterationSourceSinkPairs.add(new Tuple2<>(source, sink));
 
+		//建立节点编号与代理的关系
 		this.vertexIDtoBrokerID.put(source.getId(), "broker-" + loopId);
 		this.vertexIDtoBrokerID.put(sink.getId(), "broker-" + loopId);
 		this.vertexIDtoLoopTimeout.put(source.getId(), timeout);

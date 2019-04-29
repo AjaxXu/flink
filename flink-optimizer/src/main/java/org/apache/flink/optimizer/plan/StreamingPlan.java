@@ -27,6 +27,7 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import javax.annotation.Nullable;
 
 /**
+ * 针对流应用的计划是StreamingPlan
  * Abstract class representing Flink Streaming plans
  * 
  */

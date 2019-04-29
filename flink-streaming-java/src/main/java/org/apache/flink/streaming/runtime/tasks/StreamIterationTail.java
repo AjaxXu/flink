@@ -35,6 +35,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 迭代尾任务，它借助于阻塞队列作为反馈信道将下一次需要迭代的数据反馈给迭代头
  * A special {@link StreamTask} that is used for executing feedback edges. This is used in
  * combination with {@link StreamIterationHead}.
  */
@@ -120,6 +121,7 @@ public class StreamIterationTail<IN> extends OneInputStreamTask<IN, IN> {
 
 		@Override
 		public void collect(StreamRecord<IN> record) {
+			// 数据交换是基于dataChannel的，由迭代尾负责生产
 			try {
 				if (shouldWait) {
 					dataChannel.offer(record, iterationWaitTime, TimeUnit.MILLISECONDS);

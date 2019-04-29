@@ -33,6 +33,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 迭代头任务，它借助于反馈阻塞队列从迭代尾部接收参与下一次迭代的反馈数据
  * A special {@link StreamTask} that is used for executing feedback edges. This is used in
  * combination with {@link StreamIterationTail}.
  */
@@ -66,6 +67,7 @@ public class StreamIterationHead<OUT> extends OneInputStreamTask<OUT, OUT> {
 		final BlockingQueue<StreamRecord<OUT>> dataChannel = new ArrayBlockingQueue<StreamRecord<OUT>>(1);
 
 		// offer the queue for the tail
+		// dataChannel由迭代头创建并递交给BlockingQueueBroker：
 		BlockingQueueBroker.INSTANCE.handIn(brokerID, dataChannel);
 		LOG.info("Iteration head {} added feedback queue under {}", getName(), brokerID);
 
@@ -84,6 +86,7 @@ public class StreamIterationHead<OUT> extends OneInputStreamTask<OUT, OUT> {
 			}
 
 			while (running) {
+				// 由迭代头负责消费
 				StreamRecord<OUT> nextRecord = shouldWait ?
 					dataChannel.poll(iterationWaitTime, TimeUnit.MILLISECONDS) :
 					dataChannel.take();

@@ -67,13 +67,16 @@ public class IterativeStream<T> extends SingleOutputStreamOperator<T> {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public DataStream<T> closeWith(DataStream<T> feedbackStream) {
 
+		// 基于需要反馈给迭代头的反馈流对象获取其所有前任的SteamTransformation对象，目的是为了下文的检查
 		Collection<StreamTransformation<?>> predecessors = feedbackStream.getTransformation().getTransitivePredecessors();
 
+		// 基于前任向上游追溯的原因是确保反馈流的源头是来自迭代头（从而形成迭代这样一个闭环），而不是任意的某个流都可以作为反馈流
 		if (!predecessors.contains(this.transformation)) {
 			throw new UnsupportedOperationException(
 					"Cannot close an iteration with a feedback DataStream that does not originate from said iteration.");
 		}
 
+		// 将反馈流对应的转换对象作为迭代头的反馈边
 		((FeedbackTransformation) getTransformation()).addFeedbackEdge(feedbackStream.getTransformation());
 
 		return feedbackStream;

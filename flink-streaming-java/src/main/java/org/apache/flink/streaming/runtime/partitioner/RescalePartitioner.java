@@ -23,6 +23,7 @@ import org.apache.flink.runtime.plugable.SerializationDelegate;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
+ * 也是以round-robin的形式将元素分区到下游subtask的子集中
  * Partitioner that distributes the data equally by cycling through the output
  * channels. This distributes only to a subset of downstream nodes because
  * {@link org.apache.flink.streaming.api.graph.StreamingJobGraphGenerator} instantiates

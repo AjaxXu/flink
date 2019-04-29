@@ -586,7 +586,7 @@ public class FlinkYarnSessionCli extends AbstractCustomCommandLine<ApplicationId
 	public int run(String[] args) throws CliArgsException, FlinkException {
 		//
 		//	Command Line Options
-		//
+		// 1.解析命令行参数
 		final CommandLine cmd = parseCommandLineOptions(args, true);
 
 		if (cmd.hasOption(help.getOpt())) {
@@ -596,8 +596,10 @@ public class FlinkYarnSessionCli extends AbstractCustomCommandLine<ApplicationId
 
 		final AbstractYarnClusterDescriptor yarnClusterDescriptor = createClusterDescriptor(cmd);
 
+		// 2.根据命令行参数决定执行那种模式。
 		try {
 			// Query cluster for metrics
+			// 第一种，判断命令是否包含 -q
 			if (cmd.hasOption(query.getOpt())) {
 				final String description = yarnClusterDescriptor.getClusterDescription();
 				System.out.println(description);
@@ -606,6 +608,7 @@ public class FlinkYarnSessionCli extends AbstractCustomCommandLine<ApplicationId
 				final ClusterClient<ApplicationId> clusterClient;
 				final ApplicationId yarnApplicationId;
 
+				// 第二种，判断是否有-id参数
 				if (cmd.hasOption(applicationId.getOpt())) {
 					yarnApplicationId = ConverterUtils.toApplicationId(cmd.getOptionValue(applicationId.getOpt()));
 

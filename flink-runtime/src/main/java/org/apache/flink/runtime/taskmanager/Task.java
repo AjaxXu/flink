@@ -620,6 +620,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 
 			LOG.info("Registering task at network: {}.", this);
 
+			// 将自身（Task）注册到网络栈（也就是这里的NetworkEnvironment）
 			network.registerTask(this);
 
 			for (ResultPartition partition : producedPartitions) {

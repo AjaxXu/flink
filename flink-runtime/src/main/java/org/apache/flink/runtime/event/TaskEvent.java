@@ -19,6 +19,7 @@
 package org.apache.flink.runtime.event;
 
 /**
+ * 除了预定义的事件外，Flink还支持自定义的扩展事件，所有自定义的事件都继承自派生于AbstractEvent的TaskEvent
  * Subclasses of this event are recognized as custom events that are not part of the core
  * flink runtime.
  */
