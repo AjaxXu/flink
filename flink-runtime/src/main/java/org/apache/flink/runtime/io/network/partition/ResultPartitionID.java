@@ -25,6 +25,9 @@ import org.apache.flink.runtime.jobgraph.IntermediateResultPartitionID;
 import java.io.Serializable;
 
 /**
+ * 结果分区编号（ResultPartitionID）用来标识ResultPartition。
+ * ResultPartitionID关联着IntermediateResultPartitionID（也即调度时的分区编号）和ExecutionAttemptID（部署时的生产者子任务实例编号）。
+ * 在任务失败时，单靠IntermediateResultPartitionID无法鉴别ResultPartition，必须结合ExecutionAttemptID一起鉴别。
  * Runtime identifier of a produced {@link IntermediateResultPartition}.
  *
  * <p>In failure cases the {@link IntermediateResultPartitionID} is not enough to uniquely

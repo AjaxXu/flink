@@ -88,6 +88,7 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 
 	private final JobID jobId;
 
+	// 结果分区编号（ResultPartitionID）用来标识ResultPartition
 	private final ResultPartitionID partitionId;
 
 	/** Type of this partition. Defines the concrete subpartition implementation to use. */
@@ -117,6 +118,7 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 
 	private BufferPool bufferPool;
 
+	// 用来表示当前是否已通知过消费者
 	private boolean hasNotifiedPipelinedConsumers;
 
 	private boolean isFinished;
@@ -244,7 +246,9 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 
 		ResultSubpartition subpartition;
 		try {
+			//确认生产状态处于未完成状态
 			checkInProduceState();
+			//获取指定索引的子分区
 			subpartition = subpartitions[subpartitionIndex];
 		}
 		catch (Exception ex) {
@@ -253,6 +257,7 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 		}
 
 		if (subpartition.add(bufferConsumer)) {
+			//如果BufferConsumer被加入成功，且当前的模式是管道模式，则立即通知消费者任务
 			notifyPipelinedConsumers();
 		}
 	}
@@ -275,6 +280,8 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 	 * <p>After this operation, it is not possible to add further data to the result partition.
 	 *
 	 * <p>For BLOCKING results, this will trigger the deployment of consuming tasks.
+	 * 针对阻塞模式的ResultPartition的通知时机却需要等到数据生产完成之后（ResultPartition的finish方法被调用），
+	 * 通知消费者开始消费
 	 */
 	public void finish() throws IOException {
 		boolean success = false;
@@ -375,7 +382,7 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 		checkArgument(toRelease > 0);
 
 		for (ResultSubpartition subpartition : subpartitions) {
-			toRelease -= subpartition.releaseMemory();
+			toRelease -= subpartition.releaseMemory(); // //让subpartition去releaseMemory
 
 			// Only release as much memory as needed
 			if (toRelease <= 0) {
@@ -429,15 +436,19 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 	 */
 	void onConsumedSubpartition(int subpartitionIndex) {
 
+		//已被释放，则直接返回
 		if (isReleased.get()) {
 			return;
 		}
 
+		//计数器减一后获得未完成的子分区计数
 		int refCnt = pendingReferences.decrementAndGet();
 
+		//如果全部都已完成，则通知ResultPartitionManager，它会将ResultPartition直接释放
 		if (refCnt == 0) {
 			partitionManager.onConsumedPartition(this);
 		}
+		//异常
 		else if (refCnt < 0) {
 			throw new IllegalStateException("All references released.");
 		}
@@ -458,11 +469,13 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 
 	/**
 	 * Notifies pipelined consumers of this result partition once.
+	 * 通过分区可消费通知器（ResultPartitionConsumableNotifier）间接通知消费者任务（经过JobManager转发通知）
 	 */
 	private void notifyPipelinedConsumers() {
 		if (sendScheduleOrUpdateConsumersMessage && !hasNotifiedPipelinedConsumers && partitionType.isPipelined()) {
 			partitionConsumableNotifier.notifyPartitionConsumable(jobId, partitionId, taskActions);
 
+			// 一旦通知过，该标识将会被设置为true，所以该通知只会发生在第一个被成功加入的BufferConsumer之后，后续便不再通知
 			hasNotifiedPipelinedConsumers = true;
 		}
 	}

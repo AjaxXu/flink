@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ * 一种支持跨内存段的序列化器，其实现借助于中间缓冲区来缓存序列化后的数据，然后再往真正的目标Buffer里写
  * Record serializer which serializes the complete record to an intermediate
  * data serialization buffer and copies this buffer to target buffers
  * one-by-one using {@link #copyToBufferBuilder(BufferBuilder)}.
@@ -100,9 +101,12 @@ public class SpanningRecordSerializer<T extends IOReadableWritable> implements R
 	}
 
 	private SerializationResult getSerializationResult(BufferBuilder targetBuffer) {
+		//任何一个buffer中仍存有数据，则记录只能被标记为部分写入
 		if (dataBuffer.hasRemaining() || lengthBuffer.hasRemaining()) {
 			return SerializationResult.PARTIAL_RECORD_MEMORY_SEGMENT_FULL;
 		}
+		//紧接着判断写入位置跟内存段的结束位置之间的关系，如果写入位置小于结束位置，则说明数据全部写入，
+		//否则说明数据全部写入且内存段也写满
 		return !targetBuffer.isFull()
 			? SerializationResult.FULL_RECORD
 			: SerializationResult.FULL_RECORD_MEMORY_SEGMENT_FULL;

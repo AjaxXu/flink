@@ -24,16 +24,21 @@ import org.apache.flink.runtime.io.network.buffer.BufferBuilder;
 import java.io.IOException;
 
 /**
+ * 记录序列化器
  * Interface for turning records into sequences of memory segments.
  */
 public interface RecordSerializer<T extends IOReadableWritable> {
 
 	/**
+	 * 表示序列化结果的SerializationResult枚举
 	 * Status of the serialization result.
 	 */
 	enum SerializationResult {
+		// 内存段已满但记录的数据只写入了部分，没有完全写完；
 		PARTIAL_RECORD_MEMORY_SEGMENT_FULL(false, true),
+		// 内存段写满，记录的数据已全部写入；
 		FULL_RECORD_MEMORY_SEGMENT_FULL(true, true),
+		// 记录的数据全部写入，但内存段并没有满
 		FULL_RECORD(true, false);
 
 		private final boolean isFullRecord;

@@ -32,6 +32,8 @@ import java.util.Optional;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 一种用于占位目的的输入通道，需要占位通道是因为暂未确定相对于生产者任务位置，
+ * 但最终要么被替换为RemoteInputChannel，要么被替换为LocalInputChannel
  * An input channel place holder to be replaced by either a {@link RemoteInputChannel}
  * or {@link LocalInputChannel} at runtime.
  */
@@ -74,6 +76,10 @@ class UnknownInputChannel extends InputChannel {
 	@Override
 	public void requestSubpartition(int subpartitionIndex) throws IOException {
 		// Nothing to do here
+		// 占位目的的UnknowInputChannel不响应该方法，因为它最终会被确定为是LocalInputChannel
+		// 还是RemoteInputChannel，确定的时机通常是JobManager通知器其可消费，
+		// TaskManager调用当前SingleInputGate的updateInputChannel方法，
+		// 确定UnknowInputChannel会转变的具体的通道类型后再调用requestSubpartition方法。
 	}
 
 	@Override

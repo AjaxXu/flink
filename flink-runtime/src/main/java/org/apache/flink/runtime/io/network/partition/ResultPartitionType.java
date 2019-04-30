@@ -40,13 +40,13 @@ public enum ResultPartitionType {
 	 */
 	PIPELINED_BOUNDED(true, true, true);
 
-	/** Can the partition be consumed while being produced? */
+	/** Can the partition be consumed while being produced? 是否支持管道*/
 	private final boolean isPipelined;
 
-	/** Does the partition produce back pressure when not consumed? */
+	/** Does the partition produce back pressure when not consumed? 是否会产生反压*/
 	private final boolean hasBackPressure;
 
-	/** Does this partition use a limited number of (network) buffers? */
+	/** Does this partition use a limited number of (network) buffers? 是否有限buffer*/
 	private final boolean isBounded;
 
 	/**

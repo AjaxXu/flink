@@ -41,7 +41,13 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 用于请求同实例中生产者任务所生产的ResultSubpartitionView的输入通道
  * An input channel, which requests a local subpartition.
+ *
+ * LocalInputChannel会从相同的JVM实例中消费生产者任务所生产的Buffer。
+ * 因此，这种模式是直接借助于方法调用和对象共享的机制完成消费，无需跨节点网络通信。
+ * 具体而言，它是通过ResultPartitionManager来直接创建对应的ResultSubpartitionView的实例，这种通道相对简单
+ *
  */
 public class LocalInputChannel extends InputChannel implements BufferAvailabilityListener {
 

@@ -297,6 +297,7 @@ public abstract class NettyMessage {
 	// Server responses
 	// ------------------------------------------------------------------------
 
+	// 服务端给出的Buffer响应消息，编号为0
 	static class BufferResponse extends NettyMessage {
 
 		private static final byte ID = 0;
@@ -403,6 +404,7 @@ public abstract class NettyMessage {
 		}
 	}
 
+	// 服务端的错误响应消息，编号为1
 	static class ErrorResponse extends NettyMessage {
 
 		private static final byte ID = 1;
@@ -478,6 +480,7 @@ public abstract class NettyMessage {
 	// Client requests
 	// ------------------------------------------------------------------------
 
+	// 客户端发起的分区请求，编号为2
 	static class PartitionRequest extends NettyMessage {
 
 		private static final byte ID = 2;
@@ -539,6 +542,7 @@ public abstract class NettyMessage {
 		}
 	}
 
+	// 客户端发起的任务事件请求，编号为3
 	static class TaskEventRequest extends NettyMessage {
 
 		private static final byte ID = 3;
@@ -611,6 +615,7 @@ public abstract class NettyMessage {
 	 *
 	 * <p>There is a 1:1 mapping between the input channel and partition per physical channel.
 	 * Therefore, the {@link InputChannelID} instance is enough to identify which request to cancel.
+	 * 客户端发起的取消分区请求，编号为4
 	 */
 	static class CancelPartitionRequest extends NettyMessage {
 
@@ -646,6 +651,7 @@ public abstract class NettyMessage {
 		}
 	}
 
+	// 客户端发起的关闭请求，编号为5
 	static class CloseRequest extends NettyMessage {
 
 		private static final byte ID = 5;
@@ -665,6 +671,7 @@ public abstract class NettyMessage {
 
 	/**
 	 * Incremental credit announcement from the client to the server.
+	 * 客户端发起的增加credit声明的请求，编号为6
 	 */
 	static class AddCredit extends NettyMessage {
 

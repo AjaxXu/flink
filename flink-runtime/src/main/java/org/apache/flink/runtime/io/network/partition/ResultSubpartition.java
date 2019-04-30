@@ -30,6 +30,7 @@ import java.util.ArrayDeque;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * ResultSubpartition是真正存储供消费者消费BufferConsumer的地方
  * A single subpartition of a {@link ResultPartition} instance.
  */
 public abstract class ResultSubpartition {
@@ -78,6 +79,7 @@ public abstract class ResultSubpartition {
 
 	/**
 	 * Notifies the parent partition about a consumed {@link ResultSubpartitionView}.
+	 * 每个ResultSubPartition被消费完成之后都会回调ResultPartition的实例方法onConsumedSubpartition
 	 */
 	protected void onConsumedSubpartition() {
 		parent.onConsumedSubpartition(index);

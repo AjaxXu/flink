@@ -58,9 +58,9 @@ public class RecordWriter<T extends IOReadableWritable> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RecordWriter.class);
 
-	private final ResultPartitionWriter targetPartition;
+	private final ResultPartitionWriter targetPartition; //负责写入ResultPartition的writer
 
-	private final ChannelSelector<T> channelSelector;
+	private final ChannelSelector<T> channelSelector; //选择写入哪个channel，默认RoundRobinChannelSelector
 
 	private final int numberOfChannels;
 
@@ -167,7 +167,10 @@ public class RecordWriter<T extends IOReadableWritable> {
 
 		boolean pruneTriggered = false;
 		BufferBuilder bufferBuilder = getBufferBuilder(targetChannel);
+		// 把数据从serializer拷贝到bufferBuilder
 		SerializationResult result = serializer.copyToBufferBuilder(bufferBuilder);
+		// 如果记录的数据无法被单个Buffer所容纳，将会被拆分成多个Buffer存储，直到数据写完
+		// 如果Buffer已经存满
 		while (result.isFullBuffer()) {
 			numBytesOut.inc(bufferBuilder.finish());
 			numBuffersOut.inc();
@@ -175,17 +178,20 @@ public class RecordWriter<T extends IOReadableWritable> {
 			// If this was a full record, we are done. Not breaking out of the loop at this point
 			// will lead to another buffer request before breaking out (that would not be a
 			// problem per se, but it can lead to stalls in the pipeline).
+			// 如果记录以及全部写入subPartition
 			if (result.isFullRecord()) {
 				pruneTriggered = true;
 				bufferBuilders[targetChannel] = Optional.empty();
 				break;
 			}
 
+			// 如果记录没有完全写入，申请新的bufferBuilder
 			bufferBuilder = requestNewBufferBuilder(targetChannel);
 			result = serializer.copyToBufferBuilder(bufferBuilder);
 		}
 		checkState(!serializer.hasSerializedData(), "All data should be written at once");
 
+		// 如果总是刷新，直接调用targetPartition 刷新
 		if (flushAlways) {
 			targetPartition.flush(targetChannel);
 		}
@@ -253,6 +259,7 @@ public class RecordWriter<T extends IOReadableWritable> {
 	private BufferBuilder requestNewBufferBuilder(int targetChannel) throws IOException, InterruptedException {
 		checkState(!bufferBuilders[targetChannel].isPresent() || bufferBuilders[targetChannel].get().isFinished());
 
+		// 就是调用localBufferPool.requestMemorySegment, 然后封装成BufferBuilder
 		BufferBuilder bufferBuilder = targetPartition.getBufferProvider().requestBufferBuilderBlocking();
 		bufferBuilders[targetChannel] = Optional.of(bufferBuilder);
 		targetPartition.addBufferConsumer(bufferBuilder.createBufferConsumer(), targetChannel);
@@ -305,6 +312,7 @@ public class RecordWriter<T extends IOReadableWritable> {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * 一个专用线程周期性的flush output buffer
 	 * A dedicated thread that periodically flushes the output buffers, to set upper latency bounds.
 	 *
 	 * <p>The thread is daemonic, because it is only a utility thread.

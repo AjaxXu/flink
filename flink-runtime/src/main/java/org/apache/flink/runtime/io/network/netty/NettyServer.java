@@ -69,12 +69,14 @@ class NettyServer {
 
 		final long start = System.nanoTime();
 
+		// 创建ServerBootstrap实例来引导绑定和启动服务器
 		bootstrap = new ServerBootstrap();
 
 		// --------------------------------------------------------------------
 		// Transport-specific configuration
 		// --------------------------------------------------------------------
 
+		// 根据配置创建NioEventLoopGroup或EpollEventLoopGroup对象来处理事件
 		switch (config.getTransportType()) {
 			case NIO:
 				initNioBootstrap();

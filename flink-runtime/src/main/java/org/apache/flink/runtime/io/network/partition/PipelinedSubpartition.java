@@ -35,6 +35,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 基于内存的管道模式的结果子分区
  * A pipelined in-memory only subpartition, which can be consumed once.
  *
  * <p>Whenever {@link #add(BufferConsumer)} adds a finished {@link BufferConsumer} or a second

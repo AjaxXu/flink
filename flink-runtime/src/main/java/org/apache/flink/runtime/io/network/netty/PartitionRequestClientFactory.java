@@ -40,6 +40,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 class PartitionRequestClientFactory {
 
+	// 每个PartitionRequestClientFactory实例都依赖一个NettyClient。
+	// 也就是说所有PartitionRequestClient底层都共用一个NettyClient
 	private final NettyClient nettyClient;
 
 	private final ConcurrentMap<ConnectionID, Object> clients = new ConcurrentHashMap<ConnectionID, Object>();
@@ -80,6 +82,7 @@ class PartitionRequestClientFactory {
 				Object old = clients.putIfAbsent(connectionId, connectingChannel);
 
 				if (old == null) {
+					// nettyClient 真正设置ChannelHandler用来处理逻辑，并调用Bootstrap.connect()来连接服务器
 					nettyClient.connect(connectionId.getAddress()).addListener(connectingChannel);
 
 					client = connectingChannel.waitForChannel();

@@ -41,6 +41,10 @@ import java.net.InetSocketAddress;
 
 import static org.apache.flink.util.Preconditions.checkState;
 
+/**
+ * NettyClient的主要职责是初始化Netty客户端的核心对象，并根据NettyProtocol配置用于客户端事件处理的ChannelPipeline
+ * NettyClient并不用于发起远程结果子分区请求，该工作将由PartitionRequestClient完成
+ */
 class NettyClient {
 
 	private static final Logger LOG = LoggerFactory.getLogger(NettyClient.class);
@@ -58,6 +62,11 @@ class NettyClient {
 		this.config = config;
 	}
 
+	/**
+	 * 1.创建Bootstrap对象用来引导启动客户端
+	 * 2.创建NioEventLoopGroup或EpollEventLoopGroup对象并设置到Bootstrap中
+	 * 3.进行一系列配置
+	 */
 	void init(final NettyProtocol protocol, NettyBufferPool nettyBufferPool) throws IOException {
 		checkState(bootstrap == null, "Netty client has already been initialized.");
 
@@ -65,18 +74,22 @@ class NettyClient {
 
 		final long start = System.nanoTime();
 
+		// 创建Bootstrap对象用来引导启动客户端
 		bootstrap = new Bootstrap();
 
 		// --------------------------------------------------------------------
 		// Transport-specific configuration
 		// --------------------------------------------------------------------
 
+		// 创建NioEventLoopGroup或EpollEventLoopGroup对象并设置到Bootstrap中
 		switch (config.getTransportType()) {
 			case NIO:
 				initNioBootstrap();
 				break;
 
 			case EPOLL:
+				// Netty自版本4.0.16开始，对于Linux系统提供原生的套接字通信传输支持（也即，epoll机制，借助于JNI调用），
+				// 这种传输机制拥有更高的性能。只支持linux 2.6以上
 				initEpollBootstrap();
 				break;
 
@@ -188,6 +201,7 @@ class NettyClient {
 		});
 
 		try {
+			// 调用Bootstrap.connect()来连接服务器
 			return bootstrap.connect(serverSocketAddress);
 		}
 		catch (ChannelException e) {

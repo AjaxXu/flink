@@ -36,6 +36,7 @@ import java.io.IOException;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 基础模式下是基于内存的阻塞式的结果子分区，但数据量过大时可以将数据溢出到磁盘
  * A spillable sub partition starts out in-memory and spills to disk if asked
  * to do so.
  *
@@ -229,10 +230,12 @@ class SpillableSubpartition extends ResultSubpartition {
 			if (view != null && view.getClass() == SpillableSubpartitionView.class) {
 				// If there is a spillable view, it's the responsibility of the
 				// view to release memory.
+				// 如果存在spillable(可溢出) view, 则应该由它来释放内存
 				SpillableSubpartitionView spillableView = (SpillableSubpartitionView) view;
 				return spillableView.releaseMemory();
 			} else if (spillWriter == null) {
 				// No view and in-memory => spill to disk
+				// 如果没有view，且还没有溢出到磁盘
 				spillWriter = ioManager.createBufferFileWriter(ioManager.createChannel());
 
 				int numberOfBuffers = buffers.size();
@@ -258,7 +261,7 @@ class SpillableSubpartition extends ResultSubpartition {
 			BufferConsumer bufferConsumer = buffers.getFirst();
 			Buffer buffer = bufferConsumer.build();
 			updateStatistics(buffer);
-			int bufferSize = buffer.getSize();
+			int bufferSize = buffer.getSize(); // 数据大小
 			spilledBytes += bufferSize;
 
 			// NOTE we may be in the process of finishing the subpartition where any buffer should

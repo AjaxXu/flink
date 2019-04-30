@@ -62,6 +62,7 @@ import static org.apache.flink.util.Preconditions.checkState;
  * </pre>
  *
  * <strong>It is NOT possible to recursively union union input gates.</strong>
+ * 联合输入网关，它允许将多个输入网关联合起来，主要充当InputGate容器的角色
  */
 public class UnionInputGate implements InputGate, InputGateListener {
 
@@ -164,8 +165,10 @@ public class UnionInputGate implements InputGate, InputGateListener {
 		}
 
 		// Make sure to request the partitions, if they have not been requested before.
+		//遍历每个InputGate，依次调用其requestPartitions方法
 		requestPartitions();
 
+		// 获取有数据的InputGate
 		InputGateWithData inputGateWithData = waitAndGetNextInputGate();
 		InputGate inputGate = inputGateWithData.inputGate;
 		BufferOrEvent bufferOrEvent = inputGateWithData.bufferOrEvent;
@@ -174,14 +177,17 @@ public class UnionInputGate implements InputGate, InputGateListener {
 			// this buffer or event was now removed from the non-empty gates queue
 			// we re-add it in case it has more data, because in that case no "non-empty" notification
 			// will come for that gate
+			// 如果该InputGate还有数据，重新入队
 			queueInputGate(inputGate);
 		}
 
+		//如果获取到的是事件且该事件为EndOfPartitionEvent且输入网关已完成
 		if (bufferOrEvent.isEvent()
 			&& bufferOrEvent.getEvent().getClass() == EndOfPartitionEvent.class
 			&& inputGate.isFinished()) {
 
 			checkState(!bufferOrEvent.moreAvailable());
+			//尝试将该InputGate从仍然可消费数据的输入网关集合中删除
 			if (!inputGatesWithRemainingData.remove(inputGate)) {
 				throw new IllegalStateException("Couldn't find input gate in set of remaining " +
 					"input gates.");
@@ -189,8 +195,10 @@ public class UnionInputGate implements InputGate, InputGateListener {
 		}
 
 		// Set the channel index to identify the input channel (across all unioned input gates)
+		//获得通道索引偏移
 		final int channelIndexOffset = inputGateToIndexOffsetMap.get(inputGate);
 
+		//计算真实通道索引
 		bufferOrEvent.setChannelIndex(channelIndexOffset + bufferOrEvent.getChannelIndex());
 		bufferOrEvent.setMoreAvailable(bufferOrEvent.moreAvailable() || inputGateWithData.moreInputGatesAvailable);
 
@@ -202,21 +210,27 @@ public class UnionInputGate implements InputGate, InputGateListener {
 		throw new UnsupportedOperationException();
 	}
 
+	// 阻塞并等待下一个有数据的InputGate
 	private InputGateWithData waitAndGetNextInputGate() throws IOException, InterruptedException {
 		while (true) {
 			InputGate inputGate;
 			boolean moreInputGatesAvailable;
 			synchronized (inputGatesWithData) {
+				// 有数据的inputGate为0，阻塞
 				while (inputGatesWithData.size() == 0) {
 					inputGatesWithData.wait();
 				}
+				// 获取第一个可用的inputGate
 				inputGate = inputGatesWithData.remove();
 				enqueuedInputGatesWithData.remove(inputGate);
+				// 标记是否还有可用的InputGate
 				moreInputGatesAvailable = enqueuedInputGatesWithData.size() > 0;
 			}
 
 			// In case of inputGatesWithData being inaccurate do not block on an empty inputGate, but just poll the data.
+			// 采用不阻塞的方式获取BufferOrEvent，防止阻塞在一个empty InputGate上
 			Optional<BufferOrEvent> bufferOrEvent = inputGate.pollNextBufferOrEvent();
+			// 存在BufferOrEvent
 			if (bufferOrEvent.isPresent()) {
 				return new InputGateWithData(inputGate, bufferOrEvent.get(), moreInputGatesAvailable);
 			}

@@ -51,7 +51,10 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 用于请求远程生产者任务所生产的ResultSubpartitionView的输入通道
  * An input channel, which requests a remote partition queue.
+ * RemoteInputChannel是我们重点关注的输入通道，因为它涉及到远程请求结果子分区。
+ * 远程数据交换的通信机制建立在Netty框架的基础之上，因此会有一个主交互对象PartitionRequestClient来衔接通信层跟输入通道
  */
 public class RemoteInputChannel extends InputChannel implements BufferRecycler, BufferListener {
 
@@ -67,6 +70,9 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 	/**
 	 * The received buffers. Received buffers are enqueued by the network I/O thread and the queue
 	 * is consumed by the receiving task thread.
+	 * onBuffer方法的执行处于Netty的I/O线程上，但RemoteInputChannel中getNextBuffer却不会在Netty的I/O线程上被调用，
+	 * 所以必须有一个数据共享的容器，这个容器就是receivedBuffers队列。
+	 * ---------------------
 	 */
 	private final ArrayDeque<Buffer> receivedBuffers = new ArrayDeque<>();
 
@@ -162,9 +168,11 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 	public void requestSubpartition(int subpartitionIndex) throws IOException, InterruptedException {
 		if (partitionRequestClient == null) {
 			// Create a client and request the partition
+			// 通过一个ConnectionManager根据连接编号（对应着目的主机）来创建PartitionRequestClient实例
 			partitionRequestClient = connectionManager
 				.createPartitionRequestClient(connectionId);
 
+			// 具体的请求工作被委托给PartitionRequestClient的实例
 			partitionRequestClient.requestSubpartition(partitionId, subpartitionIndex, this, 0);
 		}
 	}
@@ -183,6 +191,9 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 		}
 	}
 
+	/**
+	 * getNextBuffer就是直接从receivedBuffers队列中出队一条数据,然后返回
+	 */
 	@Override
 	Optional<BufferAndAvailability> getNextBuffer() throws IOException {
 		checkState(!isReleased.get(), "Queried for a buffer after channel has been closed.");
@@ -497,6 +508,7 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 		}
 	}
 
+	// onBuffer方法的执行处于Netty的I/O线程上
 	public void onBuffer(Buffer buffer, int sequenceNumber, int backlog) throws IOException {
 		boolean recycleBuffer = true;
 
@@ -511,19 +523,29 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 					return;
 				}
 
+				//如果实际序列号跟所期待的序列号不一致，则会触发onError回调，并相应以一个特定的异常对象
+				//该方法调用在成功设置完错误原因后，同样会触发notifyChannelNonEmpty方法调用
 				if (expectedSequenceNumber != sequenceNumber) {
 					onError(new BufferReorderingException(expectedSequenceNumber, sequenceNumber));
 					return;
 				}
+				// 消费时首先会进行序列号比对，这可以看作是一种“校验”机制。
+				// 服务端每响应客户端一个Buffer都会将序列号加一并随响应数据一起发回给客户端，
+				// 而客户端则会在消费时也同时累加本地的序列号计数器。在消费的过程中，两个序列号必须一致才能保证消费的顺利进行，
+				// 否则InputChannel将会抛出BufferReorderingException异常
 
 				wasEmpty = receivedBuffers.isEmpty();
+				//将数据加入接收队列
 				receivedBuffers.add(buffer);
 				recycleBuffer = false;
 			}
 
+			// 将预期序列号计数器加一
 			++expectedSequenceNumber;
 
 			if (wasEmpty) {
+				//发出Channel非空 的通知，该通知随后会被传递给其所归属的SingleInputGate，
+				//以通知其订阅者，有可用数据
 				notifyChannelNonEmpty();
 			}
 
@@ -531,6 +553,7 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 				onSenderBacklog(backlog);
 			}
 		} finally {
+			//如果不成功，则该Buffer会被回收
 			if (recycleBuffer) {
 				buffer.recycleBuffer();
 			}

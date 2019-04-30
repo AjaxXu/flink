@@ -87,6 +87,7 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 		// TODO This could potentially have a bad performance impact as in the
 		// worst case (network consumes faster than the producer) each buffer
 		// will trigger a separate event loop task being scheduled.
+		// 通知用户事件触发，调用userEventTriggered
 		ctx.executor().execute(() -> ctx.pipeline().fireUserEventTriggered(reader));
 	}
 
@@ -105,8 +106,10 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 		// we try trigger the actual write. Otherwise this will be handled by
 		// the writeAndFlushNextMessageIfPossible calls.
 		boolean triggerWrite = availableReaders.isEmpty();
+		//加入队列
 		registerAvailableReader(reader);
 
+		//如果队列在reader加入前是空的，则说明可以响应消息给客户端了
 		if (triggerWrite) {
 			writeAndFlushNextMessageIfPossible(ctx.channel());
 		}
@@ -177,6 +180,7 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 		} else if (msg.getClass() == InputChannelID.class) {
 			// Release partition view that get a cancel request.
 			InputChannelID toCancel = (InputChannelID) msg;
+			//如果当前InputChannelID已包含在释放过的集合中，那么直接返回
 			if (released.contains(toCancel)) {
 				return;
 			}
@@ -185,6 +189,8 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 			int size = availableReaders.size();
 			for (int i = 0; i < size; i++) {
 				NetworkSequenceViewReader reader = pollAvailableReader();
+				//遍历队列，将接收者编号跟当前准备取消的InputChannelID进行比较，
+				//如果相等则对视图的相关资源进行释放同时将编号加入已释放集合
 				if (reader.getReceiverId().equals(toCancel)) {
 					reader.releaseAllResources();
 					markAsReleased(reader.getReceiverId());
@@ -199,12 +205,18 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 		}
 	}
 
+	/**
+	 * channelWritabilityChanged方法是ChannelInboundHandler的接口方法，当Channel的可写状态发生改变时会被调用。
+	 * Channel的isWritable()方法可以用来检测其可写性。可写性的阈值范围可以通过Channel.config().setWriteHighWaterMark()
+	 * 以及Channel.config().setWriteLowWaterMark()进行设置。
+	 */
 	@Override
 	public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
 		writeAndFlushNextMessageIfPossible(ctx.channel());
 	}
 
 	private void writeAndFlushNextMessageIfPossible(final Channel channel) throws IOException {
+		//如果channel的状态为bu可写，直接返回
 		if (fatalError || !channel.isWritable()) {
 			return;
 		}
@@ -216,6 +228,7 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 		BufferAndAvailability next = null;
 		try {
 			while (true) {
+				// 获取可用的reader
 				NetworkSequenceViewReader reader = pollAvailableReader();
 
 				// No queue with available data. We allow this here, because
@@ -242,10 +255,13 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 				} else {
 					// This channel was now removed from the available reader queue.
 					// We re-add it into the queue if it is still available
+					// 还有数据
 					if (next.moreAvailable()) {
+						// 把reader重新加入队列中
 						registerAvailableReader(reader);
 					}
 
+					//将buffer封装成BufferResponse
 					BufferResponse msg = new BufferResponse(
 						next.buffer(),
 						reader.getSequenceNumber(),
@@ -254,6 +270,7 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 
 					// Write and flush and wait until this is done before
 					// trying to continue with the next buffer.
+					//真正的发送，WriteAndFlushNextMessageIfPossibleListener会再次调用writeAndFlushNextMessageIfPossible，反复读取
 					channel.writeAndFlush(msg).addListener(writeListener);
 
 					return;
@@ -326,6 +343,7 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 	// This listener is called after an element of the current nonEmptyReader has been
 	// flushed. If successful, the listener triggers further processing of the
 	// queues.
+	// 当前非空reader flush后被调用，如果成功将触发后续队列处理
 	private class WriteAndFlushNextMessageIfPossibleListener implements ChannelFutureListener {
 
 		@Override

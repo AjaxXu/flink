@@ -147,6 +147,7 @@ public class NetworkEnvironment {
 			}
 
 			for (final ResultPartition partition : producedPartitions) {
+				// 创建等同于subPartiton大小的localBuffer，并register到ResultPartition, 如果配置浮动数量，还有增加相应的浮动数量
 				setupPartition(partition);
 			}
 

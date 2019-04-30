@@ -67,6 +67,7 @@ class SequenceNumberingViewReader implements BufferAvailabilityListener, Network
 				// schedule a separate task at the event loop that will
 				// start consuming this. Otherwise the reference to the
 				// view cannot be available in getNextBuffer().
+				// 调用ResultPartitionManager.createSubpartitionView
 				this.subpartitionView = partitionProvider.createSubpartitionView(
 					resultPartitionId,
 					subPartitionIndex,

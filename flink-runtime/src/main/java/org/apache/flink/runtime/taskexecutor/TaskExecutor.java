@@ -653,6 +653,7 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 		log.info("Discarding the results produced by task execution {}.", executionAttemptID);
 
 		try {
+			// 在对Task解除注册时，会调用ResultPartitionManager的releasePartitionsProducedBy方法
 			networkEnvironment.getResultPartitionManager().releasePartitionsProducedBy(executionAttemptID);
 		} catch (Throwable t) {
 			// TODO: Do we still need this catch branch?

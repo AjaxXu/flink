@@ -50,6 +50,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * 该处理器用于处理服务端的响应消息
  * Channel handler to read the messages of buffer response or error response from the
  * producer.
  *
@@ -63,8 +64,10 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 
 	private final AtomicReference<Throwable> channelError = new AtomicReference<Throwable>();
 
+	// 用于感知可用Buffer的事件侦听器，它是内部实现的BufferListenerTask类型
 	private final BufferListenerTask bufferListener = new BufferListenerTask();
 
+	// 用于接收原始未解码消息的队列
 	private final Queue<Object> stagedMessages = new ArrayDeque<Object>();
 
 	private final StagedMessagesHandlerTask stagedMessagesHandler = new StagedMessagesHandlerTask();
@@ -176,6 +179,7 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		try {
+			//当没有待解析的原始消息时，直接解码消息，否则将消息加入到stagedMessages队列中，等待排队处理
 			if (!bufferListener.hasStagedBufferOrEvent() && stagedMessages.isEmpty()) {
 				decodeMsg(msg, false);
 			}
@@ -240,7 +244,9 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 		if (msgClazz == NettyMessage.BufferResponse.class) {
 			NettyMessage.BufferResponse bufferOrEvent = (NettyMessage.BufferResponse) msg;
 
+			//根据响应消息里的receiverId，从注册map里获取到接收该消息的RemoteInputChannel实例
 			RemoteInputChannel inputChannel = inputChannels.get(bufferOrEvent.receiverId);
+			//如果该响应没有对应的接收者，则释放该Buffer，同时通知服务端取消该请求
 			if (inputChannel == null) {
 				bufferOrEvent.releaseBuffer();
 
@@ -249,6 +255,7 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 				return true;
 			}
 
+			//接下来才进入到真正的解析逻辑
 			return decodeBufferOrEvent(inputChannel, bufferOrEvent, isStagedBuffer);
 		}
 		// ---- Error ---------------------------------------------------------
@@ -257,12 +264,14 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 
 			SocketAddress remoteAddr = ctx.channel().remoteAddress();
 
+			// 判断是否是致命错误，如果是致命错误，则直接通知所有的InputChannel并关闭它们
 			if (error.isFatalError()) {
 				notifyAllChannelsOfErrorAndClose(new RemoteTransportException(
 						"Fatal error at remote task manager '" + remoteAddr + "'.",
 						remoteAddr, error.cause));
 			}
 			else {
+				// 如果不是，则让该消息对应的InputChannel按不同情况处理
 				RemoteInputChannel inputChannel = inputChannels.get(error.receiverId);
 
 				if (inputChannel != null) {
@@ -295,6 +304,7 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 
 				// Early return for empty buffers. Otherwise Netty's readBytes() throws an
 				// IndexOutOfBoundsException.
+				//空Buffer
 				if (receivedSize == 0) {
 					inputChannel.onEmptyBuffer(bufferOrEvent.sequenceNumber, -1);
 					return true;
@@ -302,6 +312,7 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 
 				BufferProvider bufferProvider = inputChannel.getBufferProvider();
 
+				//获得Buffer提供者，如果为空，则通知服务端取消请求
 				if (bufferProvider == null) {
 					// receiver has been cancelled/failed
 					cancelRequestFor(bufferOrEvent.receiverId);
@@ -309,8 +320,11 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 				}
 
 				while (true) {
+					//从Buffer提供者请求Buffer，以放置响应结果数据
 					Buffer buffer = bufferProvider.requestBuffer();
 
+					//如果请求到Buffer，则读取数据同时触发InputChannel的onBuffer回调
+					//该方法在前文分析输入通道时我们早已提及过，它会将Buffer加入到队列中
 					if (buffer != null) {
 						nettyBuffer.readBytes(buffer.asByteBuf(), receivedSize);
 
@@ -318,6 +332,7 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 
 						return true;
 					}
+					//否则进入等待模式，当有Buffer可用时，会触发bufferListener的onEvent方法
 					else if (bufferListener.waitForBuffer(bufferProvider, bufferOrEvent)) {
 						releaseNettyBuffer = false;
 
@@ -384,6 +399,7 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 
 			stagedBufferResponse = bufferResponse;
 
+			// 通过将当前的BufferListenerTask的bufferListener实例反向注册到Buffer提供者
 			if (bufferProvider.addBufferListener(this)) {
 				if (ctx.channel().config().isAutoRead()) {
 					ctx.channel().config().setAutoRead(false);
@@ -416,9 +432,11 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 		}
 
 		// Called by the recycling thread (not network I/O thread)
+		// 当Buffer提供者中有Buffer可用时，将会触发bufferListener的notifyBufferAvailable回调方法
 		@Override
 		public NotificationResult notifyBufferAvailable(Buffer buffer) {
 			if (availableBuffer.compareAndSet(null, buffer)) {
+				// 通过上下文对象获取到Channel所处的EventLoop，然后通过它的execute方法接收一个Runnable实例并在新线程执行
 				ctx.channel().eventLoop().execute(this);
 
 				return NotificationResult.BUFFER_USED_NO_NEED_MORE;

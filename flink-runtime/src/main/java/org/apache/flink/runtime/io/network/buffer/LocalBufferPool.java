@@ -267,6 +267,7 @@ class LocalBufferPool implements BufferPool {
 					}
 				}
 				//如果总内存段的数目已大于等于本地缓冲池大小，判断是否需要释放，如果需要，让缓冲区池归属者释放一个内存段
+				// owner 这里是ResultPartition
 				if (askToRecycle) {
 					owner.get().releaseMemory(1);
 				}

@@ -37,6 +37,7 @@ import static org.apache.flink.runtime.io.network.netty.NettyMessage.PartitionRe
 import static org.apache.flink.runtime.io.network.netty.NettyMessage.TaskEventRequest;
 
 /**
+ * PartitionRequestServerHandler是一种通道流入处理器（ChannelInboundHandler），主要用于初始化数据传输同时分发事件
  * Channel handler to initiate data transfers and dispatch backwards flowing task events.
  */
 class PartitionRequestServerHandler extends SimpleChannelInboundHandler<NettyMessage> {
@@ -115,14 +116,17 @@ class PartitionRequestServerHandler extends SimpleChannelInboundHandler<NettyMes
 			else if (msgClazz == TaskEventRequest.class) {
 				TaskEventRequest request = (TaskEventRequest) msg;
 
+				//针对事件请求，将会通过任务事件分发器进行分发，如果分发失败，将会以错误消息予以响应
 				if (!taskEventPublisher.publish(request.partitionId, request.event)) {
 					respondWithError(ctx, new IllegalArgumentException("Task event receiver not found."), request.receiverId);
 				}
 			} else if (msgClazz == CancelPartitionRequest.class) {
+				//如果是取消请求，则调用队列的取消方法
 				CancelPartitionRequest request = (CancelPartitionRequest) msg;
 
 				outboundQueue.cancel(request.receiverId);
 			} else if (msgClazz == CloseRequest.class) {
+				//如果是关闭请求，则关闭队列
 				outboundQueue.close();
 			} else if (msgClazz == AddCredit.class) {
 				AddCredit request = (AddCredit) msg;

@@ -34,6 +34,9 @@ import java.util.Map;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 对ResultPartition进行管理的部件是结果分区管理器（ResultPartitionManager）。
+ * 一个NetworkEnvironment对应一个ResultPartitionManager。
+ * ResultPartitionManager会对某个TaskManager中已生产和已被消费的ResultPartition进行跟踪。
  * The result partition manager keeps track of all currently produced/consumed partitions of a
  * task manager.
  */
@@ -41,6 +44,7 @@ public class ResultPartitionManager implements ResultPartitionProvider {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ResultPartitionManager.class);
 
+	// 具体而言，它采用Guava库里的Table这一集合类型来维护其所管理的ResultPartition。
 	public final Table<ExecutionAttemptID, IntermediateResultPartitionID, ResultPartition>
 			registeredPartitions = HashBasedTable.create();
 
@@ -79,6 +83,7 @@ public class ResultPartitionManager implements ResultPartitionProvider {
 
 			LOG.debug("Requesting subpartition {} of {}.", subpartitionIndex, partition);
 
+			// 调用ResultPartition.createSubpartitionView
 			return partition.createSubpartitionView(subpartitionIndex, availabilityListener);
 		}
 	}
@@ -87,6 +92,7 @@ public class ResultPartitionManager implements ResultPartitionProvider {
 		releasePartitionsProducedBy(executionId, null);
 	}
 
+	// 将相应的ExecutionAttemptID对应的信息从registeredPartitions表中移除
 	public void releasePartitionsProducedBy(ExecutionAttemptID executionId, Throwable cause) {
 		synchronized (registeredPartitions) {
 			final Map<IntermediateResultPartitionID, ResultPartition> partitions =

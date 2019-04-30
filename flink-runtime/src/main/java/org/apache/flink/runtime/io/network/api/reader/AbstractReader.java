@@ -74,6 +74,7 @@ public abstract class AbstractReader implements ReaderBase {
 	}
 
 	/**
+	 * 对读取到的事件提供处理
 	 * Handles the event and returns whether the reader reached an end-of-stream event (either the
 	 * end of the whole stream or the end of an superstep).
 	 */
@@ -87,15 +88,18 @@ public abstract class AbstractReader implements ReaderBase {
 
 			// This event is also checked at the (single) input gate to release the respective
 			// channel, at which it was received.
+			// 如果事件为消费完的特定结果子分区中的数据，则直接返回true
 			if (eventType == EndOfPartitionEvent.class) {
 				return true;
 			}
+			//如果事件是针对迭代的超步完成，则增加相应的超步完成计数
 			else if (eventType == EndOfSuperstepEvent.class) {
 				return incrementEndOfSuperstepEventAndCheck();
 			}
 
 			// ------------------------------------------------------------
 			// Task events (user)
+			//如果事件是TaskEvent，则直接用任务事件处理器发布
 			// ------------------------------------------------------------
 			else if (event instanceof TaskEvent) {
 				taskEventHandler.publish((TaskEvent) event);

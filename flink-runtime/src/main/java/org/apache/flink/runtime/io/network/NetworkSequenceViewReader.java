@@ -26,6 +26,7 @@ import org.apache.flink.runtime.io.network.partition.consumer.InputChannelID;
 import java.io.IOException;
 
 /**
+ * 对每个即将返回的Buffer累加序列号同时保存相应的接收者（InputChannel）编号。
  * Simple wrapper for the partition readerQueue iterator, which increments a
  * sequence number for each returned buffer and remembers the receiver ID.
  */

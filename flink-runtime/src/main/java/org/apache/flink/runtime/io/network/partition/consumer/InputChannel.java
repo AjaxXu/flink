@@ -33,7 +33,14 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * InputChannel用于请求ResultSubpartitionView，并从中消费数据。
  * An input channel consumes a single {@link ResultSubpartitionView}.
+ *
+ * 对于每个InputChannel，消费的生命周期会经历如下的方法调用过程：
+ *
+ * 1.requestSubpartition：请求ResultSubpartition；
+ * 2.getNextBuffer：获得下一个Buffer；
+ * 3.releaseAllResources：释放所有的相关资源；
  *
  * <p>For each channel, the consumption life cycle is as follows:
  * <ol>

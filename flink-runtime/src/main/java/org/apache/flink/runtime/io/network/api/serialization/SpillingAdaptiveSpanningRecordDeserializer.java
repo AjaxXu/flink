@@ -53,8 +53,10 @@ public class SpillingAdaptiveSpanningRecordDeserializer<T extends IOReadableWrit
 
 	private static final int THRESHOLD_FOR_SPILLING = 5 * 1024 * 1024; // 5 MiBytes
 
+	// 不跨段的数据读取包装器
 	private final NonSpanningWrapper nonSpanningWrapper;
 
+	// 跨段数据读取包装器
 	private final SpanningWrapper spanningWrapper;
 
 	private Buffer currentBuffer;
@@ -88,6 +90,7 @@ public class SpillingAdaptiveSpanningRecordDeserializer<T extends IOReadableWrit
 		return tmp;
 	}
 
+	// getNextRecord方法会传入目标记录的引用并在内部将数据填入目标记录。
 	@Override
 	public DeserializationResult getNextRecord(T target) throws IOException {
 		// always check the non-spanning wrapper first.

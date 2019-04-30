@@ -31,13 +31,16 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * the producing task. There are three possibilities:
  *
  * <ol>
+ *     表示消费者任务被部署在跟生产该ResultPartition的生产者任务相同的实例上；
  * <li><strong>Local:</strong> The partition is available at the same instance on which the
  * consuming task is (being) deployed and the producing task has registered the result partition.
  *
+ * 表示消费者任务被部署在跟生产该ResultPartition的生产者任务不同的实例上
  * <li><strong>Remote:</strong> The result partition is available at a different instance from the
  * one, on which the consuming task is (being) deployed and the producing task has registered the
  * result partition.
  *
+ * 表示ResultPartition未被注册到生产者任务，当部署消费者任务时，其实例可能是确定的也可能是不确定的。
  * <li><strong>Unknown:</strong> The producing task has not yet registered the result partition.
  * When deploying the consuming task, the instance might be known or unknown. In any case, the
  * consuming task cannot request it yet. Instead, it will be updated at runtime after the

@@ -99,6 +99,7 @@ import static org.apache.flink.util.Preconditions.checkState;
  * <p>In the above example, two map subtasks produce the intermediate result in parallel, resulting
  * in two partitions (Partition 1 and 2). Each of these partitions is further partitioned into two
  * subpartitions -- one for each parallel reduce subtask.
+ * 常规输入网关，它是消费ResultPartition的实体
  */
 public class SingleInputGate implements InputGate {
 
@@ -344,6 +345,7 @@ public class SingleInputGate implements InputGate {
 
 			InputChannel current = inputChannels.get(partitionId);
 
+			// 确定UnknowInputChannel会转变的具体的通道类型
 			if (current instanceof UnknownInputChannel) {
 
 				UnknownInputChannel unknownChannel = (UnknownInputChannel) current;
@@ -491,6 +493,7 @@ public class SingleInputGate implements InputGate {
 							"channels.");
 				}
 
+				//触发所有的输入通道向ResultSubpartition发起请求
 				for (InputChannel inputChannel : inputChannels.values()) {
 					inputChannel.requestSubpartition(consumedSubpartitionIndex);
 				}
@@ -515,6 +518,7 @@ public class SingleInputGate implements InputGate {
 	}
 
 	private Optional<BufferOrEvent> getNextBufferOrEvent(boolean blocking) throws IOException, InterruptedException {
+		//如果已接收到所有EndOfPartitionEvent事件，则说明每个ResultSubpartition中的数据都被消费完成
 		if (hasReceivedAllEndOfPartitionEvents) {
 			return Optional.empty();
 		}
@@ -523,6 +527,7 @@ public class SingleInputGate implements InputGate {
 			throw new IllegalStateException("Released");
 		}
 
+		//触发所有的输入通道向ResultSubpartition发起请求
 		requestPartitions();
 
 		InputChannel currentChannel;
@@ -536,40 +541,53 @@ public class SingleInputGate implements InputGate {
 						throw new IllegalStateException("Released");
 					}
 
+					//如果是blocking，阻塞等待有可获取数据的通道可用
 					if (blocking) {
 						inputChannelsWithData.wait();
 					}
+					// 否则直接返回empty
 					else {
 						return Optional.empty();
 					}
 				}
 
+				// 队列中存在有数据的inputChannel，返回第一个
 				currentChannel = inputChannelsWithData.remove();
+				// 从标志入队channel的bitset中去掉上述出队的channel
 				enqueuedInputChannelsWithData.clear(currentChannel.getChannelIndex());
+				// 标识队列中是否还有有数据的channel
 				moreAvailable = !inputChannelsWithData.isEmpty();
 			}
 
+			//从输入通道中获得下一个Buffer
 			result = currentChannel.getNextBuffer();
 		} while (!result.isPresent());
 
 		// this channel was now removed from the non-empty channels queue
 		// we re-add it in case it has more data, because in that case no "non-empty" notification
 		// will come for that channel
+		// 如果还有数据
 		if (result.get().moreAvailable()) {
+			// 重新入队
 			queueChannel(currentChannel);
 			moreAvailable = true;
 		}
 
 		final Buffer buffer = result.get().buffer();
+		//如果该Buffer是用户数据，则构建BufferOrEvent对象并返回
 		if (buffer.isBuffer()) {
 			return Optional.of(new BufferOrEvent(buffer, currentChannel.getChannelIndex(), moreAvailable));
 		}
+		//否则把它当作事件来处理
 		else {
 			final AbstractEvent event = EventSerializer.fromBuffer(buffer, getClass().getClassLoader());
 
+			//如果获取到的是标识某ResultSubpartition已经生产完数据的事件
 			if (event.getClass() == EndOfPartitionEvent.class) {
+				//对获取该ResultSubpartition的通道进行标记
 				channelsWithEndOfPartitionEvents.set(currentChannel.getChannelIndex());
 
+				//如果所有信道都被标记了，置全部通道获取数据完成
 				if (channelsWithEndOfPartitionEvents.cardinality() == numberOfInputChannels) {
 					// Because of race condition between:
 					// 1. releasing inputChannelsWithData lock in this method and reaching this place
@@ -580,11 +598,13 @@ public class SingleInputGate implements InputGate {
 					hasReceivedAllEndOfPartitionEvents = true;
 				}
 
+				//对外发出ResultSubpartition已被消费的通知同时释放资源
 				currentChannel.notifySubpartitionConsumed();
 
 				currentChannel.releaseAllResources();
 			}
 
+			//以事件来构建BufferOrEvent对象
 			return Optional.of(new BufferOrEvent(event, currentChannel.getChannelIndex(), moreAvailable));
 		}
 	}
@@ -632,10 +652,13 @@ public class SingleInputGate implements InputGate {
 			}
 			availableChannels = inputChannelsWithData.size();
 
+			// 添加channel
 			inputChannelsWithData.add(channel);
 			enqueuedInputChannelsWithData.set(channel.getChannelIndex());
 
+			// 如果之前的可用channel为0，则唤醒等待数据的阻塞线程
 			if (availableChannels == 0) {
+				// 唤醒getNextBufferOrEvent中的阻塞
 				inputChannelsWithData.notifyAll();
 			}
 		}
@@ -689,6 +712,7 @@ public class SingleInputGate implements InputGate {
 		int numRemoteChannels = 0;
 		int numUnknownChannels = 0;
 
+		// 根据传递进来的InputGateDeploymentDescriptor完成对其包含的所有InputChannel的实例化
 		for (int i = 0; i < inputChannels.length; i++) {
 			final ResultPartitionID partitionId = icdd[i].getConsumedPartitionId();
 			final ResultPartitionLocation partitionLocation = icdd[i].getConsumedPartitionLocation();

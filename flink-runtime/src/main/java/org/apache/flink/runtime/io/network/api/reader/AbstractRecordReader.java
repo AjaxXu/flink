@@ -68,9 +68,13 @@ abstract class AbstractRecordReader<T extends IOReadableWritable> extends Abstra
 		}
 
 		while (true) {
+			//如果当前反序列化器已被初始化，说明它当前正在序列化一个记录
 			if (currentRecordDeserializer != null) {
+				//以当前反序列化器对记录进行反序列化，并返回反序列化结果枚举DeserializationResult
 				DeserializationResult result = currentRecordDeserializer.getNextRecord(target);
 
+				//如果获得结果是当前的Buffer已被消费（还不是记录的完整结果），获得当前的Buffer，将其回收，
+				//后续会继续反序列化当前记录的剩余数据
 				if (result.isBufferConsumed()) {
 					final Buffer currentBuffer = currentRecordDeserializer.getCurrentBuffer();
 
@@ -78,18 +82,23 @@ abstract class AbstractRecordReader<T extends IOReadableWritable> extends Abstra
 					currentRecordDeserializer = null;
 				}
 
+				//如果结果表示记录已被完全消费，则返回true，跳出循环
 				if (result.isFullRecord()) {
 					return true;
 				}
 			}
 
+			//从输入闸门获得下一个Buffer或者事件对象
 			final BufferOrEvent bufferOrEvent = inputGate.getNextBufferOrEvent().orElseThrow(IllegalStateException::new);
 
 			if (bufferOrEvent.isBuffer()) {
+				//设置当前的反序列化器，并将当前记录对应的Buffer给反序列化器
 				currentRecordDeserializer = recordDeserializers[bufferOrEvent.getChannelIndex()];
 				currentRecordDeserializer.setNextBuffer(bufferOrEvent.getBuffer());
 			}
 			else {
+				//如果不是Buffer而是事件，则根据其对应的通道索引拿到对应的反序列化器判断其是否还有未完成的数据，
+				//如果有则抛出异常，因为这是一个新的事件，在处理它之前，反序列化器中不应该存在残留数据
 				// sanity check for leftover data in deserializers. events should only come between
 				// records, not in the middle of a fragment
 				if (recordDeserializers[bufferOrEvent.getChannelIndex()].hasUnfinishedData()) {
@@ -100,14 +109,18 @@ abstract class AbstractRecordReader<T extends IOReadableWritable> extends Abstra
 							+ "serialization routines. In the case of Kryo, check the respective Kryo serializer.");
 				}
 
+				//处理事件，当该事件表示分区的子分区消费完成或者超步整体结束
 				if (handleEvent(bufferOrEvent.getEvent())) {
+					//如果是整个ResultPartition都消费完成
 					if (inputGate.isFinished()) {
 						isFinished = true;
 						return false;
 					}
+					//否则判断如果到达超步尾部
 					else if (hasReachedEndOfSuperstep()) {
 						return false;
 					}
+					//剩下的可能就是还有部分结果分区的子分区没有消费完成
 					// else: More data is coming...
 				}
 			}

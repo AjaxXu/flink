@@ -48,7 +48,7 @@ class PipelinedSubpartitionView implements ResultSubpartitionView {
 	@Nullable
 	@Override
 	public BufferAndBacklog getNextBuffer() {
-		return parent.pollBuffer();
+		return parent.pollBuffer(); //从parent，PipelinedSubpartition，的buffers里面直接poll
 	}
 
 	@Override
@@ -58,6 +58,7 @@ class PipelinedSubpartitionView implements ResultSubpartitionView {
 
 	@Override
 	public void notifySubpartitionConsumed() {
+		//消费完释放该Subpartition
 		releaseAllResources();
 	}
 

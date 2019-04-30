@@ -24,6 +24,10 @@ import java.io.IOException;
 import java.util.Optional;
 
 /**
+ * 输入网关（InputGate）用于消费中间结果（IntermediateResult）
+ * 在并行执行时由子任务生产的一个或多个结果分区（ResultPartition）
+ * 可以认为生产端的ResultPartition跟消费端的InputGate是对等的
+ *
  * An input gate consumes one or more partitions of a single produced intermediate result.
  *
  * <p>Each intermediate result is partitioned over its producing parallel subtasks; each of these
