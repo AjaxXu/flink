@@ -341,7 +341,7 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 	}
 
 	public void fail(@Nullable Throwable throwable) {
-		partitionManager.releasePartitionsProducedBy(partitionId.getProducerId(), throwable);
+		partitionManager.releasePartition(partitionId, throwable);
 	}
 
 	/**

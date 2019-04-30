@@ -31,7 +31,6 @@ import org.apache.flink.runtime.io.network.buffer.NetworkBuffer;
 import org.apache.flink.runtime.io.network.netty.PartitionRequestClient;
 import org.apache.flink.runtime.io.network.partition.PartitionNotFoundException;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionID;
-import org.apache.flink.runtime.metrics.groups.TaskIOMetricGroup;
 import org.apache.flink.util.ExceptionUtils;
 
 import javax.annotation.Nullable;
@@ -114,7 +113,7 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 		ResultPartitionID partitionId,
 		ConnectionID connectionId,
 		ConnectionManager connectionManager,
-		TaskIOMetricGroup metrics) {
+		InputChannelMetrics metrics) {
 
 		this(inputGate, channelIndex, partitionId, connectionId, connectionManager, 0, 0, metrics);
 	}
@@ -127,7 +126,7 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 		ConnectionManager connectionManager,
 		int initialBackOff,
 		int maxBackoff,
-		TaskIOMetricGroup metrics) {
+		InputChannelMetrics metrics) {
 
 		super(inputGate, channelIndex, partitionId, initialBackOff, maxBackoff, metrics.getNumBytesInRemoteCounter(), metrics.getNumBuffersInRemoteCounter());
 
