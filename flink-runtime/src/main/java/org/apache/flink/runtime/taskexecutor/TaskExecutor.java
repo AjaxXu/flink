@@ -51,6 +51,7 @@ import org.apache.flink.runtime.instance.InstanceID;
 import org.apache.flink.runtime.io.network.NetworkEnvironment;
 import org.apache.flink.runtime.io.network.netty.PartitionProducerStateChecker;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionConsumableNotifier;
+import org.apache.flink.runtime.io.network.partition.ResultPartitionID;
 import org.apache.flink.runtime.io.network.partition.consumer.SingleInputGate;
 import org.apache.flink.runtime.jobgraph.IntermediateDataSetID;
 import org.apache.flink.runtime.jobgraph.tasks.InputSplitProvider;
@@ -649,12 +650,10 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 	}
 
 	@Override
-	public void failPartition(ExecutionAttemptID executionAttemptID) {
-		log.info("Discarding the results produced by task execution {}.", executionAttemptID);
-
+	public void releasePartitions(Collection<ResultPartitionID> partitionIds) {
 		try {
 			// 在对Task解除注册时，会调用ResultPartitionManager的releasePartitionsProducedBy方法
-			networkEnvironment.getResultPartitionManager().releasePartitionsProducedBy(executionAttemptID);
+			networkEnvironment.releasePartitions(partitionIds);
 		} catch (Throwable t) {
 			// TODO: Do we still need this catch branch?
 			onFatalError(t);
