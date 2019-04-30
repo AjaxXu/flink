@@ -399,7 +399,10 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 
 			stagedBufferResponse = bufferResponse;
 
-			// 通过将当前的BufferListenerTask的bufferListener实例反向注册到Buffer提供者
+			// 申请内存失败，通过将当前的BufferListenerTask的bufferListener实例反向注册到Buffer提供者
+			//监听LocalBufferPool中的内存情况（这样当有可用的内存时，会被通知到），并将channel的autoRead属性
+			// 设置为false（导致发送的端的channel变为不可写状态），同时将当前的msg放到staged的集合中
+			// （staged集合用来存储那些申请内存失败的msg）
 			if (bufferProvider.addBufferListener(this)) {
 				if (ctx.channel().config().isAutoRead()) {
 					ctx.channel().config().setAutoRead(false);
@@ -482,6 +485,7 @@ class PartitionRequestClientHandler extends ChannelInboundHandlerAdapter impleme
 
 				stagedBufferResponse = null;
 
+				// 会先处理staged中的msg集合，staged中的msg处理完毕后才会将channel的autoRead属性设置为true
 				if (stagedMessages.isEmpty()) {
 					ctx.channel().config().setAutoRead(true);
 					ctx.channel().read();
