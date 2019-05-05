@@ -38,6 +38,7 @@ import java.nio.channels.ScatteringByteChannel;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 对MemorySegment的包装
  * Wrapper for pooled {@link MemorySegment} instances.
  *
  * <p><strong>NOTE:</strong> before using this buffer in the netty stack, a buffer allocator must be

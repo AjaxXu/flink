@@ -282,6 +282,7 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId> implements JobMast
 		this.backPressureStatsTracker = checkNotNull(jobManagerSharedServices.getBackPressureStatsTracker());
 
 		this.jobManagerJobMetricGroup = jobMetricGroupFactory.create(jobGraph);
+		// 创建ExecutionGraph
 		this.executionGraph = createAndRestoreExecutionGraph(jobManagerJobMetricGroup);
 		this.jobStatusListener = null;
 
@@ -1048,6 +1049,7 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId> implements JobMast
 		executionGraph.registerJobStatusListener(jobStatusListener);
 
 		try {
+			//这里调用了ExecutionGraph的启动方法
 			executionGraph.scheduleForExecution();
 		}
 		catch (Throwable t) {

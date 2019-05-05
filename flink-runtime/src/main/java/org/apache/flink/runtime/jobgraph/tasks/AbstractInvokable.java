@@ -28,6 +28,10 @@ import org.apache.flink.runtime.execution.Environment;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * Task是在TaskManager中执行任务的统一抽象，它的核心仍然是如何执行，而不是如何表述。
+ * 比如，批处理任务和流处理任务，它们有很大的差别，但我们需要一种表述层面上的抽象，使得它们最终都能被Task所接收，
+ * 然后得到执行。而该表述层面上的抽象即为AbstractInvokable。它是所有在TaskManager中真正被执行的主体。
+ *
  * This is the abstract base class for every task that can be executed by a TaskManager.
  * Concrete tasks extend this class, for example the streaming and batch tasks.
  *
@@ -76,6 +80,7 @@ public abstract class AbstractInvokable {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * 该抽象方法是描述用户逻辑的核心方法，最终在Task线程中被执行的就是该方法；
 	 * Starts the execution.
 	 *
 	 * <p>Must be overwritten by the concrete task implementation. This method
@@ -91,6 +96,7 @@ public abstract class AbstractInvokable {
 	public abstract void invoke() throws Exception;
 
 	/**
+	 * 取消执行用户逻辑的方法，提供了默认为空的实现，用户取消执行或者执行失败会触发该方法的调用
 	 * This method is called when a task is canceled either as a result of a user abort or an execution failure. It can
 	 * be overwritten to respond to shut down the user code properly.
 	 *

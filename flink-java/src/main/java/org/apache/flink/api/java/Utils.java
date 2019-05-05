@@ -44,6 +44,7 @@ public final class Utils {
 
 	public static final Random RNG = new Random();
 
+	// 获取调用的位置名字，比如: main(SocketWindowWordCount.java:70)
 	public static String getCallLocationName() {
 		return getCallLocationName(4);
 	}

@@ -21,6 +21,7 @@ package org.apache.flink.util;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * 该接口表示其实现者是可遍历的。Visitable要求实现者完善其accept方法，该方法接收一个Visitor作为遍历器对实现Visitable接口的对象进行遍历
  * This interface marks types as visitable during a traversal. The central method <i>accept(...)</i> contains the logic
  * about how to invoke the supplied {@link Visitor} on the visitable object, and how to traverse further.
  *

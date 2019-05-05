@@ -40,10 +40,10 @@ public class OptimizedPlan implements FlinkPlan, Visitable<PlanNode>  {
 	/** The data sinks in the plan. */
 	private final Collection<SinkPlanNode> dataSinks;
 
-	/** All nodes in the optimizer plan. */
+	/** All nodes in the optimizer plan. 优化后计划中的所有PlanNode节点集合*/
 	private final Collection<PlanNode> allNodes;
 	
-	/** The original program (as a dataflow plan). */
+	/** The original program (as a dataflow plan). 最初未被优化的Plan对象*/
 	private final Plan originalProgram;
 
 	/** Name of the job */

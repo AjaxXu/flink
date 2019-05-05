@@ -79,7 +79,7 @@ public class JobGraph implements Serializable {
 	 * job manager after it has been executed. */
 	private long sessionTimeout = 0;
 
-	/** flag to enable queued scheduling */
+	/** flag to enable queued scheduling 是否允许排队调度*/
 	private boolean allowQueuedScheduling;
 
 	/** The mode in which the job is scheduled */

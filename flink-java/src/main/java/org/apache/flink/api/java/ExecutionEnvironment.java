@@ -962,6 +962,7 @@ public abstract class ExecutionEnvironment {
 		plan.setExecutionConfig(getConfig());
 
 		// Check plan for GenericTypeInfo's and register the types at the serializers.
+		// 如果配置了自动类型注册，那么Plan将注入一个用于类型注册的遍历器来遍历所有算子并对其类型进行注册：
 		if (!config.isAutoTypeRegistrationDisabled()) {
 			plan.accept(new Visitor<org.apache.flink.api.common.operators.Operator<?>>() {
 
@@ -984,6 +985,7 @@ public abstract class ExecutionEnvironment {
 		}
 
 		try {
+			// 将缓存文件注册到Plan对象上，将注册到执行环境对象的缓存文件注册给Plan对象，以便后续生成JobGraph
 			registerCachedFilesWithPlan(plan);
 		} catch (Exception e) {
 			throw new RuntimeException("Error while registering cached files: " + e.getMessage(), e);

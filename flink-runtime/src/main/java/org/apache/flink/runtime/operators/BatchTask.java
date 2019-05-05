@@ -74,6 +74,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 所有批处理任务的基类
  * The base class for all batch tasks. Encapsulated common behavior and implements the main life-cycle
  * of the user code.
  */

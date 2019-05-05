@@ -572,6 +572,7 @@ public class CheckpointCoordinator {
 				throw new CheckpointException(CheckpointFailureReason.EXCEPTION, t);
 			}
 
+			// PendingCheckpoint是一个启动了的checkpoint，但是还没有被确认
 			final PendingCheckpoint checkpoint = new PendingCheckpoint(
 				job,
 				checkpointID,
@@ -653,6 +654,7 @@ public class CheckpointCoordinator {
 
 					pendingCheckpoints.put(checkpointID, checkpoint);
 
+					// 超时callback
 					ScheduledFuture<?> cancellerHandle = timer.schedule(
 							canceller,
 							checkpointTimeout, TimeUnit.MILLISECONDS);
@@ -663,6 +665,7 @@ public class CheckpointCoordinator {
 					}
 
 					// trigger the master hooks for the checkpoint
+					// 触发MasterHooks，用户可以定义一些额外的操作，用以增强checkpoint的功能
 					final List<MasterState> masterStates = MasterHooks.triggerMasterHooks(masterHooks.values(),
 							checkpointID, timestamp, executor, Time.milliseconds(checkpointTimeout));
 					for (MasterState s : masterStates) {
@@ -676,6 +679,7 @@ public class CheckpointCoordinator {
 						checkpointStorageLocation.getLocationReference());
 
 				// send the messages to the tasks that trigger their checkpoint
+				// 一个execution就是一个executionVertex的实际执行者
 				for (Execution execution: executions) {
 					if (props.isSynchronous()) {
 						execution.triggerSynchronousSavepoint(checkpointID, timestamp, checkpointOptions, advanceToEndOfTime);
@@ -779,6 +783,7 @@ public class CheckpointCoordinator {
 	 * with a pending checkpoint.
 	 *
 	 * @throws CheckpointException If the checkpoint cannot be added to the completed checkpoint store.
+	 * 收到checkpoint的确认消息，返回是否在PendingCheckpoint中
 	 */
 	public boolean receiveAcknowledgeMessage(AcknowledgeCheckpoint message) throws CheckpointException {
 		if (shutdown || message == null) {
@@ -808,6 +813,7 @@ public class CheckpointCoordinator {
 						LOG.debug("Received acknowledge message for checkpoint {} from task {} of job {}.",
 							checkpointId, message.getTaskExecutionId(), message.getJob());
 
+						// 当所有的operator都报告完成了checkpoint时，CheckpointCoordinator会触发completePendingCheckpoint()方法
 						if (checkpoint.isFullyAcknowledged()) {
 							completePendingCheckpoint(checkpoint);
 						}
@@ -882,6 +888,7 @@ public class CheckpointCoordinator {
 
 		try {
 			try {
+				// 把pendinCgCheckpoint转换为CompletedCheckpoint
 				completedCheckpoint = pendingCheckpoint.finalizeCheckpoint();
 			}
 			catch (Exception e1) {
@@ -898,6 +905,7 @@ public class CheckpointCoordinator {
 			Preconditions.checkState(pendingCheckpoint.isDiscarded() && completedCheckpoint != null);
 
 			try {
+				// 把CompletedCheckpoint加入已完成的检查点集合
 				completedCheckpointStore.addCheckpoint(completedCheckpoint);
 			} catch (Exception exception) {
 				// we failed to store the completed checkpoint. Let's clean up
@@ -916,6 +924,7 @@ public class CheckpointCoordinator {
 					CheckpointFailureReason.FINALIZE_CHECKPOINT_FAILURE, exception);
 			}
 		} finally {
+			// 从未完成检查点集合删除该检查点
 			pendingCheckpoints.remove(checkpointId);
 
 			triggerQueuedRequests();
@@ -949,6 +958,7 @@ public class CheckpointCoordinator {
 		// send the "notify complete" call to all vertices
 		final long timestamp = completedCheckpoint.getTimestamp();
 
+		// 再度向各个operator发出rpc，通知该检查点已完成
 		for (ExecutionVertex ev : tasksToCommitTo) {
 			Execution ee = ev.getCurrentExecutionAttempt();
 			if (ee != null) {

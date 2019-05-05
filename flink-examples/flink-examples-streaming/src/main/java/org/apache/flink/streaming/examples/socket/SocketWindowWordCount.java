@@ -48,7 +48,7 @@ public class SocketWindowWordCount {
 		try {
 			final ParameterTool params = ParameterTool.fromArgs(args);
 			hostname = params.has("hostname") ? params.get("hostname") : "localhost";
-			port = params.getInt("port");
+			port = params.has("port") ? params.getInt("port") : 9999;
 		} catch (Exception e) {
 			System.err.println("No port specified. Please run 'SocketWindowWordCount " +
 				"--hostname <hostname> --port <port>', where hostname (localhost by default) " +
@@ -88,7 +88,11 @@ public class SocketWindowWordCount {
 
 		// print the results with a single thread, rather than in parallel
 		windowCounts.print().setParallelism(1);
-
+		System.out.println("------------------");
+		System.out.println(env.getStreamGraph().getStreamingPlanAsJSON());
+		System.out.println("------------------");
+		System.out.println(env.getExecutionPlan());
+		System.out.println("------------------");
 		env.execute("Socket Window WordCount");
 	}
 

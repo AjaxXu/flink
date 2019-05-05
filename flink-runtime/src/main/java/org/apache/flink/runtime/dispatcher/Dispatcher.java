@@ -327,6 +327,7 @@ public abstract class Dispatcher extends FencedRpcEndpoint<DispatcherId> impleme
 	private CompletableFuture<Void> runJob(JobGraph jobGraph) {
 		Preconditions.checkState(!jobManagerRunnerFutures.containsKey(jobGraph.getJobID()));
 
+		// 启动了一个JobManagerRunner
 		final CompletableFuture<JobManagerRunner> jobManagerRunnerFuture = createJobManagerRunner(jobGraph);
 
 		jobManagerRunnerFutures.put(jobGraph.getJobID(), jobManagerRunnerFuture);
@@ -347,6 +348,7 @@ public abstract class Dispatcher extends FencedRpcEndpoint<DispatcherId> impleme
 
 		final CompletableFuture<JobManagerRunner> jobManagerRunnerFuture = CompletableFuture.supplyAsync(
 			CheckedSupplier.unchecked(() ->
+				// 创建一个JobManagerRunner，创建JobMaster，创建ExecutionGraph
 				jobManagerRunnerFactory.createJobManagerRunner(
 					jobGraph,
 					configuration,
@@ -358,6 +360,7 @@ public abstract class Dispatcher extends FencedRpcEndpoint<DispatcherId> impleme
 					fatalErrorHandler)),
 			rpcService.getExecutor());
 
+		// 启动JobManagerRunner
 		return jobManagerRunnerFuture.thenApply(FunctionUtils.uncheckedFunction(this::startJobManagerRunner));
 	}
 

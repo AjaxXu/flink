@@ -112,6 +112,7 @@ import java.util.stream.Collectors;
  *
  * The basic method of operation is a top down traversal over the plan graph. On the way down, job vertices
  * are created for the plan nodes, on the way back up, the nodes connect their predecessors.
+ * JobGraphGenerator实现了Visitor接口，因此它是一个遍历器，遍历的对象是计划节点（PlanNode）
  */
 public class JobGraphGenerator implements Visitor<PlanNode> {
 	
@@ -200,6 +201,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 		this.sharingGroup = new SlotSharingGroup();
 		
 		// this starts the traversal that generates the job graph
+		// 调用OptimizedPlan的accept方法遍历它，而遍历访问器就是JobGraphGenerator自身
 		program.accept(this);
 		
 		// sanity check that we are not somehow in an iteration at the end
@@ -208,6 +210,8 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 		}
 		
 		// finalize the iterations
+		// 在对OptimizedPlan进行遍历之后，会对收集到的迭代节点进行处理。
+		// 通过遍历迭代描述符（IterationDescriptor）并判断其代表的节点属于哪种迭代类型来进行特定的处理
 		for (IterationDescriptor iteration : this.iterations.values()) {
 			if (iteration.getIterationNode() instanceof BulkIterationPlanNode) {
 				finalizeBulkIteration(iteration);
@@ -220,6 +224,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 		
 		// now that the traversal is done, we have the chained tasks write their configs into their
 		// parents' configurations
+		// 把链接任务的配置写入其父节点（也就是容器节点）的配置中
 		for (TaskInChain tic : this.chainedTasksInSequence) {
 			TaskConfig t = new TaskConfig(tic.getContainingVertex().getConfiguration());
 			t.addChainedTask(tic.getChainedTask(), tic.getTaskConfig(), tic.getTaskName());
@@ -232,6 +237,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 		// ----------- finalize the job graph -----------
 
 		// create the job graph object
+		// 新建JobGraph对象并进行一系列设置，比如添加JobVertex、为JobVertex设置SlotSharingGroup等
 		JobGraph graph = new JobGraph(jobId, program.getJobName());
 		try {
 			graph.setExecutionConfig(program.getOriginalPlan().getExecutionConfig());
@@ -256,6 +262,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 		}
 
 
+		// 将之前注册的缓存文件加入到Job的配置中，释放相关资源后返回JobGraph对象
 		Collection<Tuple2<String, DistributedCache.DistributedCacheEntry>> userArtifacts =
 			program.getOriginalPlan().getCachedFiles().stream()
 			.map(entry -> Tuple2.of(entry.getKey(), entry.getValue()))
@@ -304,6 +311,8 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 	}
 
 	/**
+	 * 它是遍历时的“前进”方法，它会对要遍历的PlanNode的具体类型进行枚举推断，针对不同的类型为其创建对应的JobVertex对象，
+	 * 接着为JobVertex对象设置相关属性，最后将其加入到一个公共的PlanNode与JobVertex的映射字典中去。
 	 * This methods implements the pre-visiting during a depth-first traversal. It create the job vertex and
 	 * sets local strategy.
 	 * 
@@ -461,6 +470,8 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 	}
 
 	/**
+	 * 它可以看成是遍历时的“后退”方法，当在某个节点上调用到postVisit方法时，
+	 * 表明该节点的前任（从正常的source往sink方向）都已经遍历完成。因此该方法在这里用来将当前节点与其前任建立连接
 	 * This method implements the post-visit during the depth-first traversal. When the post visit happens,
 	 * all of the descendants have been processed, so this method connects all of the current node's
 	 * predecessors to the current node.

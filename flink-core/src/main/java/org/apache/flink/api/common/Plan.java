@@ -351,7 +351,8 @@ public class Plan implements Visitable<Operator<?>> {
 	public Set<Entry<String,DistributedCacheEntry>> getCachedFiles() {
 		return this.cacheFile.entrySet();
 	}
-	
+
+	// 会实例化该遍历器并调用accept方法进行遍历来获得整个批处理程序的最大并行度
 	public int getMaximumParallelism() {
 		MaxDopVisitor visitor = new MaxDopVisitor();
 		accept(visitor);

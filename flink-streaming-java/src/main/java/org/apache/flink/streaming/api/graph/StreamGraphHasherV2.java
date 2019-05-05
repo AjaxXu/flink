@@ -77,16 +77,23 @@ public class StreamGraphHasherV2 implements StreamGraphHasher {
 	@Override
 	public Map<Integer, byte[]> traverseStreamGraphAndGenerateHashes(StreamGraph streamGraph) {
 		// The hash function used to generate the hash
+		//hash函数
 		final HashFunction hashFunction = Hashing.murmur3_128(0);
 		final Map<Integer, byte[]> hashes = new HashMap<>();
 
+		//存储访问过了的节点编号
 		Set<Integer> visited = new HashSet<>();
+		//入队即将访问的节点对象
 		Queue<StreamNode> remaining = new ArrayDeque<>();
 
 		// We need to make the source order deterministic. The source IDs are
 		// not returned in the same order, which means that submitting the same
 		// program twice might result in different traversal, which breaks the
 		// deterministic hash assignment.
+		//source是一个流拓扑的起点，从source开始遍历
+		//hash值的生成是顺序敏感的（依赖于顺序），因此首先要对source ID集合进行排序
+		//因为如果source的ID集合顺序不固定，那意味着多次提交包含该source ID集合的程序时可能导致不同的遍历路径，
+		//从而破坏了hash生成的因素
 		List<Integer> sources = new ArrayList<>();
 		for (Integer sourceNodeId : streamGraph.getSourceIDs()) {
 			sources.add(sourceNodeId);
@@ -99,21 +106,27 @@ public class StreamGraphHasherV2 implements StreamGraphHasher {
 		//
 
 		// Start with source nodes
+		//按照排好的顺序，进行广度遍历，注意这不是树结构，而是图，因为就一个节点而言，其输入和输出都可能有多条路径
 		for (Integer sourceNodeId : sources) {
 			remaining.add(streamGraph.getStreamNode(sourceNodeId));
 			visited.add(sourceNodeId);
 		}
 
 		StreamNode currentNode;
+		//从即将访问的节点队列中出队首部的一个元素，没有元素了则结束
 		while ((currentNode = remaining.poll()) != null) {
 			// Generate the hash code. Because multiple path exist to each
 			// node, we might not have all required inputs available to
 			// generate the hash code.
+			// 给当前节点生成哈希值，并返回是否生成成功
 			if (generateNodeHash(currentNode, hashFunction, hashes, streamGraph.isChainingEnabled(), streamGraph)) {
 				// Add the child nodes
+				//遍历当前节点的所有输出边
 				for (StreamEdge outEdge : currentNode.getOutEdges()) {
+					//获取输出边的目标顶点（该边另一头的顶点）
 					StreamNode child = streamGraph.getTargetVertex(outEdge);
 
+					//如果目标顶点没被访问过，则加入待访问队列和易访问元素集合
 					if (!visited.contains(child.getId())) {
 						remaining.add(child);
 						visited.add(child.getId());
@@ -121,6 +134,7 @@ public class StreamGraphHasherV2 implements StreamGraphHasher {
 				}
 			} else {
 				// We will revisit this later.
+				//如果对当前节点的哈希值生成操作失败，则将其从已访问的节点中移除，等待后续再次访问
 				visited.remove(currentNode.getId());
 			}
 		}

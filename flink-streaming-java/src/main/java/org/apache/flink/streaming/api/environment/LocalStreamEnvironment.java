@@ -86,12 +86,15 @@ public class LocalStreamEnvironment extends StreamExecutionEnvironment {
 	@Override
 	public JobExecutionResult execute(String jobName) throws Exception {
 		// transform the streaming program into a JobGraph
+		// 生成StreamGraph。代表程序的拓扑结构，是从用户代码直接生成的图
 		StreamGraph streamGraph = getStreamGraph();
 		streamGraph.setJobName(jobName);
 
+		// 生成JobGraph。这个图是要交给flink去生成task的图
 		JobGraph jobGraph = streamGraph.getJobGraph();
 		jobGraph.setAllowQueuedScheduling(true);
 
+		// 生成一系列配置
 		Configuration configuration = new Configuration();
 		configuration.addAll(jobGraph.getJobConfiguration());
 		configuration.setString(TaskManagerOptions.MANAGED_MEMORY_SIZE, "0");
@@ -114,12 +117,15 @@ public class LocalStreamEnvironment extends StreamExecutionEnvironment {
 			LOG.info("Running job on local embedded Flink mini cluster");
 		}
 
+		// 将JobGraph和配置交给flink集群去运行
 		MiniCluster miniCluster = new MiniCluster(cfg);
 
 		try {
+			// 启动集群，包括启动JobMaster，进行leader选举等等
 			miniCluster.start();
 			configuration.setInteger(RestOptions.PORT, miniCluster.getRestAddress().get().getPort());
 
+			// 提交任务到JobMaster
 			return miniCluster.executeJobBlocking(jobGraph);
 		}
 		finally {

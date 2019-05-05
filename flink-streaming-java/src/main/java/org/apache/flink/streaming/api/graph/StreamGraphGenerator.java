@@ -141,6 +141,8 @@ public class StreamGraphGenerator {
 	 *
 	 * <p>This checks whether we already transformed it and exits early in that case. If not it
 	 * delegates to one of the transformation specific methods.
+	 *
+	 * 这个方法的核心逻辑就是判断传入的StreamTransformation是哪种类型，并执行相应的操作，详情见下面那一大堆if-else
 	 */
 	private Collection<Integer> transform(StreamTransformation<?> transform) {
 
@@ -164,6 +166,7 @@ public class StreamGraphGenerator {
 		transform.getOutputType();
 
 		Collection<Integer> transformedIds;
+		//这里对操作符的类型进行判断，并以此调用相应的处理逻辑.简而言之，处理的核心无非是递归的将该节点和节点的上游节点加入图
 		if (transform instanceof OneInputTransformation<?, ?>) {
 			transformedIds = transformOneInputTransform((OneInputTransformation<?, ?>) transform);
 		} else if (transform instanceof TwoInputTransformation<?, ?, ?>) {
@@ -190,6 +193,7 @@ public class StreamGraphGenerator {
 			throw new IllegalStateException("Unknown transformation: " + transform);
 		}
 
+		//注意这里和函数开始时的方法相对应，在有向图中要注意避免循环的产生
 		// need this check because the iterate transformation adds itself before
 		// transforming the feedback edges
 		if (!alreadyTransformed.containsKey(transform)) {
@@ -560,14 +564,19 @@ public class StreamGraphGenerator {
 		Collection<Integer> inputIds = transform(transform.getInput());
 
 		// the recursive call might have already transformed this
+		// 在递归处理节点过程中，某个节点可能已经被其他子节点先处理过了，需要跳过
 		if (alreadyTransformed.containsKey(transform)) {
 			return alreadyTransformed.get(transform);
 		}
 
 		// 在给StreamGraph创建并添加一个operator时，需要给该operator指定slotSharingGroup，
-		// 这时需要调用方法determineSlotSharingGroup来获得SlotSharingGroup的名称：
+		// 这时需要调用方法determineSlotSharingGroup来获得SlotSharingGroup的名称。
+		// 这个group用来定义当前我们在处理的这个操作符可以跟什么操作符chain到一个slot里进行操作
+		// 因为有时候我们可能不满意flink替我们做的chain聚合
+		// 一个slot就是一个执行task的基本容器
 		String slotSharingGroup = determineSlotSharingGroup(transform.getSlotSharingGroup(), inputIds);
 
+		//把该operator加入图
 		streamGraph.addOperator(transform.getId(),
 				slotSharingGroup,
 				transform.getCoLocationGroupKey(),
@@ -576,6 +585,8 @@ public class StreamGraphGenerator {
 				transform.getOutputType(),
 				transform.getName());
 
+		//对于keyedStream，我们还要记录它的keySelector方法
+		//flink并不真正为每个keyedStream保存一个key，而是每次需要用到key的时候都使用keySelector方法进行计算
 		if (transform.getStateKeySelector() != null) {
 			TypeSerializer<?> keySerializer = transform.getStateKeyType().createSerializer(env.getConfig());
 			streamGraph.setOneInputStateKey(transform.getId(), transform.getStateKeySelector(), keySerializer);
@@ -584,6 +595,7 @@ public class StreamGraphGenerator {
 		streamGraph.setParallelism(transform.getId(), transform.getParallelism());
 		streamGraph.setMaxParallelism(transform.getId(), transform.getMaxParallelism());
 
+		//为当前节点和它的依赖节点建立边
 		for (Integer inputId: inputIds) {
 			streamGraph.addEdge(inputId, transform.getId(), 0);
 		}

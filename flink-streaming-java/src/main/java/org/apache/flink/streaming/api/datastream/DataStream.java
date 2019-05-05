@@ -608,9 +608,11 @@ public class DataStream<T> {
 	 */
 	public <R> SingleOutputStreamOperator<R> flatMap(FlatMapFunction<T, R> flatMapper) {
 
+		// 用反射拿到了flatMap算子的输出类型
 		TypeInformation<R> outType = TypeExtractor.getFlatMapReturnTypes(clean(flatMapper),
 				getType(), Utils.getCallLocationName(), true);
 
+		// 生成了一个Flat Map Operator
 		return transform("Flat Map", outType, new StreamFlatMap<>(clean(flatMapper)));
 
 	}

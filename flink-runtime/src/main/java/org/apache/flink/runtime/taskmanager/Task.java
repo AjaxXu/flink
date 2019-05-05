@@ -373,6 +373,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 
 		int counter = 0;
 
+		// 初始化ResultPartition, 描述task 的输出数据
 		for (ResultPartitionDeploymentDescriptor desc: resultPartitionDeploymentDescriptors) {
 			ResultPartitionID partitionId = new ResultPartitionID(desc.getPartitionId(), executionId);
 
@@ -393,6 +394,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 		}
 
 		// Consumed intermediate result partitions
+		// 初始化InputGate。这两个类描述了task的输入数据
 		this.inputGates = new SingleInputGate[inputGateDeploymentDescriptors.size()];
 		this.inputGatesById = new HashMap<>();
 
@@ -419,6 +421,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 		invokableHasBeenCanceled = new AtomicBoolean(false);
 
 		// finally, create the executing thread, but do not start it
+		// 每个任务的部署会产生一个Task对象，而一个Task对象恰好对应一个执行它的线程实例
 		executingThread = new Thread(TASK_THREADS_GROUP, this, taskNameWithSubtask);
 	}
 
@@ -543,13 +546,16 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 		//  Initial State transition
 		// ----------------------------
 		while (true) {
+			// 第一步是切换Task的状态
 			ExecutionState current = this.executionState;
+			////如果当前的执行状态为CREATED，则将其设置为DEPLOYING状态
 			if (current == ExecutionState.CREATED) {
 				if (transitionState(ExecutionState.CREATED, ExecutionState.DEPLOYING)) {
 					// success, we can start our work
 					break;
 				}
 			}
+			//如果当前执行状态为FAILED，则发出通知并退出run方法
 			else if (current == ExecutionState.FAILED) {
 				// we were immediately failed. tell the TaskManager that we reached our final state
 				notifyFinalState();
@@ -558,6 +564,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 				}
 				return;
 			}
+			//如果当前执行状态为CANCELING，则将其修改为CANCELED状态，并退出run
 			else if (current == ExecutionState.CANCELING) {
 				if (transitionState(ExecutionState.CANCELING, ExecutionState.CANCELED)) {
 					// we were immediately canceled. tell the TaskManager that we reached our final state
@@ -568,6 +575,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 					return;
 				}
 			}
+			//否则说明发生了异常
 			else {
 				if (metrics != null) {
 					metrics.close();
@@ -597,7 +605,9 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 			// this may involve downloading the job's JAR files and/or classes
 			LOG.info("Loading JAR files for task {}.", this);
 
+			// 对用户代码所打成的jar包的加载并生成对应的类加载器
 			userCodeClassLoader = createUserCodeClassloader();
+			// 获取到程序的执行配置ExecutionConfig
 			final ExecutionConfig executionConfig = serializedExecutionConfig.deserializeValue(userCodeClassLoader);
 
 			if (executionConfig.getTaskCancellationInterval() >= 0) {
@@ -623,7 +633,8 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 
 			LOG.info("Registering task at network: {}.", this);
 
-			// 将自身（Task）注册到网络栈（也就是这里的NetworkEnvironment）
+			// 将自身（Task）注册到网络栈（也就是这里的NetworkEnvironment），这个操作是为了让Task之间可以基于网络互相进行数据交换，
+			// 包含了分配网络缓冲、结果分区注册等一系列内部操作，并且有可能会由于系统无足够的内存而发生失败
 			network.registerTask(this);
 
 			for (ResultPartition partition : producedPartitions) {
@@ -653,6 +664,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 			}
 
 			// next, kick off the background copying of files for the distributed cache
+			// 读入指定的缓存文件
 			try {
 				for (Map.Entry<String, DistributedCache.DistributedCacheEntry> entry :
 						DistributedCache.readFileInfoFromConfig(jobConfiguration)) {
@@ -676,6 +688,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 
 			TaskKvStateRegistry kvStateRegistry = kvStateService.createKvStateTaskRegistry(jobId, getJobVertexId());
 
+			// 再把task创建时传入的那一大堆变量用于创建一个执行环境Envrionment
 			Environment env = new RuntimeEnvironment(
 				jobId,
 				vertexId,
@@ -703,6 +716,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 				this);
 
 			// now load and instantiate the task's invokable code
+			// 根据类加载器以及用户的可执行体在Flink中所对应的具体的实现类名来加载该类
 			invokable = loadAndInstantiateInvokable(userCodeClassLoader, nameOfInvokableClass, env);
 
 			// ----------------------------------------------------------------
@@ -719,12 +733,15 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 			}
 
 			// notify everyone that we switched to running
+			// 向TaskManager发送通知：
 			taskManagerActions.updateTaskExecutionState(new TaskExecutionState(jobId, executionId, ExecutionState.RUNNING));
 
 			// make sure the user code classloader is accessible thread-locally
+			// 将执行线程的类加载器设置为用户代码的类加载器
 			executingThread.setContextClassLoader(userCodeClassLoader);
 
 			// run the invokable
+			// 这个方法就是用户代码所真正被执行的入口。比如我们写的什么new MapFunction()的逻辑，最终就是在这里被执行的。
 			invokable.invoke();
 
 			// make sure, we enter the catch block if the task leaves the invoke() method due
@@ -738,6 +755,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 			// ----------------------------------------------------------------
 
 			// finish the produced partitions. if this fails, we consider the execution failed.
+			// 对当前任务所生产的所有结果分区调用finish方法进行资源释放
 			for (ResultPartition partition : producedPartitions) {
 				if (partition != null) {
 					partition.finish();
@@ -746,6 +764,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 
 			// try to mark the task as finished
 			// if that fails, the task was canceled/failed in the meantime
+			// 将任务的执行状态修改为FINISHED
 			if (!transitionState(ExecutionState.RUNNING, ExecutionState.FINISHED)) {
 				throw new CancelTaskException();
 			}
@@ -1166,6 +1185,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 			final boolean advanceToEndOfEventTime) {
 
 		final AbstractInvokable invokable = this.invokable;
+		// 创建了一个CheckpointMetaData的对象
 		final CheckpointMetaData checkpointMetaData = new CheckpointMetaData(checkpointID, checkpointTimestamp);
 
 		if (executionState == ExecutionState.RUNNING && invokable != null) {
@@ -1175,6 +1195,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 			final SafetyNetCloseableRegistry safetyNetCloseableRegistry =
 				FileSystemSafetyNet.getSafetyNetCloseableRegistryForThread();
 
+			// 生成了一个Runable匿名类用于执行checkpoint，然后以异步的方式触发了该Runable
 			Runnable runnable = new Runnable() {
 				@Override
 				public void run() {

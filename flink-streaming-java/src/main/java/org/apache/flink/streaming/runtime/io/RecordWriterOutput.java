@@ -86,6 +86,7 @@ public class RecordWriterOutput<OUT> implements OperatorChain.WatermarkGaugeExpo
 			return;
 		}
 
+		//这里可以看到把记录交给了recordwriter
 		pushToRecordWriter(record);
 	}
 

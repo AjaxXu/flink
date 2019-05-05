@@ -99,6 +99,7 @@ public class SocketTextStreamFunction implements SourceFunction<String> {
 
 					char[] cbuf = new char[8192];
 					int bytesRead;
+					//核心逻辑就是一直读inputSocket,然后交给collect方法
 					while (isRunning && (bytesRead = reader.read(cbuf)) != -1) {
 						buffer.append(cbuf, 0, bytesRead);
 						int delimPos;
@@ -108,6 +109,7 @@ public class SocketTextStreamFunction implements SourceFunction<String> {
 							if (delimiter.equals("\n") && record.endsWith("\r")) {
 								record = record.substring(0, record.length() - 1);
 							}
+							//读到数据后，把数据交给collect方法，collect方法负责把数据交到合适的位置（如发布为br变量，或者交给下个operator，或者通过网络发出去）
 							ctx.collect(record);
 							buffer.delete(0, delimPos + delimiter.length());
 						}

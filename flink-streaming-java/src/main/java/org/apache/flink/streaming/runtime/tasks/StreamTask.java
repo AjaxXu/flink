@@ -74,6 +74,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * 所有流处理任务的基类
  * Base class for all streaming tasks. A task is the unit of local processing that is deployed
  * and executed by the TaskManagers. Each task runs one or more {@link StreamOperator}s which form
  * the Task's operator chain. Operators that are chained together execute synchronously in the
@@ -299,10 +300,12 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 				timerService = new SystemProcessingTimeService(this, getCheckpointLock(), timerThreadFactory);
 			}
 
+			//把之前JobGraph串起来的chain的信息形成实现
 			operatorChain = new OperatorChain<>(this, recordWriters);
 			headOperator = operatorChain.getHeadOperator();
 
 			// task specific initialization
+			//这个init操作的起名非常诡异，因为这里主要是处理算子采用了自定义的checkpoint检查机制的情况，但是起了一个非常大众脸的名字
 			init();
 
 			// save the work of reloading state, etc, if the task is already canceled
@@ -320,8 +323,9 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 				// both the following operations are protected by the lock
 				// so that we avoid race conditions in the case that initializeState()
 				// registers a timer, that fires before the open() is called.
-
+				//初始化操作符状态，主要是一些state啥的
 				initializeState();
+				//对于富操作符，执行其open操作
 				openAllOperators();
 			}
 
@@ -332,6 +336,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 
 			// let the task do its work
 			isRunning = true;
+			//真正开始执行的代码
 			run();
 
 			// if this left the run() method cleanly despite the fact that this was canceled,
@@ -663,6 +668,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 		final boolean result;
 		synchronized (lock) {
 			if (isRunning) {
+				//如果task还在运行，那就可以进行checkpoint。方法是先向下游所有出口广播一个Barrier，然后触发本task的State保存
 
 				if (checkpointOptions.getCheckpointType().isSynchronous()) {
 					syncSavepointLatch.setCheckpointId(checkpointId);
@@ -694,6 +700,8 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 				result = true;
 			}
 			else {
+				// 如果task结束了，那我们就要通知下游取消本次checkpoint，
+				// 方法是发送一个CancelCheckpointMarker，这是类似于Barrier的另一种消息
 				// we cannot perform our checkpoint - let the downstream operators know that they
 				// should not wait for any input from this operator
 
@@ -936,6 +944,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 				if (asyncCheckpointState.compareAndSet(CheckpointingOperation.AsyncCheckpointState.RUNNING,
 					CheckpointingOperation.AsyncCheckpointState.COMPLETED)) {
 
+					// 向JobManager报告checkpoint 完成
 					reportCompletedSnapshotStates(
 						jobManagerTaskOperatorSubtaskStates,
 						localTaskOperatorSubtaskStates,
@@ -1117,6 +1126,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 			startSyncPartNano = System.nanoTime();
 
 			try {
+				//这里，就是调用StreamOperator进行snapshotState的入口方法
 				for (StreamOperator<?> op : allOperators) {
 					checkpointStreamOperator(op);
 				}
@@ -1131,6 +1141,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 				checkpointMetrics.setSyncDurationMillis((startAsyncPartNano - startSyncPartNano) / 1_000_000);
 
 				// we are transferring ownership over snapshotInProgressList for cleanup to the thread, active on submit
+				//这里注册了一个Runnable，在执行完checkpoint之后向JobManager发出CompletedCheckPoint消息，这也是fault tolerant两阶段提交的一部分
 				AsyncCheckpointRunnable asyncCheckpointRunnable = new AsyncCheckpointRunnable(
 					owner,
 					operatorSnapshotsInProgress,

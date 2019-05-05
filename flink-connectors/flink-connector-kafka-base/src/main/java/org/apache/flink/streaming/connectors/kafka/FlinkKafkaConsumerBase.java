@@ -884,6 +884,8 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 		}
 	}
 
+	// kafka的snapshot逻辑就是记录一下当前消费的offsets，然后做成tuple（partitiion，offset）放进一个StateBackend里。
+	// StateBackend是flink抽象出来的一个用于保存状态的接口
 	@Override
 	public final void snapshotState(FunctionSnapshotContext context) throws Exception {
 		if (!running) {

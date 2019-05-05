@@ -167,7 +167,10 @@ public class StreamInputProcessor<IN> {
 			}
 		}
 
+		//这个while是用来处理单个元素的（不要想当然以为是循环处理元素的）
 		while (true) {
+			//注意 1在下面
+			//2.接下来，会利用这个反序列化器得到下一个数据记录，并进行解析（是用户数据还是watermark等等），然后进行对应的操作
 			if (currentRecordDeserializer != null) {
 				DeserializationResult result = currentRecordDeserializer.getNextRecord(deserializationDelegate);
 
@@ -179,22 +182,29 @@ public class StreamInputProcessor<IN> {
 				if (result.isFullRecord()) {
 					StreamElement recordOrMark = deserializationDelegate.getInstance();
 
+					//如果元素是watermark，就准备更新当前channel的watermark值（并不是简单赋值，因为有乱序存在）
 					if (recordOrMark.isWatermark()) {
 						// handle watermark
 						statusWatermarkValve.inputWatermark(recordOrMark.asWatermark(), currentChannel);
 						continue;
 					} else if (recordOrMark.isStreamStatus()) {
 						// handle stream status
+						//如果元素是status，就进行相应处理。可以看作是一个flag，标志着当前stream接下来即将没有元素输入（idle），
+						// 或者当前即将由空闲状态转为有元素状态（active）。同时，StreamStatus还对如何处理watermark有影响。
+						// 通过发送status，上游的operator可以很方便的通知下游当前的数据流的状态。
 						statusWatermarkValve.inputStreamStatus(recordOrMark.asStreamStatus(), currentChannel);
 						continue;
 					} else if (recordOrMark.isLatencyMarker()) {
 						// handle latency marker
+						//LatencyMarker是用来衡量代码执行时间的。在Source处创建，携带创建时的时间戳，
+						// 流到Sink时就可以知道经过了多长时间
 						synchronized (lock) {
 							streamOperator.processLatencyMarker(recordOrMark.asLatencyMarker());
 						}
 						continue;
 					} else {
 						// now we can do the actual processing
+						//这里就是真正的，用户的代码即将被执行的地方
 						StreamRecord<IN> record = recordOrMark.asRecord();
 						synchronized (lock) {
 							numRecordsIn.inc();
@@ -206,6 +216,8 @@ public class StreamInputProcessor<IN> {
 				}
 			}
 
+			//1.程序首先获取下一个buffer
+			//这一段代码是服务于flink的FaultTorrent机制的，这里只需理解到它会尝试获取buffer，然后赋值给当前的反序列化器
 			final BufferOrEvent bufferOrEvent = barrierHandler.getNextNonBlocked();
 			if (bufferOrEvent != null) {
 				if (bufferOrEvent.isBuffer()) {

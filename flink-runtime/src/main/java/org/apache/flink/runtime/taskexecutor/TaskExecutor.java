@@ -526,21 +526,21 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 				checkpointResponder);
 
 			Task task = new Task(
-				jobInformation,
-				taskInformation,
-				tdd.getExecutionAttemptId(),
-				tdd.getAllocationId(),
-				tdd.getSubtaskIndex(),
-				tdd.getAttemptNumber(),
-				tdd.getProducedPartitions(),
-				tdd.getInputGates(),
-				tdd.getTargetSlotNumber(),
-				taskExecutorServices.getMemoryManager(),
-				taskExecutorServices.getIOManager(),
-				taskExecutorServices.getNetworkEnvironment(),
-				taskExecutorServices.getKvStateService(),
-				taskExecutorServices.getBroadcastVariableManager(),
-				taskExecutorServices.getTaskEventDispatcher(),
+				jobInformation,  // Job信息
+				taskInformation, // Task信息
+				tdd.getExecutionAttemptId(),  // 执行ID
+				tdd.getAllocationId(),  // Slot ID
+				tdd.getSubtaskIndex(),   // 子任务索引
+				tdd.getAttemptNumber(),  //
+				tdd.getProducedPartitions(),  // 生成的数据存放的Partition
+				tdd.getInputGates(),  // 消费数据的InputGate
+				tdd.getTargetSlotNumber(),  //
+				taskExecutorServices.getMemoryManager(), //内存管理器
+				taskExecutorServices.getIOManager(), //IO管理器
+				taskExecutorServices.getNetworkEnvironment(), //网络环境对象，处理网络请求
+				taskExecutorServices.getKvStateService(), //
+				taskExecutorServices.getBroadcastVariableManager(),   //广播变量管理器
+				taskExecutorServices.getTaskEventDispatcher(),  //
 				taskStateManager,
 				taskManagerActions,
 				inputSplitProvider,

@@ -824,6 +824,11 @@ public class ExecutionGraph implements AccessExecutionGraph {
 			}
 
 			// create the execution job vertex and attach it to the graph
+			//在这里生成ExecutionGraph的每个节点：
+			//首先是进行了一堆赋值，将任务信息交给要生成的图节点，以及设定并行度等等
+			//然后是创建本节点的IntermediateResult，根据本节点的下游节点的个数确定创建几份
+			//最后是根据设定好的并行度创建用于执行task的ExecutionVertex
+			//如果job有设定inputsplit的话，这里还要指定inputsplits
 			ExecutionJobVertex ejv = new ExecutionJobVertex(
 				this,
 				jobVertex,
@@ -832,6 +837,9 @@ public class ExecutionGraph implements AccessExecutionGraph {
 				globalModVersion,
 				createTimestamp);
 
+			//这里要处理所有的JobEdge
+			//对每个edge，获取对应的intermediateResult，并记录到本节点的输入上
+			//最后，把每个ExecutorVertex和对应的IntermediateResult关联起来
 			ejv.connectToPredecessors(this.intermediateResults);
 
 			ExecutionJobVertex previousTask = this.tasks.putIfAbsent(jobVertex.getID(), ejv);

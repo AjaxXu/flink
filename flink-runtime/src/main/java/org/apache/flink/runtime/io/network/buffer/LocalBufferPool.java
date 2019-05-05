@@ -68,6 +68,7 @@ class LocalBufferPool implements BufferPool {
 	 * code inside this class, e.g. with
 	 * {@link org.apache.flink.runtime.io.network.partition.consumer.RemoteInputChannel bufferQueue}
 	 * via the {@link #registeredListeners} callback.
+	 * 当前已经获得的内存片中，还没有写入数据的空白内存片
 	 */
 	private final ArrayDeque<MemorySegment> availableMemorySegments = new ArrayDeque<MemorySegment>();
 
@@ -78,7 +79,7 @@ class LocalBufferPool implements BufferPool {
 	 */
 	private final ArrayDeque<BufferListener> registeredListeners = new ArrayDeque<>();
 
-	/** Maximum number of network buffers to allocate. */
+	/** Maximum number of network buffers to allocate. 能给内存池分配的最大分片数*/
 	private final int maxNumberOfMemorySegments;
 
 	/** The current size of this pool. */

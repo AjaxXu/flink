@@ -48,10 +48,13 @@ public class OperatorTranslation {
 	public Plan translateToPlan(List<DataSink<?>> sinks, String jobName) {
 		List<GenericDataSinkBase<?>> planSinks = new ArrayList<>();
 
+		//遍历sinks集合
 		for (DataSink<?> sink : sinks) {
+			//对每个sink进行”翻译“
 			planSinks.add(translate(sink));
 		}
 
+		//以planSins集合构建Plan对象
 		Plan p = new Plan(planSinks);
 		p.setJobName(jobName);
 		return p;
@@ -60,9 +63,12 @@ public class OperatorTranslation {
 	private <T> GenericDataSinkBase<T> translate(DataSink<T> sink) {
 
 		// translate the input recursively
+		// 对当前遍历的sink的DataSet进行递归翻译并获得其输入端的Operator对象
+		// translate方法最终返回的是sink紧邻接着的输入端的算子对象，该输入端算子目前还没有跟该sink进行关联
 		Operator<T> input = translate(sink.getDataSet());
 
 		// translate the sink itself and connect it to the input
+		// 第二步就是调用下面这句将它们建立关系同时将批处理API中的DataSink翻译为核心包中的GenericDataSinkBase表示
 		GenericDataSinkBase<T> translatedSink = sink.translateToDataFlow(input);
 
 		translatedSink.setResources(sink.getMinResources(), sink.getPreferredResources());
@@ -127,6 +133,7 @@ public class OperatorTranslation {
 			throw new RuntimeException("Error while creating the data flow plan for the program: Unknown operator or data set type: " + dataSet);
 		}
 
+		// 每翻译一个DataSet会将其加入到一个名为translated的Map中去
 		this.translated.put(dataSet, dataFlowOp);
 
 		// take care of broadcast variables
