@@ -51,6 +51,7 @@ class PipelinedSubpartitionView implements ResultSubpartitionView {
 		return parent.pollBuffer(); //从parent，PipelinedSubpartition，的buffers里面直接poll
 	}
 
+	// 通知消费端数据准备好了
 	@Override
 	public void notifyDataAvailable() {
 		availabilityListener.notifyDataAvailable();

@@ -47,6 +47,7 @@ import java.util.concurrent.ConcurrentMap;
 import static org.apache.flink.runtime.io.network.netty.NettyMessage.BufferResponse;
 
 /**
+ * 生产端（相对来说是服务端，因为是发送数据）真正发送数据的地方
  * A nonEmptyReader of partition queues, which listens for channel writability changed
  * events before writing and flushing {@link Buffer} instances.
  */
@@ -176,9 +177,11 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 		// hand over of reader queues and cancelled producers.
 
 		if (msg instanceof NetworkSequenceViewReader) {
+			// 事件是NetworkSequenceViewReader类型的，则加入队列
 			enqueueAvailableReader((NetworkSequenceViewReader) msg);
 		} else if (msg.getClass() == InputChannelID.class) {
 			// Release partition view that get a cancel request.
+			// 如果接收到的是CancelPartitionRequest消息，代表取消数据请求，则把对应的reader删除
 			InputChannelID toCancel = (InputChannelID) msg;
 			//如果当前InputChannelID已包含在释放过的集合中，那么直接返回
 			if (released.contains(toCancel)) {
@@ -255,7 +258,7 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 				} else {
 					// This channel was now removed from the available reader queue.
 					// We re-add it into the queue if it is still available
-					// 还有数据
+					// 还有数据及credit，或者下一个是event，才重新加入队列
 					if (next.moreAvailable()) {
 						// 把reader重新加入队列中
 						registerAvailableReader(reader);

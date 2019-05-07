@@ -48,7 +48,7 @@ class PartitionRequestServerHandler extends SimpleChannelInboundHandler<NettyMes
 
 	private final TaskEventPublisher taskEventPublisher;
 
-	private final PartitionRequestQueue outboundQueue;
+	private final PartitionRequestQueue outboundQueue; // 发送队列
 
 	private final boolean creditBasedEnabled;
 
@@ -82,6 +82,7 @@ class PartitionRequestServerHandler extends SimpleChannelInboundHandler<NettyMes
 			// ----------------------------------------------------------------
 			// Intermediate result partition requests
 			// ----------------------------------------------------------------
+			// 消息类型为用户发起的分区请求，即请求发送数据
 			if (msgClazz == PartitionRequest.class) {
 				PartitionRequest request = (PartitionRequest) msg;
 
@@ -100,6 +101,7 @@ class PartitionRequestServerHandler extends SimpleChannelInboundHandler<NettyMes
 							outboundQueue);
 					}
 
+					// 创建对应的subPartition视图
 					reader.requestSubpartitionView(
 						partitionProvider,
 						request.partitionId,

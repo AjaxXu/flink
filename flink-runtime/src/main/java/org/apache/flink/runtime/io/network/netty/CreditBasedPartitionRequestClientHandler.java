@@ -245,6 +245,7 @@ class CreditBasedPartitionRequestClientHandler extends ChannelInboundHandlerAdap
 		final Class<?> msgClazz = msg.getClass();
 
 		// ---- Buffer --------------------------------------------------------
+		// 接收到BufferResponse信息
 		if (msgClazz == NettyMessage.BufferResponse.class) {
 			NettyMessage.BufferResponse bufferOrEvent = (NettyMessage.BufferResponse) msg;
 
@@ -256,7 +257,7 @@ class CreditBasedPartitionRequestClientHandler extends ChannelInboundHandlerAdap
 
 				return;
 			}
-
+			// 解析BufferResponse
 			decodeBufferOrEvent(inputChannel, bufferOrEvent);
 
 		} else if (msgClazz == NettyMessage.ErrorResponse.class) {
@@ -303,8 +304,10 @@ class CreditBasedPartitionRequestClientHandler extends ChannelInboundHandlerAdap
 					return;
 				}
 
+				// 从NetworkBufferPool申请内存接收数据，NetworkBuffer
 				Buffer buffer = inputChannel.requestBuffer();
 				if (buffer != null) {
+					// 从netty的direct buffer 复制到buffer中，没有使用zero-copy
 					nettyBuffer.readBytes(buffer.asByteBuf(), receivedSize);
 
 					inputChannel.onBuffer(buffer, bufferOrEvent.sequenceNumber, bufferOrEvent.backlog);

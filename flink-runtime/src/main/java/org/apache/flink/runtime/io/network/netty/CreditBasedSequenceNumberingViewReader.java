@@ -41,10 +41,11 @@ class CreditBasedSequenceNumberingViewReader implements BufferAvailabilityListen
 
 	private final Object requestLock = new Object();
 
-	private final InputChannelID receiverId;
+	private final InputChannelID receiverId; // channel ID
 
 	private final PartitionRequestQueue requestQueue;
 
+	// 从生产端读取数据的视图，屏蔽底层细节
 	private volatile ResultSubpartitionView subpartitionView;
 
 	/**
@@ -56,7 +57,8 @@ class CreditBasedSequenceNumberingViewReader implements BufferAvailabilityListen
 	 */
 	private boolean isRegisteredAsAvailable = false;
 
-	/** The number of available buffers for holding data on the consumer side. */
+	/** The number of available buffers for holding data on the consumer side.
+	 * 在消费端可用存放数据的buffer数量*/
 	private int numCreditsAvailable;
 
 	private int sequenceNumber = -1;
@@ -71,6 +73,13 @@ class CreditBasedSequenceNumberingViewReader implements BufferAvailabilityListen
 		this.requestQueue = requestQueue;
 	}
 
+	/**
+	 * 请求创建SubpartitionView
+	 * @param partitionProvider 这里是ResultPartitionManager
+	 * @param resultPartitionId partitionID
+	 * @param subPartitionIndex 子Partition索引
+	 * @throws IOException 抛出IO异常
+	 */
 	@Override
 	public void requestSubpartitionView(
 		ResultPartitionProvider partitionProvider,
@@ -125,6 +134,7 @@ class CreditBasedSequenceNumberingViewReader implements BufferAvailabilityListen
 	 *
 	 * <p>Returns true only if the next buffer is an event or the reader has both available
 	 * credits and buffers.
+	 * 只有下一个buffer是事件，或者reader有credit和buffer时才是可用的
 	 *
 	 * @param bufferAndBacklog
 	 * 		current buffer and backlog including information about the next buffer
@@ -166,7 +176,7 @@ class CreditBasedSequenceNumberingViewReader implements BufferAvailabilityListen
 			}
 
 			return new BufferAndAvailability(
-				next.buffer(), isAvailable(next), next.buffersInBacklog());
+				next.buffer(), isAvailable(next) /*已经判断了credit*/, next.buffersInBacklog());
 		} else {
 			return null;
 		}
@@ -192,8 +202,10 @@ class CreditBasedSequenceNumberingViewReader implements BufferAvailabilityListen
 		subpartitionView.releaseAllResources();
 	}
 
+	// 通知生产端数据准备好了
 	@Override
 	public void notifyDataAvailable() {
+		// 通知PartitionRequestQueue 自己（reader）对应的数据准备好了
 		requestQueue.notifyReaderNonEmpty(this);
 	}
 

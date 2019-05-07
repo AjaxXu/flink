@@ -204,6 +204,7 @@ public class NetworkEnvironment {
 					config.floatingNetworkBuffersPerGate() : Integer.MAX_VALUE;
 
 				// assign exclusive buffers to input channels directly and use the rest for floating buffers
+				// 赋予每个inputChannel专用的buffers，数量有配置参数决定
 				gate.assignExclusiveSegments(networkBufferPool, config.networkBuffersPerChannel());
 				//为每个输入闸门设置本地缓冲池
 				bufferPool = networkBufferPool.createBufferPool(0, maxNumberOfMemorySegments);

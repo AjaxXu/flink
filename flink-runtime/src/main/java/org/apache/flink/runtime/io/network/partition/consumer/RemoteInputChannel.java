@@ -489,12 +489,15 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 			}
 
 			numRequiredBuffers = backlog + initialCredit;
+			// 检查当前input通道的buffer是否做够上游produce所需要的buffer，如果不够就去bufferpool申请
 			while (bufferQueue.getAvailableBufferSize() < numRequiredBuffers && !isWaitingForFloatingBuffers) {
 				Buffer buffer = inputGate.getBufferPool().requestBuffer();
 				if (buffer != null) {
+					// 申请到buffer之后先占据住
 					bufferQueue.addFloatingBuffer(buffer);
 					numRequestedBuffers++;
 				} else if (inputGate.getBufferProvider().addBufferListener(this)) {
+					//  没有足够的buffer，那么注册回调等buffer回收
 					// If the channel has not got enough buffers, register it as listener to wait for more floating buffers.
 					isWaitingForFloatingBuffers = true;
 					break;
@@ -502,6 +505,7 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 			}
 		}
 
+		// 如果生产端有buffer需求，并且之前的unannouncedCredit为0那么就需要通知上游有buffer
 		if (numRequestedBuffers > 0 && unannouncedCredit.getAndAdd(numRequestedBuffers) == 0) {
 			notifyCreditAvailable();
 		}
@@ -548,6 +552,7 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 				notifyChannelNonEmpty();
 			}
 
+			// 根据backlog的信息去决定是不是要给上游分发credit
 			if (backlog >= 0) {
 				onSenderBacklog(backlog);
 			}

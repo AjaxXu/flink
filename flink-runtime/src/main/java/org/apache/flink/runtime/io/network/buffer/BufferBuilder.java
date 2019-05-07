@@ -80,9 +80,12 @@ public class BufferBuilder {
 
 		int needed = source.remaining();
 		int available = getMaxCapacity() - positionMarker.getCached();
+		// segment不一定足够大，可能存不下这批buffer, 堆外内存拷贝的时候需要提前计算好可以拷贝的量，否则会有异常
 		int toCopy = Math.min(needed, available);
 
+		// 将source buffer中的数据/堆内存，put至memorySegment中，利用Unsafe进行数据拷贝
 		memorySegment.put(positionMarker.getCached(), source, toCopy);
+		// 设置新的position
 		positionMarker.move(toCopy);
 		return toCopy;
 	}
@@ -123,6 +126,7 @@ public class BufferBuilder {
 	}
 
 	/**
+	 * positionMarker会标记生产端的数据写到多少个字节了，这个在消费端的时候也会用到这个position
 	 * Holds a reference to the current writer position. Negative values indicate that writer ({@link BufferBuilder}
 	 * has finished. Value {@code Integer.MIN_VALUE} represents finished empty buffer.
 	 */
@@ -153,6 +157,10 @@ public class BufferBuilder {
 	 * <p>Remember to commit the {@link SettablePositionMarker} to make the changes visible.
 	 */
 	private static class SettablePositionMarker implements PositionMarker {
+		// 由于是多线程使用所以position的值需要被标记成volatile来保证数据的可见性，每次消费端拉取数据的时候，
+		// 对于没有写完的buffer同样可以进行消费,消费前更新一个buffer的position真实位置，这里用到了一个小技巧，由于数据在生产的时候需要频繁的更新position，
+		// 如果是volatile的，虽然比较轻量，频繁更新也是比较大的开销，因此加入了一个cachedPosition，在写数据的时候只需要更新builder中的cachedPosition，
+		// 生产端每次完成一批的书写才会commit给volatile position，以此来减少缓存刷新。
 		private volatile int position = 0;
 
 		/**
@@ -175,7 +183,7 @@ public class BufferBuilder {
 
 		/**
 		 * Marks this position as finished and returns the current position.
-		 *
+		 * 小于0意味着finished
 		 * @return current position as of {@link #getCached()}
 		 */
 		public int markFinished() {

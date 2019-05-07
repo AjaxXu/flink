@@ -91,10 +91,13 @@ public class BufferConsumer implements Closeable {
 	 * counter with the parent {@link BufferConsumer} - in order to recycle memory both of them must be recycled/closed.
 	 */
 	public Buffer build() {
+		// 获取最近bufferBuilder commit到的position
 		writerPosition.update();
 		int cachedWriterPosition = writerPosition.getCached();
+		// slice 切分只读区块
 		Buffer slice = buffer.readOnlySlice(currentReaderPosition, cachedWriterPosition - currentReaderPosition);
 		currentReaderPosition = cachedWriterPosition;
+		// 增加引用计数
 		return slice.retainBuffer();
 	}
 

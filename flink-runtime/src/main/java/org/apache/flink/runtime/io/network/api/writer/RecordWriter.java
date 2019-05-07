@@ -163,6 +163,8 @@ public class RecordWriter<T extends IOReadableWritable> {
 	private boolean copyFromSerializerToTargetChannel(int targetChannel) throws IOException, InterruptedException {
 		// We should reset the initial position of the intermediate serialization buffer before
 		// copying, so the serialization results can be copied to multiple target buffers.
+		// 这一步reset是为了在数据发送如果是broadcast这种一份数据需要发送多个下游通道的时候，就可以只序列化一次，后续数据发送的时候只需要将bytebuffer
+		// 的position值值置到0就可以了。
 		serializer.reset();
 
 		boolean pruneTriggered = false;
@@ -172,13 +174,14 @@ public class RecordWriter<T extends IOReadableWritable> {
 		// 如果记录的数据无法被单个Buffer所容纳，将会被拆分成多个Buffer存储，直到数据写完
 		// 如果Buffer已经存满
 		while (result.isFullBuffer()) {
+			// buffer写满了，首先将bufferBuilder标记为写完了，就是将positionMarker置为相反数
 			numBytesOut.inc(bufferBuilder.finish());
 			numBuffersOut.inc();
 
 			// If this was a full record, we are done. Not breaking out of the loop at this point
 			// will lead to another buffer request before breaking out (that would not be a
 			// problem per se, but it can lead to stalls in the pipeline).
-			// 如果记录以及全部写入subPartition
+			// 如果记录已经全部写入subPartition
 			if (result.isFullRecord()) {
 				pruneTriggered = true;
 				bufferBuilders[targetChannel] = Optional.empty();
@@ -262,6 +265,7 @@ public class RecordWriter<T extends IOReadableWritable> {
 		// 就是调用localBufferPool.requestMemorySegment, 然后封装成BufferBuilder
 		BufferBuilder bufferBuilder = targetPartition.getBufferProvider().requestBufferBuilderBlocking();
 		bufferBuilders[targetChannel] = Optional.of(bufferBuilder);
+		// 一个bufferbuilder对应一个bufferconsumer
 		targetPartition.addBufferConsumer(bufferBuilder.createBufferConsumer(), targetChannel);
 		return bufferBuilder;
 	}

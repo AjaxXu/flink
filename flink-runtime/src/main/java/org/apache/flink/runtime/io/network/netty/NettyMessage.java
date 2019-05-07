@@ -63,7 +63,7 @@ public abstract class NettyMessage {
 	// constructor in order to work with the generic deserializer.
 	// ------------------------------------------------------------------------
 
-	static final int FRAME_HEADER_LENGTH = 4 + 4 + 1; // frame length (4), magic number (4), msg ID (1)
+	static final int FRAME_HEADER_LENGTH = 4 + 4 + 1; // frame length (4) 总长度, magic number (4), msg ID (1)
 
 	static final int MAGIC_NUMBER = 0xBADC0FFE;
 
@@ -171,6 +171,7 @@ public abstract class NettyMessage {
 				ByteBuf serialized = null;
 
 				try {
+					// 把NettyMessage序列化到ByteBuf
 					serialized = ((NettyMessage) msg).write(ctx.alloc());
 				}
 				catch (Throwable t) {
@@ -178,6 +179,7 @@ public abstract class NettyMessage {
 				}
 				finally {
 					if (serialized != null) {
+						// 将序列化数据发送给消费端(客户端)
 						ctx.write(serialized, promise);
 					}
 				}
@@ -233,6 +235,7 @@ public abstract class NettyMessage {
 
 				byte msgId = msg.readByte();
 
+				// 将ByteBuf解码为NettyMessage
 				final NettyMessage decodedMsg;
 				switch (msgId) {
 					case BufferResponse.ID:
@@ -302,9 +305,9 @@ public abstract class NettyMessage {
 
 		private static final byte ID = 0;
 
-		final ByteBuf buffer;
+		final ByteBuf buffer;  // NetworkBuff（继承了AbstractReferenceCountedByteBuf）, 包装了MemorySegment
 
-		final InputChannelID receiverId;
+		final InputChannelID receiverId; // 16字节
 
 		final int sequenceNumber;
 
@@ -326,7 +329,7 @@ public abstract class NettyMessage {
 		}
 
 		BufferResponse(
-				Buffer buffer,
+				Buffer buffer, // NetworkBuff, 包装了MemorySegment
 				int sequenceNumber,
 				InputChannelID receiverId,
 				int backlog) {
@@ -374,6 +377,8 @@ public abstract class NettyMessage {
 				headerBuf.writeBoolean(isBuffer);
 				headerBuf.writeInt(buffer.readableBytes());
 
+				// Netty 提供了 CompositeByteBuf 类, 它可以将多个 ByteBuf 合并为一个逻辑上的 ByteBuf, 避免了各个 ByteBuf 之间的拷贝.
+				// Zero-copy 体现
 				CompositeByteBuf composityBuf = allocator.compositeDirectBuffer();
 				composityBuf.addComponent(headerBuf);
 				composityBuf.addComponent(buffer);
