@@ -686,6 +686,7 @@ public abstract class AbstractStreamOperator<OUT>
 		this.latencyStats.reportLatency(marker);
 
 		// everything except sinks forwards latency markers
+		// 只要不是sink类型的operator，就会往后继续传递LatencyMarker
 		this.output.emitLatencyMarker(marker);
 	}
 

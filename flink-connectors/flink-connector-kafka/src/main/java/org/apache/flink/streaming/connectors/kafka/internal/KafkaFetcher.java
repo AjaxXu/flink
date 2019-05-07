@@ -123,14 +123,17 @@ public class KafkaFetcher<T> extends AbstractFetcher<T, TopicPartition> {
 			final Handover handover = this.handover;
 
 			// kick off the actual Kafka consumer
+			// 启动真正的消费线程
 			consumerThread.start();
 
 			while (running) {
 				// this blocks until we get the next records
 				// it automatically re-throws exceptions encountered in the consumer thread
+				// 在handover中获取真正的数据，并抛出其他线程中的异常
 				final ConsumerRecords<byte[], byte[]> records = handover.pollNext();
 
 				// get the records for each topic partition
+				// subscribedPartitionStates维护的是每个partition的状态（partition，KPH（partition的描述，依据版本可能不同），offset, committedOffset, watermark）
 				for (KafkaTopicPartitionState<TopicPartition> partition : subscribedPartitionStates()) {
 
 					List<ConsumerRecord<byte[], byte[]>> partitionRecords =
@@ -147,6 +150,7 @@ public class KafkaFetcher<T> extends AbstractFetcher<T, TopicPartition> {
 
 						// emit the actual record. this also updates offset state atomically
 						// and deals with timestamps and watermark generation
+						// 这里会进入真正的通过sourceContext发送数据的代码 如下
 						emitRecord(value, partition, record.offset(), record);
 					}
 				}

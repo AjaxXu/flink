@@ -115,6 +115,7 @@ public class StackTraceSampleCoordinator {
 		checkArgument(numSamples >= 1, "No number of samples");
 		checkArgument(maxStackTraceDepth >= 0, "Negative maximum stack trace depth");
 
+		// 通过ExecutionVertex获取ExecutionAttemptID和Execution，并最后做存活判断
 		// Execution IDs of running tasks
 		ExecutionAttemptID[] triggerIds = new ExecutionAttemptID[tasksToSample.length];
 		Execution[] executions = new Execution[tasksToSample.length];
@@ -141,6 +142,7 @@ public class StackTraceSampleCoordinator {
 
 			LOG.debug("Triggering stack trace sample {}", sampleId);
 
+			// 包含采样id和ExecutionAttemptID
 			final PendingStackTraceSample pending = new PendingStackTraceSample(
 					sampleId, triggerIds);
 
@@ -155,7 +157,9 @@ public class StackTraceSampleCoordinator {
 			pendingSamples.put(sampleId, pending);
 
 			// Trigger all samples
+			// execution是executionVertex的多次执行（recovery...）
 			for (Execution execution: executions) {
+				// 对相应的execution进行多次numSamples采样，但是都是同一个sampleId
 				final CompletableFuture<StackTraceSampleResponse> stackTraceSampleFuture = execution.requestStackTraceSample(
 					sampleId,
 					numSamples,
@@ -166,9 +170,11 @@ public class StackTraceSampleCoordinator {
 				stackTraceSampleFuture.handleAsync(
 					(StackTraceSampleResponse stackTraceSampleResponse, Throwable throwable) -> {
 						if (stackTraceSampleResponse != null) {
+							// 收集返回的List<StackTraceElement[]> 到PendingStackTraceSample
 							collectStackTraces(
 								stackTraceSampleResponse.getSampleId(),
 								stackTraceSampleResponse.getExecutionAttemptID(),
+								// 返回的堆栈信息包含所有的采样结果
 								stackTraceSampleResponse.getSamples());
 						} else {
 							cancelStackTraceSample(sampleId, throwable);

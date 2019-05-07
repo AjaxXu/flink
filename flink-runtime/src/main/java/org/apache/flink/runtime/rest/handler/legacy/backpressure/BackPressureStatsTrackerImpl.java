@@ -154,6 +154,7 @@ public class BackPressureStatsTrackerImpl implements BackPressureStatsTracker {
 	 * @return Back pressure statistics for an operator
 	 */
 	public Optional<OperatorBackPressureStats> getOperatorBackPressureStats(ExecutionJobVertex vertex) {
+		// 保证没有并行triggerSample
 		synchronized (lock) {
 			final OperatorBackPressureStats stats = operatorStatsCache.getIfPresent(vertex);
 			if (stats == null || backPressureStatsRefreshInterval <= System.currentTimeMillis() - stats.getEndTimestamp()) {
@@ -178,9 +179,11 @@ public class BackPressureStatsTrackerImpl implements BackPressureStatsTracker {
 			return false;
 		}
 
+		//排除掉已经pending在采样和结束的Operator
 		if (!pendingStats.contains(vertex) &&
 			!vertex.getGraph().getState().isGloballyTerminalState()) {
 
+			// 拿到对应ExecutionGraph的FutureExecutor，这是用以在相应的ExecutionGraph发起任务的
 			Executor executor = vertex.getGraph().getFutureExecutor();
 
 			// Only trigger if still active job
@@ -191,12 +194,15 @@ public class BackPressureStatsTrackerImpl implements BackPressureStatsTracker {
 					LOG.debug("Triggering stack trace sample for tasks: " + Arrays.toString(vertex.getTaskVertices()));
 				}
 
+				// 核心方法 通过StackTraceSampleCoordinator 去发起相应的trigger流程,
+				// 这里的Future是Flink内部自己定义的异步结果接口 具体可查看FlinkFuture.java(可以深入了解下)
 				CompletableFuture<StackTraceSample> sample = coordinator.triggerStackTraceSample(
 					vertex.getTaskVertices(),
 					numSamples,
 					delayBetweenSamples,
 					MAX_STACK_TRACE_DEPTH);
 
+				// 指定异步回调函数（采样结果分析的函数）
 				sample.handleAsync(new StackTraceSampleCompletionCallback(vertex), executor);
 
 				return true;
@@ -307,6 +313,7 @@ public class BackPressureStatsTrackerImpl implements BackPressureStatsTracker {
 
 			// Map task ID to subtask index, because the web interface expects
 			// it like that.
+			// 方便下面根据executionId查询相应的并发度
 			Map<ExecutionAttemptID, Integer> subtaskIndexMap = Maps
 					.newHashMapWithExpectedSize(traces.size());
 
@@ -324,6 +331,7 @@ public class BackPressureStatsTrackerImpl implements BackPressureStatsTracker {
 
 			// Ratio of blocked samples to total samples per sub task. Array
 			// position corresponds to sub task index.
+			// 数组的index和task的并发度相绑定, 值为block的采样率
 			double[] backPressureRatio = new double[traces.size()];
 
 			for (Entry<ExecutionAttemptID, List<StackTraceElement[]>> entry : traces.entrySet()) {

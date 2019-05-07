@@ -284,6 +284,7 @@ public abstract class FlinkKafkaProducerBase<IN> extends RichSinkFunction<IN> im
 
 		byte[] serializedKey = schema.serializeKey(next);
 		byte[] serializedValue = schema.serializeValue(next);
+		// 每条元素可以自己自己要写到的topic
 		String targetTopic = schema.getTargetTopic(next);
 		if (targetTopic == null) {
 			targetTopic = defaultTopicId;

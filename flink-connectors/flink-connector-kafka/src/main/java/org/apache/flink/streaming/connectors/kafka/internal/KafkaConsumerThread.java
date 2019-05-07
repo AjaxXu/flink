@@ -248,6 +248,7 @@ public class KafkaConsumerThread extends Thread {
 				}
 
 				// get the next batch of records, unless we did not manage to hand the old batch over
+				// 工作就是从consumer消费数据塞入handover，等待拉取
 				if (records == null) {
 					try {
 						records = consumer.poll(pollTimeout);

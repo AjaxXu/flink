@@ -53,6 +53,10 @@ public class KafkaTopicPartitionAssigner {
 
 		// here, the assumption is that the id of Kafka partitions are always ascending
 		// starting from 0, and therefore can be used directly as the offset clockwise from the start index
+		// 这里看出：每个Partition只会分配到一个subtask来消费
+		// 1. partition > parallel 一个subtask会订阅多个partition
+		// 2. partition < parallel 有subtask会是空闲的
+		// 3. startIndex由topic名字计算得出
 		return (startIndex + partition.getPartition()) % numParallelSubtasks;
 	}
 

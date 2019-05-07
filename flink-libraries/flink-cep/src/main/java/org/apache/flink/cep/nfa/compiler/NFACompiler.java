@@ -277,6 +277,7 @@ public class NFACompiler {
 		 */
 		private State<T> createMiddleStates(final State<T> sinkState) {
 			State<T> lastSink = sinkState;
+			// 不断往上遍历pattern进行state的生成
 			while (currentPattern.getPrevious() != null) {
 
 				if (currentPattern.getQuantifier().getConsumingStrategy() == Quantifier.ConsumingStrategy.NOT_FOLLOW) {
@@ -284,17 +285,21 @@ public class NFACompiler {
 				} else if (currentPattern.getQuantifier().getConsumingStrategy() == Quantifier.ConsumingStrategy.NOT_NEXT) {
 					final State<T> notNext = createState(currentPattern.getName(), State.StateType.Normal);
 					final IterativeCondition<T> notCondition = getTakeCondition(currentPattern);
+					// 否定类型的pattern需要创建一个stop state
 					final State<T> stopState = createStopState(notCondition, currentPattern.getName());
 
 					if (lastSink.isFinal()) {
 						//so that the proceed to final is not fired
+						// 结尾状态不用proceed过去做下一次计算了，可以直接ignore到Final，然后输出结果
 						notNext.addIgnore(lastSink, new RichNotCondition<>(notCondition));
 					} else {
 						notNext.addProceed(lastSink, new RichNotCondition<>(notCondition));
 					}
+					// 在满足Not_NEXT的条件的时候就转化成stop状态即匹配失败
 					notNext.addProceed(stopState, notCondition);
 					lastSink = notNext;
 				} else {
+					// 非否定类型的状态的处理逻辑都在这个方法中
 					lastSink = convertPattern(lastSink);
 				}
 

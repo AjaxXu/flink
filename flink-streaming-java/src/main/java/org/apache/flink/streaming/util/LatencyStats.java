@@ -49,6 +49,9 @@ public class LatencyStats {
 		this.granularity = granularity;
 	}
 
+	//1.首先生成一个Latency的描述符，sink operator的区分不同subIndex为不同LatencySource，其他operator不区分subIndex，只按照vertexID来区分
+	//2.然后生成对应Latency的描述符的最近"historySize:128"个Latency的值（WindowSize controls the number of values that contribute to the reported statistics. ）
+	//3.在这里值没有在web展示的原因是因为gauge展示的不是一个数字，因而无法被展示
 	public void reportLatency(LatencyMarker marker) {
 		final String uniqueName = granularity.createUniqueHistogramName(marker, operatorId, subtaskIndex);
 
@@ -63,7 +66,7 @@ public class LatencyStats {
 		}
 
 		long now = System.currentTimeMillis();
-		latencyHistogram.update(now - marker.getMarkedTime());
+		latencyHistogram.update(now - marker.getMarkedTime()); //所以latency的计算时间是当前时间减去marker摄入的时间
 	}
 
 	/**

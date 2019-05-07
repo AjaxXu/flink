@@ -37,9 +37,9 @@ import java.util.Objects;
 public class State<T> implements Serializable {
 	private static final long serialVersionUID = 6658700025989097781L;
 
-	private final String name;
-	private StateType stateType;
-	private final Collection<StateTransition<T>> stateTransitions;
+	private final String name; // 状态的名称
+	private StateType stateType; // 类型
+	private final Collection<StateTransition<T>> stateTransitions; // 状态转换集合
 
 	public State(final String name, final StateType stateType) {
 		this.name = name;

@@ -22,6 +22,7 @@ import org.apache.flink.api.common.state.KeyedStateStore;
 import org.apache.flink.api.common.state.OperatorStateStore;
 
 /**
+ * 让你既可以注册一个KeyedStateStore，也可以注册一个OperatorStateStore
  * This interface provides a context in which operators can initialize by registering to managed state (i.e. state that
  * is managed by state backends).
  *

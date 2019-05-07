@@ -123,26 +123,35 @@ public class SharedBufferAccessor<V> implements AutoCloseable {
 		List<Map<String, List<EventId>>> result = new ArrayList<>();
 
 		// stack to remember the current extraction states
+		//构建一个栈来记住当前提取的状态
 		Stack<SharedBufferAccessor.ExtractionState> extractionStates = new Stack<>();
 
 		// get the starting shared buffer entry for the previous relation
+		// 获得首个共享缓冲区项
 		Lockable<SharedBufferNode> entryLock = sharedBuffer.getEntry(nodeId);
 
+		//如果记录项存在
 		if (entryLock != null) {
 			SharedBufferNode entry = entryLock.getElement();
+			//根据记录项，首先构建一个提取状态加入栈
 			extractionStates.add(new SharedBufferAccessor.ExtractionState(Tuple2.of(nodeId, entry), version, new Stack<>()));
 
 			// use a depth first search to reconstruct the previous relations
+			//当提取状态的栈不为空时，使用深度优先的搜索来重构之前的关系
 			while (!extractionStates.isEmpty()) {
+				//出栈一个对象
 				final SharedBufferAccessor.ExtractionState extractionState = extractionStates.pop();
 				// current path of the depth first search
+				//获得其栈来存储当前路径，深度优先搜索
 				final Stack<Tuple2<NodeId, SharedBufferNode>> currentPath = extractionState.getPath();
 				final Tuple2<NodeId, SharedBufferNode> currentEntry = extractionState.getEntry();
 
 				// termination criterion
+				//终止条件：某个提取状态为null，说明深度搜索已到达头状态
 				if (currentEntry == null) {
 					final Map<String, List<EventId>> completePath = new LinkedHashMap<>();
 
+					//出栈构建正向的完整路径存储到LinkedHashMap中，并加入到结果集
 					while (!currentPath.isEmpty()) {
 						final NodeId currentPathEntry = currentPath.pop().f0;
 
@@ -155,17 +164,22 @@ public class SharedBufferAccessor<V> implements AutoCloseable {
 				} else {
 
 					// append state to the path
+					//追加到路径中
 					currentPath.push(currentEntry);
 
 					boolean firstMatch = true;
+					//从当前记录项开始探索与其关联的边，检测版本是否兼容
 					for (SharedBufferEdge edge : currentEntry.f1.getEdges()) {
 						// we can only proceed if the current version is compatible to the version
 						// of this previous relation
 						final DeweyNumber currentVersion = extractionState.getVersion();
+						// 如果版本号兼容
 						if (currentVersion.isCompatibleWith(edge.getDeweyNumber())) {
 							final NodeId target = edge.getTarget();
 							Stack<Tuple2<NodeId, SharedBufferNode>> newPath;
 
+							//首次匹配，构建提取状态并直接加入栈中，后续匹配需要为提取状态构建新的路径栈，通过深度拷贝路径
+							//因为除了首次匹配路径唯一之外，后续的匹配路径都可能不一致，因此不能共享状态
 							if (firstMatch) {
 								// for the first match we don't have to copy the current path
 								newPath = currentPath;

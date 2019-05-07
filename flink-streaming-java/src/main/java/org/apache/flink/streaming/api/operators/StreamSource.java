@@ -67,11 +67,13 @@ public class StreamSource<OUT, SRC extends SourceFunction<OUT>> extends Abstract
 		final TimeCharacteristic timeCharacteristic = getOperatorConfig().getTimeCharacteristic();
 
 		final Configuration configuration = this.getContainingTask().getEnvironment().getTaskManagerInfo().getConfiguration();
+		// 延迟检测时间间隔，默认是0s
 		final long latencyTrackingInterval = getExecutionConfig().isLatencyTrackingConfigured()
 			? getExecutionConfig().getLatencyTrackingInterval()
 			: configuration.getLong(MetricOptions.LATENCY_INTERVAL);
 
 		LatencyMarksEmitter<OUT> latencyEmitter = null;
+		// 如果开启了latency track.那么就会定期发送LatencyMarker
 		if (latencyTrackingInterval > 0) {
 			latencyEmitter = new LatencyMarksEmitter<>(
 				getProcessingTimeService(),
@@ -158,6 +160,7 @@ public class StreamSource<OUT, SRC extends SourceFunction<OUT>> extends Abstract
 				final OperatorID operatorId,
 				final int subtaskIndex) {
 
+			// 在StreamSource（Operator）中的定时发送
 			latencyMarkTimer = processingTimeService.scheduleAtFixedRate(
 				new ProcessingTimeCallback() {
 					@Override

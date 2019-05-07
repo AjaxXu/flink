@@ -147,6 +147,7 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 public interface CheckpointedFunction {
 
 	/**
+	 * //每一次做checkpoint的时候被调用
 	 * This method is called when a snapshot for a checkpoint is requested. This acts as a hook to the function to
 	 * ensure that all state is exposed by means previously offered through {@link FunctionInitializationContext} when
 	 * the Function was initialized, or offered now by {@link FunctionSnapshotContext} itself.
@@ -157,6 +158,7 @@ public interface CheckpointedFunction {
 	void snapshotState(FunctionSnapshotContext context) throws Exception;
 
 	/**
+	 * //初始化每一个并发的实例的时候被调用
 	 * This method is called when the parallel function instance is created during distributed
 	 * execution. Functions typically set up their state storing data structures in this method.
 	 *

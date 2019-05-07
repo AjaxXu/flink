@@ -517,6 +517,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 				if (!restoredFromOldState) {
 					// seed the partition discoverer with the union state while filtering out
 					// restored partitions that should not be subscribed by this subtask
+					// 选取当前subtask所需要订阅的partition
 					if (KafkaTopicPartitionAssigner.assign(
 						restoredStateEntry.getKey(), getRuntimeContext().getNumberOfParallelSubtasks())
 							== getRuntimeContext().getIndexOfThisSubtask()){
@@ -858,6 +859,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 				OFFSETS_STATE_NAME,
 				TypeInformation.of(new TypeHint<Tuple2<KafkaTopicPartition, Long>>() {})));
 
+		//如果是在重启恢复的过程中
 		if (context.isRestored() && !restoredFromOldState) {
 			restoredState = new TreeMap<>(new KafkaTopicPartition.Comparator());
 
@@ -897,6 +899,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 			if (fetcher == null) {
 				// the fetcher has not yet been initialized, which means we need to return the
 				// originally restored offsets or the assigned partitions
+				// fetcher还没有初始化，返回上一次恢复的partition和offset，也就是这里会有个bug
 				for (Map.Entry<KafkaTopicPartition, Long> subscribedPartition : subscribedPartitionsToStartOffsets.entrySet()) {
 					unionOffsetStates.add(Tuple2.of(subscribedPartition.getKey(), subscribedPartition.getValue()));
 				}

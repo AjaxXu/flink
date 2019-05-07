@@ -31,7 +31,9 @@ public enum OffsetCommitMode {
 	/** Completely disable offset committing. */
 	DISABLED,
 
-	/** Commit offsets back to Kafka only when checkpoints are completed. */
+	/** Commit offsets back to Kafka only when checkpoints are completed.
+	 * 完成一次checkpoint后向kafka提交消费offset，只有这种模式下才需要我们手动去提交offset到kafka
+	 */
 	ON_CHECKPOINTS,
 
 	/** Commit offsets periodically back to Kafka, using the auto commit functionality of internal Kafka clients. */

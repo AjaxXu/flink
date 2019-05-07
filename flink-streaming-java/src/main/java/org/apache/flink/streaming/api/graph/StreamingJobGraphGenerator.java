@@ -199,6 +199,7 @@ public class StreamingJobGraphGenerator {
 			int vertex = inEdges.getKey();
 			List<StreamEdge> edgeList = inEdges.getValue();
 
+			// 给各个vertex的StreamConfig设置其上游的inEdgeList
 			vertexConfigs.get(vertex).setInPhysicalEdges(edgeList);
 		}
 	}
@@ -210,6 +211,7 @@ public class StreamingJobGraphGenerator {
 	 */
 	private void setChaining(Map<Integer, byte[]> hashes, List<Map<Integer, byte[]>> legacyHashes, Map<Integer, List<Tuple2<byte[], byte[]>>> chainedOperatorHashes) {
 		for (Integer sourceNodeId : streamGraph.getSourceIDs()) {
+			// 同样是从source处往后创建chain
 			createChain(sourceNodeId, sourceNodeId, hashes, legacyHashes, 0, chainedOperatorHashes);
 		}
 	}
@@ -232,6 +234,7 @@ public class StreamingJobGraphGenerator {
 			int chainIndex,
 			Map<Integer, List<Tuple2<byte[], byte[]>>> chainedOperatorHashes) {
 
+		// builtVertices表示已经创建过JobVertex节点的streamNode的id
 		//如果起始节点没有被构建过，才进入分支；否则直接返回一个空List（递归结束条件）
 		if (!builtVertices.contains(startNodeId)) {
 
@@ -254,6 +257,7 @@ public class StreamingJobGraphGenerator {
 
 			//遍历每个可被链接的出边，然后进行递归遍历
 			for (StreamEdge chainable : chainableOutputs) {
+				// 这里是递归的将能够和这个edge chain的edge都串起来并且记录在transitiveOutEdges，他负责收集所有的outEdges，不关chain或者不chain
 				//起始节点不变，以该可被链接的出边的目标节点作为“当前”节点进行递归遍历并将遍历过的边集合加入到当前集合中
 				//important:这里值得注意的是所有可链接的边本身并不会被加入这个集合！
 				transitiveOutEdges.addAll(
@@ -269,6 +273,8 @@ public class StreamingJobGraphGenerator {
 			}
 
 			// 把startNodeId加入chainedOperatorHashes中，如果存在返回对应的值
+			// 这里其实不管是不是可以chain的算子都会放到chainedOperatorHashes  这个应该表示的是做完chain操作之后的算子的hash列表，
+			// 里面不包含那些被chain进去的算子的hash因为没有他们的startNodeID，这个首先被放进去的应该是sink处算子的hash，因为是递归调用的
 			List<Tuple2<byte[], byte[]>> operatorHashes =
 				chainedOperatorHashes.computeIfAbsent(startNodeId, k -> new ArrayList<>());
 
@@ -280,6 +286,7 @@ public class StreamingJobGraphGenerator {
 
 			//为当前节点创建链接的完整名称，如果当前节点没有可链接的边，那么其名称将直接是当前节点的operator名称
 			chainedNames.put(currentNodeId, createChainedName(currentNodeId, chainableOutputs));
+			// 资源计算主要针对的是chain的算子的计算
 			chainedMinResources.put(currentNodeId, createChainedMinResources(currentNodeId, chainableOutputs));
 			chainedPreferredResources.put(currentNodeId, createChainedPreferredResources(currentNodeId, chainableOutputs));
 
@@ -351,12 +358,14 @@ public class StreamingJobGraphGenerator {
 		} else if (chainedOutputs.size() == 1) {
 			return operatorName + " -> " + chainedNames.get(chainedOutputs.get(0).getTargetId());
 		} else {
+			// 没有chain的话就返回自己的名字
 			return operatorName;
 		}
 	}
 
 	private ResourceSpec createChainedMinResources(Integer vertexID, List<StreamEdge> chainedOutputs) {
 		ResourceSpec minResources = streamGraph.getStreamNode(vertexID).getMinResources();
+		// chain的资源是将各个资源相加起来  每个节点有资源的概念
 		for (StreamEdge chainable : chainedOutputs) {
 			minResources = minResources.merge(chainedMinResources.get(chainable.getTargetId()));
 		}
@@ -533,9 +542,11 @@ public class StreamingJobGraphGenerator {
 
 		downStreamConfig.setNumberOfInputs(downStreamConfig.getNumberOfInputs() + 1);
 
+		// 根据partitioner定义上下游的连接规则，其实是生成相应的JobEdge
 		StreamPartitioner<?> partitioner = edge.getPartitioner();
 		JobEdge jobEdge;
 		if (partitioner instanceof ForwardPartitioner || partitioner instanceof RescalePartitioner) {
+			// 这里涉及到了IntermediateDataSet的生成，具体代码见JobVertex内部
 			jobEdge = downStreamVertex.connectNewDataSetAsInput(
 				headVertex,
 				DistributionPattern.POINTWISE,
@@ -704,6 +715,7 @@ public class StreamingJobGraphGenerator {
 			if (op instanceof AbstractUdfStreamOperator) {
 				Function f = ((AbstractUdfStreamOperator<?, ?>) op).getUserFunction();
 
+				// 对于实现了这个接口的userFunction，记录他的hooks，这个hook在做checkpoint的时候在master节点触发操作
 				if (f instanceof WithMasterCheckpointHook) {
 					hooks.add(new FunctionMasterCheckpointHookFactory((WithMasterCheckpointHook<?>) f));
 				}

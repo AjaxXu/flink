@@ -888,6 +888,7 @@ public class DataStream<T> {
 		// match parallelism to input, otherwise dop=1 sources could lead to some strange
 		// behaviour: the watermark will creep along very slowly because the elements
 		// from the source go to each extraction operator round robin.
+		//这里就是说一般会默认将并发度设成和inputOperator的并发度一致，避免因为elements进入extraction operator的时候要随机进入分区。
 		final int inputParallelism = getTransformation().getParallelism();
 		final AssignerWithPeriodicWatermarks<T> cleanedAssigner = clean(timestampAndWatermarkAssigner);
 

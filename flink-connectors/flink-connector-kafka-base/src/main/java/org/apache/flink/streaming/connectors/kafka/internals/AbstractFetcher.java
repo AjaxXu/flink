@@ -399,6 +399,7 @@ public abstract class AbstractFetcher<T, KPH> {
 					partitionState.setOffset(offset);
 				}
 			} else if (timestampWatermarkMode == PERIODIC_WATERMARKS) {
+				// 更新partitionstate中的watermark状态
 				emitRecordWithTimestampAndPeriodicWatermark(record, partitionState, offset, timestamp);
 			} else {
 				emitRecordWithTimestampAndPunctuatedWatermark(record, partitionState, offset, timestamp);

@@ -66,6 +66,7 @@ public class DeweyNumber implements Serializable {
 	 * @return Whether this dewey number is compatible to the other dewey number
 	 */
 	public boolean isCompatibleWith(DeweyNumber other) {
+		//当前的数值数目多于另一个，则从头开始比对，前缀必须完全相等
 		if (length() > other.length()) {
 			// prefix case
 			for (int i = 0; i < other.length(); i++) {
@@ -75,7 +76,9 @@ public class DeweyNumber implements Serializable {
 			}
 
 			return true;
-		} else if (length() == other.length()) {
+		}
+		// 数值数目相等，前n-1个必须相等，最后一个数值，当前的必须比另一个大
+		else if (length() == other.length()) {
 			// check init digits for equality
 			int lastIndex = length() - 1;
 			for (int i = 0; i < lastIndex; i++) {
@@ -86,7 +89,9 @@ public class DeweyNumber implements Serializable {
 
 			// check that the last digit is greater or equal
 			return deweyNumber[lastIndex] >= other.deweyNumber[lastIndex];
-		} else {
+		}
+		//如果当前数值数目比另一个的数值数目少，则明显不兼容
+		else {
 			return false;
 		}
 	}

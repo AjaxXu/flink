@@ -58,6 +58,7 @@ public class StreamSink<IN> extends AbstractUdfStreamOperator<Object, SinkFuncti
 	}
 
 	// 用来计算延迟的，StreamSource会产生LateMarker，用于记录数据计算时间，就是在这里完成了计算。
+	// sink中只进行report不再进行forward
 	@Override
 	protected void reportOrForwardLatencyMarker(LatencyMarker marker) {
 		// all operators are tracking latencies
