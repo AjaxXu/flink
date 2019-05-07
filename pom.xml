@@ -85,6 +85,7 @@ under the License.
 		<module>flink-yarn-tests</module>
 		<module>flink-fs-tests</module>
 		<module>flink-docs</module>
+		<module>flink-python</module>
 	</modules>
 
 	<properties>
@@ -1360,6 +1361,8 @@ under the License.
 						<exclude>flink-yarn/src/test/resources/krb5.keytab</exclude>
 						<exclude>flink-end-to-end-tests/test-scripts/test-data/*</exclude>
 						<exclude>flink-end-to-end-tests/test-scripts/docker-hadoop-secure-cluster/config/keystore.jks</exclude>
+						<exclude>flink-connectors/flink-connector-kafka/src/test/resources/**</exclude>
+						<exclude>flink-connectors/flink-connector-kafka-0.11/src/test/resources/**</exclude>
 
 						<!-- snapshots -->
 						<exclude>**/src/test/resources/*-snapshot</exclude>
@@ -1411,6 +1414,9 @@ under the License.
 						<exclude>flink-jepsen/store/**</exclude>
 						<exclude>flink-jepsen/docker/id_rsa*</exclude>
 						<exclude>flink-jepsen/docker/nodes</exclude>
+
+						<!-- Py4j -->
+						<exclude>flink-python/lib/py4j-LICENSE.txt</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
