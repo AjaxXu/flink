@@ -274,9 +274,10 @@ public abstract class MemorySegment {
 
 	/**
 	 * Wraps the chunk of the underlying memory located between <tt>offset</tt> and
-	 * <tt>length</tt> in a NIO ByteBuffer.
 	 * 封装offset后length大小的内存块到NIO ByteBuffer中
 	 * 封装后的ByteBuffer和MemorySegment共享byte数组，对ByteBuffer内容的修改将改变MemorySegment的内容
+	 * <tt>length</tt> in a NIO ByteBuffer. The ByteBuffer has the full segment as capacity
+	 * and the offset and length parameters set the buffers position and limit.
 	 *
 	 * @param offset The offset in the memory segment.
 	 * @param length The number of bytes to be wrapped as a buffer.

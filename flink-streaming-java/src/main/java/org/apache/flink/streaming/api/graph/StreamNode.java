@@ -18,6 +18,7 @@
 package org.apache.flink.streaming.api.graph;
 
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.io.InputFormat;
 import org.apache.flink.api.common.operators.ResourceSpec;
@@ -26,7 +27,9 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
 import org.apache.flink.streaming.api.collector.selector.OutputSelector;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.operators.SimpleOperatorFactory;
 import org.apache.flink.streaming.api.operators.StreamOperator;
+import org.apache.flink.streaming.api.operators.StreamOperatorFactory;
 
 import javax.annotation.Nullable;
 
@@ -66,7 +69,7 @@ public class StreamNode implements Serializable {
 	private KeySelector<?, ?> statePartitioner2;
 	private TypeSerializer<?> stateKeySerializer;
 
-	private transient StreamOperator<?> operator;
+	private transient StreamOperatorFactory<?> operatorFactory;
 	private List<OutputSelector<?>> outputSelectors;
 	private TypeSerializer<?> typeSerializerIn1;
 	private TypeSerializer<?> typeSerializerIn2;
@@ -82,11 +85,24 @@ public class StreamNode implements Serializable {
 	private String transformationUID;
 	private String userHash;
 
+	@VisibleForTesting
+	public StreamNode(StreamExecutionEnvironment env,
+			Integer id,
+			String slotSharingGroup,
+			@Nullable String coLocationGroup,
+			StreamOperator<?> operator,
+			String operatorName,
+			List<OutputSelector<?>> outputSelector,
+			Class<? extends AbstractInvokable> jobVertexClass) {
+		this(env, id, slotSharingGroup, coLocationGroup, SimpleOperatorFactory.of(operator),
+				operatorName, outputSelector, jobVertexClass);
+	}
+
 	public StreamNode(StreamExecutionEnvironment env,
 		Integer id,
 		String slotSharingGroup,
 		@Nullable String coLocationGroup,
-		StreamOperator<?> operator,
+		StreamOperatorFactory<?> operatorFactory,
 		String operatorName,
 		List<OutputSelector<?>> outputSelector,
 		Class<? extends AbstractInvokable> jobVertexClass) {
@@ -94,7 +110,7 @@ public class StreamNode implements Serializable {
 		this.env = env;
 		this.id = id;
 		this.operatorName = operatorName;
-		this.operator = operator;
+		this.operatorFactory = operatorFactory;
 		this.outputSelectors = outputSelector;
 		this.jobVertexClass = jobVertexClass;
 		this.slotSharingGroup = slotSharingGroup;
@@ -200,12 +216,13 @@ public class StreamNode implements Serializable {
 		this.bufferTimeout = bufferTimeout;
 	}
 
+	@VisibleForTesting
 	public StreamOperator<?> getOperator() {
-		return operator;
+		return (StreamOperator<?>) ((SimpleOperatorFactory) operatorFactory).getOperator();
 	}
 
-	public void setOperator(StreamOperator<?> operator) {
-		this.operator = operator;
+	public StreamOperatorFactory<?> getOperatorFactory() {
+		return operatorFactory;
 	}
 
 	public String getOperatorName() {

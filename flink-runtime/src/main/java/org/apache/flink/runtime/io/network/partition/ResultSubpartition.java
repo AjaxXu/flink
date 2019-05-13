@@ -22,10 +22,7 @@ import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.runtime.io.network.buffer.Buffer;
 import org.apache.flink.runtime.io.network.buffer.BufferConsumer;
 
-import javax.annotation.concurrent.GuardedBy;
-
 import java.io.IOException;
-import java.util.ArrayDeque;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
@@ -41,41 +38,19 @@ public abstract class ResultSubpartition {
 	/** The parent partition this subpartition belongs to. */
 	protected final ResultPartition parent;
 
-	/** All buffers of this subpartition. Access to the buffers is synchronized on this object. */
-	protected final ArrayDeque<BufferConsumer> buffers = new ArrayDeque<>();
-
-	/** The number of non-event buffers currently in this subpartition. */
-	@GuardedBy("buffers")
-	private int buffersInBacklog;
-
 	// - Statistics ----------------------------------------------------------
-
-	/** The total number of buffers (both data and event buffers). */
-	private long totalNumberOfBuffers;
-
-	/** The total number of bytes (both data and event buffers). */
-	private long totalNumberOfBytes;
 
 	public ResultSubpartition(int index, ResultPartition parent) {
 		this.index = index;
 		this.parent = parent;
 	}
 
-	protected void updateStatistics(BufferConsumer buffer) {
-		totalNumberOfBuffers++;
-	}
+	/**
+	 * Gets the total numbers of buffers (data buffers plus events).
+	 */
+	protected abstract long getTotalNumberOfBuffers();
 
-	protected void updateStatistics(Buffer buffer) {
-		totalNumberOfBytes += buffer.getSize();
-	}
-
-	protected long getTotalNumberOfBuffers() {
-		return totalNumberOfBuffers;
-	}
-
-	protected long getTotalNumberOfBytes() {
-		return totalNumberOfBytes;
-	}
+	protected abstract long getTotalNumberOfBytes();
 
 	/**
 	 * Notifies the parent partition about a consumed {@link ResultSubpartitionView}.
@@ -83,10 +58,6 @@ public abstract class ResultSubpartition {
 	 */
 	protected void onConsumedSubpartition() {
 		parent.onConsumedSubpartition(index);
-	}
-
-	protected Throwable getFailureCause() {
-		return parent.getFailureCause();
 	}
 
 	/**
@@ -125,9 +96,7 @@ public abstract class ResultSubpartition {
 	 * scenarios since it does not make any concurrency guarantees.
 	 */
 	@VisibleForTesting
-	public int getBuffersInBacklog() {
-		return buffersInBacklog;
-	}
+	abstract int getBuffersInBacklog();
 
 	/**
 	 * Makes a best effort to get the current size of the queue.
@@ -135,38 +104,6 @@ public abstract class ResultSubpartition {
 	 * any way.
 	 */
 	public abstract int unsynchronizedGetNumberOfQueuedBuffers();
-
-	/**
-	 * Decreases the number of non-event buffers by one after fetching a non-event
-	 * buffer from this subpartition (for access by the subpartition views).
-	 *
-	 * @return backlog after the operation
-	 */
-	public int decreaseBuffersInBacklog(Buffer buffer) {
-		synchronized (buffers) {
-			return decreaseBuffersInBacklogUnsafe(buffer != null && buffer.isBuffer());
-		}
-	}
-
-	protected int decreaseBuffersInBacklogUnsafe(boolean isBuffer) {
-		assert Thread.holdsLock(buffers);
-		if (isBuffer) {
-			buffersInBacklog--;
-		}
-		return buffersInBacklog;
-	}
-
-	/**
-	 * Increases the number of non-event buffers by one after adding a non-event
-	 * buffer into this subpartition.
-	 */
-	protected void increaseBuffersInBacklog(BufferConsumer buffer) {
-		assert Thread.holdsLock(buffers);
-
-		if (buffer != null && buffer.isBuffer()) {
-			buffersInBacklog++;
-		}
-	}
 
 	// ------------------------------------------------------------------------
 
@@ -202,6 +139,14 @@ public abstract class ResultSubpartition {
 
 		public boolean nextBufferIsEvent() {
 			return nextBufferIsEvent;
+		}
+
+		public static BufferAndBacklog fromBufferAndLookahead(Buffer current, Buffer lookahead, int backlog) {
+			return new BufferAndBacklog(
+					current,
+					lookahead != null,
+					backlog,
+					lookahead != null && !lookahead.isBuffer());
 		}
 	}
 

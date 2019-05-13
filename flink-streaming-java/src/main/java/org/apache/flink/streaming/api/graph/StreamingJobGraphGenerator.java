@@ -48,9 +48,9 @@ import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.checkpoint.WithMasterCheckpointHook;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
-import org.apache.flink.streaming.api.operators.AbstractUdfStreamOperator;
 import org.apache.flink.streaming.api.operators.ChainingStrategy;
-import org.apache.flink.streaming.api.operators.StreamOperator;
+import org.apache.flink.streaming.api.operators.StreamOperatorFactory;
+import org.apache.flink.streaming.api.operators.UdfStreamOperatorFactory;
 import org.apache.flink.streaming.runtime.partitioner.ForwardPartitioner;
 import org.apache.flink.streaming.runtime.partitioner.RescalePartitioner;
 import org.apache.flink.streaming.runtime.partitioner.StreamPartitioner;
@@ -493,7 +493,7 @@ public class StreamingJobGraphGenerator {
 			}
 		}
 
-		config.setStreamOperator(vertex.getOperator());
+		config.setStreamOperatorFactory(vertex.getOperatorFactory());
 		config.setOutputSelectors(vertex.getOutputSelectors());
 
 		config.setNumberOfOutputs(nonChainableOutputs.size());
@@ -570,8 +570,8 @@ public class StreamingJobGraphGenerator {
 		StreamNode upStreamVertex = streamGraph.getSourceVertex(edge);
 		StreamNode downStreamVertex = streamGraph.getTargetVertex(edge);
 
-		StreamOperator<?> headOperator = upStreamVertex.getOperator();
-		StreamOperator<?> outOperator = downStreamVertex.getOperator();
+		StreamOperatorFactory<?> headOperator = upStreamVertex.getOperatorFactory();
+		StreamOperatorFactory<?> outOperator = downStreamVertex.getOperatorFactory();
 
 		return downStreamVertex.getInEdges().size() == 1
 				&& outOperator != null
@@ -711,9 +711,8 @@ public class StreamingJobGraphGenerator {
 		final ArrayList<MasterTriggerRestoreHook.Factory> hooks = new ArrayList<>();
 
 		for (StreamNode node : streamGraph.getStreamNodes()) {
-			StreamOperator<?> op = node.getOperator();
-			if (op instanceof AbstractUdfStreamOperator) {
-				Function f = ((AbstractUdfStreamOperator<?, ?>) op).getUserFunction();
+			if (node.getOperatorFactory() instanceof UdfStreamOperatorFactory) {
+				Function f = ((UdfStreamOperatorFactory) node.getOperatorFactory()).getUserFunction();
 
 				// 对于实现了这个接口的userFunction，记录他的hooks，这个hook在做checkpoint的时候在master节点触发操作
 				if (f instanceof WithMasterCheckpointHook) {

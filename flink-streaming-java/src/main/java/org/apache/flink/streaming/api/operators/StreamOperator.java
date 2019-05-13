@@ -23,9 +23,7 @@ import org.apache.flink.runtime.checkpoint.CheckpointOptions;
 import org.apache.flink.runtime.jobgraph.OperatorID;
 import org.apache.flink.runtime.state.CheckpointListener;
 import org.apache.flink.runtime.state.CheckpointStreamFactory;
-import org.apache.flink.streaming.api.graph.StreamConfig;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
-import org.apache.flink.streaming.runtime.tasks.StreamTask;
 import org.apache.flink.util.Disposable;
 
 import java.io.Serializable;
@@ -52,12 +50,6 @@ public interface StreamOperator<OUT> extends CheckpointListener, KeyContext, Dis
 	// ------------------------------------------------------------------------
 	//  life cycle
 	// ------------------------------------------------------------------------
-
-	/**
-	 * 实例化operator
-	 * Initializes the operator. Sets access to the context and the output.
-	 */
-	void setup(StreamTask<?, ?> containingTask, StreamConfig config, Output<StreamRecord<OUT>> output);
 
 	/**
 	 * 该方法会在任何元素被处理之前执行，它的实现通常包含了operator的初始化逻辑

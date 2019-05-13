@@ -19,9 +19,9 @@
 package org.apache.flink.streaming.api.graph;
 
 import org.apache.flink.runtime.jobgraph.JobVertexID;
-import org.apache.flink.streaming.api.operators.AbstractUdfStreamOperator;
 import org.apache.flink.streaming.api.operators.ChainingStrategy;
-import org.apache.flink.streaming.api.operators.StreamOperator;
+import org.apache.flink.streaming.api.operators.StreamOperatorFactory;
+import org.apache.flink.streaming.api.operators.UdfStreamOperatorFactory;
 import org.apache.flink.streaming.api.transformations.StreamTransformation;
 import org.apache.flink.streaming.runtime.partitioner.ForwardPartitioner;
 
@@ -274,9 +274,8 @@ public class StreamGraphHasherV2 implements StreamGraphHasher {
 
 		if (LOG.isDebugEnabled()) {
 			String udfClassName = "";
-			if (node.getOperator() instanceof AbstractUdfStreamOperator) {
-				udfClassName = ((AbstractUdfStreamOperator<?, ?>) node.getOperator())
-						.getUserFunction().getClass().getName();
+			if (node.getOperatorFactory() instanceof UdfStreamOperatorFactory) {
+					udfClassName = ((UdfStreamOperatorFactory) node.getOperatorFactory()).getUserFunctionClassName();
 			}
 
 			LOG.debug("Generated hash '" + byteToHexString(hash) + "' for node " +
@@ -308,8 +307,8 @@ public class StreamGraphHasherV2 implements StreamGraphHasher {
 		StreamNode upStreamVertex = streamGraph.getSourceVertex(edge);
 		StreamNode downStreamVertex = streamGraph.getTargetVertex(edge);
 
-		StreamOperator<?> headOperator = upStreamVertex.getOperator();
-		StreamOperator<?> outOperator = downStreamVertex.getOperator();
+		StreamOperatorFactory<?> headOperator = upStreamVertex.getOperatorFactory();
+		StreamOperatorFactory<?> outOperator = downStreamVertex.getOperatorFactory();
 
 		// 判断是否可以chain其实是对Edge进行判断，取其上下游进行判断
 		return downStreamVertex.getInEdges().size() == 1
