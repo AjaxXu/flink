@@ -533,6 +533,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 	 * Starts the task's thread.
 	 */
 	public void startTaskThread() {
+		// executingThread的target是Task本身，即执行下面的run
 		executingThread.start();
 	}
 
@@ -717,6 +718,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 
 			// now load and instantiate the task's invokable code
 			// 根据类加载器以及用户的可执行体在Flink中所对应的具体的实现类名来加载该类
+			// 这里的invokable即为operator对象实例，通过反射创建。具体地，即为OneInputStreamTask，或者SourceStreamTask等
 			invokable = loadAndInstantiateInvokable(userCodeClassLoader, nameOfInvokableClass, env);
 
 			// ----------------------------------------------------------------

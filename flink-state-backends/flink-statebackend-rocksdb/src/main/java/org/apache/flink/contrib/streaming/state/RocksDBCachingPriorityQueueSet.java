@@ -90,7 +90,7 @@ public class RocksDBCachingPriorityQueueSet<E extends HeapPriorityQueueElement>
 	@Nonnull
 	private final DataInputDeserializer inputView;
 
-	/** In memory cache that holds a head-subset of the elements stored in RocksDB. */
+	/** In memory cache that holds a head-subset of the elements stored in RocksDB. 小顶堆*/
 	@Nonnull
 	private final OrderedByteArraySetCache orderedCache;
 
@@ -138,6 +138,7 @@ public class RocksDBCachingPriorityQueueSet<E extends HeapPriorityQueueElement>
 		checkRefillCacheFromStore();
 
 		if (peekCache != null) {
+			// 这个是维护的全局变量，只有在堆顶改变后在会置为null
 			return peekCache;
 		}
 
@@ -163,12 +164,15 @@ public class RocksDBCachingPriorityQueueSet<E extends HeapPriorityQueueElement>
 		}
 
 		// write-through sync
+		// 为什么不需要删除treeset中的元素呢？因为上面已经pollFirst了
 		removeFromRocksDB(firstBytes);
 
+		// 删除了这个columnFamily最后一个元素
 		if (orderedCache.isEmpty()) {
 			seekHint = firstBytes;
 		}
 
+		// 少一步反序列化的操作
 		if (peekCache != null) {
 			E fromCache = peekCache;
 			peekCache = null;
@@ -187,26 +191,33 @@ public class RocksDBCachingPriorityQueueSet<E extends HeapPriorityQueueElement>
 
 		final boolean cacheFull = orderedCache.isFull();
 
+		// 如果cache没满并且之前所有元素都在cache中了  或者新加入的元素的优先级通过byte数组的优先级比较发现应该在堆顶
 		if ((!cacheFull && allElementsInCache) ||
 			LEXICOGRAPHIC_BYTE_COMPARATOR.compare(toAddBytes, orderedCache.peekLast()) < 0) {
 
+			// cache 满了
 			if (cacheFull) {
 				// we drop the element with lowest priority from the cache
 				orderedCache.pollLast();
 				// the dropped element is now only in the store
+				// drop 的元素现在只存在store中
 				allElementsInCache = false;
 			}
 
+			// 用来判重
 			if (orderedCache.add(toAddBytes)) {
 				// write-through sync
+				// 同步写入RocksDB
 				addToRocksDB(toAddBytes);
 				if (toAddBytes == orderedCache.peekFirst()) {
+					// 说明新的写入导致了堆顶变化
 					peekCache = null;
 					return true;
 				}
 			}
 		} else {
 			// we only added to the store
+			// 如果cache满了，或者不是所有的元素都在cache中，说明新来的数据一定不是堆顶的数据
 			addToRocksDB(toAddBytes);
 			allElementsInCache = false;
 		}
@@ -218,24 +229,31 @@ public class RocksDBCachingPriorityQueueSet<E extends HeapPriorityQueueElement>
 
 		checkRefillCacheFromStore();
 
+		// 当前的堆顶
 		final byte[] oldHead = orderedCache.peekFirst();
 
+		// 说明orderedCache为空
 		if (oldHead == null) {
 			return false;
 		}
 
+		// 序列化
 		final byte[] toRemoveBytes = serializeElement(toRemove);
 
 		// write-through sync
+		// 同步删除RocksDB中存的
 		removeFromRocksDB(toRemoveBytes);
+		// 从orderedCache中删除
 		orderedCache.remove(toRemoveBytes);
 
+		// 删除元素后，orderedCache为空
 		if (orderedCache.isEmpty()) {
 			seekHint = toRemoveBytes;
 			peekCache = null;
 			return true;
 		}
 
+		// 说明删除的元素正好是堆顶
 		if (oldHead != orderedCache.peekFirst()) {
 			peekCache = null;
 			return true;
@@ -335,8 +353,10 @@ public class RocksDBCachingPriorityQueueSet<E extends HeapPriorityQueueElement>
 	}
 
 	private void checkRefillCacheFromStore() {
+		// 不是所有的元素都在cache(treeset)中，并且cache为空
 		if (!allElementsInCache && orderedCache.isEmpty()) {
 			try (final RocksBytesIterator iterator = orderedBytesIterator()) {
+				// 捞取rocksdb中这个columnFamily的部分数据填充treeset至maxsize
 				orderedCache.bulkLoadFromOrderedIterator(iterator);
 				allElementsInCache = !iterator.hasNext();
 			} catch (Exception e) {

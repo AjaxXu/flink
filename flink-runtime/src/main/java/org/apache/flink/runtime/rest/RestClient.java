@@ -260,6 +260,7 @@ public class RestClient implements AutoCloseableAsync {
 
 		final Collection<Class<?>> typeParameters = messageHeaders.getResponseTypeParameters();
 
+		// for jobsubmit, typeParameters is empty
 		if (typeParameters.isEmpty()) {
 			responseType = objectMapper.constructType(messageHeaders.getResponseClass());
 		} else {
@@ -374,6 +375,7 @@ public class RestClient implements AutoCloseableAsync {
 				executor);
 	}
 
+	// for job submit, the ResponseBody is CompletableFuture<JobSubmitResponseBody>
 	private static <P extends ResponseBody> CompletableFuture<P> parseResponse(JsonResponse rawResponse, JavaType responseType) {
 		CompletableFuture<P> responseFuture = new CompletableFuture<>();
 		final JsonParser jsonParser = objectMapper.treeAsTokens(rawResponse.json);

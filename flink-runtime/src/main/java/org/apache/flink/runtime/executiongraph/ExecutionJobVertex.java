@@ -155,6 +155,7 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 			System.currentTimeMillis());
 	}
 
+	// 创建ExecutionJobVertex的重点就在它的构造函数中
 	public ExecutionJobVertex(
 			ExecutionGraph graph,
 			JobVertex jobVertex,
@@ -171,6 +172,7 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 		this.graph = graph;
 		this.jobVertex = jobVertex;
 
+		// 并行度相关的设置
 		int vertexParallelism = jobVertex.getParallelism();
 		int numTaskVertices = vertexParallelism > 0 ? vertexParallelism : defaultParallelism;
 
@@ -193,6 +195,7 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 
 		this.parallelism = numTaskVertices;
 
+		// ExecutionVertex列表，按照JobVertex并行度设置。subtask多少
 		this.taskVertices = new ExecutionVertex[numTaskVertices];
 		this.operatorIDs = Collections.unmodifiableList(jobVertex.getOperatorIDs());
 		this.userDefinedOperatorIds = Collections.unmodifiableList(jobVertex.getUserDefinedOperatorIDs());
@@ -200,6 +203,7 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 		this.inputs = new ArrayList<>(jobVertex.getInputs().size());
 
 		// take the sharing group
+		// slot sharing和coLocation相关代码
 		this.slotSharingGroup = jobVertex.getSlotSharingGroup();
 		this.coLocationGroup = jobVertex.getCoLocationGroup();
 
@@ -209,6 +213,8 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 		}
 
 		// create the intermediate results
+		// 创建intermediate results，这是由当前operator的出度确定的，如果当前operator只向下游一个operator输出，则为1
+		// 注意一个IntermediateResult包含多个IntermediateResultPartition
 		this.producedDataSets = new IntermediateResult[jobVertex.getNumberOfProducedIntermediateDataSets()];
 
 		for (int i = 0; i < jobVertex.getProducedDataSets().size(); i++) {
@@ -222,6 +228,9 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 		}
 
 		// create all task vertices
+		// 根据job vertex的并行度，创建对应的ExecutionVertex列表。
+		// 即，一个JobVertex/ExecutionJobVertex代表的是一个operator，而
+		// 具体的ExecutionVertex则代表了每一个Task
 		for (int i = 0; i < numTaskVertices; i++) {
 			ExecutionVertex vertex = new ExecutionVertex(
 					this,
@@ -243,6 +252,7 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 		}
 
 		// set up the input splits, if the vertex has any
+		// 这是batch相关的代码
 		try {
 			@SuppressWarnings("unchecked")
 			InputSplitSource<InputSplit> splitSource = (InputSplitSource<InputSplit>) jobVertex.getInputSplitSource();
@@ -426,6 +436,7 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 
 	public void connectToPredecessors(Map<IntermediateDataSetID, IntermediateResult> intermediateDataSets) throws JobException {
 
+		// 获取输入的JobEdge列表
 		List<JobEdge> inputs = jobVertex.getInputs();
 
 		if (LOG.isDebugEnabled()) {
@@ -447,18 +458,24 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 
 			// fetch the intermediate result via ID. if it does not exist, then it either has not been created, or the order
 			// in which this method is called for the job vertices is not a topological order
+			// 获取当前JobEdge的输入所对应的IntermediateResult
 			IntermediateResult ires = intermediateDataSets.get(edge.getSourceId());
 			if (ires == null) {
 				throw new JobException("Cannot connect this job graph to the previous graph. No previous intermediate result found for ID "
 						+ edge.getSourceId());
 			}
 
+			// 将IntermediateResult加入到当前ExecutionJobVertex的输入中。
 			this.inputs.add(ires);
 
+			// 为IntermediateResult注册consumer
+			// consumerIndex跟IntermediateResult的出度相关
+			// 这里当前的ExecutionJobVertex还没有与IntermediateResult关联，下面才是真正关联的地方
 			int consumerIndex = ires.registerConsumer();
 
 			for (int i = 0; i < parallelism; i++) {
 				ExecutionVertex ev = taskVertices[i];
+				// 将ExecutionVertex与IntermediateResult关联起来：
 				ev.connectSource(num, ires, edge, consumerIndex);
 			}
 		}
@@ -501,6 +518,7 @@ public class ExecutionJobVertex implements AccessExecutionJobVertex, Archiveable
 	}
 
 	/**
+	 * 为所有的ExecutionVertexs申请slot
 	 * Acquires a slot for all the execution vertices of this ExecutionJobVertex. The method returns
 	 * pairs of the slots and execution attempts, to ease correlation between vertices and execution
 	 * attempts.

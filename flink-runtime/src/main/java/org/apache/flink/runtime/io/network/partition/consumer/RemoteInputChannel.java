@@ -99,7 +99,8 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 	/** The number of available buffers that have not been announced to the producer yet. */
 	private final AtomicInteger unannouncedCredit = new AtomicInteger(0);
 
-	/** The number of required buffers that equals to sender's backlog plus initial credit. */
+	/** The number of required buffers that equals to sender's backlog plus initial credit.
+	 * backlog+initialCredit的目的是如果exclusiveBuffers用完而还没被消费的话，就会使用到backlog个floating buffer*/
 	@GuardedBy("bufferQueue")
 	private int numRequiredBuffers;
 

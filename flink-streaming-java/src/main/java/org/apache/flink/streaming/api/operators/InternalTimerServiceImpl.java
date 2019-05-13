@@ -44,22 +44,26 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  */
 public class InternalTimerServiceImpl<K, N> implements InternalTimerService<N>, ProcessingTimeCallback {
 
+	// 目前使用SystemProcessingTimeService，包含了窗口到期回调线程池
 	private final ProcessingTimeService processingTimeService;
 
 	private final KeyContext keyContext;
 
 	/**
 	 * Processing time timers that are currently in-flight.
+	 * Processing time相关的timer
 	 */
 	private final KeyGroupedInternalPriorityQueue<TimerHeapInternalTimer<K, N>> processingTimeTimersQueue;
 
 	/**
 	 * Event time timers that are currently in-flight.
+	 * Event time相关的timer
 	 */
 	private final KeyGroupedInternalPriorityQueue<TimerHeapInternalTimer<K, N>> eventTimeTimersQueue;
 
 	/**
 	 * Information concerning the local key-group range.
+	 * 当前task的key-group range信息
 	 */
 	private final KeyGroupRange localKeyGroupRange;
 
@@ -68,12 +72,14 @@ public class InternalTimerServiceImpl<K, N> implements InternalTimerService<N>, 
 	/**
 	 * The local event time, as denoted by the last received
 	 * {@link org.apache.flink.streaming.api.watermark.Watermark Watermark}.
+	 * 当前task的watermark，针对event time
 	 */
 	private long currentWatermark = Long.MIN_VALUE;
 
 	/**
 	 * The one and only Future (if any) registered to execute the
 	 * next {@link Triggerable} action, when its (processing) time arrives.
+	 * 最接近的未被触发的窗口的Scheduled Future
 	 * */
 	private ScheduledFuture<?> nextTimer;
 
@@ -83,6 +89,7 @@ public class InternalTimerServiceImpl<K, N> implements InternalTimerService<N>, 
 
 	private TypeSerializer<N> namespaceSerializer;
 
+	// 窗口的回调函数，如果是WindowOperator，则会根据时间类型，回调WindowOperator.onEventTime或onProcessingTime方法
 	private Triggerable<K, N> triggerTarget;
 
 	private volatile boolean isInitialized;
@@ -201,10 +208,12 @@ public class InternalTimerServiceImpl<K, N> implements InternalTimerService<N>, 
 		if (processingTimeTimersQueue.add(new TimerHeapInternalTimer<>(time, (K) keyContext.getCurrentKey(), namespace))) {
 			long nextTriggerTime = oldHead != null ? oldHead.getTimestamp() : Long.MAX_VALUE;
 			// check if we need to re-schedule our timer to earlier
+			// 如果新注册的timer比最近要触发的timer时间早，那么就会终止最近要触发的timer（如果已经跑起来了就不中断了）
 			if (time < nextTriggerTime) {
 				if (nextTimer != null) {
 					nextTimer.cancel(false);
 				}
+				// 通过ScheduledThreadPoolExecutor注册一个task
 				nextTimer = processingTimeService.registerTimer(time, this);
 			}
 		}
@@ -225,30 +234,37 @@ public class InternalTimerServiceImpl<K, N> implements InternalTimerService<N>, 
 		eventTimeTimersQueue.remove(new TimerHeapInternalTimer<>(time, (K) keyContext.getCurrentKey(), namespace));
 	}
 
+	// 这个方法是配合registerProcessingTimer，通过SystemProcessingTimeService来实现timer语义，在timer中注册的任务会回调这个onProcessing方法
 	@Override
 	public void onProcessingTime(long time) throws Exception {
 		// null out the timer in case the Triggerable calls registerProcessingTimeTimer()
 		// inside the callback.
+		// 如果不置为null，在执行triggerTarget.onProcessingTime(timer);里面执行了registerProcessingTimeTimer会调用本任务的cancel
 		nextTimer = null;
 
 		InternalTimer<K, N> timer;
 
+		// 将processingTimeTimersQueue中所有小于当前时间的任务都取出进行触发
 		while ((timer = processingTimeTimersQueue.peek()) != null && timer.getTimestamp() <= time) {
 			processingTimeTimersQueue.poll();
+			// 每次触发之前需要设置当前的key
 			keyContext.setCurrentKey(timer.getKey());
 			triggerTarget.onProcessingTime(timer);
 		}
 
+		// 说明队列中还存在还没到时间需要触发的timer，需要注册新的FutureTask
 		if (timer != null && nextTimer == null) {
 			nextTimer = processingTimeService.registerTimer(timer.getTimestamp(), this);
 		}
 	}
 
+	// 这里的time就是最近的这次watermark的时间
 	public void advanceWatermark(long time) throws Exception {
 		currentWatermark = time;
 
 		InternalTimer<K, N> timer;
 
+		// 同样是取出所有的小于watermark的timer进行触发
 		while ((timer = eventTimeTimersQueue.peek()) != null && timer.getTimestamp() <= time) {
 			eventTimeTimersQueue.poll();
 			keyContext.setCurrentKey(timer.getKey());

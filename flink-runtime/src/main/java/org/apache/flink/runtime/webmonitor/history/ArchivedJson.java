@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.util.Objects;
 
 /**
+ * path指定存储的位置，json指定存储的内容
  * A simple container for a handler's JSON response and the REST URLs for which the response would've been returned.
  *
  * <p>These are created by {@link JsonArchivist}s, and used by the {@link FsJobArchivist} to create a directory structure

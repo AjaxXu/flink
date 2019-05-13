@@ -120,7 +120,9 @@ public class DefaultKeyedStateStore implements KeyedStateStore {
 		}
 	}
 
+	// keyedStateBackend.getPartitionedState来返回具体的state handle
 	protected  <S extends State> S getPartitionedState(StateDescriptor<S, ?> stateDescriptor) throws Exception {
+		// 实际调用了AbstractKeyedStateBackend.getPartitionedState方法
 		return keyedStateBackend.getPartitionedState(
 				VoidNamespace.INSTANCE,
 				VoidNamespaceSerializer.INSTANCE,

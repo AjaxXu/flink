@@ -236,6 +236,7 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 
 		final CompletableFuture<JobSubmissionResult> jobSubmissionFuture = submitJob(jobGraph);
 
+		// 如果是分离，直接返回JobSubmissionResult，里面有JobID
 		if (isDetached()) {
 			try {
 				return jobSubmissionFuture.get();
@@ -244,11 +245,13 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 					jobGraph.getJobID(), ExceptionUtils.stripExecutionException(e));
 			}
 		} else {
+			//根据JobID，发生请求
 			final CompletableFuture<JobResult> jobResultFuture = jobSubmissionFuture.thenCompose(
 				ignored -> requestJobResult(jobGraph.getJobID()));
 
 			final JobResult jobResult;
 			try {
+				// 等待返回的JobResult
 				jobResult = jobResultFuture.get();
 			} catch (Exception e) {
 				throw new ProgramInvocationException("Could not retrieve the execution result.",
@@ -297,10 +300,13 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 	 */
 	@Override
 	public CompletableFuture<JobResult> requestJobResult(@Nonnull JobID jobId) {
+		// 异步提交，然后通过JobExecutionResultResponseBody.resource() 返回JobResult
 		return pollResourceAsync(
 			() -> {
+				// key : jobId, value: 真正的ID，会将"/jobs/:" + JobIDPathParameter.KEY + "/execution-result"; 解析成对应ID的URL
 				final JobMessageParameters messageParameters = new JobMessageParameters();
 				messageParameters.jobPathParameter.resolve(jobId);
+				// 返回CompletableFuture<JobExecutionResultResponseBody>
 				return sendRequest(
 					JobExecutionResultHeaders.getInstance(),
 					messageParameters);
@@ -309,7 +315,7 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 
 	/**
 	 * Submits the given {@link JobGraph} to the dispatcher.
-	 *
+	 * 通过rest发送给dispatcher，底层是netty实现的
 	 * @param jobGraph to submit
 	 * @return Future which is completed with the submission response
 	 */
@@ -318,6 +324,7 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 		// we have to enable queued scheduling because slot will be allocated lazily
 		jobGraph.setAllowQueuedScheduling(true);
 
+		// 异步把JobGraph写入本地临时文件
 		CompletableFuture<java.nio.file.Path> jobGraphFileFuture = CompletableFuture.supplyAsync(() -> {
 			try {
 				final java.nio.file.Path jobGraphFile = Files.createTempFile("flink-jobgraph", ".bin");
@@ -330,6 +337,7 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 			}
 		}, executorService);
 
+		// 把本地临时文件、用户Jar包、用户设置的cache file组合成Tuple2
 		CompletableFuture<Tuple2<JobSubmitRequestBody, Collection<FileUpload>>> requestFuture = jobGraphFileFuture.thenApply(jobGraphFile -> {
 			List<String> jarFileNames = new ArrayList<>(8);
 			List<JobSubmitRequestBody.DistributedCacheFile> artifactFileNames = new ArrayList<>(8);
@@ -355,6 +363,7 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 			return Tuple2.of(requestBody, Collections.unmodifiableCollection(filesToUpload));
 		});
 
+		// 发送请求，包括requestBody和文件，返回内容为JobSubmitResponseBody，里面只有jobUrl
 		final CompletableFuture<JobSubmitResponseBody> submissionFuture = requestFuture.thenCompose(
 			requestAndFileUploads -> sendRetriableRequest(
 				JobSubmitHeaders.getInstance(),
@@ -364,6 +373,7 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 				isConnectionProblemOrServiceUnavailable())
 		);
 
+		// 删除临时JobGraph文件
 		submissionFuture
 			.thenCombine(jobGraphFileFuture, (ignored, jobGraphFile) -> jobGraphFile)
 			.thenAccept(jobGraphFile -> {
@@ -374,6 +384,7 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 			}
 		});
 
+		// 返回给客户端的结果，包含JobID
 		return submissionFuture
 			.thenApply(
 				(JobSubmitResponseBody jobSubmitResponseBody) -> new JobSubmissionResult(jobGraph.getJobID()))
@@ -595,9 +606,11 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
 			if (throwable != null) {
 				resultFuture.completeExceptionally(throwable);
 			} else {
+				// 如果完成了，返回结果
 				if (asynchronouslyCreatedResource.queueStatus().getId() == QueueStatus.Id.COMPLETED) {
 					resultFuture.complete(asynchronouslyCreatedResource.resource());
 				} else {
+					// 还在运行中，重新请求
 					retryExecutorService.schedule(() -> {
 						pollResourceAsync(resourceFutureSupplier, resultFuture, attempt + 1);
 					}, waitStrategy.sleepTime(attempt), TimeUnit.MILLISECONDS);

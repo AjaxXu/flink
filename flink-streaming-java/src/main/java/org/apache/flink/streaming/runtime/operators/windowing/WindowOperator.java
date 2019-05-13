@@ -292,6 +292,7 @@ public class WindowOperator<K, IN, ACC, OUT, W extends Window>
 
 	@Override
 	public void processElement(StreamRecord<IN> element) throws Exception {
+		// 给元素分配窗口
 		final Collection<W> elementWindows = windowAssigner.assignWindows(
 			element.getValue(), element.getTimestamp(), windowAssignerContext);
 
@@ -301,6 +302,7 @@ public class WindowOperator<K, IN, ACC, OUT, W extends Window>
 		final K key = this.<K>getKeyedStateBackend().getCurrentKey();
 
 		if (windowAssigner instanceof MergingWindowAssigner) {
+			// session window的处理逻辑
 			MergingWindowSet<W> mergingWindows = getMergingWindowSet();
 
 			for (W window: elementWindows) {
@@ -379,6 +381,7 @@ public class WindowOperator<K, IN, ACC, OUT, W extends Window>
 			// need to make sure to update the merging state in state
 			mergingWindows.persist();
 		} else {
+			// 遍历每一个窗口
 			for (W window: elementWindows) {
 
 				// drop if the window is already late
@@ -395,14 +398,17 @@ public class WindowOperator<K, IN, ACC, OUT, W extends Window>
 
 				TriggerResult triggerResult = triggerContext.onElement(element);
 
+				// 窗口被触发了
 				if (triggerResult.isFire()) {
 					ACC contents = windowState.get();
 					if (contents == null) {
 						continue;
 					}
+					// 输出窗口结果
 					emitWindowContents(window, contents);
 				}
 
+				// 如果窗口需要purge，则清理状态
 				if (triggerResult.isPurge()) {
 					windowState.clear();
 				}

@@ -292,6 +292,7 @@ public abstract class Dispatcher extends FencedRpcEndpoint<DispatcherId> impleme
 		return jobSchedulingStatus == RunningJobsRegistry.JobSchedulingStatus.DONE || jobManagerRunnerFutures.containsKey(jobId);
 	}
 
+	// 内部提交Job
 	private CompletableFuture<Acknowledge> internalSubmitJob(JobGraph jobGraph) {
 		log.info("Submitting job {} ({}).", jobGraph.getJobID(), jobGraph.getName());
 
@@ -312,12 +313,16 @@ public abstract class Dispatcher extends FencedRpcEndpoint<DispatcherId> impleme
 		}, getRpcService().getExecutor());
 	}
 
+	// 持久化和运行Job
 	private CompletableFuture<Void> persistAndRunJob(JobGraph jobGraph) throws Exception {
+		// 持久化
 		submittedJobGraphStore.putJobGraph(new SubmittedJobGraph(jobGraph));
 
+		// 运行Job
 		final CompletableFuture<Void> runJobFuture = runJob(jobGraph);
 
 		return runJobFuture.whenComplete(BiConsumerWithException.unchecked((Object ignored, Throwable throwable) -> {
+			// 异常时删除对应的Job信息
 			if (throwable != null) {
 				submittedJobGraphStore.removeJobGraph(jobGraph.getJobID());
 			}

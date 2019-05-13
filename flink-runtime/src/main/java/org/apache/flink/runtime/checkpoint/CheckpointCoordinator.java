@@ -783,7 +783,9 @@ public class CheckpointCoordinator {
 	 * with a pending checkpoint.
 	 *
 	 * @throws CheckpointException If the checkpoint cannot be added to the completed checkpoint store.
-	 * 收到checkpoint的确认消息，返回是否在PendingCheckpoint中
+	 * CheckpointCoordinator收到ack消息后，会检查本地是否存在这个pending的checkpoint，
+	 * 并且这个checkpoint是否超时，如果都OK，则判断是否收到所有task的ack消息，如果是，则表示已经完成checkpoint，
+	 * 会得到一个CompletedCheckpoint并加入到completedCheckpointStore中
 	 */
 	public boolean receiveAcknowledgeMessage(AcknowledgeCheckpoint message) throws CheckpointException {
 		if (shutdown || message == null) {

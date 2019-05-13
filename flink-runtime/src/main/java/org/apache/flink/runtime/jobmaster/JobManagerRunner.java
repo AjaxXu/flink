@@ -175,6 +175,8 @@ public class JobManagerRunner implements LeaderContender, OnCompletionActions, A
 
 	public void start() throws Exception {
 		try {
+			// JobMaster就会进行leader election，得到leader之后，会回调grantLeadership方法，
+			// 从而调用jobMaster.start(leaderSessionID);开始运行job
 			leaderElectionService.start(this);
 		} catch (Exception e) {
 			log.error("Could not start the JobManager because the leader election service did not start.", e);

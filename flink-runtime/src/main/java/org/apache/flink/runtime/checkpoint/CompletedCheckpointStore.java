@@ -23,7 +23,9 @@ import org.apache.flink.runtime.jobgraph.JobStatus;
 import java.util.List;
 
 /**
- * 已完成Checkpoint 存储接口
+ * 已完成Checkpoint 存储接口，
+ * 已经完成的checkpoint，保存在CompletedCheckpointStore中，可以是StandaloneCompletedCheckpointStore（保存在JobMaster内存中），
+ * 也可以是ZooKeeperCompletedCheckpointStore（保存在ZK中），甚至是自己实现的store，比如基于HDFS的
  * A bounded LIFO-queue of {@link CompletedCheckpoint} instances.
  */
 public interface CompletedCheckpointStore {

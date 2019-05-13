@@ -325,6 +325,7 @@ public abstract class AbstractKeyedStateBackend<K> implements
 			return (S) previous;
 		}
 
+		// 获取或创建KeyedState
 		final S state = getOrCreateKeyedState(namespaceSerializer, stateDescriptor);
 		final InternalKvState<K, N, ?> kvState = (InternalKvState<K, N, ?>) state;
 

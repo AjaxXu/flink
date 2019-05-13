@@ -525,6 +525,7 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 				taskRestore,
 				checkpointResponder);
 
+			// 创建真正的Task
 			Task task = new Task(
 				jobInformation,  // Job信息
 				taskInformation, // Task信息
@@ -566,6 +567,7 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 			}
 
 			if (taskAdded) {
+				// 调用task.startTaskThread();开始task的执行
 				task.startTaskThread();
 
 				return CompletableFuture.completedFuture(Acknowledge.get());

@@ -86,8 +86,8 @@ public class WordCount {
 		}
 
 		// execute program
-//		env.execute("Streaming WordCount");
 		System.out.println(env.getExecutionPlan());
+		env.execute("Streaming WordCount");
 	}
 
 	// *************************************************************************

@@ -136,10 +136,12 @@ public class ExecutionGraphBuilder {
 
 		// set the basic properties
 
+		// 流式作业中，schedule mode固定是EAGER的(立即调度所有task)
 		executionGraph.setScheduleMode(jobGraph.getScheduleMode());
 		executionGraph.setQueuedSchedulingAllowed(jobGraph.getAllowQueuedScheduling());
 
 		try {
+			// 设置json plan
 			executionGraph.setJsonPlan(JsonPlanGenerator.generatePlan(jobGraph));
 		}
 		catch (Throwable t) {
@@ -154,6 +156,7 @@ public class ExecutionGraphBuilder {
 		final long initMasterStart = System.nanoTime();
 		log.info("Running initialization on master for job {} ({}).", jobName, jobId);
 
+		// 检查executableClass(即operator类)
 		for (JobVertex vertex : jobGraph.getVertices()) {
 			String executableClass = vertex.getInvokableClassName();
 			if (executableClass == null || executableClass.isEmpty()) {
@@ -174,10 +177,12 @@ public class ExecutionGraphBuilder {
 				(System.nanoTime() - initMasterStart) / 1_000_000);
 
 		// topologically sort the job vertices and attach the graph to the existing one
+		// 按拓扑顺序，获取所有的JobVertex列表
 		List<JobVertex> sortedTopology = jobGraph.getVerticesSortedTopologicallyFromSources();
 		if (log.isDebugEnabled()) {
 			log.debug("Adding {} vertices from job graph {} ({}).", sortedTopology.size(), jobName, jobId);
 		}
+		// 根据JobVertex列表，生成execution graph
 		executionGraph.attachJobGraph(sortedTopology);
 
 		if (log.isDebugEnabled()) {

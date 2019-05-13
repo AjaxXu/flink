@@ -25,6 +25,7 @@ import org.apache.flink.runtime.jobgraph.JobStatus;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 监视JobStatus变化，来启用或停止checkpoint 调度
  * This actor listens to changes in the JobStatus and activates or deactivates the periodic
  * checkpoint scheduler.
  */

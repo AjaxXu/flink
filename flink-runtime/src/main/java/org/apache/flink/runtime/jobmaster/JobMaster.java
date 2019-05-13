@@ -503,6 +503,7 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId> implements JobMast
 			final TaskStateSnapshot checkpointState) {
 
 		final CheckpointCoordinator checkpointCoordinator = executionGraph.getCheckpointCoordinator();
+		// ACK checkpoint 消息
 		final AcknowledgeCheckpoint ackMessage = new AcknowledgeCheckpoint(
 			jobID,
 			executionAttemptID,
@@ -513,6 +514,7 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId> implements JobMast
 		if (checkpointCoordinator != null) {
 			getRpcService().execute(() -> {
 				try {
+					// 调用 checkpointCoordinator的receiveAcknowledgeMessage处理
 					checkpointCoordinator.receiveAcknowledgeMessage(ackMessage);
 				} catch (Throwable t) {
 					log.warn("Error while processing checkpoint acknowledgement message", t);
@@ -935,6 +937,7 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId> implements JobMast
 
 		log.info("Starting execution of job {} ({}) under job master id {}.", jobGraph.getName(), jobGraph.getJobID(), newJobMasterId);
 
+		// 开始执行Job
 		resetAndScheduleExecutionGraph();
 
 		return Acknowledge.get();
@@ -1065,12 +1068,14 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId> implements JobMast
 
 		if (checkpointCoordinator != null) {
 			// check whether we find a valid checkpoint
+			// 恢复最新的checkpoint状态
 			if (!checkpointCoordinator.restoreLatestCheckpointedState(
 				newExecutionGraph.getAllVertices(),
 				false,
 				false)) {
 
 				// check whether we can restore from a savepoint
+				// 如果不能从最新的checkpoint恢复，尝试从savepoint恢复
 				tryRestoreExecutionGraphFromSavepoint(newExecutionGraph, jobGraph.getSavepointRestoreSettings());
 			}
 		}
@@ -1079,6 +1084,7 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId> implements JobMast
 	}
 
 	private ExecutionGraph createExecutionGraph(JobManagerJobMetricGroup currentJobManagerJobMetricGroup) throws JobExecutionException, JobException {
+		// 生成ExecutionGraph
 		return ExecutionGraphBuilder.buildGraph(
 			null,
 			jobGraph,

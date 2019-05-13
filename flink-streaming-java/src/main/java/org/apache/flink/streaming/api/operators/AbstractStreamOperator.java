@@ -260,6 +260,7 @@ public abstract class AbstractStreamOperator<OUT>
 		this.keyedStateBackend = context.keyedStateBackend();
 
 		if (keyedStateBackend != null) {
+			// 返回的是DefaultKeyedStateStore对象，它的getState, getListState, getReducingState等方法，都是对底层keyed state backend的一层封装
 			this.keyedStateStore = new DefaultKeyedStateStore(keyedStateBackend, getExecutionConfig());
 		}
 
@@ -393,6 +394,7 @@ public abstract class AbstractStreamOperator<OUT>
 				keyGroupRange,
 				getContainingTask().getCancelables())) {
 
+			// 先调用AbstractStreamOperator.snapshotState方法，为rich function做state snapshot
 			snapshotState(snapshotContext);
 
 			snapshotInProgress.setKeyedStateRawFuture(snapshotContext.getKeyedStateStreamFuture());
@@ -400,11 +402,13 @@ public abstract class AbstractStreamOperator<OUT>
 
 			if (null != operatorStateBackend) {
 				snapshotInProgress.setOperatorStateManagedFuture(
+					/* 调用operatorStateBackend.snapshot方法，对operator state做snapshot*/
 					operatorStateBackend.snapshot(checkpointId, timestamp, factory, checkpointOptions));
 			}
 
 			if (null != keyedStateBackend) {
 				snapshotInProgress.setKeyedStateManagedFuture(
+					/*调用keyedStateBackend.snapshot方法，对keyed state做snapshot*/
 					keyedStateBackend.snapshot(checkpointId, timestamp, factory, checkpointOptions));
 			}
 		} catch (Exception snapshotException) {
@@ -451,6 +455,9 @@ public abstract class AbstractStreamOperator<OUT>
 				for (int keyGroupIdx : allKeyGroups) {
 					out.startNewKeyGroup(keyGroupIdx);
 
+					/* 调用timerServiceBackend.snapshot方法，
+					 * 对processing time/event time window中注册的timer回调做snapshot（恢复状态的时候必须也要恢复timer回调）
+					 */
 					timeServiceManager.snapshotStateForKeyGroup(
 						new DataOutputViewStreamWrapper(out), keyGroupIdx);
 				}
@@ -772,6 +779,7 @@ public abstract class AbstractStreamOperator<OUT>
 		return keyedTimeServiceHandler.getInternalTimerService(name, timerSerializer, triggerable);
 	}
 
+	// eventtime 的timer触发就依赖于watermark来触发，每次收到上游的watermark会触发调用advanceWatermark来将eventtime queue中的timer取出进行触发
 	public void processWatermark(Watermark mark) throws Exception {
 		if (timeServiceManager != null) {
 			timeServiceManager.advanceWatermark(mark);

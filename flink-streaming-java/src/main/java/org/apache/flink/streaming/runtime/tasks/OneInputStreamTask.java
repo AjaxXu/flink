@@ -102,6 +102,7 @@ public class OneInputStreamTask<IN, OUT> extends StreamTask<OUT, OneInputStreamO
 		// cache processor reference on the stack, to make the code more JIT friendly
 		final StreamInputProcessor<IN> inputProcessor = this.inputProcessor;
 
+		// 就是一直不停地循环调用inputProcessor.processInput()方法，即StreamInputProcessor.processInput方法
 		while (running && inputProcessor.processInput()) {
 			// all the work happens in the "processInput" method
 		}

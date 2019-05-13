@@ -90,6 +90,7 @@ public class KeyGroupPartitionedPriorityQueue<T, PQ extends InternalPriorityQueu
 		}
 	}
 
+	// 首先先从HeapPQ中挑出堆顶（一个subPQ），然后再从这个PQ中取出堆顶就是要触发的timer了，而这个subPQ就是真是数据（timer）存储的地方了
 	@Nullable
 	@Override
 	public T poll() {

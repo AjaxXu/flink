@@ -159,6 +159,7 @@ public abstract class AbstractHeapPriorityQueue<T extends HeapPriorityQueueEleme
 		}
 	}
 
+	// 将新加入的元素存储到相应的idx处，并且记录该元素在queue中的位置
 	protected void moveElementToIdx(T element, int idx) {
 		queue[idx] = element;
 		element.setInternalIndex(idx);

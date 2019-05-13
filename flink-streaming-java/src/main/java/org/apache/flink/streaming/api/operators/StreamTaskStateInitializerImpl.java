@@ -132,6 +132,7 @@ public class StreamTaskStateInitializerImpl implements StreamTaskStateInitialize
 		try {
 
 			// -------------- Keyed State Backend --------------
+			// 创建keyed stated backend，实际上就是调用具体的state backend来创建
 			keyedStatedBackend = keyedStatedBackend(
 				keySerializer,
 				operatorIdentifierText,

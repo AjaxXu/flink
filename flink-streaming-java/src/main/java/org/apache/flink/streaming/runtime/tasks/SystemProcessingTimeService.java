@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 用以处理和processing time相关的时间操作，是对ScheduledThreadPoolExecutor的包装，提供一些周期性执行和将来某时执行一次的操作
  * A {@link ProcessingTimeService} which assigns as current processing time the result of calling
  * {@link System#currentTimeMillis()} and registers timers using a {@link ScheduledThreadPoolExecutor}.
  */

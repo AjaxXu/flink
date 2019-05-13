@@ -260,6 +260,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 	// ------------------------------------------------------------------------
 
 	public StreamTaskStateInitializer createStreamTaskStateInitializer() {
+		// 返回StreamTask 状态初始化器实现类
 		return new StreamTaskStateInitializerImpl(
 			getEnvironment(),
 			stateBackend,
@@ -271,6 +272,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 		return syncSavepointLatch;
 	}
 
+	// {@code Task} 中真正执行的入口
 	@Override
 	public final void invoke() throws Exception {
 
@@ -289,6 +291,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 
 			asynchronousCheckpointExceptionHandler = new AsyncCheckpointExceptionHandler(this);
 
+			// 创建state存储后端
 			stateBackend = createStateBackend();
 			checkpointStorage = stateBackend.createCheckpointStorage(getEnvironment().getJobID());
 
@@ -688,6 +691,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 				operatorChain.prepareSnapshotPreBarrier(checkpointId);
 
 				// Step (2): Send the checkpoint barrier downstream
+				// 会先向下游广播checkpoint barrier
 				operatorChain.broadcastCheckpointBarrier(
 						checkpointId,
 						checkpointMetaData.getTimestamp(),
@@ -695,6 +699,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 
 				// Step (3): Take the state snapshot. This should be largely asynchronous, to not
 				//           impact progress of the streaming topology
+				// 然后调用StreamTask.checkpointState方法做具体的checkpoint，实际会调用到CheckpointingOperation.executeCheckpointing方法
 				checkpointState(checkpointMetaData, checkpointOptions, checkpointMetrics);
 
 				result = true;
@@ -817,7 +822,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 	// ------------------------------------------------------------------------
 	//  State backend
 	// ------------------------------------------------------------------------
-
+	// 这个方法会根据配置项state.backend的值创建backend，其中内置的backend有jobmanager, filesystem, rocksdb
 	private StateBackend createStateBackend() throws Exception {
 		final StateBackend fromApplication = configuration.getStateBackend(getUserCodeClassLoader());
 
@@ -1128,6 +1133,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 			try {
 				//这里，就是调用StreamOperator进行snapshotState的入口方法
 				for (StreamOperator<?> op : allOperators) {
+					// 调用operator的snapshotState方法，存储operator state
 					checkpointStreamOperator(op);
 				}
 
@@ -1195,6 +1201,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 		private void checkpointStreamOperator(StreamOperator<?> op) throws Exception {
 			if (null != op) {
 
+				// 调用operator的snapshotState(long checkpointId, long timestamp, CheckpointOptions checkpointOptions, CheckpointStreamFactory storageLocation)方法
 				OperatorSnapshotFutures snapshotInProgress = op.snapshotState(
 						checkpointMetaData.getCheckpointId(),
 						checkpointMetaData.getTimestamp(),

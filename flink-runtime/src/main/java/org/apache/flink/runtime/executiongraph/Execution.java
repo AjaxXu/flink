@@ -568,6 +568,7 @@ public class Execution implements AccessExecution, Archiveable<ArchivedExecution
 
 	/**
 	 * Deploys the execution to the previously assigned resource.
+	 * 将execution部署到之前分配的slot上
 	 *
 	 * @throws JobException if the execution cannot be deployed to the assigned resource
 	 */
@@ -618,6 +619,8 @@ public class Execution implements AccessExecution, Archiveable<ArchivedExecution
 						attemptNumber, getAssignedResourceLocation()));
 			}
 
+			// 从Execution Graph到真正物理执行图的转换。如将IntermediateResultPartition转化成ResultPartition，
+			// ExecutionEdge转成InputChannelDeploymentDescriptor(最终会在执行时转化成InputGate)
 			final TaskDeploymentDescriptor deployment = vertex.createDeploymentDescriptor(
 				attemptId,
 				slot,
@@ -635,6 +638,7 @@ public class Execution implements AccessExecution, Archiveable<ArchivedExecution
 
 			// We run the submission in the future executor so that the serialization of large TDDs does not block
 			// the main thread and sync back to the main thread once submission is completed.
+			// 通过RPC方法提交task，实际会调用到TaskExecutor.submitTask方法中
 			CompletableFuture.supplyAsync(() -> taskManagerGateway.submitTask(deployment, rpcTimeout), executor)
 				.thenCompose(Function.identity())
 				.whenCompleteAsync(
@@ -895,6 +899,7 @@ public class Execution implements AccessExecution, Archiveable<ArchivedExecution
 			//TaskManagerGateway是用来跟taskManager进行通信的组件
 			final TaskManagerGateway taskManagerGateway = slot.getTaskManagerGateway();
 
+			// 通过RPC调用向TaskManager触发当前JOB的checkpoint，然后一路调用下去
 			taskManagerGateway.triggerCheckpoint(attemptId, getVertex().getJobId(), checkpointId, timestamp, checkpointOptions, advanceToEndOfEventTime);
 		} else {
 			LOG.debug("The execution has no slot assigned. This indicates that the execution is no longer running.");

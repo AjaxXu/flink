@@ -34,6 +34,7 @@ public class IntermediateResultPartition {
 
 	private final IntermediateResultPartitionID partitionId;
 
+	// 消费者存储的是执行边
 	private List<List<ExecutionEdge>> consumers;
 
 	/**

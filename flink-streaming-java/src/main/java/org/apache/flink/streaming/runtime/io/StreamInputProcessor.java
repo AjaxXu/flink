@@ -209,6 +209,7 @@ public class StreamInputProcessor<IN> {
 						synchronized (lock) {
 							numRecordsIn.inc();
 							streamOperator.setKeyContextElement1(record);
+							// 真正处理用户逻辑的代码
 							streamOperator.processElement(record);
 						}
 						return true;

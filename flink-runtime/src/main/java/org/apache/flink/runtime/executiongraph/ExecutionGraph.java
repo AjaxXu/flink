@@ -850,6 +850,7 @@ public class ExecutionGraph implements AccessExecutionGraph {
 		final ArrayList<ExecutionJobVertex> newExecJobVertices = new ArrayList<>(topologiallySorted.size());
 		final long createTimestamp = System.currentTimeMillis();
 
+		// 遍历job vertex
 		for (JobVertex jobVertex : topologiallySorted) {
 
 			if (jobVertex.isInputVertex() && !jobVertex.isStoppable()) {
@@ -857,6 +858,7 @@ public class ExecutionGraph implements AccessExecutionGraph {
 			}
 
 			// create the execution job vertex and attach it to the graph
+			// 根据每一个job vertex，创建对应的ExecutionVertex：
 			//在这里生成ExecutionGraph的每个节点：
 			//首先是进行了一堆赋值，将任务信息交给要生成的图节点，以及设定并行度等等
 			//然后是创建本节点的IntermediateResult，根据本节点的下游节点的个数确定创建几份
@@ -871,6 +873,7 @@ public class ExecutionGraph implements AccessExecutionGraph {
 					globalModVersion,
 					createTimestamp);
 
+			// 将创建的ExecutionJobVertex与前置的IntermediateResult连接起来：
 			//这里要处理所有的JobEdge
 			//对每个edge，获取对应的intermediateResult，并记录到本节点的输入上
 			//最后，把每个ExecutorVertex和对应的IntermediateResult关联起来
@@ -961,7 +964,7 @@ public class ExecutionGraph implements AccessExecutionGraph {
 	}
 
 	/**
-	 *
+	 * 这个方法会计算所有的ExecutionVertex总数，并为每个ExecutionVertex分配一个SimpleSlot（暂时不考虑slot sharing的情况），然后封装成Execution
 	 *
 	 * @param slotProvider  The resource provider from which the slots are allocated
 	 * @param timeout       The maximum time that the deployment may take, before a

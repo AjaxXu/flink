@@ -139,11 +139,15 @@ public class IntermediateResult {
 		return resultType;
 	}
 
+	// 注册消费者
 	public int registerConsumer() {
+		// index 从0开始
 		final int index = numConsumers;
+		// 消费者数量加1
 		numConsumers++;
 
 		for (IntermediateResultPartition p : partitions) {
+			// 每个IntermediateResultPartition增加消费者组
 			if (p.addConsumerGroup() != index) {
 				throw new RuntimeException("Inconsistent consumer mapping between intermediate result partitions.");
 			}

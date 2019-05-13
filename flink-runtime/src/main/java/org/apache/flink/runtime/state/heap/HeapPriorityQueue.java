@@ -90,12 +90,15 @@ public class HeapPriorityQueue<T extends HeapPriorityQueueElement>
 		T[] heap = this.queue;
 		T removedValue = heap[removeIdx];
 
+		// 要删除的idx应该和内部存储value值保存的idx一致
 		assert removedValue.getInternalIndex() == removeIdx;
 
 		final int oldSize = size;
 
+		// 删除的不是数组的最后一个元素需要进行位置的调整
 		if (removeIdx != oldSize) {
 			T element = heap[oldSize];
+			// 将原先的最后一个元素放置到要删除的idx处，但是这样的放置没有考虑优先级
 			moveElementToIdx(element, removeIdx);
 			adjustElementAtIndex(element, removeIdx);
 		}
@@ -118,6 +121,8 @@ public class HeapPriorityQueue<T extends HeapPriorityQueueElement>
 		final T currentElement = heap[idx];
 		int parentIdx = idx >>> 1;
 
+		// 每次将比较的index，缩小一半，如果被比较元素的优先级高于新插入的元素就将被比较元素后移，直至比较到第一个元素。
+		// 这样能够保证idx为1的元素是最早时间触发的
 		while (parentIdx > 0 && isElementPriorityLessThen(currentElement, heap[parentIdx])) {
 			moveElementToIdx(heap[parentIdx], idx);
 			idx = parentIdx;
@@ -169,6 +174,7 @@ public class HeapPriorityQueue<T extends HeapPriorityQueueElement>
 		final int minRequiredNewSize = ++size;
 		if (minRequiredNewSize >= oldArraySize) {
 			final int grow = (oldArraySize < 64) ? oldArraySize + 2 : oldArraySize >> 1;
+			// 当存储元素的个数大于数组长度时，需要进行扩容，通过`Arrays.copyOf`进行数组内容的拷贝
 			resizeQueueArray(oldArraySize + grow, minRequiredNewSize);
 		}
 		// TODO implement shrinking as well?

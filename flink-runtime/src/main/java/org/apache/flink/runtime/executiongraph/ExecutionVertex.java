@@ -366,8 +366,10 @@ public class ExecutionVertex implements AccessExecutionVertex, Archiveable<Archi
 	//  Graph building
 	// --------------------------------------------------------------------------------------------
 
+	// 上游IntermediateResult与当前ExecutionVertex节点连接
 	public void connectSource(int inputNumber, IntermediateResult source, JobEdge edge, int consumerNumber) {
 
+		// 只有forward的方式的情况下，pattern才是POINTWISE的，否则均为ALL_TO_ALL
 		final DistributionPattern pattern = edge.getDistributionPattern();
 		final IntermediateResultPartition[] sourcePartitions = source.getPartitions();
 
@@ -387,16 +389,21 @@ public class ExecutionVertex implements AccessExecutionVertex, Archiveable<Archi
 
 		}
 
+		// ExecutionVertex的inputEdges变量，是一个二维数据。
+		// 它表示了这个ExecutionVertex上每一个input所包含的ExecutionEdge列表
 		inputEdges[inputNumber] = edges;
 
 		// add the consumers to the source
 		// for now (until the receiver initiated handshake is in place), we need to register the
 		// edges as the execution graph
+		// 之前已经为IntermediateResult添加了consumer，这里为IntermediateResultPartition添加consumer，即关联到ExecutionEdge上
 		for (ExecutionEdge ee : edges) {
+			// source 是IntermediateResultPartition，target是ExecutionVertex
 			ee.getSource().addConsumer(ee, consumerNumber);
 		}
 	}
 
+	// 上游所有的IntermediateResultPartitions与当前ExecutionVertex连成ExecutionEdge
 	private ExecutionEdge[] connectAllToAll(IntermediateResultPartition[] sourcePartitions, int inputNumber) {
 		ExecutionEdge[] edges = new ExecutionEdge[sourcePartitions.length];
 
