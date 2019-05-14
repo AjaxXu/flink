@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.io.Serializable;
 
 /**
+ * 当记录到来后需要确定它要落到哪个分区，这需要对范围边界集合进行查找并定位分区编号
  * RangeBoundaries is used to split the records into multiple ranges.
  *
  * @param <T> The boundary type.

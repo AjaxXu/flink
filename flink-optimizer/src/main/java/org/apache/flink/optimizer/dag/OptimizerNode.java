@@ -586,6 +586,7 @@ public abstract class OptimizerNode implements Visitable<OptimizerNode>, Estimat
 		}
 		
 		// let every operator do its computation
+		// 各个具体的运算符计算它们特定的预算
 		computeOperatorSpecificDefaultEstimates(statistics);
 		
 		if (this.estimatedOutputSize < 0) {
@@ -599,7 +600,8 @@ public abstract class OptimizerNode implements Visitable<OptimizerNode>, Estimat
 		if (getOperator() == null || getOperator().getCompilerHints() == null) {
 			return ;
 		}
-		
+
+		// 根据编译提示（CompilerHints）覆盖原有的预算计算
 		CompilerHints hints = getOperator().getCompilerHints();
 		if (hints.getOutputSize() >= 0) {
 			this.estimatedOutputSize = hints.getOutputSize();

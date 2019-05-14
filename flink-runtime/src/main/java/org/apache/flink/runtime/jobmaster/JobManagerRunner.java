@@ -143,6 +143,7 @@ public class JobManagerRunner implements LeaderContender, OnCompletionActions, A
 			this.leaderGatewayFuture = new CompletableFuture<>();
 
 			// now start the JobManager
+			// 创建JobMaster
 			this.jobMasterService = jobMasterFactory.createJobMasterService(jobGraph, this, userCodeLoader);
 		}
 		catch (Throwable t) {

@@ -75,6 +75,7 @@ public final class JobSubmitHandler extends AbstractRestHandler<DispatcherGatewa
 		this.configuration = configuration;
 	}
 
+	// 处理用户提交Job
 	@Override
 	protected CompletableFuture<JobSubmitResponseBody> handleRequest(@Nonnull HandlerRequest<JobSubmitRequestBody, EmptyMessageParameters> request, @Nonnull DispatcherGateway gateway) throws RestHandlerException {
 		final Collection<File> uploadedFiles = request.getUploadedFiles();
@@ -102,14 +103,19 @@ public final class JobSubmitHandler extends AbstractRestHandler<DispatcherGatewa
 				HttpResponseStatus.BAD_REQUEST);
 		}
 
+		// 根据request body里的JobGraph路径信息得到JobGraph实例
 		CompletableFuture<JobGraph> jobGraphFuture = loadJobGraph(requestBody, nameToFile);
 
+		// Jar包
 		Collection<Path> jarFiles = getJarFilesToUpload(requestBody.jarFileNames, nameToFile);
 
+		// 用户自定义文件
 		Collection<Tuple2<String, Path>> artifacts = getArtifactFilesToUpload(requestBody.artifactFileNames, nameToFile);
 
+		// 上传文件到BlobServer
 		CompletableFuture<JobGraph> finalizedJobGraphFuture = uploadJobGraphFiles(gateway, jobGraphFuture, jarFiles, artifacts, configuration);
 
+		// 提交Job
 		CompletableFuture<Acknowledge> jobSubmissionFuture = finalizedJobGraphFuture.thenCompose(jobGraph -> gateway.submitJob(jobGraph, timeout));
 
 		return jobSubmissionFuture.thenCombine(jobGraphFuture,

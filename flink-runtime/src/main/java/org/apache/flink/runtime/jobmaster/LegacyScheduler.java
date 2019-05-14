@@ -88,6 +88,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 代理{@link ExecutionGraph}的调度逻辑的scheduler
  * A scheduler that delegates to the scheduling logic in the {@link ExecutionGraph}.
  *
  * @see ExecutionGraph#scheduleForExecution()

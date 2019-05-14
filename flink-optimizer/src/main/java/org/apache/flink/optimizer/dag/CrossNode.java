@@ -123,9 +123,12 @@ public class CrossNode extends TwoInputNode {
 	protected void computeOperatorSpecificDefaultEstimates(DataStatistics statistics) {
 		long card1 = getFirstPredecessorNode().getEstimatedNumRecords();
 		long card2 = getSecondPredecessorNode().getEstimatedNumRecords();
+		//输出的总记录数为第一个输入节点和第二个输入节点的记录数的乘积；
 		this.estimatedNumRecords = (card1 < 0 || card2 < 0) ? -1 : card1 * card2;
-		
+
+		//如果记录数大于等于零，则会计算输出数据的大小
 		if (this.estimatedNumRecords >= 0) {
+			//获得第一个、第二个输入节点的单条记录大小，两者相加则是cross运算符单条输出记录的大小
 			float width1 = getFirstPredecessorNode().getEstimatedAvgWidthPerOutputRecord();
 			float width2 = getSecondPredecessorNode().getEstimatedAvgWidthPerOutputRecord();
 			float width = (width1 <= 0 || width2 <= 0) ? -1 : width1 + width2;

@@ -103,10 +103,13 @@ public class RangePartitionRewriter implements Visitor<PlanNode> {
 			}
 		}
 
+		//提取当前所有的计划节点的输入通道
 		final Iterable<Channel> inputChannels = node.getInputs();
+		//遍历输入通道
 		for (Channel channel : inputChannels) {
 			ShipStrategyType shipStrategy = channel.getShipStrategy();
 			// Make sure we only optimize the DAG for range partition, and do not optimize multi times.
+			// 确保优化的通道的数据传输策略为范围分区
 			if (shipStrategy == ShipStrategyType.PARTITION_RANGE) {
 
 				if(channel.getDataDistribution() == null) {
@@ -114,6 +117,7 @@ public class RangePartitionRewriter implements Visitor<PlanNode> {
 						throw new InvalidProgramException("Range Partitioning not supported within iterations if users do not supply the data distribution.");
 					}
 
+					//对该通道的范围分区进行“重写”，并将当前通道从源计划节点的通道中删除，然后加入新的通道集合
 					PlanNode channelSource = channel.getSource();
 					List<Channel> newSourceOutputChannels = rewriteRangePartitionChannel(channel);
 					channelSource.getOutgoingChannels().remove(channel);
@@ -132,6 +136,7 @@ public class RangePartitionRewriter implements Visitor<PlanNode> {
 		final Costs defaultZeroCosts = new Costs(0, 0, 0);
 		final TypeComparatorFactory<?> comparator = Utils.getShipComparator(channel, this.plan.getOriginalPlan().getExecutionConfig());
 		// 1. Fixed size sample in each partitions.
+		// 为每个分区采样固定数目的记录作为样本；
 		final int sampleSize = SAMPLES_PER_PARTITION * targetParallelism;
 		final SampleInPartition sampleInPartition = new SampleInPartition(false, sampleSize, SEED);
 		final TypeInformation<?> sourceOutputType = sourceNode.getOptimizerNode().getOperator().getOperatorInfo().getOutputType();
@@ -151,6 +156,7 @@ public class RangePartitionRewriter implements Visitor<PlanNode> {
 		sourceNewOutputChannels.add(sipChannel);
 
 		// 2. Fixed size sample in a single coordinator.
+		// 让中央协调器从每个分区的样本中采样固定数目的样本作为最终的样本；
 		final SampleInCoordinator sampleInCoordinator = new SampleInCoordinator(false, sampleSize, SEED);
 		final UnaryOperatorInformation sicOperatorInformation = new UnaryOperatorInformation(isdTypeInformation, sourceOutputType);
 		final GroupReduceOperatorBase sicOperatorBase = new GroupReduceOperatorBase(sampleInCoordinator, sicOperatorInformation, SIC_NAME);
@@ -167,6 +173,7 @@ public class RangePartitionRewriter implements Visitor<PlanNode> {
 		this.plan.getAllNodes().add(sicPlanNode);
 
 		// 3. Use sampled data to build range boundaries.
+		// 基于最终样本数据构建范围边界；
 		final RangeBoundaryBuilder rangeBoundaryBuilder = new RangeBoundaryBuilder(comparator, targetParallelism);
 		final TypeInformation<CommonRangeBoundaries> rbTypeInformation = TypeExtractor.getForClass(CommonRangeBoundaries.class);
 		final UnaryOperatorInformation rbOperatorInformation = new UnaryOperatorInformation(sourceOutputType, rbTypeInformation);
@@ -184,6 +191,7 @@ public class RangePartitionRewriter implements Visitor<PlanNode> {
 		this.plan.getAllNodes().add(rbPlanNode);
 
 		// 4. Take range boundaries as broadcast input and take the tuple of partition id and record as output.
+		// 将范围边界作为广播变量传递同时为每个记录构建<分区编号，记录>的二元组并输出然后以自定义分区来分区记录；
 		final AssignRangeIndex assignRangeIndex = new AssignRangeIndex(comparator);
 		final TypeInformation<Tuple2> ariOutputTypeInformation = new TupleTypeInfo<>(BasicTypeInfo.INT_TYPE_INFO, sourceOutputType);
 		final UnaryOperatorInformation ariOperatorInformation = new UnaryOperatorInformation(sourceOutputType, ariOutputTypeInformation);
@@ -209,7 +217,9 @@ public class RangePartitionRewriter implements Visitor<PlanNode> {
 		ariPlanNode.setBroadcastInputs(broadcastChannels);
 
 		// 5. Remove the partition id.
+		// 找到记录的分区之后，分区编号就没有存在的意义了，因此为流中的记录移除分区编号；
 		final Channel partChannel = new Channel(ariPlanNode, TempMode.NONE);
+		//以下标为0的字段（也即上面查找到的分区索引）作为分区依据
 		final FieldList keys = new FieldList(0);
 		partChannel.setShipStrategy(ShipStrategyType.PARTITION_CUSTOM, keys, idPartitioner, DataExchangeMode.PIPELINED);
 		ariPlanNode.addOutgoingChannel(partChannel);
@@ -229,6 +239,7 @@ public class RangePartitionRewriter implements Visitor<PlanNode> {
 		this.plan.getAllNodes().add(prPlanNode);
 
 		// 6. Connect to target node.
+		// 连接目标节点
 		channel.setSource(prPlanNode);
 		channel.setShipStrategy(ShipStrategyType.FORWARD, DataExchangeMode.PIPELINED);
 		prPlanNode.addOutgoingChannel(channel);

@@ -43,15 +43,18 @@ public class AssignRangeIndex<IN> extends RichMapPartitionFunction<IN, Tuple2<In
 	@Override
 	public void mapPartition(Iterable<IN> values, Collector<Tuple2<Integer, IN>> out) throws Exception {
 
+		// 首先获取“范围边界”这一广播变量
 		List<Object> broadcastVariable = getRuntimeContext().getBroadcastVariable("RangeBoundaries");
 		if (broadcastVariable == null || broadcastVariable.size() != 1) {
 			throw new RuntimeException("AssignRangePartition require a single RangeBoundaries as broadcast input.");
 		}
+		// 然后构建CommonRangeBoundaries的实例
 		Object[][] boundaryObjects = (Object[][]) broadcastVariable.get(0);
 		RangeBoundaries rangeBoundaries = new CommonRangeBoundaries(typeComparator.createComparator(), boundaryObjects);
 
 		Tuple2<Integer, IN> tupleWithPartitionId = new Tuple2<>();
 
+		// 随之遍历当前聚集的分区数据并一一查找其分区编号以构建二元组，然后输出到下游
 		for (IN record : values) {
 			tupleWithPartitionId.f0 = rangeBoundaries.getRangeIndex(record);
 			tupleWithPartitionId.f1 = record;

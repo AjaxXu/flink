@@ -71,7 +71,8 @@ public class BinaryUnionNode extends TwoInputNode {
 	protected List<OperatorDescriptorDual> getPossibleProperties() {
 		return Collections.emptyList();
 	}
-	
+
+	// 二元union运算符的预算就是累加其两个输入端
 	@Override
 	protected void computeOperatorSpecificDefaultEstimates(DataStatistics statistics) {
 		long card1 = getFirstPredecessorNode().getEstimatedNumRecords();

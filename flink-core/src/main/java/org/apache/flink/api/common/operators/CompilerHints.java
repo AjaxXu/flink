@@ -26,6 +26,9 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.operators.util.FieldSet;
 
 /**
+ * 所谓CompilerHints，它是封装了描述用户函数行为的编译提示，它可用于改进优化器对计划的选择。
+ * 如果给某个运算符设置编译提示的话，那么在计算预算时，将会用它来覆盖运算符自身给出的中间结果的预算。
+ * 当前，CompilerHints在优化器中没有得到太大的机会发挥。
  * A class encapsulating compiler hints describing the behavior of the user function.
  * If set, the optimizer will use them to estimate the sizes of the intermediate results.
  * Note that these values are optional hints, the optimizer will always generate a valid plan without

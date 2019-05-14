@@ -20,6 +20,7 @@ package org.apache.flink.runtime.operators.udf;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 
+// RemoveRangeIndex的UDF来移除分区编号，具体的做法是只输出二元组里下标为1的字段
 public class RemoveRangeIndex<T> implements MapFunction<Tuple2<Integer,T>,T> {
 
 	@Override

@@ -26,6 +26,7 @@ public interface EstimateProvider {
 	
 	/**
 	 * Gets the estimated output size from this node.
+	 * 输出的数据流大小
 	 * 
 	 * @return The estimated output size.
 	 */
@@ -33,6 +34,7 @@ public interface EstimateProvider {
 
 	/**
 	 * Gets the estimated number of records in the output of this node.
+	 * 输出的记录数
 	 * 
 	 * @return The estimated number of records.
 	 */
@@ -40,6 +42,7 @@ public interface EstimateProvider {
 	
 	/**
 	 * Gets the estimated number of bytes per record.
+	 * 单个输出记录的平均字节数
 	 * 
 	 * @return The estimated number of bytes per record.
 	 */

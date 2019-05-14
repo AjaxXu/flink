@@ -75,10 +75,17 @@ public abstract class CostEstimator {
 	 */
 	public void costOperator(PlanNode n) {
 		// initialize costs objects with no costs
+		//构建一个成本对象用来存储总成本
 		final Costs totalCosts = new Costs();
+		//获得该节点的最少可用内存
 		final long availableMemory = n.getGuaranteedAvailableMemory();
 		
 		// add the shipping strategy costs
+		//-----------------------------
+		// 增加传输策略产生的成本
+		//-----------------------------
+
+		//遍历该节点的所有输入端通道
 		for (Channel channel : n.getInputs()) {
 			final Costs costs = new Costs();
 			
@@ -93,7 +100,8 @@ public abstract class CostEstimator {
 			// weighted by the current plan depth (steps to the earliest data source).
 			// that way, later FORWARDS are more expensive than earlier forwards.
 			// Note that this only applies to the heuristic costs.
-			
+
+			//匹配当前通道的传输策略
 			switch (channel.getShipStrategy()) {
 			case NONE:
 				throw new CompilerException(
@@ -101,29 +109,36 @@ public abstract class CostEstimator {
 			case FORWARD:
 //				costs.addHeuristicNetworkCost(channel.getMaxDepth());
 				break;
+			//随机重分区
 			case PARTITION_RANDOM:
 				addRandomPartitioningCost(channel, costs);
 				break;
+			//哈希分区与自定义分区增加成本的方式相同
 			case PARTITION_HASH:
 			case PARTITION_CUSTOM:
 				addHashPartitioningCost(channel, costs);
 				break;
+			//范围分区
 			case PARTITION_RANGE:
 				addRangePartitionCost(channel, costs);
 				break;
+			//广播
 			case BROADCAST:
 				addBroadcastCost(channel, channel.getReplicationFactor(), costs);
 				break;
+			//强制重平衡分区
 			case PARTITION_FORCED_REBALANCE:
 				addRandomPartitioningCost(channel, costs);
 				break;
 			default:
 				throw new CompilerException("Unknown shipping strategy for input: " + channel.getShipStrategy());
 			}
-			
+
+			//匹配当前通道的本地策略
 			switch (channel.getLocalStrategy()) {
 			case NONE:
 				break;
+			//排序与合并排序都增加本地的排序成本
 			case SORT:
 			case COMBININGSORT:
 				addLocalSortCost(channel, costs);
@@ -131,16 +146,19 @@ public abstract class CostEstimator {
 			default:
 				throw new CompilerException("Unsupported local strategy for input: " + channel.getLocalStrategy());
 			}
-			
+
+			//增加屏障成本
 			if (channel.getTempMode() != null && channel.getTempMode() != TempMode.NONE) {
 				addArtificialDamCost(channel, 0, costs);
 			}
 			
 			// adjust with the cost weight factor
+			//如果通道在动态路径上，则需要调整成本计算的权重
 			if (channel.isOnDynamicPath()) {
 				costs.multiplyWith(channel.getCostWeight());
 			}
-			
+
+			//将当前通道的成本加入总成本
 			totalCosts.addCosts(costs);
 		} 
 		
@@ -150,11 +168,13 @@ public abstract class CostEstimator {
 		int costWeight = 1;
 		
 		// adjust with the cost weight factor
+		//如果节点在动态路径上，则重新调整成本权重
 		if (n.isOnDynamicPath()) {
 			costWeight = n.getCostWeight();
 		}
 		
 		// get the inputs, if we have some
+		//获得当前节点的所有输入端通道
 		{
 			Iterator<Channel> channels = n.getInputs().iterator();
 			if (channels.hasNext()) {
@@ -166,7 +186,9 @@ public abstract class CostEstimator {
 		}
 
 		// determine the local costs
+		//根据计划节点的执行策略来计算本地成本
 		switch (n.getDriverStrategy()) {
+		//以下这些执行策略不计算本地成本
 		case NONE:
 		case UNARY_NO_OP:
 		case BINARY_NO_OP:
@@ -194,24 +216,31 @@ public abstract class CostEstimator {
 			// pipelined local union is for free
 			
 			break;
+		//各种形式的合并成本
+
 		case INNER_MERGE:
 		case FULL_OUTER_MERGE:
 		case LEFT_OUTER_MERGE:
 		case RIGHT_OUTER_MERGE:
 			addLocalMergeCost(firstInput, secondInput, driverCosts, costWeight);
 			break;
+		//混合哈希join的成本(第一个输入边是构建边，第二个输入边是扫描边)
 		case HYBRIDHASH_BUILD_FIRST:
 		case RIGHT_HYBRIDHASH_BUILD_FIRST:
 		case LEFT_HYBRIDHASH_BUILD_FIRST:
 		case FULL_OUTER_HYBRIDHASH_BUILD_FIRST:
 			addHybridHashCosts(firstInput, secondInput, driverCosts, costWeight);
 			break;
+
+		//混合哈希join的成本（第二个输入边是构建边，第一个输入边是扫描边）
 		case HYBRIDHASH_BUILD_SECOND:
 		case LEFT_HYBRIDHASH_BUILD_SECOND:
 		case RIGHT_HYBRIDHASH_BUILD_SECOND:
 		case FULL_OUTER_HYBRIDHASH_BUILD_SECOND:
 			addHybridHashCosts(secondInput, firstInput, driverCosts, costWeight);
 			break;
+
+		//各种其他的执行策略
 		case HYBRIDHASH_BUILD_FIRST_CACHED:
 			addCachedHybridHashCosts(firstInput, secondInput, driverCosts, costWeight);
 			break;
@@ -233,7 +262,8 @@ public abstract class CostEstimator {
 		default:
 			throw new CompilerException("Unknown local strategy: " + n.getDriverStrategy().name());
 		}
-		
+
+		//将驱动器的执行成本加入到总成本，将得到的总成本作为当前节点的成本
 		totalCosts.addCosts(driverCosts);
 		n.setCosts(totalCosts);
 	}

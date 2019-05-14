@@ -22,6 +22,9 @@ package org.apache.flink.optimizer.costs;
 import org.apache.flink.optimizer.dag.EstimateProvider;
 
 /**
+ * DefaultCostEstimator继承自CostEstimator，作为默认的（也是唯一的）成本估算器。
+ * 它实现了上面计算成本逻辑中调用的一系列增加成本的addXXX方法。这些方法中的绝大部分，
+ * 又依赖于预算提供器（EstimateProvider）所提供的预算数据，然后根据不同的增加成本的算法逻辑，利用这些预算数据做计算。
  * A default cost estimator that has access to basic size and cardinality estimates.
  * <p>
  * This estimator works with actual estimates (as far as they are available) and falls back to setting
@@ -102,18 +105,23 @@ public class DefaultCostEstimator extends CostEstimator {
 	@Override
 	public void addBroadcastCost(EstimateProvider estimates, int replicationFactor, Costs costs) {
 		// if our replication factor is negative, we cannot calculate broadcast costs
+		//检查复制因子的合法性
 		if (replicationFactor <= 0) {
 			throw new IllegalArgumentException("The replication factor of must be larger than zero.");
 		}
 
 		if (replicationFactor > 0) {
 			// assumption: we need ship the whole data over the network to each node.
+			//所估算的需要输出数据的大小
 			final long estOutShipSize = estimates.getEstimatedOutputSize();
 			if (estOutShipSize <= 0) {
+				//如果数据大小小于等于零，则标记网络成本为“未知”
 				costs.setNetworkCost(Costs.UNKNOWN);
 			} else {
+				//否则网络成本拿数据大小乘以复制因子
 				costs.addNetworkCost(replicationFactor * estOutShipSize);
 			}
+			//增加启发式网络成本，通过启发式成本基数乘以复制因子后再扩大十倍
 			costs.addHeuristicNetworkCost(HEURISTIC_COST_BASE * 10 * replicationFactor);
 		} else {
 			costs.addHeuristicNetworkCost(HEURISTIC_COST_BASE * 1000);
