@@ -16,16 +16,25 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.type;
+package org.apache.flink.table.sources;
+
+import java.util.Collection;
 
 /**
- * Char type.
+ * The {@link DefinedIndexes} interface can extends a {@link TableSource} to specify the
+ * indexes meta information.
+ *
+ * <p>An Index can be a Unique Index or Normal Index. An Unique Index is similar to primary
+ * key which defines a column or a group of columns that uniquely identifies each row in
+ * a table or stream. An Normal Index is an index on the defined columns used to accelerate
+ * querying.
  */
-public class CharType extends PrimitiveType {
+public interface DefinedIndexes {
 
-	private static final long serialVersionUID = 1L;
+	/**
+	 * Returns the list of {@link TableIndex}s. Returns empty collection or null if no
+	 * index is exist.
+	 */
+	Collection<TableIndex> getIndexes();
 
-	public static final CharType INSTANCE = new CharType();
-
-	private CharType() {}
 }
