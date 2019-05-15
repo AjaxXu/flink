@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
+ * 根据最终的样本数据确定范围分区的每个分区的边界
  * Build RangeBoundaries with input records. First, sort the input records, and then select
  * the boundaries with same interval.
  *
@@ -50,6 +51,7 @@ public class RangeBoundaryBuilder<T> extends RichMapPartitionFunction<T, Object[
 		for (T value : values) {
 			sampledData.add(value);
 		}
+		// 第一步对样本进行排序：
 		Collections.sort(sampledData, new Comparator<T>() {
 			@Override
 			public int compare(T first, T second) {
@@ -57,13 +59,16 @@ public class RangeBoundaryBuilder<T> extends RichMapPartitionFunction<T, Object[
 			}
 		});
 
-
+		// 第二步采用平均划分法来计算每个分区的边界，边界被存储于一个二维数组中，因为根据样本提取的临界值将会作为比较器的键存储在Object[]中
 		int boundarySize = parallelism - 1;
 		Object[][] boundaries = new Object[boundarySize][];
 		if (sampledData.size() > 0) {
+			//计算拆分的段
 			double avgRange = sampledData.size() / (double) parallelism;
 			int numKey = comparator.getFlatComparators().length;
+			//每个并行度（分区）一个边界值
 			for (int i = 1; i < parallelism; i++) {
+				//计算得到靠近段尾的采样记录作为边界界定标准
 				T record = sampledData.get((int) (i * avgRange));
 				Object[] keys = new Object[numKey];
 				comparator.extractKeys(record, keys, 0);
