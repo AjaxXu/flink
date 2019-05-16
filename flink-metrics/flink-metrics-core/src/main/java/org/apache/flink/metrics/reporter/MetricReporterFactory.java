@@ -16,32 +16,20 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.catalog.hive;
+package org.apache.flink.metrics.reporter;
 
-import org.apache.flink.table.catalog.CatalogDatabase;
-
-import org.apache.hadoop.hive.metastore.api.Database;
+import java.util.Properties;
 
 /**
- * Utils to convert meta objects between Flink and Hive for HiveCatalog.
+ * {@link MetricReporter} factory.
  */
-public class HiveCatalogUtil {
-
-	private HiveCatalogUtil() {
-	}
-
-	// ------ Utils ------
+public interface MetricReporterFactory {
 
 	/**
-	 * Creates a Hive database from CatalogDatabase.
+	 * Creates a new metric reporter.
+	 *
+	 * @param properties configured properties for the reporter
+	 * @return created metric reporter
 	 */
-	public static Database createHiveDatabase(String dbName, CatalogDatabase db) {
-		HiveCatalogDatabase hiveCatalogDatabase = (HiveCatalogDatabase) db;
-
-		return new Database(
-			dbName,
-			db.getComment(),
-			hiveCatalogDatabase.getLocation(),
-			hiveCatalogDatabase.getProperties());
-	}
+	MetricReporter createMetricReporter(final Properties properties);
 }

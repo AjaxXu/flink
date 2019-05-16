@@ -24,10 +24,8 @@ import org.apache.flink.table.catalog.CatalogDatabase;
 import org.apache.flink.table.catalog.CatalogFunction;
 import org.apache.flink.table.catalog.CatalogPartition;
 import org.apache.flink.table.catalog.CatalogPartitionSpec;
-import org.apache.flink.table.catalog.CatalogTable;
 import org.apache.flink.table.catalog.ObjectPath;
 import org.apache.flink.table.catalog.exceptions.CatalogException;
-import org.apache.flink.table.catalog.exceptions.DatabaseAlreadyExistException;
 import org.apache.flink.table.catalog.exceptions.DatabaseNotExistException;
 import org.apache.flink.table.catalog.exceptions.FunctionAlreadyExistException;
 import org.apache.flink.table.catalog.exceptions.FunctionNotExistException;
@@ -41,6 +39,7 @@ import org.apache.flink.table.catalog.stats.CatalogColumnStatistics;
 import org.apache.flink.table.catalog.stats.CatalogTableStatistics;
 
 import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.Database;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.metastore.api.SerDeInfo;
@@ -76,23 +75,22 @@ public class HiveCatalog extends HiveCatalogBase {
 	// ------ databases ------
 
 	@Override
-	public CatalogDatabase getDatabase(String databaseName)
-			throws DatabaseNotExistException, CatalogException {
-		Database hiveDb = getHiveDatabase(databaseName);
-
+	protected CatalogDatabase createCatalogDatabase(Database hiveDatabase) {
 		return new HiveCatalogDatabase(
-			hiveDb.getParameters(), hiveDb.getLocationUri(), hiveDb.getDescription());
+			hiveDatabase.getParameters(),
+			hiveDatabase.getLocationUri(),
+			hiveDatabase.getDescription());
 	}
 
 	@Override
-	public void createDatabase(String name, CatalogDatabase database, boolean ignoreIfExists)
-			throws DatabaseAlreadyExistException, CatalogException {
-		createHiveDatabase(HiveCatalogUtil.createHiveDatabase(name, database), ignoreIfExists);
-	}
+	protected Database createHiveDatabase(String databaseName, CatalogDatabase catalogDatabase) {
+		HiveCatalogDatabase hiveCatalogDatabase = (HiveCatalogDatabase) catalogDatabase;
 
-	@Override
-	public void alterDatabase(String name, CatalogDatabase newDatabase, boolean ignoreIfNotExists) throws DatabaseNotExistException, CatalogException {
-		alterHiveDatabase(name, HiveCatalogUtil.createHiveDatabase(name, newDatabase), ignoreIfNotExists);
+		return new Database(
+			databaseName,
+			catalogDatabase.getComment(),
+			hiveCatalogDatabase.getLocation(),
+			hiveCatalogDatabase.getProperties());
 	}
 
 	// ------ tables and views------
@@ -100,8 +98,7 @@ public class HiveCatalog extends HiveCatalogBase {
 	@Override
 	protected void validateCatalogBaseTable(CatalogBaseTable table)
 			throws CatalogException {
-		// TODO: validate HiveCatalogView
-		if (!(table instanceof HiveCatalogTable)) {
+		if (!(table instanceof HiveCatalogTable) && !(table instanceof HiveCatalogView)) {
 			throw new CatalogException(
 				"HiveCatalog can only operate on HiveCatalogTable and HiveCatalogView.");
 		}
@@ -128,7 +125,18 @@ public class HiveCatalog extends HiveCatalogBase {
 				.collect(Collectors.toList());
 		}
 
-		return new HiveCatalogTable(tableSchema, partitionKeys, properties, comment);
+		if (TableType.valueOf(hiveTable.getTableType()) == TableType.VIRTUAL_VIEW) {
+			return new HiveCatalogView(
+				hiveTable.getViewOriginalText(),
+				hiveTable.getViewExpandedText(),
+				tableSchema,
+				properties,
+				comment
+			);
+		} else {
+			return new HiveCatalogTable(
+				tableSchema, partitionKeys, properties, comment);
+		}
 	}
 
 	@Override
@@ -155,7 +163,7 @@ public class HiveCatalog extends HiveCatalogBase {
 		List<FieldSchema> allColumns = HiveTableUtil.createHiveColumns(table.getSchema());
 
 		// Table columns and partition keys
-		if (table instanceof CatalogTable) {
+		if (table instanceof HiveCatalogTable) {
 			HiveCatalogTable catalogTable = (HiveCatalogTable) table;
 
 			if (catalogTable.isPartitioned()) {
@@ -169,8 +177,19 @@ public class HiveCatalog extends HiveCatalogBase {
 				sd.setCols(allColumns);
 				hiveTable.setPartitionKeys(new ArrayList<>());
 			}
+		} else if (table instanceof HiveCatalogView) {
+			HiveCatalogView view = (HiveCatalogView) table;
+
+			// TODO: [FLINK-12398] Support partitioned view in catalog API
+			sd.setCols(allColumns);
+			hiveTable.setPartitionKeys(new ArrayList<>());
+
+			hiveTable.setViewOriginalText(view.getOriginalQuery());
+			hiveTable.setViewExpandedText(view.getExpandedQuery());
+			hiveTable.setTableType(TableType.VIRTUAL_VIEW.name());
 		} else {
-			throw new UnsupportedOperationException("HiveCatalog doesn't support view yet");
+			throw new CatalogException(
+				"HiveCatalog only supports HiveCatalogTable and HiveCatalogView");
 		}
 
 		hiveTable.setSd(sd);

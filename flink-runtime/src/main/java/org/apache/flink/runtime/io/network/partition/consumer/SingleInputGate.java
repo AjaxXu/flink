@@ -549,32 +549,20 @@ public class SingleInputGate extends InputGate {
 	private Optional<InputWithData<InputChannel, BufferAndAvailability>> waitAndGetNextData(boolean blocking)
 			throws IOException, InterruptedException {
 		while (true) {
+			Optional<InputChannel> inputChannel = getChannel(blocking);
+			if (!inputChannel.isPresent()) {
+				return Optional.empty();
+			}
+
+			// Do not query inputChannel under the lock, to avoid potential deadlocks coming from
+			// notifications.
+			Optional<BufferAndAvailability> result = inputChannel.get().getNextBuffer();
+
 			synchronized (inputChannelsWithData) {
-				while (inputChannelsWithData.size() == 0) {
-					if (isReleased) {
-						throw new IllegalStateException("Released");
-					}
-
-					//如果是blocking，阻塞等待有可获取数据的通道可用
-					if (blocking) {
-						inputChannelsWithData.wait();
-					}
-					// 否则直接返回empty
-					else {
-						resetIsAvailable();
-						return Optional.empty();
-					}
-				}
-
-				InputChannel inputChannel = inputChannelsWithData.remove();
-
-				Optional<BufferAndAvailability> result = inputChannel.getNextBuffer();
-
 				if (result.isPresent() && result.get().moreAvailable()) {
 					// enqueue the inputChannel at the end to avoid starvation
-					inputChannelsWithData.add(inputChannel);
-				} else {
-					enqueuedInputChannelsWithData.clear(inputChannel.getChannelIndex());
+					inputChannelsWithData.add(inputChannel.get());
+					enqueuedInputChannelsWithData.set(inputChannel.get().getChannelIndex());
 				}
 
 				if (inputChannelsWithData.isEmpty()) {
@@ -583,7 +571,7 @@ public class SingleInputGate extends InputGate {
 
 				if (result.isPresent()) {
 					return Optional.of(new InputWithData<>(
-						inputChannel,
+						inputChannel.get(),
 						result.get(),
 						!inputChannelsWithData.isEmpty()));
 				}
@@ -688,6 +676,30 @@ public class SingleInputGate extends InputGate {
 
 		if (toNotify != null) {
 			toNotify.complete(null);
+		}
+	}
+
+	private Optional<InputChannel> getChannel(boolean blocking) throws InterruptedException {
+		synchronized (inputChannelsWithData) {
+			while (inputChannelsWithData.size() == 0) {
+				if (isReleased) {
+					throw new IllegalStateException("Released");
+				}
+
+				//如果是blocking，阻塞等待有可获取数据的通道可用
+				if (blocking) {
+					inputChannelsWithData.wait();
+				}
+				// 否则直接返回empty
+				else {
+					resetIsAvailable();
+					return Optional.empty();
+				}
+			}
+
+			InputChannel inputChannel = inputChannelsWithData.remove();
+			enqueuedInputChannelsWithData.clear(inputChannel.getChannelIndex());
+			return Optional.of(inputChannel);
 		}
 	}
 

@@ -20,6 +20,7 @@ package org.apache.flink.table.catalog.hive;
 
 import org.apache.flink.table.catalog.Catalog;
 import org.apache.flink.table.catalog.CatalogBaseTable;
+import org.apache.flink.table.catalog.CatalogDatabase;
 import org.apache.flink.table.catalog.ObjectPath;
 import org.apache.flink.table.catalog.exceptions.CatalogException;
 import org.apache.flink.table.catalog.exceptions.DatabaseAlreadyExistException;
@@ -55,23 +56,27 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  */
 public abstract class HiveCatalogBase implements Catalog {
 	private static final Logger LOG = LoggerFactory.getLogger(HiveCatalogBase.class);
-
-	public static final String DEFAULT_DB = "default";
+	private static final String DEFAULT_DB = "default";
 
 	protected final String catalogName;
 	protected final HiveConf hiveConf;
 
-	protected String currentDatabase = DEFAULT_DB;
+	private final String defaultDatabase;
 	protected IMetaStoreClient client;
 
 	public HiveCatalogBase(String catalogName, String hivemetastoreURI) {
-		this(catalogName, getHiveConf(hivemetastoreURI));
+		this(catalogName, DEFAULT_DB, getHiveConf(hivemetastoreURI));
 	}
 
 	public HiveCatalogBase(String catalogName, HiveConf hiveConf) {
-		checkArgument(!StringUtils.isNullOrWhitespaceOnly(catalogName), "catalogName cannot be null or empty");
-		this.catalogName = catalogName;
+		this(catalogName, DEFAULT_DB, hiveConf);
+	}
 
+	public HiveCatalogBase(String catalogName, String defaultDatabase, HiveConf hiveConf) {
+		checkArgument(!StringUtils.isNullOrWhitespaceOnly(catalogName), "catalogName cannot be null or empty");
+		checkArgument(!StringUtils.isNullOrWhitespaceOnly(defaultDatabase), "defaultDatabase cannot be null or empty");
+		this.catalogName = catalogName;
+		this.defaultDatabase = defaultDatabase;
 		this.hiveConf = checkNotNull(hiveConf, "hiveConf cannot be null");
 	}
 
@@ -124,11 +129,33 @@ public abstract class HiveCatalogBase implements Catalog {
 	 */
 	protected abstract Table createHiveTable(ObjectPath tablePath, CatalogBaseTable table);
 
+	/**
+	 * Create a CatalogDatabase from a Hive database.
+	 *
+	 * @param hiveDatabase a Hive database
+	 * @return a CatalogDatabase
+	 */
+	protected abstract CatalogDatabase createCatalogDatabase(Database hiveDatabase);
+
+	/**
+	 * Create a Hive database from a CatalogDatabase.
+	 *
+	 * @param databaseName name of the database
+	 * @param catalogDatabase a CatalogDatabase
+	 * @return a Hive database
+	 */
+	protected abstract Database createHiveDatabase(String databaseName, CatalogDatabase catalogDatabase);
+
 	@Override
 	public void open() throws CatalogException {
 		if (client == null) {
 			client = getMetastoreClient(hiveConf);
 			LOG.info("Connected to Hive metastore");
+		}
+
+		if (!databaseExists(defaultDatabase)) {
+			throw new CatalogException(String.format("Configured default database %s doesn't exist in catalog %s.",
+				defaultDatabase, catalogName));
 		}
 	}
 
@@ -144,19 +171,21 @@ public abstract class HiveCatalogBase implements Catalog {
 	// ------ databases ------
 
 	@Override
-	public String getCurrentDatabase() throws CatalogException {
-		return currentDatabase;
+	public String getDefaultDatabase() throws CatalogException {
+		return defaultDatabase;
 	}
 
 	@Override
-	public void setCurrentDatabase(String databaseName) throws DatabaseNotExistException, CatalogException {
-		checkArgument(!StringUtils.isNullOrWhitespaceOnly(databaseName));
-
-		if (!databaseExists(databaseName)) {
+	public CatalogDatabase getDatabase(String databaseName)
+			throws DatabaseNotExistException, CatalogException {
+		try {
+			return createCatalogDatabase(client.getDatabase(databaseName));
+		} catch (NoSuchObjectException e) {
 			throw new DatabaseNotExistException(catalogName, databaseName);
+		} catch (TException e) {
+			throw new CatalogException(
+				String.format("Failed to get database %s from %s", databaseName, catalogName), e);
 		}
-
-		currentDatabase = databaseName;
 	}
 
 	@Override
@@ -196,35 +225,26 @@ public abstract class HiveCatalogBase implements Catalog {
 		}
 	}
 
-	protected Database getHiveDatabase(String databaseName) throws DatabaseNotExistException {
-		try {
-			return client.getDatabase(databaseName);
-		} catch (NoSuchObjectException e) {
-			throw new DatabaseNotExistException(catalogName, databaseName);
-		} catch (TException e) {
-			throw new CatalogException(
-				String.format("Failed to get database %s from %s", databaseName, catalogName), e);
-		}
-	}
-
-	protected void createHiveDatabase(Database hiveDatabase, boolean ignoreIfExists)
+	@Override
+	public void createDatabase(String name, CatalogDatabase database, boolean ignoreIfExists)
 			throws DatabaseAlreadyExistException, CatalogException {
 		try {
-			client.createDatabase(hiveDatabase);
+			client.createDatabase(createHiveDatabase(name, database));
 		} catch (AlreadyExistsException e) {
 			if (!ignoreIfExists) {
-				throw new DatabaseAlreadyExistException(catalogName, hiveDatabase.getName());
+				throw new DatabaseAlreadyExistException(catalogName, name);
 			}
 		} catch (TException e) {
-			throw new CatalogException(String.format("Failed to create database %s", hiveDatabase.getName()), e);
+			throw new CatalogException(String.format("Failed to create database %s", name), e);
 		}
 	}
 
-	protected void alterHiveDatabase(String name, Database newHiveDatabase, boolean ignoreIfNotExists)
+	@Override
+	public void alterDatabase(String name, CatalogDatabase newDatabase, boolean ignoreIfNotExists)
 			throws DatabaseNotExistException, CatalogException {
 		try {
 			if (databaseExists(name)) {
-				client.alterDatabase(name, newHiveDatabase);
+				client.alterDatabase(name, createHiveDatabase(name, newDatabase));
 			} else if (!ignoreIfNotExists) {
 				throw new DatabaseNotExistException(catalogName, name);
 			}
