@@ -646,6 +646,7 @@ public class StreamingJobGraphGenerator {
 		if (interval > 0) {
 			ExecutionConfig executionConfig = streamGraph.getExecutionConfig();
 			// propagate the expected behaviour for checkpoint errors to task.
+			// 从CheckpointConfig中传播 checkpoint发生异常的配置参数
 			executionConfig.setFailTaskOnCheckpointError(cfg.isFailOnCheckpointingErrors());
 		} else {
 			// interval of max value means disable periodic checkpoint

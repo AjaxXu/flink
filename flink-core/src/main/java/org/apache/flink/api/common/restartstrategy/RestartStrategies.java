@@ -72,7 +72,8 @@ public class RestartStrategies {
 	/**
 	 * Generates a FailureRateRestartStrategyConfiguration.
 	 *
-	 * @param failureRate Maximum number of restarts in given interval {@code failureInterval} before failing a job
+	 * @param failureRate Maximum number of restarts in given interval {@code failureInterval} before failing a job;
+	 *                    在失败之前的间隔内最大重启次数
 	 * @param failureInterval Time interval for failures
 	 * @param delayInterval Delay in-between restart attempts
 	 */
@@ -224,6 +225,7 @@ public class RestartStrategies {
 	}
 
 	/**
+	 * job使用集群重启策略的配置。特别是在通过flink-conf.yaml制定了用户定制的重启策略
 	 * Restart strategy configuration that could be used by jobs to use cluster level restart
 	 * strategy. Useful especially when one has a custom implementation of restart strategy set via
 	 * flink-conf.yaml.

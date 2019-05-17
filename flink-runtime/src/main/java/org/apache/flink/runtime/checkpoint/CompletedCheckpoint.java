@@ -210,10 +210,12 @@ public class CompletedCheckpoint implements Serializable {
 	//  Discard and Dispose
 	// ------------------------------------------------------------------------
 
+	// 在未能存储时丢弃
 	public void discardOnFailedStoring() throws Exception {
 		doDiscard();
 	}
 
+	// 到达最大存储值是丢弃(丢弃oldest one)
 	public boolean discardOnSubsume() throws Exception {
 		if (props.discardOnSubsumed()) {
 			doDiscard();
@@ -223,6 +225,7 @@ public class CompletedCheckpoint implements Serializable {
 		return false;
 	}
 
+	// Job shutdown时丢弃
 	public boolean discardOnShutdown(JobStatus jobStatus) throws Exception {
 
 		if (jobStatus == JobStatus.FINISHED && props.discardOnJobFinished() ||

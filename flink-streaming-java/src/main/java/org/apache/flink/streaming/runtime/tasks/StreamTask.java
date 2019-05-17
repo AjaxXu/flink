@@ -1219,6 +1219,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 	}
 
 	/**
+	 * 以异步的方式封装同步{@link CheckpointExceptionHandler}。该实现总是处理异常，而不是重新抛出
 	 * Wrapper for synchronous {@link CheckpointExceptionHandler}. This implementation catches unhandled, rethrown
 	 * exceptions and reports them through {@link #handleAsyncException(String, Throwable)}. As this implementation
 	 * always handles the exception in some way, it never rethrows.
@@ -1242,6 +1243,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 			try {
 				synchronousCheckpointExceptionHandler.tryHandleCheckpointException(checkpointMetaData, exception);
 			} catch (Exception unhandled) {
+				// 捕获重新抛出的异常
 				AsynchronousException asyncException = new AsynchronousException(unhandled);
 				owner.handleAsyncException("Failure in asynchronous checkpoint materialization", asyncException);
 			}

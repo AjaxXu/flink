@@ -915,6 +915,7 @@ public class CheckpointCoordinator {
 				completedCheckpointStore.addCheckpoint(completedCheckpoint);
 			} catch (Exception exception) {
 				// we failed to store the completed checkpoint. Let's clean up
+				// 清理存储失败的完成的检查点
 				executor.execute(new Runnable() {
 					@Override
 					public void run() {

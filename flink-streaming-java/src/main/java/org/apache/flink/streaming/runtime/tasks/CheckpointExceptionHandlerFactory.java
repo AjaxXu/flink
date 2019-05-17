@@ -23,6 +23,7 @@ import org.apache.flink.runtime.execution.Environment;
 import org.apache.flink.util.Preconditions;
 
 /**
+ * 产生{@link CheckpointExceptionHandler}的工厂类。
  * This factory produces {@link CheckpointExceptionHandler} instances that handle exceptions during checkpointing in a
  * {@link StreamTask}.
  */
