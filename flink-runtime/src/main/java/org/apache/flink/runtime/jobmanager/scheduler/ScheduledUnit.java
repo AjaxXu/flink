@@ -26,6 +26,7 @@ import org.apache.flink.util.Preconditions;
 import javax.annotation.Nullable;
 
 /**
+ * ScheduledUnit包含为给定的{@link JobVertexID}分配槽的必要信息
  * ScheduledUnit contains the information necessary to allocate a slot for the given
  * {@link JobVertexID}.
  */
