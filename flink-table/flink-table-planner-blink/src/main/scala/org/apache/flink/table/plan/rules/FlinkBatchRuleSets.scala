@@ -166,6 +166,8 @@ object FlinkBatchRuleSets {
     // push all expressions to handle the time indicator correctly
     new FlinkProjectJoinTransposeRule(
       PushProjector.ExprCondition.FALSE, RelFactories.LOGICAL_BUILDER),
+    // push a projection to the children of a semi/anti Join
+    ProjectSemiAntiJoinTransposeRule.INSTANCE,
     // merge projections
     ProjectMergeRule.INSTANCE,
     // remove identity project
@@ -233,7 +235,12 @@ object FlinkBatchRuleSets {
     ProjectCalcMergeRule.INSTANCE,
     FilterToCalcRule.INSTANCE,
     ProjectToCalcRule.INSTANCE,
-    FlinkCalcMergeRule.INSTANCE
+    FlinkCalcMergeRule.INSTANCE,
+
+    // semi/anti join transpose rule
+    FlinkSemiAntiJoinJoinTransposeRule.INSTANCE,
+    FlinkSemiAntiJoinProjectTransposeRule.INSTANCE,
+    FlinkSemiAntiJoinFilterTransposeRule.INSTANCE
   )
 
   /**
@@ -251,6 +258,7 @@ object FlinkBatchRuleSets {
     FlinkLogicalTableSourceScan.CONVERTER,
     FlinkLogicalTableFunctionScan.CONVERTER,
     FlinkLogicalDataStreamTableScan.CONVERTER,
+    FlinkLogicalIntermediateTableScan.CONVERTER,
     FlinkLogicalExpand.CONVERTER,
     FlinkLogicalRank.CONVERTER,
     FlinkLogicalWindowAggregate.CONVERTER,
@@ -269,11 +277,15 @@ object FlinkBatchRuleSets {
       LOGICAL_CONVERTERS.asScala
     ).asJava)
 
+  /**
+    * RuleSet to do rewrite on FlinkLogicalRel for batch
+    */
   val LOGICAL_REWRITE: RuleSet = RuleSets.ofList(
     // transpose calc past snapshot
     CalcSnapshotTransposeRule.INSTANCE,
     // merge calc after calc transpose
-    CalcMergeRule.INSTANCE)
+    FlinkCalcMergeRule.INSTANCE
+  )
 
   /**
     * RuleSet to do physical optimize for batch
@@ -282,6 +294,7 @@ object FlinkBatchRuleSets {
     FlinkExpandConversionRule.BATCH_INSTANCE,
     BatchExecBoundedStreamScanRule.INSTANCE,
     BatchExecScanTableSourceRule.INSTANCE,
+    BatchExecIntermediateTableScanRule.INSTANCE,
     BatchExecValuesRule.INSTANCE,
     BatchExecCalcRule.INSTANCE,
     BatchExecUnionRule.INSTANCE,

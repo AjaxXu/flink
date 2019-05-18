@@ -168,6 +168,8 @@ object FlinkStreamRuleSets {
     // push all expressions to handle the time indicator correctly
     new FlinkProjectJoinTransposeRule(
       PushProjector.ExprCondition.FALSE, RelFactories.LOGICAL_BUILDER),
+    // push a projection to the children of a semi/anti Join
+    ProjectSemiAntiJoinTransposeRule.INSTANCE,
     // merge projections
     ProjectMergeRule.INSTANCE,
     // remove identity project
@@ -220,7 +222,12 @@ object FlinkStreamRuleSets {
     ProjectCalcMergeRule.INSTANCE,
     FilterToCalcRule.INSTANCE,
     ProjectToCalcRule.INSTANCE,
-    FlinkCalcMergeRule.INSTANCE
+    FlinkCalcMergeRule.INSTANCE,
+
+    // semi/anti join transpose rule
+    FlinkSemiAntiJoinJoinTransposeRule.INSTANCE,
+    FlinkSemiAntiJoinProjectTransposeRule.INSTANCE,
+    FlinkSemiAntiJoinFilterTransposeRule.INSTANCE
   )
 
   /**
@@ -239,6 +246,7 @@ object FlinkStreamRuleSets {
     FlinkLogicalTableSourceScan.CONVERTER,
     FlinkLogicalTableFunctionScan.CONVERTER,
     FlinkLogicalDataStreamTableScan.CONVERTER,
+    FlinkLogicalIntermediateTableScan.CONVERTER,
     FlinkLogicalExpand.CONVERTER,
     FlinkLogicalWatermarkAssigner.CONVERTER,
     FlinkLogicalWindowAggregate.CONVERTER,
@@ -258,7 +266,7 @@ object FlinkStreamRuleSets {
     ).asJava)
 
   /**
-    * RuleSet to od rewrite on FlinkLogicalRel for Stream
+    * RuleSet to do rewrite on FlinkLogicalRel for Stream
     */
   val LOGICAL_REWRITE: RuleSet = RuleSets.ofList(
     // transform over window to topn node
@@ -278,6 +286,7 @@ object FlinkStreamRuleSets {
     FlinkExpandConversionRule.STREAM_INSTANCE,
     StreamExecDataStreamScanRule.INSTANCE,
     StreamExecTableSourceScanRule.INSTANCE,
+    StreamExecIntermediateTableScanRule.INSTANCE,
     StreamExecValuesRule.INSTANCE,
     StreamExecCalcRule.INSTANCE,
     StreamExecUnionRule.INSTANCE,
