@@ -48,6 +48,9 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * A generic catalog implementation that holds all meta objects in memory.
  */
 public class GenericInMemoryCatalog implements Catalog {
+	public static final String FLINK_IS_GENERIC_KEY = "is_generic";
+	public static final String FLINK_IS_GENERIC_VALUE = "true";
+
 	private static final String DEFAULT_DB = "default";
 
 	private final String defaultDatabase;
@@ -74,7 +77,7 @@ public class GenericInMemoryCatalog implements Catalog {
 		this.catalogName = name;
 		this.defaultDatabase = defaultDatabase;
 		this.databases = new LinkedHashMap<>();
-		this.databases.put(defaultDatabase, new GenericCatalogDatabase(new HashMap<>()));
+		this.databases.put(defaultDatabase, new GenericCatalogDatabase(new HashMap<>(), ""));
 		this.tables = new LinkedHashMap<>();
 		this.functions = new LinkedHashMap<>();
 		this.partitions = new LinkedHashMap<>();
@@ -102,7 +105,7 @@ public class GenericInMemoryCatalog implements Catalog {
 
 	@Override
 	public void createDatabase(String databaseName, CatalogDatabase db, boolean ignoreIfExists)
-		throws DatabaseAlreadyExistException {
+			throws DatabaseAlreadyExistException {
 		checkArgument(!StringUtils.isNullOrWhitespaceOnly(databaseName));
 		checkNotNull(db);
 
@@ -116,8 +119,8 @@ public class GenericInMemoryCatalog implements Catalog {
 	}
 
 	@Override
-	public void dropDatabase(String databaseName, boolean ignoreIfNotExists) throws DatabaseNotExistException,
-		DatabaseNotEmptyException {
+	public void dropDatabase(String databaseName, boolean ignoreIfNotExists)
+			throws DatabaseNotExistException, DatabaseNotEmptyException {
 		checkArgument(!StringUtils.isNullOrWhitespaceOnly(databaseName));
 
 		if (databases.containsKey(databaseName)) {
@@ -142,7 +145,7 @@ public class GenericInMemoryCatalog implements Catalog {
 
 	@Override
 	public void alterDatabase(String databaseName, CatalogDatabase newDatabase, boolean ignoreIfNotExists)
-		throws DatabaseNotExistException {
+			throws DatabaseNotExistException {
 		checkArgument(!StringUtils.isNullOrWhitespaceOnly(databaseName));
 		checkNotNull(newDatabase);
 
@@ -180,7 +183,7 @@ public class GenericInMemoryCatalog implements Catalog {
 
 	@Override
 	public void createTable(ObjectPath tablePath, CatalogBaseTable table, boolean ignoreIfExists)
-		throws TableAlreadyExistException, DatabaseNotExistException {
+			throws TableAlreadyExistException, DatabaseNotExistException {
 		checkNotNull(tablePath);
 		checkNotNull(table);
 
@@ -205,7 +208,7 @@ public class GenericInMemoryCatalog implements Catalog {
 
 	@Override
 	public void alterTable(ObjectPath tablePath, CatalogBaseTable newTable, boolean ignoreIfNotExists)
-		throws TableNotExistException {
+			throws TableNotExistException {
 		checkNotNull(tablePath);
 		checkNotNull(newTable);
 
@@ -245,7 +248,7 @@ public class GenericInMemoryCatalog implements Catalog {
 
 	@Override
 	public void renameTable(ObjectPath tablePath, String newTableName, boolean ignoreIfNotExists)
-		throws TableNotExistException, TableAlreadyExistException {
+			throws TableNotExistException, TableAlreadyExistException {
 		checkNotNull(tablePath);
 		checkArgument(!StringUtils.isNullOrWhitespaceOnly(newTableName));
 
