@@ -21,6 +21,7 @@ package org.apache.flink.runtime.io.network.buffer;
 import org.apache.flink.configuration.TaskManagerOptions;
 import org.apache.flink.core.memory.MemorySegment;
 import org.apache.flink.core.memory.MemorySegmentFactory;
+import org.apache.flink.core.memory.MemorySegmentProvider;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.MathUtils;
 
@@ -31,6 +32,7 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +58,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * the buffers for the network data transfer. When new local buffer pools are created, the
  * NetworkBufferPool dynamically redistributes the buffers between the pools.
  */
-public class NetworkBufferPool implements BufferPoolFactory {
+public class NetworkBufferPool implements BufferPoolFactory, MemorySegmentProvider {
 
 	private static final Logger LOG = LoggerFactory.getLogger(NetworkBufferPool.class);
 
@@ -76,14 +78,19 @@ public class NetworkBufferPool implements BufferPoolFactory {
 
 	private int numTotalRequiredBuffers;
 
+	private final int numberOfSegmentsToRequest;
+
 	/**
 	 * Allocates all {@link MemorySegment} instances managed by this pool.
 	 * NetworkBufferPool在构造器的参数中要求指定其缓存的内存段数目，然后它会初始化固定大小的一个队列作为内存段池
 	 */
-	public NetworkBufferPool(int numberOfSegmentsToAllocate, int segmentSize) {
+	public NetworkBufferPool(int numberOfSegmentsToAllocate, int segmentSize, int numberOfSegmentsToRequest) {
 
 		this.totalNumberOfMemorySegments = numberOfSegmentsToAllocate;
 		this.memorySegmentSize = segmentSize;
+
+		checkArgument(numberOfSegmentsToRequest > 0, "The number of required buffers should be larger than 0.");
+		this.numberOfSegmentsToRequest = numberOfSegmentsToRequest;
 
 		final long sizeInLong = (long) segmentSize;
 
@@ -134,20 +141,19 @@ public class NetworkBufferPool implements BufferPoolFactory {
 		availableMemorySegments.add(checkNotNull(segment));
 	}
 
-	public List<MemorySegment> requestMemorySegments(int numRequiredBuffers) throws IOException {
-		checkArgument(numRequiredBuffers > 0, "The number of required buffers should be larger than 0.");
-
+	@Override
+	public List<MemorySegment> requestMemorySegments() throws IOException {
 		synchronized (factoryLock) {
 			if (isDestroyed) {
 				throw new IllegalStateException("Network buffer pool has already been destroyed.");
 			}
 
-			if (numTotalRequiredBuffers + numRequiredBuffers > totalNumberOfMemorySegments) {
+			if (numTotalRequiredBuffers + numberOfSegmentsToRequest > totalNumberOfMemorySegments) {
 				throw new IOException(String.format("Insufficient number of network buffers: " +
 								"required %d, but only %d available. The total number of network " +
 								"buffers is currently set to %d of %d bytes each. You can increase this " +
 								"number by setting the configuration keys '%s', '%s', and '%s'.",
-						numRequiredBuffers,
+					numberOfSegmentsToRequest,
 						totalNumberOfMemorySegments - numTotalRequiredBuffers,
 						totalNumberOfMemorySegments,
 						memorySegmentSize,
@@ -156,12 +162,12 @@ public class NetworkBufferPool implements BufferPoolFactory {
 						TaskManagerOptions.NETWORK_BUFFERS_MEMORY_MAX.key()));
 			}
 
-			this.numTotalRequiredBuffers += numRequiredBuffers;
+			this.numTotalRequiredBuffers += numberOfSegmentsToRequest;
 
 			try {
 				redistributeBuffers();
 			} catch (Throwable t) {
-				this.numTotalRequiredBuffers -= numRequiredBuffers;
+				this.numTotalRequiredBuffers -= numberOfSegmentsToRequest;
 
 				try {
 					redistributeBuffers();
@@ -172,9 +178,9 @@ public class NetworkBufferPool implements BufferPoolFactory {
 			}
 		}
 
-		final List<MemorySegment> segments = new ArrayList<>(numRequiredBuffers);
+		final List<MemorySegment> segments = new ArrayList<>(numberOfSegmentsToRequest);
 		try {
-			while (segments.size() < numRequiredBuffers) {
+			while (segments.size() < numberOfSegmentsToRequest) {
 				if (isDestroyed) {
 					throw new IllegalStateException("Buffer pool is destroyed.");
 				}
@@ -186,7 +192,7 @@ public class NetworkBufferPool implements BufferPoolFactory {
 			}
 		} catch (Throwable e) {
 			try {
-				recycleMemorySegments(segments, numRequiredBuffers);
+				recycleMemorySegments(segments, numberOfSegmentsToRequest);
 			} catch (IOException inner) {
 				e.addSuppressed(inner);
 			}
@@ -196,11 +202,12 @@ public class NetworkBufferPool implements BufferPoolFactory {
 		return segments;
 	}
 
-	public void recycleMemorySegments(List<MemorySegment> segments) throws IOException {
+	@Override
+	public void recycleMemorySegments(Collection<MemorySegment> segments) throws IOException {
 		recycleMemorySegments(segments, segments.size());
 	}
 
-	private void recycleMemorySegments(List<MemorySegment> segments, int size) throws IOException {
+	private void recycleMemorySegments(Collection<MemorySegment> segments, int size) throws IOException {
 		synchronized (factoryLock) {
 			numTotalRequiredBuffers -= size;
 

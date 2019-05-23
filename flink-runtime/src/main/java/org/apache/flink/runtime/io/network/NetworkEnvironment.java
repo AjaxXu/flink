@@ -27,7 +27,6 @@ import org.apache.flink.runtime.deployment.InputGateDeploymentDescriptor;
 import org.apache.flink.runtime.deployment.ResultPartitionDeploymentDescriptor;
 import org.apache.flink.runtime.executiongraph.ExecutionAttemptID;
 import org.apache.flink.runtime.io.disk.iomanager.IOManager;
-import org.apache.flink.runtime.io.network.buffer.BufferPool;
 import org.apache.flink.runtime.io.network.buffer.NetworkBufferPool;
 import org.apache.flink.runtime.io.network.metrics.InputBufferPoolUsageGauge;
 import org.apache.flink.runtime.io.network.metrics.InputBuffersGauge;
@@ -40,14 +39,14 @@ import org.apache.flink.runtime.io.network.netty.NettyConfig;
 import org.apache.flink.runtime.io.network.netty.NettyConnectionManager;
 import org.apache.flink.runtime.io.network.partition.ResultPartition;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionConsumableNotifier;
+import org.apache.flink.runtime.io.network.partition.ResultPartitionFactory;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionID;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionManager;
 import org.apache.flink.runtime.io.network.partition.consumer.SingleInputGate;
+import org.apache.flink.runtime.io.network.partition.consumer.SingleInputGateFactory;
 import org.apache.flink.runtime.taskexecutor.TaskExecutor;
 import org.apache.flink.runtime.taskmanager.NetworkEnvironmentConfiguration;
-import org.apache.flink.runtime.taskmanager.Task;
 import org.apache.flink.runtime.taskmanager.TaskActions;
-import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.Preconditions;
 
 import org.slf4j.Logger;
@@ -55,7 +54,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Optional;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
@@ -94,36 +92,76 @@ public class NetworkEnvironment {
 	// 任务事件分发器，从消费者任务分发事件给生产者任务；
 	private final TaskEventPublisher taskEventPublisher;
 
-	private final IOManager ioManager;
+	private final ResultPartitionFactory resultPartitionFactory;
+
+	private final SingleInputGateFactory singleInputGateFactory;
 
 	private boolean isShutdown;
 
-	public NetworkEnvironment(
+	private NetworkEnvironment(
+			NetworkEnvironmentConfiguration config,
+			NetworkBufferPool networkBufferPool,
+			ConnectionManager connectionManager,
+			ResultPartitionManager resultPartitionManager,
+			TaskEventPublisher taskEventPublisher,
+			ResultPartitionFactory resultPartitionFactory,
+			SingleInputGateFactory singleInputGateFactory) {
+		this.config = config;
+		this.networkBufferPool = networkBufferPool;
+		this.connectionManager = connectionManager;
+		this.resultPartitionManager = resultPartitionManager;
+		this.taskEventPublisher = taskEventPublisher;
+		this.resultPartitionFactory = resultPartitionFactory;
+		this.singleInputGateFactory = singleInputGateFactory;
+		this.isShutdown = false;
+	}
+
+	public static NetworkEnvironment create(
 			NetworkEnvironmentConfiguration config,
 			TaskEventPublisher taskEventPublisher,
 			MetricGroup metricGroup,
 			IOManager ioManager) {
-		this.config = checkNotNull(config);
-
-		// 首先根据配置创建网络缓冲池（NetworkBufferPool）
-		this.networkBufferPool = new NetworkBufferPool(config.numNetworkBuffers(), config.networkBufferSize());
+		checkNotNull(ioManager);
+		checkNotNull(taskEventPublisher);
+		checkNotNull(config);
 
 		NettyConfig nettyConfig = config.nettyConfig();
-		if (nettyConfig != null) {
-			this.connectionManager = new NettyConnectionManager(nettyConfig, config.isCreditBased());
-		} else {
-			this.connectionManager = new LocalConnectionManager();
-		}
 
-		this.resultPartitionManager = new ResultPartitionManager();
+		ResultPartitionManager resultPartitionManager = new ResultPartitionManager();
 
-		this.taskEventPublisher = checkNotNull(taskEventPublisher);
+		ConnectionManager connectionManager = nettyConfig != null ?
+			new NettyConnectionManager(resultPartitionManager, taskEventPublisher, nettyConfig, config.isCreditBased()) :
+			new LocalConnectionManager();
+
+		NetworkBufferPool networkBufferPool = new NetworkBufferPool(
+			config.numNetworkBuffers(),
+			config.networkBufferSize(),
+			config.networkBuffersPerChannel());
 
 		registerNetworkMetrics(metricGroup, networkBufferPool);
 
-		this.ioManager = checkNotNull(ioManager);
+		ResultPartitionFactory resultPartitionFactory = new ResultPartitionFactory(
+			resultPartitionManager,
+			ioManager,
+			networkBufferPool,
+			config.networkBuffersPerChannel(),
+			config.floatingNetworkBuffersPerGate());
 
-		isShutdown = false;
+		SingleInputGateFactory singleInputGateFactory = new SingleInputGateFactory(
+			config,
+			connectionManager,
+			resultPartitionManager,
+			taskEventPublisher,
+			networkBufferPool);
+
+		return new NetworkEnvironment(
+			config,
+			networkBufferPool,
+			connectionManager,
+			resultPartitionManager,
+			taskEventPublisher,
+			resultPartitionFactory,
+			singleInputGateFactory);
 	}
 
 	private static void registerNetworkMetrics(MetricGroup metricGroup, NetworkBufferPool networkBufferPool) {
@@ -153,103 +191,9 @@ public class NetworkEnvironment {
 		return networkBufferPool;
 	}
 
+	@VisibleForTesting
 	public NetworkEnvironmentConfiguration getConfiguration() {
 		return config;
-	}
-
-	// --------------------------------------------------------------------------------------------
-	//  Task operations
-	//  NetworkEnvironment对象会为当前任务生产端的每个ResultPartition都创建本地缓冲池，缓冲池中的Buffer数为结果分区的子分区数，
-	//  同时为当前任务消费端的InputGate创建本地缓冲池，缓冲池的Buffer数为InputGate所包含的输入信道数。
-	//  这些缓冲池都是非固定大小的，也就是说他们会按照网络缓冲池内存段的使用情况进行重平衡。
-	// --------------------------------------------------------------------------------------------
-
-	public void registerTask(Task task) throws IOException {
-		//获得当前任务对象所生产的结果分区集合
-		final ResultPartition[] producedPartitions = task.getProducedPartitions();
-
-		synchronized (lock) {
-			if (isShutdown) {
-				throw new IllegalStateException("NetworkEnvironment is shut down");
-			}
-
-			for (final ResultPartition partition : producedPartitions) {
-				// 创建等同于subPartiton大小的localBuffer，并register到ResultPartition, 如果配置浮动数量，还有增加相应的浮动数量
-				setupPartition(partition);
-			}
-
-			// Setup the buffer pool for each buffer reader
-			//获得任务的所有输入闸门
-			final SingleInputGate[] inputGates = task.getAllInputGates();
-			//遍历输入闸门，为它们设置缓冲池
-			for (SingleInputGate gate : inputGates) {
-				setupInputGate(gate);
-			}
-		}
-	}
-
-	@VisibleForTesting
-	public void setupPartition(ResultPartition partition) throws IOException {
-		BufferPool bufferPool = null;
-
-		try {
-			int maxNumberOfMemorySegments = partition.getPartitionType().isBounded() ?
-				partition.getNumberOfSubpartitions() * config.networkBuffersPerChannel() +
-					config.floatingNetworkBuffersPerGate() : Integer.MAX_VALUE;
-			// If the partition type is back pressure-free, we register with the buffer pool for
-			// callbacks to release memory.
-			// 用网络缓冲池创建本地缓冲池
-			bufferPool = networkBufferPool.createBufferPool(partition.getNumberOfSubpartitions(),
-				maxNumberOfMemorySegments,
-				partition.getPartitionType().hasBackPressure() ? Optional.empty() : Optional.of(partition));
-			//将本地缓冲池注册到结果分区
-			partition.registerBufferPool(bufferPool);
-			//结果分区会被注册到结果分区管理器
-			resultPartitionManager.registerResultPartition(partition);
-		} catch (Throwable t) {
-			if (bufferPool != null) {
-				bufferPool.lazyDestroy();
-			}
-
-			if (t instanceof IOException) {
-				throw (IOException) t;
-			} else {
-				throw new IOException(t.getMessage(), t);
-			}
-		}
-	}
-
-	@VisibleForTesting
-	public void setupInputGate(SingleInputGate gate) throws IOException {
-		BufferPool bufferPool = null;
-		int maxNumberOfMemorySegments;
-		try {
-			if (config.isCreditBased()) {
-				maxNumberOfMemorySegments = gate.getConsumedPartitionType().isBounded() ?
-					config.floatingNetworkBuffersPerGate() : Integer.MAX_VALUE;
-
-				// assign exclusive buffers to input channels directly and use the rest for floating buffers
-				// 赋予每个inputChannel专用的buffers，数量有配置参数决定
-				gate.assignExclusiveSegments(networkBufferPool, config.networkBuffersPerChannel());
-				//为每个输入闸门设置本地缓冲池
-				bufferPool = networkBufferPool.createBufferPool(0, maxNumberOfMemorySegments);
-			} else {
-				maxNumberOfMemorySegments = gate.getConsumedPartitionType().isBounded() ?
-					gate.getNumberOfInputChannels() * config.networkBuffersPerChannel() +
-						config.floatingNetworkBuffersPerGate() : Integer.MAX_VALUE;
-
-				//为每个输入闸门设置本地缓冲池，初始化的缓冲数为其包含的输入信道数
-				bufferPool = networkBufferPool.createBufferPool(gate.getNumberOfInputChannels(),
-					maxNumberOfMemorySegments);
-			}
-			gate.setBufferPool(bufferPool);
-		} catch (Throwable t) {
-			if (bufferPool != null) {
-				bufferPool.lazyDestroy();
-			}
-
-			ExceptionUtils.rethrowIOException(t);
-		}
 	}
 
 	/**
@@ -282,18 +226,8 @@ public class NetworkEnvironment {
 			ResultPartition[] resultPartitions = new ResultPartition[resultPartitionDeploymentDescriptors.size()];
 			int counter = 0;
 			for (ResultPartitionDeploymentDescriptor rpdd : resultPartitionDeploymentDescriptors) {
-				resultPartitions[counter++] = new ResultPartition(
-					taskName,
-					taskActions,
-					jobId,
-					new ResultPartitionID(rpdd.getPartitionId(), executionId),
-					rpdd.getPartitionType(),
-					rpdd.getNumberOfSubpartitions(),
-					rpdd.getMaxParallelism(),
-					resultPartitionManager,
-					partitionConsumableNotifier,
-					ioManager,
-					rpdd.sendScheduleOrUpdateConsumersMessage());
+				resultPartitions[counter++] = resultPartitionFactory.create(
+					taskName, taskActions, jobId, executionId, rpdd, partitionConsumableNotifier);
 			}
 
 			registerOutputMetrics(outputGroup, buffersGroup, resultPartitions);
@@ -317,12 +251,10 @@ public class NetworkEnvironment {
 			SingleInputGate[] inputGates = new SingleInputGate[inputGateDeploymentDescriptors.size()];
 			int counter = 0;
 			for (InputGateDeploymentDescriptor igdd : inputGateDeploymentDescriptors) {
-				inputGates[counter++] = SingleInputGate.create(
+				inputGates[counter++] = singleInputGateFactory.create(
 					taskName,
 					jobId,
 					igdd,
-					this,
-					taskEventPublisher,
 					taskActions,
 					inputChannelMetrics,
 					numBytesInCounter);
@@ -357,8 +289,7 @@ public class NetworkEnvironment {
 
 			try {
 				LOG.debug("Starting network connection manager");
-				//启动网络连接管理器
-				connectionManager.start(resultPartitionManager, taskEventPublisher);
+				connectionManager.start();
 			} catch (IOException t) {
 				throw new IOException("Failed to instantiate network connection manager.", t);
 			}

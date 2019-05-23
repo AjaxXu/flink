@@ -36,6 +36,8 @@ import java.io.IOException;
  * 用于创建分区请求客户端PartitionRequestClient），这些对象都在NettyConnectionManager构造器中被初始化。
  *
  */
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 public class NettyConnectionManager implements ConnectionManager {
 
 	private final NettyServer server;
@@ -47,30 +49,31 @@ public class NettyConnectionManager implements ConnectionManager {
 	// 用于创建分区请求客户端PartitionRequestClient
 	private final PartitionRequestClientFactory partitionRequestClientFactory;
 
-	private final boolean isCreditBased;
+	private final NettyProtocol nettyProtocol;
 
-	public NettyConnectionManager(NettyConfig nettyConfig, boolean isCreditBased) {
+	public NettyConnectionManager(
+		ResultPartitionProvider partitionProvider,
+		TaskEventPublisher taskEventPublisher,
+		NettyConfig nettyConfig,
+		boolean isCreditBased) {
+
 		this.server = new NettyServer(nettyConfig);
 		this.client = new NettyClient(nettyConfig);
 		this.bufferPool = new NettyBufferPool(nettyConfig.getNumberOfArenas());
 
 		this.partitionRequestClientFactory = new PartitionRequestClientFactory(client);
 
-		this.isCreditBased = isCreditBased;
+		this.nettyProtocol = new NettyProtocol(checkNotNull(partitionProvider), checkNotNull(taskEventPublisher), isCreditBased);
 	}
 
 	/**
 	 * Netty客户端和服务器对象的启动和停止都是由NettyConnectionManager统一控制的
-	 * @param partitionProvider, ResultPartitionManager对象
-	 * @param taskEventPublisher，task时间发布者
 	 * @throws IOException
 	 */
 	@Override
-	public void start(ResultPartitionProvider partitionProvider, TaskEventPublisher taskEventPublisher) throws IOException {
-		NettyProtocol partitionRequestProtocol = new NettyProtocol(partitionProvider, taskEventPublisher, isCreditBased);
-
-		client.init(partitionRequestProtocol, bufferPool);
-		server.init(partitionRequestProtocol, bufferPool);
+	public void start() throws IOException {
+		client.init(nettyProtocol, bufferPool);
+		server.init(nettyProtocol, bufferPool);
 	}
 
 	@Override

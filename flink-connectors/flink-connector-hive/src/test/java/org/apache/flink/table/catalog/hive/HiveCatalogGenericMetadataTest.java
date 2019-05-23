@@ -18,8 +18,8 @@
 
 package org.apache.flink.table.catalog.hive;
 
-import org.apache.flink.api.common.typeinfo.BasicArrayTypeInfo;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
+import org.apache.flink.api.common.typeinfo.PrimitiveArrayTypeInfo;
 import org.apache.flink.api.common.typeinfo.SqlTimeTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.TableSchema;
@@ -32,7 +32,6 @@ import org.apache.flink.table.catalog.GenericCatalogDatabase;
 import org.apache.flink.table.catalog.GenericCatalogFunction;
 import org.apache.flink.table.catalog.GenericCatalogTable;
 import org.apache.flink.table.catalog.GenericCatalogView;
-import org.apache.flink.table.catalog.exceptions.CatalogException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,8 +65,8 @@ public class HiveCatalogGenericMetadataTest extends CatalogTestBase {
 			BasicTypeInfo.DOUBLE_TYPE_INFO,
 			BasicTypeInfo.BOOLEAN_TYPE_INFO,
 			BasicTypeInfo.STRING_TYPE_INFO,
-			BasicArrayTypeInfo.BYTE_ARRAY_TYPE_INFO,
-			BasicTypeInfo.DATE_TYPE_INFO,
+			PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO,
+			SqlTimeTypeInfo.DATE,
 			SqlTimeTypeInfo.TIMESTAMP
 		};
 
@@ -91,21 +90,6 @@ public class HiveCatalogGenericMetadataTest extends CatalogTestBase {
 		catalog.createTable(path1, table, false);
 
 		checkEquals(table, (CatalogTable) catalog.getTable(path1));
-	}
-
-	// ------ functions ------
-
-	@Test
-	public void testAlterFunction_differentTypedFunction() throws Exception {
-		catalog.createDatabase(db1, createDb(), false);
-		catalog.createFunction(path1, createFunction(), false);
-
-		exception.expect(CatalogException.class);
-		exception.expectMessage(
-			"Function types don't match. " +
-				"Existing function is 'org.apache.flink.table.catalog.GenericCatalogFunction' and " +
-				"new function is 'org.apache.flink.table.catalog.CatalogTestBase$TestFunction'.");
-		catalog.alterFunction(path1, new TestFunction(), false);
 	}
 
 	// ------ test utils ------

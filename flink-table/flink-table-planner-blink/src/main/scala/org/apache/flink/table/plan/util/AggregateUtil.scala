@@ -17,7 +17,8 @@
  */
 package org.apache.flink.table.plan.util
 
-import org.apache.flink.api.common.typeinfo.{TypeInformation, Types}
+import org.apache.flink.api.common.typeinfo.{BasicTypeInfo, TypeInformation, Types}
+import org.apache.flink.table.JLong
 import org.apache.flink.table.`type`.InternalTypes._
 import org.apache.flink.table.`type`.{DecimalType, InternalType, InternalTypes, TypeConverters}
 import org.apache.flink.table.api.{TableConfig, TableConfigOptions, TableException}
@@ -26,7 +27,7 @@ import org.apache.flink.table.calcite.{FlinkTypeFactory, FlinkTypeSystem}
 import org.apache.flink.table.dataformat.BaseRow
 import org.apache.flink.table.dataview.DataViewUtils.useNullSerializerForStateViewFieldsFromAccType
 import org.apache.flink.table.dataview.{DataViewSpec, MapViewSpec}
-import org.apache.flink.table.expressions.{FieldReferenceExpression, ProctimeAttribute, RexNodeConverter, RowtimeAttribute, ValueLiteralExpression, WindowEnd, WindowStart}
+import org.apache.flink.table.expressions._
 import org.apache.flink.table.functions.aggfunctions.DeclarativeAggregateFunction
 import org.apache.flink.table.functions.sql.{FlinkSqlOperatorTable, SqlConcatAggFunction, SqlFirstLastValueAggFunction}
 import org.apache.flink.table.functions.utils.AggSqlFunction
@@ -34,7 +35,7 @@ import org.apache.flink.table.functions.utils.UserDefinedFunctionUtils._
 import org.apache.flink.table.functions.{AggregateFunction, UserDefinedFunction}
 import org.apache.flink.table.plan.`trait`.RelModifiedMonotonicity
 import org.apache.flink.table.runtime.bundle.trigger.CountBundleTrigger
-import org.apache.flink.table.typeutils.{BaseRowTypeInfo, BinaryStringTypeInfo, DecimalTypeInfo, MapViewTypeInfo, RowIntervalTypeInfo, TimeIndicatorTypeInfo, TimeIntervalTypeInfo}
+import org.apache.flink.table.typeutils.{BaseRowTypeInfo, BinaryStringTypeInfo, DecimalTypeInfo, MapViewTypeInfo, TimeIndicatorTypeInfo, TimeIntervalTypeInfo}
 
 import org.apache.calcite.rel.`type`._
 import org.apache.calcite.rel.core.{Aggregate, AggregateCall}
@@ -44,7 +45,6 @@ import org.apache.calcite.sql.validate.SqlMonotonicity
 import org.apache.calcite.sql.{SqlKind, SqlRankFunction}
 import org.apache.calcite.tools.RelBuilder
 
-import java.lang.{Long => JLong}
 import java.time.Duration
 import java.util
 
@@ -714,11 +714,11 @@ object AggregateUtil extends Enumeration {
   }
 
   def isRowIntervalType(intervalType: TypeInformation[_]): Boolean = {
-    intervalType == RowIntervalTypeInfo.INTERVAL_ROWS
+    intervalType == BasicTypeInfo.LONG_TYPE_INFO
   }
 
   def toLong(literalExpr: ValueLiteralExpression): JLong = {
-    if (literalExpr.getType == RowIntervalTypeInfo.INTERVAL_ROWS) {
+    if (literalExpr.getType == BasicTypeInfo.LONG_TYPE_INFO) {
       literalExpr.getValue match {
         case v: JLong => v
         case _ => throw new IllegalArgumentException()
@@ -734,6 +734,14 @@ object AggregateUtil extends Enumeration {
         case v: JLong => Duration.ofMillis(v)
         case _ => throw new IllegalArgumentException()
       }
+    } else {
+      throw new IllegalArgumentException()
+    }
+  }
+
+  def extractTimeIntervalValue(literal: ValueLiteralExpression): JLong = {
+    if (isTimeIntervalType(literal.getType)) {
+      literal.getValue.asInstanceOf[JLong]
     } else {
       throw new IllegalArgumentException()
     }

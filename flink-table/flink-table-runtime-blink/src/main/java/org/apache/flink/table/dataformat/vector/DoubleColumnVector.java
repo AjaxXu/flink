@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,26 +16,11 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.typeutils;
-
-import org.apache.flink.annotation.Internal;
+package org.apache.flink.table.dataformat.vector;
 
 /**
- * Type information for row intervals.
+ * Double column vector.
  */
-@Internal
-public final class RowIntervalTypeInfo extends InternalTypeInfo<Long> {
-
-	private static final long serialVersionUID = -1306179424364925258L;
-
-	public static final RowIntervalTypeInfo INTERVAL_ROWS = new RowIntervalTypeInfo();
-
-	private RowIntervalTypeInfo() {
-		super(Long.class);
-	}
-
-	@Override
-	public boolean canEqual(Object obj) {
-		return obj instanceof RowIntervalTypeInfo;
-	}
+public interface DoubleColumnVector extends ColumnVector {
+	double getDouble(int i);
 }

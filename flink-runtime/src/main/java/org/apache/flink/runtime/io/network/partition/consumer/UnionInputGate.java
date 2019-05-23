@@ -280,6 +280,10 @@ public class UnionInputGate extends InputGate {
 	}
 
 	@Override
+	public void setup() {
+	}
+
+	@Override
 	public void close() throws IOException {
 	}
 

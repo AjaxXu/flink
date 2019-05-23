@@ -18,32 +18,23 @@
 
 package org.apache.flink.runtime.io.network.partition.consumer;
 
-import org.apache.flink.api.common.JobID;
-import org.apache.flink.metrics.SimpleCounter;
 import org.apache.flink.runtime.concurrent.FutureUtils;
 import org.apache.flink.runtime.execution.CancelTaskException;
-import org.apache.flink.runtime.io.disk.iomanager.IOManager;
 import org.apache.flink.runtime.io.network.TaskEventDispatcher;
 import org.apache.flink.runtime.io.network.buffer.BufferBuilder;
 import org.apache.flink.runtime.io.network.buffer.BufferPool;
 import org.apache.flink.runtime.io.network.buffer.BufferProvider;
 import org.apache.flink.runtime.io.network.buffer.NetworkBufferPool;
 import org.apache.flink.runtime.io.network.partition.BufferAvailabilityListener;
-import org.apache.flink.runtime.io.network.partition.InputChannelTestUtils;
-import org.apache.flink.runtime.io.network.partition.NoOpResultPartitionConsumableNotifier;
 import org.apache.flink.runtime.io.network.partition.PartitionNotFoundException;
 import org.apache.flink.runtime.io.network.partition.ResultPartition;
-import org.apache.flink.runtime.io.network.partition.ResultPartitionConsumableNotifier;
+import org.apache.flink.runtime.io.network.partition.ResultPartitionBuilder;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionID;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionManager;
-import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
 import org.apache.flink.runtime.io.network.partition.ResultSubpartitionView;
 import org.apache.flink.runtime.io.network.util.TestBufferFactory;
 import org.apache.flink.runtime.io.network.util.TestPartitionProducer;
 import org.apache.flink.runtime.io.network.util.TestProducerSource;
-import org.apache.flink.runtime.jobgraph.IntermediateDataSetID;
-import org.apache.flink.runtime.jobgraph.IntermediateResultPartitionID;
-import org.apache.flink.runtime.taskmanager.NoOpTaskActions;
 import org.apache.flink.util.function.CheckedSupplier;
 
 import org.apache.flink.shaded.guava18.com.google.common.collect.Lists;
@@ -107,13 +98,7 @@ public class LocalInputChannelTest {
 
 		final NetworkBufferPool networkBuffers = new NetworkBufferPool(
 			(parallelism * producerBufferPoolSize) + (parallelism * parallelism),
-			TestBufferFactory.BUFFER_SIZE);
-
-		final ResultPartitionConsumableNotifier partitionConsumableNotifier = new NoOpResultPartitionConsumableNotifier();
-
-		final IOManager ioManager = mock(IOManager.class);
-
-		final JobID jobId = new JobID();
+			TestBufferFactory.BUFFER_SIZE, 1);
 
 		final ResultPartitionManager partitionManager = new ResultPartitionManager();
 
@@ -124,22 +109,18 @@ public class LocalInputChannelTest {
 		for (int i = 0; i < parallelism; i++) {
 			partitionIds[i] = new ResultPartitionID();
 
-			final ResultPartition partition = new ResultPartition(
-				"Test Name",
-				new NoOpTaskActions(),
-				jobId,
-				partitionIds[i],
-				ResultPartitionType.PIPELINED,
-				parallelism,
-				parallelism,
-				partitionManager,
-				partitionConsumableNotifier,
-				ioManager,
-				true);
+			final ResultPartition partition = new ResultPartitionBuilder()
+				.setResultPartitionId(partitionIds[i])
+				.setNumberOfSubpartitions(parallelism)
+				.setNumTargetKeyGroups(parallelism)
+				.setResultPartitionManager(partitionManager)
+				.setSendScheduleOrUpdateConsumersMessage(true)
+				.setBufferPoolFactory(p ->
+					networkBuffers.createBufferPool(producerBufferPoolSize, producerBufferPoolSize))
+				.build();
 
 			// Create a buffer pool for this partition
-			partition.registerBufferPool(
-				networkBuffers.createBufferPool(producerBufferPoolSize, producerBufferPoolSize));
+			partition.setup();
 
 			// Create the producer
 			partitionProducers[i] = new TestPartitionProducer(
@@ -150,10 +131,6 @@ public class LocalInputChannelTest {
 					partition.getBufferProvider(),
 					numberOfBuffersPerChannel)
 			);
-
-			// Register with the partition manager in order to allow the local input channels to
-			// request their respective partitions.
-			partitionManager.registerResultPartition(partition);
 		}
 
 		// Test
@@ -315,8 +292,6 @@ public class LocalInputChannelTest {
 
 		final LocalInputChannel channel = createLocalInputChannel(gate, partitionManager, 1, 1);
 
-		gate.setInputChannel(new IntermediateResultPartitionID(), channel);
-
 		Thread releaser = new Thread() {
 			@Override
 			public void run() {
@@ -452,31 +427,22 @@ public class LocalInputChannelTest {
 			checkArgument(numberOfInputChannels >= 1);
 			checkArgument(numberOfExpectedBuffersPerChannel >= 1);
 
-			this.inputGate = new SingleInputGate(
-				"Test Name",
-				new JobID(),
-				new IntermediateDataSetID(),
-				ResultPartitionType.PIPELINED,
-				subpartitionIndex,
-				numberOfInputChannels,
-				new NoOpTaskActions(),
-				new SimpleCounter(),
-				true);
+			this.inputGate = new SingleInputGateBuilder()
+				.setConsumedSubpartitionIndex(subpartitionIndex)
+				.setNumberOfChannels(numberOfInputChannels)
+				.build();
 
 			// Set buffer pool
 			inputGate.setBufferPool(bufferPool);
 
 			// Setup input channels
 			for (int i = 0; i < numberOfInputChannels; i++) {
-				inputGate.setInputChannel(
-						new IntermediateResultPartitionID(),
-						new LocalInputChannel(
-								inputGate,
-								i,
-								consumedPartitionIds[i],
-								partitionManager,
-								taskEventDispatcher,
-								InputChannelTestUtils.newUnregisteredInputChannelMetrics()));
+				InputChannelBuilder.newBuilder()
+					.setChannelIndex(i)
+					.setPartitionManager(partitionManager)
+					.setPartitionId(consumedPartitionIds[i])
+					.setTaskEventPublisher(taskEventDispatcher)
+					.buildLocalAndSetToGate(inputGate);
 			}
 
 			this.numberOfInputChannels = numberOfInputChannels;

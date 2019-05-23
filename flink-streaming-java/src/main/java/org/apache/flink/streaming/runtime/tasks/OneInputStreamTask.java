@@ -39,8 +39,6 @@ public class OneInputStreamTask<IN, OUT> extends StreamTask<OUT, OneInputStreamO
 
 	private StreamInputProcessor<IN> inputProcessor;
 
-	private volatile boolean running = true;
-
 	private final WatermarkGauge inputWatermarkGauge = new WatermarkGauge();
 
 	/**
@@ -98,13 +96,9 @@ public class OneInputStreamTask<IN, OUT> extends StreamTask<OUT, OneInputStreamO
 	}
 
 	@Override
-	protected void run() throws Exception {
-		// cache processor reference on the stack, to make the code more JIT friendly
-		final StreamInputProcessor<IN> inputProcessor = this.inputProcessor;
-
-		// 就是一直不停地循环调用inputProcessor.processInput()方法，即StreamInputProcessor.processInput方法
-		while (running && inputProcessor.processInput()) {
-			// all the work happens in the "processInput" method
+	protected void performDefaultAction(ActionContext context) throws Exception {
+		if (!inputProcessor.processInput()) {
+			context.allActionsCompleted();
 		}
 	}
 
@@ -117,6 +111,5 @@ public class OneInputStreamTask<IN, OUT> extends StreamTask<OUT, OneInputStreamO
 
 	@Override
 	protected void cancelTask() {
-		running = false;
 	}
 }
