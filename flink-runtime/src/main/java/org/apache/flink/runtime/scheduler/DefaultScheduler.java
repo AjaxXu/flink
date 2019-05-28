@@ -17,12 +17,13 @@
  * under the License.
  */
 
-package org.apache.flink.runtime.jobmaster;
+package org.apache.flink.runtime.scheduler;
 
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.blob.BlobWriter;
 import org.apache.flink.runtime.checkpoint.CheckpointRecoveryFactory;
+import org.apache.flink.runtime.executiongraph.restart.ThrowingRestartStrategy;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobmaster.slotpool.SlotProvider;
 import org.apache.flink.runtime.metrics.groups.JobManagerJobMetricGroup;
@@ -34,23 +35,44 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * Factory for {@link SchedulerNG}.
+ * Stub implementation of the future default scheduler.
  */
-public interface SchedulerNGFactory {
+public class DefaultScheduler extends LegacyScheduler {
 
-	SchedulerNG createInstance(
-		Logger log,
-		JobGraph jobGraph,
-		BackPressureStatsTracker backPressureStatsTracker,
-		Executor ioExecutor,
-		Configuration jobMasterConfiguration,
-		SlotProvider slotProvider,
-		ScheduledExecutorService futureExecutor,
-		ClassLoader userCodeLoader,
-		CheckpointRecoveryFactory checkpointRecoveryFactory,
-		Time rpcTimeout,
-		BlobWriter blobWriter,
-		JobManagerJobMetricGroup jobManagerJobMetricGroup,
-		Time slotRequestTimeout) throws Exception;
+	public DefaultScheduler(
+			final Logger log,
+			final JobGraph jobGraph,
+			final BackPressureStatsTracker backPressureStatsTracker,
+			final Executor ioExecutor,
+			final Configuration jobMasterConfiguration,
+			final SlotProvider slotProvider,
+			final ScheduledExecutorService futureExecutor,
+			final ClassLoader userCodeLoader,
+			final CheckpointRecoveryFactory checkpointRecoveryFactory,
+			final Time rpcTimeout,
+			final BlobWriter blobWriter,
+			final JobManagerJobMetricGroup jobManagerJobMetricGroup,
+			final Time slotRequestTimeout) throws Exception {
 
+		super(
+			log,
+			jobGraph,
+			backPressureStatsTracker,
+			ioExecutor,
+			jobMasterConfiguration,
+			slotProvider,
+			futureExecutor,
+			userCodeLoader,
+			checkpointRecoveryFactory,
+			rpcTimeout,
+			new ThrowingRestartStrategy.ThrowingRestartStrategyFactory(),
+			blobWriter,
+			jobManagerJobMetricGroup,
+			slotRequestTimeout);
+	}
+
+	@Override
+	public void startScheduling() {
+		throw new UnsupportedOperationException();
+	}
 }

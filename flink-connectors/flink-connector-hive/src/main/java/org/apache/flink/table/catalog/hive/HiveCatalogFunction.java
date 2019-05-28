@@ -16,26 +16,34 @@
  * limitations under the License.
  */
 
-package org.apache.flink.runtime.taskexecutor.exceptions;
+package org.apache.flink.table.catalog.hive;
 
-import org.apache.flink.runtime.taskexecutor.TaskExecutor;
+import org.apache.flink.table.catalog.AbstractCatalogFunction;
+
+import java.util.HashMap;
+import java.util.Optional;
 
 /**
- * Exception indicating a problem with the result partitions on the {@link TaskExecutor} side.
+ * A hive catalog function implementation.
  */
-public class PartitionException extends TaskManagerException {
+public class HiveCatalogFunction extends AbstractCatalogFunction {
 
-	private static final long serialVersionUID = 6248696963418276618L;
-
-	public PartitionException(String message) {
-		super(message);
+	public HiveCatalogFunction(String className) {
+		super(className, new HashMap<>());
 	}
 
-	public PartitionException(String message, Throwable cause) {
-		super(message, cause);
+	@Override
+	public HiveCatalogFunction copy() {
+		return new HiveCatalogFunction(getClassName());
 	}
 
-	public PartitionException(Throwable cause) {
-		super(cause);
+	@Override
+	public Optional<String> getDescription() {
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<String> getDetailedDescription() {
+		return Optional.empty();
 	}
 }

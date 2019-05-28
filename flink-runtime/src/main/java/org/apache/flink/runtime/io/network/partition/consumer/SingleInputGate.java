@@ -412,6 +412,11 @@ public class SingleInputGate extends InputGate {
 		}
 	}
 
+	@VisibleForTesting
+	Timer getRetriggerLocalRequestTimer() {
+		return retriggerLocalRequestTimer;
+	}
+
 	@Override
 	public void close() throws IOException {
 		boolean released = false;

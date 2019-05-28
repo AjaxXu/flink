@@ -52,7 +52,6 @@ import org.apache.flink.runtime.io.network.NetworkEnvironment;
 import org.apache.flink.runtime.io.network.TaskEventDispatcher;
 import org.apache.flink.runtime.io.network.api.writer.ResultPartitionWriter;
 import org.apache.flink.runtime.io.network.netty.PartitionProducerStateChecker;
-import org.apache.flink.runtime.io.network.partition.ResultPartition;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionConsumableNotifier;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionID;
 import org.apache.flink.runtime.io.network.partition.consumer.InputGate;
@@ -190,7 +189,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 	/** Serialized version of the job specific execution configuration (see {@link ExecutionConfig}). */
 	private final SerializedValue<ExecutionConfig> serializedExecutionConfig;
 
-	private final ResultPartition[] producedPartitions;
+	private final ResultPartitionWriter[] producedPartitions;
 
 	private final SingleInputGate[] inputGates;
 
@@ -607,7 +606,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 
 			setupPartionsAndGates(producedPartitions, inputGates);
 
-			for (ResultPartition partition : producedPartitions) {
+			for (ResultPartitionWriter partition : producedPartitions) {
 				taskEventDispatcher.registerPartition(partition.getPartitionId());
 			}
 
@@ -705,7 +704,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 
 			// finish the produced partitions. if this fails, we consider the execution failed.
 			// 对当前任务所生产的所有结果分区调用finish方法进行资源释放
-			for (ResultPartition partition : producedPartitions) {
+			for (ResultPartitionWriter partition : producedPartitions) {
 				if (partition != null) {
 					partition.finish();
 				}
@@ -863,7 +862,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 	private void releaseNetworkResources() {
 		LOG.debug("Release task {} network resources (state: {}).", taskNameWithSubtask, getExecutionState());
 
-		for (ResultPartition partition : producedPartitions) {
+		for (ResultPartitionWriter partition : producedPartitions) {
 			taskEventDispatcher.unregisterPartition(partition.getPartitionId());
 			if (isCanceledOrFailed()) {
 				partition.fail(getFailureCause());
@@ -878,7 +877,7 @@ public class Task implements Runnable, TaskActions, CheckpointListener {
 	 * release partitions and gates. Another is from task thread during task exiting.
 	 */
 	private void closeNetworkResources() {
-		for (ResultPartition partition : producedPartitions) {
+		for (ResultPartitionWriter partition : producedPartitions) {
 			try {
 				partition.close();
 			} catch (Throwable t) {

@@ -263,6 +263,7 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 	 * 针对阻塞模式的ResultPartition的通知时机却需要等到数据生产完成之后（ResultPartition的finish方法被调用），
 	 * 通知消费者开始消费
 	 */
+	@Override
 	public void finish() throws IOException {
 		boolean success = false;
 
@@ -320,6 +321,7 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 		}
 	}
 
+	@Override
 	public void fail(@Nullable Throwable throwable) {
 		partitionManager.releasePartition(partitionId, throwable);
 	}

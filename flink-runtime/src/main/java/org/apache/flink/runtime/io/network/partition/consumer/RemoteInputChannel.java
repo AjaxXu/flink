@@ -24,13 +24,13 @@ import org.apache.flink.core.memory.MemorySegmentProvider;
 import org.apache.flink.runtime.event.TaskEvent;
 import org.apache.flink.runtime.io.network.ConnectionID;
 import org.apache.flink.runtime.io.network.ConnectionManager;
+import org.apache.flink.runtime.io.network.PartitionRequestClient;
 import org.apache.flink.runtime.io.network.buffer.Buffer;
 import org.apache.flink.runtime.io.network.buffer.BufferListener;
 import org.apache.flink.runtime.io.network.buffer.BufferProvider;
 import org.apache.flink.runtime.io.network.buffer.BufferRecycler;
 import org.apache.flink.runtime.io.network.buffer.NetworkBuffer;
 import org.apache.flink.runtime.io.network.metrics.InputChannelMetrics;
-import org.apache.flink.runtime.io.network.netty.PartitionRequestClient;
 import org.apache.flink.runtime.io.network.partition.PartitionNotFoundException;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionID;
 import org.apache.flink.util.ExceptionUtils;
@@ -169,8 +169,12 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 		if (partitionRequestClient == null) {
 			// Create a client and request the partition
 			// 通过一个ConnectionManager根据连接编号（对应着目的主机）来创建PartitionRequestClient实例
-			partitionRequestClient = connectionManager
-				.createPartitionRequestClient(connectionId);
+			try {
+				partitionRequestClient = connectionManager.createPartitionRequestClient(connectionId);
+			} catch (IOException e) {
+				// IOExceptions indicate that we could not open a connection to the remote TaskExecutor
+				throw new PartitionConnectionException(partitionId, e);
+			}
 
 			// 具体的请求工作被委托给PartitionRequestClient的实例
 			partitionRequestClient.requestSubpartition(partitionId, subpartitionIndex, this, 0);
