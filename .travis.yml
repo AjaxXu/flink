@@ -300,3 +300,18 @@ jobs:
       env: PROFILE="-Dinclude-kinesis"
       script: ./tools/travis/nightly.sh split_heavy.sh
       name: heavy
+    - # E2E profiles - Java 9
+    - if: type = cron
+      stage: test
+      jdk: "openjdk9"
+      env: PROFILE="-De2e-metrics -Dinclude-kinesis -Djdk9"
+      script: ./tools/travis/nightly.sh split_ha.sh
+      name: ha - jdk9
+    - if: type = cron
+      env: PROFILE="-Dinclude-kinesis -Djdk9"
+      script: ./tools/travis/nightly.sh split_sticky.sh
+      name: sticky - jdk 9
+    - if: type = cron
+      env: PROFILE="-Dinclude-kinesis -Djdk9"
+      script: ./tools/travis/nightly.sh split_checkpoints.sh
+      name: checkpoints - jdk 9
