@@ -209,7 +209,8 @@ public class Task implements Runnable, TaskActions, PartitionProducerStateProvid
 	/** The BLOB cache, from which the task can request BLOB files. */
 	private final BlobCacheService blobService;
 
-	/** The library cache, from which the task can request its class loader. */
+	/** The library cache, from which the task can request its class loader.
+	 * 库缓存，task能从中请求它的classloader*/
 	private final LibraryCacheManager libraryCache;
 
 	/** The cache for user-defined files that the invokable requires. */
@@ -890,6 +891,7 @@ public class Task implements Runnable, TaskActions, PartitionProducerStateProvid
 		long startDownloadTime = System.currentTimeMillis();
 
 		// triggers the download of all missing jar files from the job manager
+		// 从BlobServer下载相应的jar包并创建classloader
 		libraryCache.registerTask(jobId, executionId, requiredJarFiles, requiredClasspaths);
 
 		LOG.debug("Getting user code class loader for task {} at library cache manager took {} milliseconds",

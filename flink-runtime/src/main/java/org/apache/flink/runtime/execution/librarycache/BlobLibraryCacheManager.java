@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 提供从{@link PermanentBlobService}下载Job的一些列库(典型的是Jar文件)和创建带引用的classloader的工具
  * Provides facilities to download a set of libraries (typically JAR files) for a job from a
  * {@link PermanentBlobService} and create a class loader with references to them.
  */
@@ -91,6 +92,7 @@ public class BlobLibraryCacheManager implements LibraryCacheManager {
 		registerTask(id, JOB_ATTEMPT_ID, requiredJarFiles, requiredClasspaths);
 	}
 
+	// registerTask从BlobServer下载相应的jar包并创建classloader
 	@Override
 	public void registerTask(
 		JobID jobId,
@@ -136,6 +138,7 @@ public class BlobLibraryCacheManager implements LibraryCacheManager {
 						"Library cache could not register the user code libraries.", t);
 				}
 			} else {
+				// 如果entry不为空，判断jar包和classpath和classpath是否和已存在的相同，不相同抛出异常，相同引用+1
 				entry.register(task, requiredJarFiles, requiredClasspaths);
 			}
 		}
