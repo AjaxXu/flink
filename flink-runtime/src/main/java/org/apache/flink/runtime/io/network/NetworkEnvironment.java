@@ -99,9 +99,6 @@ public class NetworkEnvironment {
 
 	private final Map<InputGateID, SingleInputGate> inputGatesById;
 
-	// 任务事件分发器，从消费者任务分发事件给生产者任务；
-	private final TaskEventPublisher taskEventPublisher;
-
 	private final ResultPartitionFactory resultPartitionFactory;
 
 	private final SingleInputGateFactory singleInputGateFactory;
@@ -113,7 +110,6 @@ public class NetworkEnvironment {
 			NetworkBufferPool networkBufferPool,
 			ConnectionManager connectionManager,
 			ResultPartitionManager resultPartitionManager,
-			TaskEventPublisher taskEventPublisher,
 			ResultPartitionFactory resultPartitionFactory,
 			SingleInputGateFactory singleInputGateFactory) {
 		this.config = config;
@@ -121,7 +117,6 @@ public class NetworkEnvironment {
 		this.connectionManager = connectionManager;
 		this.resultPartitionManager = resultPartitionManager;
 		this.inputGatesById = new ConcurrentHashMap<>();
-		this.taskEventPublisher = taskEventPublisher;
 		this.resultPartitionFactory = resultPartitionFactory;
 		this.singleInputGateFactory = singleInputGateFactory;
 		this.isShutdown = false;
@@ -170,7 +165,6 @@ public class NetworkEnvironment {
 			networkBufferPool,
 			connectionManager,
 			resultPartitionManager,
-			taskEventPublisher,
 			resultPartitionFactory,
 			singleInputGateFactory);
 	}
@@ -193,6 +187,7 @@ public class NetworkEnvironment {
 		return resultPartitionManager;
 	}
 
+	@VisibleForTesting
 	public ConnectionManager getConnectionManager() {
 		return connectionManager;
 	}
@@ -323,7 +318,12 @@ public class NetworkEnvironment {
 		return true;
 	}
 
-	public void start() throws IOException {
+	/*
+	 * Starts the internal related components for network connection and communication.
+	 *
+	 * @return a port to connect to the task executor for shuffle data exchange, -1 if only local connection is possible.
+	 */
+	public int start() throws IOException {
 		synchronized (lock) {
 			Preconditions.checkState(!isShutdown, "The NetworkEnvironment has already been shut down.");
 
@@ -331,7 +331,7 @@ public class NetworkEnvironment {
 
 			try {
 				LOG.debug("Starting network connection manager");
-				connectionManager.start();
+				return connectionManager.start();
 			} catch (IOException t) {
 				throw new IOException("Failed to instantiate network connection manager.", t);
 			}

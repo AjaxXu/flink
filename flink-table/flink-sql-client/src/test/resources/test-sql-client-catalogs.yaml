@@ -112,7 +112,7 @@ execution:
     max-failures-per-interval: 10
     failure-rate-interval: 99000
     delay: 1000
-  current-catalog: catalog1
+  current-catalog: inmemorycatalog
   current-database: mydatabase
 
 deployment:
@@ -121,3 +121,9 @@ deployment:
 catalogs:
   - name: catalog1
     type: DependencyTest
+  - name: catalog2
+    type: DependencyTest
+    default-database: mydatabase
+  - name: inmemorycatalog
+    type: generic_in_memory
+    default-database: mydatabase

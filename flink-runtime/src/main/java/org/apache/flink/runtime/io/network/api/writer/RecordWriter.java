@@ -263,7 +263,7 @@ public class RecordWriter<T extends IOReadableWritable> {
 		checkState(!bufferBuilders[targetChannel].isPresent() || bufferBuilders[targetChannel].get().isFinished());
 
 		// 就是调用localBufferPool.requestMemorySegment, 然后封装成BufferBuilder
-		BufferBuilder bufferBuilder = targetPartition.getBufferProvider().requestBufferBuilderBlocking();
+		BufferBuilder bufferBuilder = targetPartition.getBufferBuilder();
 		bufferBuilders[targetChannel] = Optional.of(bufferBuilder);
 		// 一个bufferbuilder对应一个bufferconsumer
 		targetPartition.addBufferConsumer(bufferBuilder.createBufferConsumer(), targetChannel);
