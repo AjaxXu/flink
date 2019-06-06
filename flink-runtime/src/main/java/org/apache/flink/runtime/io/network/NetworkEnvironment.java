@@ -19,10 +19,9 @@
 package org.apache.flink.runtime.io.network;
 
 import org.apache.flink.annotation.VisibleForTesting;
-import org.apache.flink.api.common.JobID;
-import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.runtime.clusterframework.types.ResourceID;
 import org.apache.flink.runtime.deployment.InputGateDeploymentDescriptor;
 import org.apache.flink.runtime.deployment.ResultPartitionDeploymentDescriptor;
 import org.apache.flink.runtime.executiongraph.ExecutionAttemptID;
@@ -40,7 +39,6 @@ import org.apache.flink.runtime.io.network.netty.NettyConfig;
 import org.apache.flink.runtime.io.network.netty.NettyConnectionManager;
 import org.apache.flink.runtime.io.network.partition.PartitionProducerStateProvider;
 import org.apache.flink.runtime.io.network.partition.ResultPartition;
-import org.apache.flink.runtime.io.network.partition.ResultPartitionConsumableNotifier;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionFactory;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionID;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionManager;
@@ -49,9 +47,10 @@ import org.apache.flink.runtime.io.network.partition.consumer.InputGateID;
 import org.apache.flink.runtime.io.network.partition.consumer.SingleInputGate;
 import org.apache.flink.runtime.io.network.partition.consumer.SingleInputGateFactory;
 import org.apache.flink.runtime.jobgraph.IntermediateDataSetID;
+import org.apache.flink.runtime.shuffle.NettyShuffleDescriptor;
+import org.apache.flink.runtime.shuffle.ShuffleDescriptor;
 import org.apache.flink.runtime.taskexecutor.TaskExecutor;
 import org.apache.flink.runtime.taskmanager.NetworkEnvironmentConfiguration;
-import org.apache.flink.runtime.taskmanager.TaskActions;
 import org.apache.flink.util.Preconditions;
 
 import org.slf4j.Logger;
@@ -63,6 +62,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
@@ -86,6 +86,8 @@ public class NetworkEnvironment {
 
 	private final Object lock = new Object();
 
+	private final ResourceID taskExecutorLocation;
+
 	private final NetworkEnvironmentConfiguration config;
 
 	// 网络缓冲池，负责申请一个TaskManager的所有的内存段用作缓冲池；
@@ -106,12 +108,14 @@ public class NetworkEnvironment {
 	private boolean isShutdown;
 
 	private NetworkEnvironment(
+			ResourceID taskExecutorLocation,
 			NetworkEnvironmentConfiguration config,
 			NetworkBufferPool networkBufferPool,
 			ConnectionManager connectionManager,
 			ResultPartitionManager resultPartitionManager,
 			ResultPartitionFactory resultPartitionFactory,
 			SingleInputGateFactory singleInputGateFactory) {
+		this.taskExecutorLocation = taskExecutorLocation;
 		this.config = config;
 		this.networkBufferPool = networkBufferPool;
 		this.connectionManager = connectionManager;
@@ -123,10 +127,12 @@ public class NetworkEnvironment {
 	}
 
 	public static NetworkEnvironment create(
+			ResourceID taskExecutorLocation,
 			NetworkEnvironmentConfiguration config,
 			TaskEventPublisher taskEventPublisher,
 			MetricGroup metricGroup,
 			IOManager ioManager) {
+		checkNotNull(taskExecutorLocation);
 		checkNotNull(ioManager);
 		checkNotNull(taskEventPublisher);
 		checkNotNull(config);
@@ -154,6 +160,7 @@ public class NetworkEnvironment {
 			config.floatingNetworkBuffersPerGate());
 
 		SingleInputGateFactory singleInputGateFactory = new SingleInputGateFactory(
+			taskExecutorLocation,
 			config,
 			connectionManager,
 			resultPartitionManager,
@@ -161,6 +168,7 @@ public class NetworkEnvironment {
 			networkBufferPool);
 
 		return new NetworkEnvironment(
+			taskExecutorLocation,
 			config,
 			networkBufferPool,
 			connectionManager,
@@ -183,6 +191,7 @@ public class NetworkEnvironment {
 	//  Properties
 	// --------------------------------------------------------------------------------------------
 
+	@VisibleForTesting
 	public ResultPartitionManager getResultPartitionManager() {
 		return resultPartitionManager;
 	}
@@ -218,16 +227,23 @@ public class NetworkEnvironment {
 		}
 	}
 
+	/**
+	 * Report unreleased partitions.
+	 *
+	 * @return collection of partitions which still occupy some resources locally on this task executor
+	 * and have been not released yet.
+	 */
+	public Collection<ResultPartitionID> getUnreleasedPartitions() {
+		return resultPartitionManager.getUnreleasedPartitions();
+	}
+
 	// --------------------------------------------------------------------------------------------
 	//  Create Output Writers and Input Readers
 	// --------------------------------------------------------------------------------------------
 
 	public ResultPartition[] createResultPartitionWriters(
 			String taskName,
-			JobID jobId,
 			ExecutionAttemptID executionId,
-			TaskActions taskActions,
-			ResultPartitionConsumableNotifier partitionConsumableNotifier,
 			Collection<ResultPartitionDeploymentDescriptor> resultPartitionDeploymentDescriptors,
 			MetricGroup outputGroup,
 			MetricGroup buffersGroup) {
@@ -237,8 +253,7 @@ public class NetworkEnvironment {
 			ResultPartition[] resultPartitions = new ResultPartition[resultPartitionDeploymentDescriptors.size()];
 			int counter = 0;
 			for (ResultPartitionDeploymentDescriptor rpdd : resultPartitionDeploymentDescriptors) {
-				resultPartitions[counter++] = resultPartitionFactory.create(
-					taskName, taskActions, jobId, executionId, rpdd, partitionConsumableNotifier);
+				resultPartitions[counter++] = resultPartitionFactory.create(taskName, executionId, rpdd);
 			}
 
 			registerOutputMetrics(outputGroup, buffersGroup, resultPartitions);
@@ -253,8 +268,7 @@ public class NetworkEnvironment {
 			Collection<InputGateDeploymentDescriptor> inputGateDeploymentDescriptors,
 			MetricGroup parentGroup,
 			MetricGroup inputGroup,
-			MetricGroup buffersGroup,
-			Counter numBytesInCounter) {
+			MetricGroup buffersGroup) {
 		synchronized (lock) {
 			Preconditions.checkState(!isShutdown, "The NetworkEnvironment has already been shut down.");
 
@@ -266,8 +280,7 @@ public class NetworkEnvironment {
 					taskName,
 					igdd,
 					partitionProducerStateProvider,
-					inputChannelMetrics,
-					numBytesInCounter);
+					inputChannelMetrics);
 				InputGateID id = new InputGateID(igdd.getConsumedResultId(), executionId);
 				inputGatesById.put(id, inputGate);
 				inputGate.getCloseFuture().thenRun(() -> inputGatesById.remove(id));
@@ -314,7 +327,11 @@ public class NetworkEnvironment {
 		if (inputGate == null) {
 			return false;
 		}
-		inputGate.updateInputChannel(partitionInfo.getInputChannelDeploymentDescriptor());
+		ShuffleDescriptor shuffleDescriptor = partitionInfo.getShuffleDescriptor();
+		checkArgument(shuffleDescriptor instanceof NettyShuffleDescriptor,
+			"Tried to update unknown channel with unknown ShuffleDescriptor %s.",
+			shuffleDescriptor.getClass().getName());
+		inputGate.updateInputChannel(taskExecutorLocation, (NettyShuffleDescriptor) shuffleDescriptor);
 		return true;
 	}
 

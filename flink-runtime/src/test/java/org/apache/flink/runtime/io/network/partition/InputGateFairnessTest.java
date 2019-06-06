@@ -18,7 +18,6 @@
 
 package org.apache.flink.runtime.io.network.partition;
 
-import org.apache.flink.metrics.SimpleCounter;
 import org.apache.flink.runtime.io.network.ConnectionManager;
 import org.apache.flink.runtime.io.network.api.EndOfPartitionEvent;
 import org.apache.flink.runtime.io.network.api.serialization.EventSerializer;
@@ -96,7 +95,7 @@ public class InputGateFairnessTest {
 
 		// read all the buffers and the EOF event
 		for (int i = numberOfChannels * (buffersPerChannel + 1); i > 0; --i) {
-			assertNotNull(gate.getNextBufferOrEvent());
+			assertNotNull(gate.getNext());
 
 			int min = Integer.MAX_VALUE;
 			int max = 0;
@@ -110,7 +109,7 @@ public class InputGateFairnessTest {
 			assertTrue(max == min || max == (min + 1));
 		}
 
-		assertFalse(gate.getNextBufferOrEvent().isPresent());
+		assertFalse(gate.getNext().isPresent());
 	}
 
 	@Test
@@ -144,7 +143,7 @@ public class InputGateFairnessTest {
 
 			// read all the buffers and the EOF event
 			for (int i = 0; i < numberOfChannels * buffersPerChannel; i++) {
-				assertNotNull(gate.getNextBufferOrEvent());
+				assertNotNull(gate.getNext());
 
 				int min = Integer.MAX_VALUE;
 				int max = 0;
@@ -193,7 +192,7 @@ public class InputGateFairnessTest {
 
 		// read all the buffers and the EOF event
 		for (int i = numberOfChannels * (buffersPerChannel + 1); i > 0; --i) {
-			assertNotNull(gate.getNextBufferOrEvent());
+			assertNotNull(gate.getNext());
 
 			int min = Integer.MAX_VALUE;
 			int max = 0;
@@ -207,7 +206,7 @@ public class InputGateFairnessTest {
 			assertTrue(max == min || max == (min + 1));
 		}
 
-		assertFalse(gate.getNextBufferOrEvent().isPresent());
+		assertFalse(gate.getNext().isPresent());
 	}
 
 	@Test
@@ -236,7 +235,7 @@ public class InputGateFairnessTest {
 
 		// read all the buffers and the EOF event
 		for (int i = 0; i < numberOfChannels * buffersPerChannel; i++) {
-			assertNotNull(gate.getNextBufferOrEvent());
+			assertNotNull(gate.getNext());
 
 			int min = Integer.MAX_VALUE;
 			int max = 0;
@@ -331,7 +330,6 @@ public class InputGateFairnessTest {
 				consumedSubpartitionIndex,
 				numberOfInputChannels,
 				SingleInputGateBuilder.NO_OP_PRODUCER_CHECKER,
-				new SimpleCounter(),
 				isCreditBased,
 				STUB_BUFFER_POOL_FACTORY);
 
@@ -348,13 +346,13 @@ public class InputGateFairnessTest {
 		}
 
 		@Override
-		public Optional<BufferOrEvent> getNextBufferOrEvent() throws IOException, InterruptedException {
+		public Optional<BufferOrEvent> getNext() throws IOException, InterruptedException {
 			synchronized (channelsWithData) {
 				assertTrue("too many input channels", channelsWithData.size() <= getNumberOfInputChannels());
 				ensureUnique(channelsWithData);
 			}
 
-			return super.getNextBufferOrEvent();
+			return super.getNext();
 		}
 
 		private void ensureUnique(Collection<InputChannel> channels) {

@@ -19,9 +19,7 @@
 package org.apache.flink.runtime.io.network.partition.consumer;
 
 import org.apache.flink.annotation.VisibleForTesting;
-import org.apache.flink.metrics.Counter;
-import org.apache.flink.runtime.deployment.InputChannelDeploymentDescriptor;
-import org.apache.flink.runtime.deployment.ResultPartitionLocation;
+import org.apache.flink.runtime.clusterframework.types.ResourceID;
 import org.apache.flink.runtime.event.AbstractEvent;
 import org.apache.flink.runtime.event.TaskEvent;
 import org.apache.flink.runtime.io.network.api.EndOfPartitionEvent;
@@ -36,6 +34,7 @@ import org.apache.flink.runtime.io.network.partition.consumer.InputChannel.Buffe
 import org.apache.flink.runtime.jobgraph.DistributionPattern;
 import org.apache.flink.runtime.jobgraph.IntermediateDataSetID;
 import org.apache.flink.runtime.jobgraph.IntermediateResultPartitionID;
+import org.apache.flink.runtime.shuffle.NettyShuffleDescriptor;
 import org.apache.flink.util.function.SupplierWithException;
 
 import org.slf4j.Logger;
@@ -166,8 +165,6 @@ public class SingleInputGate extends InputGate {
 	/** A timer to retrigger local partition requests. Only initialized if actually needed. */
 	private Timer retriggerLocalRequestTimer;
 
-	private final Counter numBytesIn;
-
 	private final SupplierWithException<BufferPool, IOException> bufferPoolFactory;
 
 	private final CompletableFuture<Void> closeFuture;
@@ -179,7 +176,6 @@ public class SingleInputGate extends InputGate {
 		int consumedSubpartitionIndex,
 		int numberOfInputChannels,
 		PartitionProducerStateProvider partitionProducerStateProvider,
-		Counter numBytesIn,
 		boolean isCreditBased,
 		SupplierWithException<BufferPool, IOException> bufferPoolFactory) {
 
@@ -200,8 +196,6 @@ public class SingleInputGate extends InputGate {
 		this.enqueuedInputChannelsWithData = new BitSet(numberOfInputChannels);
 
 		this.partitionProducerStateProvider = checkNotNull(partitionProducerStateProvider);
-
-		this.numBytesIn = checkNotNull(numBytesIn);
 
 		this.isCreditBased = isCreditBased;
 
@@ -280,11 +274,6 @@ public class SingleInputGate extends InputGate {
 		return 0;
 	}
 
-	@Override
-	public String getOwningTaskName() {
-		return owningTaskName;
-	}
-
 	public CompletableFuture<Void> getCloseFuture() {
 		return closeFuture;
 	}
@@ -325,40 +314,34 @@ public class SingleInputGate extends InputGate {
 		}
 	}
 
-	public void updateInputChannel(InputChannelDeploymentDescriptor icdd) throws IOException, InterruptedException {
+	public void updateInputChannel(
+			ResourceID localLocation,
+			NettyShuffleDescriptor shuffleDescriptor) throws IOException, InterruptedException {
 		synchronized (requestLock) {
 			if (closeFuture.isDone()) {
 				// There was a race with a task failure/cancel
 				return;
 			}
 
-			final IntermediateResultPartitionID partitionId = icdd.getConsumedPartitionId().getPartitionId();
+			IntermediateResultPartitionID partitionId = shuffleDescriptor.getResultPartitionID().getPartitionId();
 
 			InputChannel current = inputChannels.get(partitionId);
 
 			// 确定UnknowInputChannel会转变的具体的通道类型
 			if (current instanceof UnknownInputChannel) {
-
 				UnknownInputChannel unknownChannel = (UnknownInputChannel) current;
-
+				boolean isLocal = shuffleDescriptor.isLocalTo(localLocation);
 				InputChannel newChannel;
-
-				ResultPartitionLocation partitionLocation = icdd.getConsumedPartitionLocation();
-
-				if (partitionLocation.isLocal()) {
+				if (isLocal) {
 					newChannel = unknownChannel.toLocalInputChannel();
-				}
-				else if (partitionLocation.isRemote()) {
-					newChannel = unknownChannel.toRemoteInputChannel(partitionLocation.getConnectionId());
-
-					if (this.isCreditBased) {
-						((RemoteInputChannel) newChannel).assignExclusiveSegments();
+				} else {
+					RemoteInputChannel remoteInputChannel =
+						unknownChannel.toRemoteInputChannel(shuffleDescriptor.getConnectionId());
+					if (isCreditBased) {
+						remoteInputChannel.assignExclusiveSegments();
 					}
+					newChannel = remoteInputChannel;
 				}
-				else {
-					throw new IllegalStateException("Tried to update unknown channel with unknown channel.");
-				}
-
 				LOG.debug("{}: Updated unknown input channel to {}.", owningTaskName, newChannel);
 
 				inputChannels.put(partitionId, newChannel);
@@ -460,15 +443,7 @@ public class SingleInputGate extends InputGate {
 
 	@Override
 	public boolean isFinished() {
-		synchronized (requestLock) {
-			for (InputChannel inputChannel : inputChannels.values()) {
-				if (!inputChannel.isReleased()) {
-					return false;
-				}
-			}
-		}
-
-		return true;
+		return hasReceivedAllEndOfPartitionEvents;
 	}
 
 	@Override
@@ -501,12 +476,12 @@ public class SingleInputGate extends InputGate {
 	// ------------------------------------------------------------------------
 
 	@Override
-	public Optional<BufferOrEvent> getNextBufferOrEvent() throws IOException, InterruptedException {
+	public Optional<BufferOrEvent> getNext() throws IOException, InterruptedException {
 		return getNextBufferOrEvent(true);
 	}
 
 	@Override
-	public Optional<BufferOrEvent> pollNextBufferOrEvent() throws IOException, InterruptedException {
+	public Optional<BufferOrEvent> pollNext() throws IOException, InterruptedException {
 		return getNextBufferOrEvent(false);
 	}
 
@@ -571,9 +546,6 @@ public class SingleInputGate extends InputGate {
 			Buffer buffer,
 			boolean moreAvailable,
 			InputChannel currentChannel) throws IOException, InterruptedException {
-		numBytesIn.inc(buffer.getSizeUnsafe());
-
-		//如果该Buffer是用户数据，则构建BufferOrEvent对象并返回
 		if (buffer.isBuffer()) {
 			return new BufferOrEvent(buffer, currentChannel.getChannelIndex(), moreAvailable);
 		}
@@ -598,9 +570,10 @@ public class SingleInputGate extends InputGate {
 					// 1. releasing inputChannelsWithData lock in this method and reaching this place
 					// 2. empty data notification that re-enqueues a channel
 					// we can end up with moreAvailable flag set to true, while we expect no more data.
-					checkState(!moreAvailable || !pollNextBufferOrEvent().isPresent());
+					checkState(!moreAvailable || !pollNext().isPresent());
 					moreAvailable = false;
 					hasReceivedAllEndOfPartitionEvents = true;
+					markAvailable();
 				}
 
 				//对外发出ResultSubpartition已被消费的通知同时释放资源
@@ -609,8 +582,17 @@ public class SingleInputGate extends InputGate {
 			}
 
 			//以事件来构建BufferOrEvent对象
-			return new BufferOrEvent(event, currentChannel.getChannelIndex(), moreAvailable);
+			return new BufferOrEvent(event, currentChannel.getChannelIndex(), moreAvailable, buffer.getSize());
 		}
+	}
+
+	private void markAvailable() {
+		CompletableFuture<?> toNotfiy;
+		synchronized (inputChannelsWithData) {
+			toNotfiy = isAvailable;
+			isAvailable = AVAILABLE;
+		}
+		toNotfiy.complete(null);
 	}
 
 	@Override

@@ -89,7 +89,7 @@ abstract class AbstractRecordReader<T extends IOReadableWritable> extends Abstra
 			}
 
 			//从输入闸门获得下一个Buffer或者事件对象
-			final BufferOrEvent bufferOrEvent = inputGate.getNextBufferOrEvent().orElseThrow(IllegalStateException::new);
+			final BufferOrEvent bufferOrEvent = inputGate.getNext().orElseThrow(IllegalStateException::new);
 
 			if (bufferOrEvent.isBuffer()) {
 				//设置当前的反序列化器，并将当前记录对应的Buffer给反序列化器

@@ -58,6 +58,13 @@ under the License.
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-hadoop-compatibility_${scala.binary.version}</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
 		<!-- Hadoop dependency -->
 		<!-- Hadoop as provided dependencies, so we can depend on them without pulling in Hadoop -->
 
@@ -116,10 +123,6 @@ under the License.
 				<exclusion>
 					<groupId>com.zaxxer</groupId>
 					<artifactId>HikariCP</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.jdo</groupId>
-					<artifactId>jdo-api</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>co.cask.tephra</groupId>
@@ -347,6 +350,21 @@ under the License.
 			<artifactId>flink-table-common</artifactId>
 			<version>${project.version}</version>
 			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+
+		<!--flink-java and flink-clients test dependencies used for HiveInputFormatTest-->
+
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-java</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-clients_${scala.binary.version}</artifactId>
+			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
 

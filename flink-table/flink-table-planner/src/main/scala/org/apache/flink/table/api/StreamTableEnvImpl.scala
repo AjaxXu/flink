@@ -19,7 +19,6 @@
 package org.apache.flink.table.api
 
 import _root_.java.lang.{Boolean => JBool}
-import _root_.java.util.concurrent.atomic.AtomicInteger
 
 import org.apache.calcite.plan.RelOptUtil
 import org.apache.calcite.plan.hep.HepMatchOrder
@@ -41,6 +40,7 @@ import org.apache.flink.table.catalog.CatalogManager
 import org.apache.flink.table.descriptors.{ConnectorDescriptor, StreamTableDescriptor}
 import org.apache.flink.table.explain.PlanJsonParser
 import org.apache.flink.table.expressions._
+import org.apache.flink.table.operations.DataStreamTableOperation
 import org.apache.flink.table.plan.nodes.FlinkConventions
 import org.apache.flink.table.plan.nodes.datastream.{DataStreamRel, UpdateAsRetractionTrait}
 import org.apache.flink.table.plan.rules.FlinkRuleSets
@@ -51,8 +51,9 @@ import org.apache.flink.table.runtime.types.{CRow, CRowTypeInfo}
 import org.apache.flink.table.runtime.{CRowMapRunner, OutputRowtimeProcessFunction}
 import org.apache.flink.table.sinks._
 import org.apache.flink.table.sources.{StreamTableSource, TableSource, TableSourceUtil}
+import org.apache.flink.table.typeutils.FieldInfoUtils.{calculateTableSchema, getFieldsInfo, isReferenceByPosition}
+import org.apache.flink.table.types.utils.TypeConversions.fromDataTypeToLegacyInfo
 import org.apache.flink.table.typeutils.{TimeIndicatorTypeInfo, TypeCheckUtils}
-import org.apache.flink.table.typeutils.FieldInfoUtils.{getFieldsInfo, isReferenceByPosition}
 
 import _root_.scala.collection.JavaConverters._
 
@@ -69,45 +70,17 @@ abstract class StreamTableEnvImpl(
     catalogManager: CatalogManager)
   extends TableEnvImpl(config, catalogManager) {
 
-  // a counter for unique table names
-  private val nameCntr: AtomicInteger = new AtomicInteger(0)
-
-  // the naming pattern for internally registered tables.
-  private val internalNamePattern = "^_DataStreamTable_[0-9]+$".r
-
   override def queryConfig: StreamQueryConfig = new StreamQueryConfig
-
-  /**
-    * Checks if the chosen table name is valid.
-    *
-    * @param name The table name to check.
-    */
-  override protected def checkValidTableName(name: String): Unit = {
-    val m = internalNamePattern.findFirstIn(name)
-    m match {
-      case Some(_) =>
-        throw new TableException(s"Illegal Table name. " +
-          s"Please choose a name that does not contain the pattern $internalNamePattern")
-      case None =>
-    }
-  }
-
-  /** Returns a unique table name according to the internal naming pattern. */
-  override protected def createUniqueTableName(): String =
-    "_DataStreamTable_" + nameCntr.getAndIncrement()
 
   /**
     * Registers an internal [[StreamTableSource]] in this [[TableEnvImpl]]'s catalog without
     * name checking. Registered tables can be referenced in SQL queries.
     *
-    * @param name        The name under which the [[TableSource]] is registered.
     * @param tableSource The [[TableSource]] to register.
     */
-  override protected def registerTableSourceInternal(
-      name: String,
-      tableSource: TableSource[_])
-    : Unit = {
+  override protected def validateTableSource(tableSource: TableSource[_]): Unit = {
 
+    TableSourceUtil.validateTableSource(tableSource)
     tableSource match {
 
       // check for proper stream table source
@@ -120,33 +93,6 @@ abstract class StreamTableEnvImpl(
                 s"environment. But is: ${execEnv.getStreamTimeCharacteristic}")
         }
 
-        // register
-        getTable(defaultCatalogName, defaultDatabaseName, name) match {
-
-          // check if a table (source or sink) is registered
-          case Some(table: TableSourceSinkTable[_, _]) => table.tableSourceTable match {
-
-            // wrapper contains source
-            case Some(_: TableSourceTable[_]) =>
-              throw new TableException(s"Table '$name' already exists. " +
-                s"Please choose a different name.")
-
-            // wrapper contains only sink (not source)
-            case _ =>
-              val enrichedTable = new TableSourceSinkTable(
-                Some(new StreamTableSourceTable(streamTableSource)),
-                table.tableSinkTable)
-              replaceRegisteredTable(name, enrichedTable)
-          }
-
-          // no table is registered
-          case _ =>
-            val newTable = new TableSourceSinkTable(
-              Some(new StreamTableSourceTable(streamTableSource)),
-              None)
-            registerTableInternal(name, newTable)
-        }
-
       // not a stream table source
       case _ =>
         throw new TableException("Only StreamTableSource can be registered in " +
@@ -154,84 +100,16 @@ abstract class StreamTableEnvImpl(
     }
   }
 
+  override protected  def validateTableSink(configuredSink: TableSink[_]): Unit = {
+    if (!configuredSink.isInstanceOf[StreamTableSink[_]]) {
+      throw new TableException(
+        "Only AppendStreamTableSink, UpsertStreamTableSink, and RetractStreamTableSink can be " +
+          "registered in StreamTableEnvironment.")
+    }
+  }
+
   def connect(connectorDescriptor: ConnectorDescriptor): StreamTableDescriptor = {
     new StreamTableDescriptor(this, connectorDescriptor)
-  }
-
-  def registerTableSink(
-      name: String,
-      fieldNames: Array[String],
-      fieldTypes: Array[TypeInformation[_]],
-      tableSink: TableSink[_]): Unit = {
-
-    checkValidTableName(name)
-    if (fieldNames == null) throw new TableException("fieldNames must not be null.")
-    if (fieldTypes == null) throw new TableException("fieldTypes must not be null.")
-    if (fieldNames.length == 0) throw new TableException("fieldNames must not be empty.")
-    if (fieldNames.length != fieldTypes.length) {
-      throw new TableException("Same number of field names and types required.")
-    }
-
-    val configuredSink = tableSink.configure(fieldNames, fieldTypes)
-    registerTableSinkInternal(name, configuredSink)
-  }
-
-  def registerTableSink(name: String, configuredSink: TableSink[_]): Unit = {
-    registerTableSinkInternal(name, configuredSink)
-  }
-
-  private def registerTableSinkInternal(name: String, configuredSink: TableSink[_]): Unit = {
-    // validate
-    checkValidTableName(name)
-    if (configuredSink.getFieldNames == null || configuredSink.getFieldTypes == null) {
-      throw new TableException("Table sink is not configured.")
-    }
-    if (configuredSink.getFieldNames.length == 0) {
-      throw new TableException("Field names must not be empty.")
-    }
-    if (configuredSink.getFieldNames.length != configuredSink.getFieldTypes.length) {
-      throw new TableException("Same number of field names and types required.")
-    }
-
-    // register
-    configuredSink match {
-
-      // check for proper batch table sink
-      case _: StreamTableSink[_] =>
-
-        // check if a table (source or sink) is registered
-        getTable(name) match {
-
-          // table source and/or sink is registered
-          case Some(table: TableSourceSinkTable[_, _]) => table.tableSinkTable match {
-
-            // wrapper contains sink
-            case Some(_: TableSinkTable[_]) =>
-              throw new TableException(s"Table '$name' already exists. " +
-                s"Please choose a different name.")
-
-            // wrapper contains only source (not sink)
-            case _ =>
-              val enrichedTable = new TableSourceSinkTable(
-                table.tableSourceTable,
-                Some(new TableSinkTable(configuredSink)))
-              replaceRegisteredTable(name, enrichedTable)
-          }
-
-          // no table is registered
-          case _ =>
-            val newTable = new TableSourceSinkTable(
-              None,
-              Some(new TableSinkTable(configuredSink)))
-            registerTableInternal(name, newTable)
-        }
-
-      // not a stream table sink
-      case _ =>
-        throw new TableException(
-          "Only AppendStreamTableSink, UpsertStreamTableSink, and RetractStreamTableSink can be " +
-            "registered in StreamTableEnvironment.")
-    }
   }
 
   /**
@@ -262,7 +140,8 @@ abstract class StreamTableEnvImpl(
 
       case retractSink: RetractStreamTableSink[_] =>
         // retraction sink can always be used
-        val outputType = sink.getOutputType
+        val outputType = fromDataTypeToLegacyInfo(sink.getConsumedDataType)
+          .asInstanceOf[TypeInformation[T]]
         // translate the Table into a DataStream and provide the type that the TableSink expects.
         val result: DataStream[T] =
           translate(
@@ -289,7 +168,8 @@ abstract class StreamTableEnvImpl(
           case None if !isAppendOnlyTable => throw new TableException(
             "UpsertStreamTableSink requires that Table has full primary keys if it is updated.")
         }
-        val outputType = sink.getOutputType
+        val outputType = fromDataTypeToLegacyInfo(sink.getConsumedDataType)
+          .asInstanceOf[TypeInformation[T]]
         val resultType = getResultType(table.getRelNode, optimizedPlan)
         // translate the Table into a DataStream and provide the type that the TableSink expects.
         val result: DataStream[T] =
@@ -310,7 +190,8 @@ abstract class StreamTableEnvImpl(
           throw new TableException(
             "AppendStreamTableSink requires that Table has only insert changes.")
         }
-        val outputType = sink.getOutputType
+        val outputType = fromDataTypeToLegacyInfo(sink.getConsumedDataType)
+          .asInstanceOf[TypeInformation[T]]
         val resultType = getResultType(table.getRelNode, optimizedPlan)
         // translate the Table into a DataStream and provide the type that the TableSink expects.
         val result: DataStream[T] =
@@ -432,67 +313,48 @@ abstract class StreamTableEnvImpl(
       }
   }
 
-  /**
-    * Registers a [[DataStream]] as a table under a given name in the [[TableEnvImpl]]'s
-    * catalog.
-    *
-    * @param name The name under which the table is registered in the catalog.
-    * @param dataStream The [[DataStream]] to register as table in the catalog.
-    * @tparam T the type of the [[DataStream]].
-    */
-  protected def registerDataStreamInternal[T](
-    name: String,
-    dataStream: DataStream[T]): Unit = {
-
-    val fieldInfo = getFieldsInfo[T](dataStream.getType)
-    val dataStreamTable = new DataStreamTable[T](
-      dataStream,
-      fieldInfo.getIndices,
-      fieldInfo.getFieldNames
-    )
-    registerTableInternal(name, dataStreamTable)
-  }
-
-  /**
-    * Registers a [[DataStream]] as a table under a given name with field names as specified by
-    * field expressions in the [[TableEnvImpl]]'s catalog.
-    *
-    * @param name The name under which the table is registered in the catalog.
-    * @param dataStream The [[DataStream]] to register as table in the catalog.
-    * @param fields The field expressions to define the field names of the table.
-    * @tparam T The type of the [[DataStream]].
-    */
-  protected def registerDataStreamInternal[T](
-      name: String,
+  protected def asTableOperation[T](
       dataStream: DataStream[T],
-      fields: Array[Expression])
-    : Unit = {
-
+      fields: Option[Array[Expression]])
+    : DataStreamTableOperation[T] = {
     val streamType = dataStream.getType
 
     // get field names and types for all non-replaced fields
-    val fieldsInfo = getFieldsInfo[T](streamType, fields)
+    val (indices, names) = fields match {
+      case Some(f) =>
+        // validate and extract time attributes
+        val fieldsInfo = getFieldsInfo[T](streamType, f)
+        val (rowtime, proctime) = validateAndExtractTimeAttributes(streamType, f)
 
-    // validate and extract time attributes
-    val (rowtime, proctime) = validateAndExtractTimeAttributes(streamType, fields)
+        // check if event-time is enabled
+        if (rowtime.isDefined &&
+          execEnv.getStreamTimeCharacteristic != TimeCharacteristic.EventTime) {
+          throw new TableException(
+            s"A rowtime attribute requires an EventTime time characteristic in stream environment" +
+              s". But is: ${execEnv.getStreamTimeCharacteristic}")
+        }
 
-    // check if event-time is enabled
-    if (rowtime.isDefined && execEnv.getStreamTimeCharacteristic != TimeCharacteristic.EventTime) {
-      throw new TableException(
-        s"A rowtime attribute requires an EventTime time characteristic in stream environment. " +
-          s"But is: ${execEnv.getStreamTimeCharacteristic}")
+        // adjust field indexes and field names
+        val indexesWithIndicatorFields = adjustFieldIndexes(
+          fieldsInfo.getIndices,
+          rowtime,
+          proctime)
+        val namesWithIndicatorFields = adjustFieldNames(
+          fieldsInfo.getFieldNames,
+          rowtime,
+          proctime)
+
+        (indexesWithIndicatorFields, namesWithIndicatorFields)
+      case None =>
+        val fieldsInfo = getFieldsInfo[T](streamType)
+        (fieldsInfo.getIndices, fieldsInfo.getFieldNames)
     }
 
-    // adjust field indexes and field names
-    val indexesWithIndicatorFields = adjustFieldIndexes(fieldsInfo.getIndices, rowtime, proctime)
-    val namesWithIndicatorFields = adjustFieldNames(fieldsInfo.getFieldNames, rowtime, proctime)
-
-    val dataStreamTable = new DataStreamTable[T](
+    val dataStreamTable = new DataStreamTableOperation(
       dataStream,
-      indexesWithIndicatorFields,
-      namesWithIndicatorFields
-    )
-    registerTableInternal(name, dataStreamTable)
+      indices,
+      calculateTableSchema(streamType, indices, names))
+    dataStreamTable
   }
 
   /**

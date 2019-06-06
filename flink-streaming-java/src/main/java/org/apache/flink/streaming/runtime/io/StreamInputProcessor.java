@@ -23,25 +23,15 @@ import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.SimpleCounter;
-import org.apache.flink.runtime.event.AbstractEvent;
 import org.apache.flink.runtime.io.disk.iomanager.IOManager;
-import org.apache.flink.runtime.io.network.api.EndOfPartitionEvent;
-import org.apache.flink.runtime.io.network.api.serialization.RecordDeserializer;
-import org.apache.flink.runtime.io.network.api.serialization.RecordDeserializer.DeserializationResult;
-import org.apache.flink.runtime.io.network.api.serialization.SpillingAdaptiveSpanningRecordDeserializer;
-import org.apache.flink.runtime.io.network.buffer.Buffer;
-import org.apache.flink.runtime.io.network.partition.consumer.BufferOrEvent;
 import org.apache.flink.runtime.io.network.partition.consumer.InputGate;
 import org.apache.flink.runtime.metrics.groups.OperatorMetricGroup;
 import org.apache.flink.runtime.metrics.groups.TaskIOMetricGroup;
-import org.apache.flink.runtime.plugable.DeserializationDelegate;
-import org.apache.flink.runtime.plugable.NonReusingDeserializationDelegate;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.operators.OneInputStreamOperator;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.metrics.WatermarkGauge;
 import org.apache.flink.streaming.runtime.streamrecord.StreamElement;
-import org.apache.flink.streaming.runtime.streamrecord.StreamElementSerializer;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.streaming.runtime.streamstatus.StatusWatermarkValve;
 import org.apache.flink.streaming.runtime.streamstatus.StreamStatus;
@@ -54,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.flink.util.Preconditions.checkState;
 
 /**
  * Input reader for {@link org.apache.flink.streaming.runtime.tasks.OneInputStreamTask}.
@@ -74,13 +65,7 @@ public class StreamInputProcessor<IN> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(StreamInputProcessor.class);
 
-	private final RecordDeserializer<DeserializationDelegate<StreamElement>>[] recordDeserializers;
-
-	private RecordDeserializer<DeserializationDelegate<StreamElement>> currentRecordDeserializer;
-
-	private final DeserializationDelegate<StreamElement> deserializationDelegate;
-
-	private final CheckpointBarrierHandler barrierHandler;
+	private final StreamTaskInput input;
 
 	private final Object lock;
 
@@ -88,15 +73,6 @@ public class StreamInputProcessor<IN> {
 
 	/** Valve that controls how watermarks and stream statuses are forwarded. */
 	private StatusWatermarkValve statusWatermarkValve;
-
-	/** Number of input channels the valve needs to handle. */
-	private final int numInputChannels;
-
-	/**
-	 * The channel from which a buffer came, tracked so that we can appropriately map
-	 * the watermarks and watermark statuses to channel indexes of the valve.
-	 */
-	private int currentChannel = -1;
 
 	private final StreamStatusMaintainer streamStatusMaintainer;
 
@@ -106,8 +82,6 @@ public class StreamInputProcessor<IN> {
 
 	private final WatermarkGauge watermarkGauge;
 	private Counter numRecordsIn;
-
-	private boolean isFinished;
 
 	@SuppressWarnings("unchecked")
 	public StreamInputProcessor(
@@ -121,43 +95,75 @@ public class StreamInputProcessor<IN> {
 			StreamStatusMaintainer streamStatusMaintainer,
 			OneInputStreamOperator<IN, ?> streamOperator,
 			TaskIOMetricGroup metrics,
-			WatermarkGauge watermarkGauge) throws IOException {
+			WatermarkGauge watermarkGauge,
+			String taskName) throws IOException {
 
 		InputGate inputGate = InputGateUtil.createInputGate(inputGates);
 
-		this.barrierHandler = InputProcessorUtil.createCheckpointBarrierHandler(
-			checkpointedTask, checkpointMode, ioManager, inputGate, taskManagerConfig);
+		CheckpointBarrierHandler barrierHandler = InputProcessorUtil.createCheckpointBarrierHandler(
+			checkpointedTask,
+			checkpointMode,
+			ioManager,
+			inputGate,
+			taskManagerConfig,
+			taskName);
+		this.input = new StreamTaskNetworkInput(barrierHandler, inputSerializer, ioManager);
 
 		this.lock = checkNotNull(lock);
-
-		StreamElementSerializer<IN> ser = new StreamElementSerializer<>(inputSerializer);
-		this.deserializationDelegate = new NonReusingDeserializationDelegate<>(ser);
-
-		// Initialize one deserializer per input channel
-		this.recordDeserializers = new SpillingAdaptiveSpanningRecordDeserializer[inputGate.getNumberOfInputChannels()];
-
-		for (int i = 0; i < recordDeserializers.length; i++) {
-			recordDeserializers[i] = new SpillingAdaptiveSpanningRecordDeserializer<>(
-				ioManager.getSpillingDirectoriesPaths());
-		}
-
-		this.numInputChannels = inputGate.getNumberOfInputChannels();
 
 		this.streamStatusMaintainer = checkNotNull(streamStatusMaintainer);
 		this.streamOperator = checkNotNull(streamOperator);
 
 		this.statusWatermarkValve = new StatusWatermarkValve(
-				numInputChannels,
-				new ForwardingValveOutputHandler(streamOperator, lock));
+			inputGate.getNumberOfInputChannels(),
+			new ForwardingValveOutputHandler(streamOperator, lock));
 
 		this.watermarkGauge = watermarkGauge;
 		metrics.gauge("checkpointAlignmentTime", barrierHandler::getAlignmentDurationNanos);
 	}
 
 	public boolean processInput() throws Exception {
-		if (isFinished) {
-			return false;
+		initializeNumRecordsIn();
+
+		StreamElement recordOrMark = input.pollNextNullable();
+		if (recordOrMark == null) {
+			input.isAvailable().get();
+			return !input.isFinished();
 		}
+		int channel = input.getLastChannel();
+		checkState(channel != StreamTaskInput.UNSPECIFIED);
+
+		processElement(recordOrMark, channel);
+		return true;
+	}
+
+	private void processElement(StreamElement recordOrMark, int channel) throws Exception {
+		if (recordOrMark.isRecord()) {
+			// now we can do the actual processing
+			StreamRecord<IN> record = recordOrMark.asRecord();
+			synchronized (lock) {
+				numRecordsIn.inc();
+				streamOperator.setKeyContextElement1(record);
+				streamOperator.processElement(record);
+			}
+		}
+		else if (recordOrMark.isWatermark()) {
+			// handle watermark
+			statusWatermarkValve.inputWatermark(recordOrMark.asWatermark(), channel);
+		} else if (recordOrMark.isStreamStatus()) {
+			// handle stream status
+			statusWatermarkValve.inputStreamStatus(recordOrMark.asStreamStatus(), channel);
+		} else if (recordOrMark.isLatencyMarker()) {
+			// handle latency marker
+			synchronized (lock) {
+				streamOperator.processLatencyMarker(recordOrMark.asLatencyMarker());
+			}
+		} else {
+			throw new UnsupportedOperationException("Unknown type of StreamElement");
+		}
+	}
+
+	private void initializeNumRecordsIn() {
 		if (numRecordsIn == null) {
 			try {
 				numRecordsIn = ((OperatorMetricGroup) streamOperator.getMetricGroup()).getIOMetricGroup().getNumRecordsInCounter();
@@ -166,96 +172,10 @@ public class StreamInputProcessor<IN> {
 				numRecordsIn = new SimpleCounter();
 			}
 		}
-
-		//这个while是用来处理单个元素的（不要想当然以为是循环处理元素的）
-		while (true) {
-			//注意 1在下面
-			//2.接下来，会利用这个反序列化器得到下一个数据记录，并进行解析（是用户数据还是watermark等等），然后进行对应的操作
-			if (currentRecordDeserializer != null) {
-				DeserializationResult result = currentRecordDeserializer.getNextRecord(deserializationDelegate);
-
-				if (result.isBufferConsumed()) {
-					currentRecordDeserializer.getCurrentBuffer().recycleBuffer();
-					currentRecordDeserializer = null;
-				}
-
-				if (result.isFullRecord()) {
-					StreamElement recordOrMark = deserializationDelegate.getInstance();
-
-					//如果元素是watermark，就准备更新当前channel的watermark值（并不是简单赋值，因为有乱序存在）
-					if (recordOrMark.isWatermark()) {
-						// handle watermark
-						statusWatermarkValve.inputWatermark(recordOrMark.asWatermark(), currentChannel);
-						continue;
-					} else if (recordOrMark.isStreamStatus()) {
-						// handle stream status
-						//如果元素是status，就进行相应处理。可以看作是一个flag，标志着当前stream接下来即将没有元素输入（idle），
-						// 或者当前即将由空闲状态转为有元素状态（active）。同时，StreamStatus还对如何处理watermark有影响。
-						// 通过发送status，上游的operator可以很方便的通知下游当前的数据流的状态。
-						statusWatermarkValve.inputStreamStatus(recordOrMark.asStreamStatus(), currentChannel);
-						continue;
-					} else if (recordOrMark.isLatencyMarker()) {
-						// handle latency marker
-						//LatencyMarker是用来衡量代码执行时间的。在Source处创建，携带创建时的时间戳，
-						// 流到Sink时就可以知道经过了多长时间
-						synchronized (lock) {
-							streamOperator.processLatencyMarker(recordOrMark.asLatencyMarker());
-						}
-						continue;
-					} else {
-						// now we can do the actual processing
-						//这里就是真正的，用户的代码即将被执行的地方
-						StreamRecord<IN> record = recordOrMark.asRecord();
-						synchronized (lock) {
-							numRecordsIn.inc();
-							streamOperator.setKeyContextElement1(record);
-							// 真正处理用户逻辑的代码
-							streamOperator.processElement(record);
-						}
-						return true;
-					}
-				}
-			}
-
-			//1.程序首先获取下一个buffer
-			//这一段代码是服务于flink的FaultTorrent机制的，这里只需理解到它会尝试获取buffer，然后赋值给当前的反序列化器
-			final BufferOrEvent bufferOrEvent = barrierHandler.getNextNonBlocked();
-			if (bufferOrEvent != null) {
-				if (bufferOrEvent.isBuffer()) {
-					currentChannel = bufferOrEvent.getChannelIndex();
-					currentRecordDeserializer = recordDeserializers[currentChannel];
-					currentRecordDeserializer.setNextBuffer(bufferOrEvent.getBuffer());
-				}
-				else {
-					// Event received
-					final AbstractEvent event = bufferOrEvent.getEvent();
-					if (event.getClass() != EndOfPartitionEvent.class) {
-						throw new IOException("Unexpected event: " + event);
-					}
-				}
-			}
-			else {
-				isFinished = true;
-				if (!barrierHandler.isEmpty()) {
-					throw new IllegalStateException("Trailing data in checkpoint barrier handler.");
-				}
-				return false;
-			}
-		}
 	}
 
-	public void cleanup() throws IOException {
-		// clear the buffers first. this part should not ever fail
-		for (RecordDeserializer<?> deserializer : recordDeserializers) {
-			Buffer buffer = deserializer.getCurrentBuffer();
-			if (buffer != null && !buffer.isRecycled()) {
-				buffer.recycleBuffer();
-			}
-			deserializer.clear();
-		}
-
-		// cleanup the barrier handler resources
-		barrierHandler.cleanup();
+	public void cleanup() throws Exception {
+		input.close();
 	}
 
 	private class ForwardingValveOutputHandler implements StatusWatermarkValve.ValveOutputHandler {
@@ -291,5 +211,4 @@ public class StreamInputProcessor<IN> {
 			}
 		}
 	}
-
 }

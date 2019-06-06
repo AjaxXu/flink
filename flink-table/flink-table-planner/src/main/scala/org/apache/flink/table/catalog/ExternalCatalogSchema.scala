@@ -37,7 +37,10 @@ import scala.collection.JavaConverters._
   *
   * @param catalogIdentifier external catalog name
   * @param catalog           external catalog
+  *
+  * @deprecated use [[CatalogCalciteSchema]] instead.
   */
+@deprecated
 class ExternalCatalogSchema(
     isBatch: Boolean,
     catalogIdentifier: String,
@@ -78,7 +81,7 @@ class ExternalCatalogSchema(
     */
   override def getTable(name: String): Table = try {
     val externalCatalogTable = catalog.getTable(name)
-    ExternalTableUtil.fromExternalCatalogTable(isBatch, externalCatalogTable)
+    ExternalTableUtil.fromExternalCatalogTable(isBatch, externalCatalogTable).orNull
   } catch {
     case _: TableNotExistException => {
       LOG.warn(s"Table $name does not exist in externalCatalog $catalogIdentifier")

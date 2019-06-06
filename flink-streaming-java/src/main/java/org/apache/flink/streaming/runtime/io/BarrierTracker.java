@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * BarrierTracker会对各个input channel接收到的检查点的barrier进行跟踪。
@@ -96,20 +97,28 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 	}
 
 	@Override
-	public BufferOrEvent getNextNonBlocked() throws Exception {
+	public CompletableFuture<?> isAvailable() {
+		return inputGate.isAvailable();
+	}
+
+	@Override
+	public boolean isFinished() {
+		return inputGate.isFinished();
+	}
+
+	@Override
+	public Optional<BufferOrEvent> pollNext() throws Exception {
 		while (true) {
-			//从输入中获得数据，该操作将导致阻塞，直到获得一条记录
-			Optional<BufferOrEvent> next = inputGate.getNextBufferOrEvent();
+			Optional<BufferOrEvent> next = inputGate.pollNext();
 			if (!next.isPresent()) {
 				// buffer or input exhausted
-				//null表示没有数据了
-				return null;
+				return next;
 			}
 
 			BufferOrEvent bufferOrEvent = next.get();
 			//不管BufferOrEvent对应的channel是否已处于阻塞状态，这里不存在缓存数据的做法，直接返回
 			if (bufferOrEvent.isBuffer()) {
-				return bufferOrEvent;
+				return next;
 			}
 			//如果是barrier，则进入barrier的处理逻辑
 			else if (bufferOrEvent.getEvent().getClass() == CheckpointBarrier.class) {
@@ -120,7 +129,7 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 			}
 			else {
 				// some other event
-				return bufferOrEvent;
+				return next;
 			}
 		}
 	}
@@ -149,6 +158,11 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 	public long getAlignmentDurationNanos() {
 		// this one does not do alignment at all
 		return 0L;
+	}
+
+	@Override
+	public int getNumberOfInputChannels() {
+		return totalNumberOfInputChannels;
 	}
 
 	private void processBarrier(CheckpointBarrier receivedBarrier, int channelIndex) throws Exception {

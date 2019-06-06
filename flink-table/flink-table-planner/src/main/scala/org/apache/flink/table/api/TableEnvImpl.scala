@@ -18,19 +18,15 @@
 
 package org.apache.flink.table.api
 
-import _root_.java.lang.reflect.Modifier
 import _root_.java.util.Optional
 import _root_.java.util.concurrent.atomic.AtomicInteger
 
 import com.google.common.collect.ImmutableList
-import org.apache.calcite.jdbc.CalciteSchema
 import org.apache.calcite.jdbc.CalciteSchemaBuilder.asRootSchema
 import org.apache.calcite.plan.RelOptPlanner.CannotPlanException
 import org.apache.calcite.plan._
 import org.apache.calcite.plan.hep.{HepMatchOrder, HepPlanner, HepProgram, HepProgramBuilder}
 import org.apache.calcite.rel.RelNode
-import org.apache.calcite.schema.SchemaPlus
-import org.apache.calcite.schema.impl.AbstractTable
 import org.apache.calcite.sql._
 import org.apache.calcite.sql.parser.SqlParser
 import org.apache.calcite.tools._
@@ -42,12 +38,13 @@ import org.apache.flink.table.calcite._
 import org.apache.flink.table.catalog._
 import org.apache.flink.table.codegen.{FunctionCodeGenerator, GeneratedFunction}
 import org.apache.flink.table.expressions._
+import org.apache.flink.table.factories.{TableFactoryService, TableFactoryUtil, TableSinkFactory}
 import org.apache.flink.table.functions.utils.UserDefinedFunctionUtils._
 import org.apache.flink.table.functions.{AggregateFunction, ScalarFunction, TableFunction, UserDefinedAggregateFunction}
-import org.apache.flink.table.operations.{CatalogTableOperation, OperationTreeBuilder, PlannerTableOperation}
+import org.apache.flink.table.operations.{CatalogTableOperation, OperationTreeBuilder, PlannerTableOperation, TableSourceTableOperation}
 import org.apache.flink.table.plan.nodes.FlinkConventions
 import org.apache.flink.table.plan.rules.FlinkRuleSets
-import org.apache.flink.table.plan.schema.{RelTable, RowSchema, TableSourceSinkTable}
+import org.apache.flink.table.plan.schema.RowSchema
 import org.apache.flink.table.planner.PlanningConfigurationBuilder
 import org.apache.flink.table.sinks.TableSink
 import org.apache.flink.table.sources.TableSource
@@ -55,9 +52,9 @@ import org.apache.flink.table.typeutils.TimeIndicatorTypeInfo
 import org.apache.flink.table.util.JavaScalaConversionUtil
 import org.apache.flink.table.validate.FunctionCatalog
 import org.apache.flink.types.Row
+import org.apache.flink.util.StringUtils
 
 import _root_.scala.collection.JavaConverters._
-import _root_.scala.collection.mutable
 
 /**
   * The abstract base class for the implementation of batch and stream TableEnvironments.
@@ -75,9 +72,6 @@ abstract class TableEnvImpl(
   protected val defaultCatalogName: String = config.getBuiltInCatalogName
   protected val defaultDatabaseName: String = config.getBuiltInDatabaseName
 
-  private val internalSchema: CalciteSchema =
-    asRootSchema(new CatalogManagerCalciteSchema(catalogManager, isBatch))
-
   // temporary bridge between API and planner
   private[flink] val expressionBridge: ExpressionBridge[PlannerExpression] =
     new ExpressionBridge[PlannerExpression](functionCatalog, PlannerExpressionConverter.INSTANCE)
@@ -85,16 +79,13 @@ abstract class TableEnvImpl(
   // a counter for unique attribute names
   private[flink] val attrNameCntr: AtomicInteger = new AtomicInteger(0)
 
-  // registered external catalog names -> catalog
-  private val externalCatalogs = new mutable.HashMap[String, ExternalCatalog]
-
   private[flink] val operationTreeBuilder = new OperationTreeBuilder(this)
 
   private val planningConfigurationBuilder: PlanningConfigurationBuilder =
     new PlanningConfigurationBuilder(
       config,
       functionCatalog,
-      internalSchema,
+      asRootSchema(new CatalogManagerCalciteSchema(catalogManager, isBatch)),
       expressionBridge)
 
   protected def calciteConfig: CalciteConfig = config.getPlannerConfig
@@ -326,18 +317,12 @@ abstract class TableEnvImpl(
     output
   }
 
-  override def fromTableSource(source: TableSource[_]): Table = {
-    val name = createUniqueTableName()
-    registerTableSourceInternal(name, source)
-    scan(name)
-  }
-
   override def registerExternalCatalog(name: String, externalCatalog: ExternalCatalog): Unit = {
     catalogManager.registerExternalCatalog(name, externalCatalog)
   }
 
   override def getRegisteredExternalCatalog(name: String): ExternalCatalog = {
-    this.externalCatalogs.get(name) match {
+    JavaScalaConversionUtil.toScala(catalogManager.getExternalCatalog(name)) match {
       case Some(catalog) => catalog
       case None => throw new ExternalCatalogNotExistException(name)
     }
@@ -404,24 +389,6 @@ abstract class TableEnvImpl(
       planningConfigurationBuilder.getTypeFactory)
   }
 
-  override def registerTable(name: String, table: Table): Unit = {
-
-    // check that table belongs to this table environment
-    if (table.asInstanceOf[TableImpl].tableEnv != this) {
-      throw new TableException(
-        "Only tables that belong to this TableEnvironment can be registered.")
-    }
-
-    checkValidTableName(name)
-    val tableTable = new RelTable(table.asInstanceOf[TableImpl].getRelNode)
-    registerTableInternal(name, tableTable)
-  }
-
-  override def registerTableSource(name: String, tableSource: TableSource[_]): Unit = {
-    checkValidTableName(name)
-    registerTableSourceInternal(name, tableSource)
-  }
-
   override def registerCatalog(catalogName: String, catalog: Catalog): Unit = {
     catalogManager.registerCatalog(catalogName, catalog)
   }
@@ -446,30 +413,159 @@ abstract class TableEnvImpl(
     catalogManager.setCurrentDatabase(databaseName)
   }
 
-  /**
-    * Registers an internal [[TableSource]] in this [[TableEnvironment]]'s catalog without
-    * name checking. Registered tables can be referenced in SQL queries.
-    *
-    * @param name        The name under which the [[TableSource]] is registered.
-    * @param tableSource The [[TableSource]] to register.
-    */
-  protected def registerTableSourceInternal(name: String, tableSource: TableSource[_]): Unit
+  override def registerTable(name: String, table: Table): Unit = {
+
+    // check that table belongs to this table environment
+    if (table.asInstanceOf[TableImpl].tableEnv != this) {
+      throw new TableException(
+        "Only tables that belong to this TableEnvironment can be registered.")
+    }
+
+    val tableTable = new TableOperationCatalogView(table.getTableOperation)
+    registerTableInternal(name, tableTable)
+  }
+
+  override def registerTableSource(name: String, tableSource: TableSource[_]): Unit = {
+    validateTableSource(tableSource)
+    registerTableSourceInternal(name, tableSource)
+  }
+
+  override def registerTableSink(
+    name: String,
+    fieldNames: Array[String],
+    fieldTypes: Array[TypeInformation[_]],
+    tableSink: TableSink[_]): Unit = {
+
+    if (fieldNames == null) {
+      throw new TableException("fieldNames must not be null.")
+    }
+    if (fieldTypes == null) {
+      throw new TableException("fieldTypes must not be null.")
+    }
+    if (fieldNames.length == 0) {
+      throw new TableException("fieldNames must not be empty.")
+    }
+    if (fieldNames.length != fieldTypes.length) {
+      throw new TableException("Same number of field names and types required.")
+    }
+
+    val configuredSink = tableSink.configure(fieldNames, fieldTypes)
+    registerTableSinkInternal(name, configuredSink)
+  }
+
+  override def registerTableSink(name: String, configuredSink: TableSink[_]): Unit = {
+    // validate
+    if (configuredSink.getTableSchema.getFieldNames.length == 0) {
+      throw new TableException("Field names must not be empty.")
+    }
+
+    validateTableSink(configuredSink)
+    registerTableSinkInternal(name, configuredSink)
+  }
+
+  override def fromTableSource(source: TableSource[_]): Table = {
+    new TableImpl(this, new TableSourceTableOperation(source, isBatch))
+  }
 
   /**
-    * Replaces a registered Table with another Table under the same name.
-    * We use this method to replace a [[org.apache.flink.table.plan.schema.DataStreamTable]]
-    * with a [[org.apache.calcite.schema.TranslatableTable]].
+    * Perform batch or streaming specific validations of the [[TableSource]].
+    * This method should throw [[ValidationException]] if the [[TableSource]] cannot be used
+    * in this [[TableEnvironment]].
     *
-    * @param name Name of the table to replace.
-    * @param table The table that replaces the previous table.
+    * @param tableSource table source to validate
     */
-  protected def replaceRegisteredTable(name: String, table: AbstractTable): Unit = {
+  protected def validateTableSource(tableSource: TableSource[_]): Unit
+
+  /**
+    * Perform batch or streaming specific validations of the [[TableSink]].
+    * This method should throw [[ValidationException]] if the [[TableSink]] cannot be used
+    * in this [[TableEnvironment]].
+    *
+    * @param tableSink table source to validate
+    */
+  protected def validateTableSink(tableSink: TableSink[_]): Unit
+
+  private def registerTableSourceInternal(
+    name: String,
+    tableSource: TableSource[_])
+  : Unit = {
+    // register
+    getCatalogTable(defaultCatalogName, defaultDatabaseName, name) match {
+
+      // check if a table (source or sink) is registered
+      case Some(table: ConnectorCatalogTable[_, _]) =>
+        if (table.getTableSource.isPresent) {
+          // wrapper contains source
+          throw new TableException(s"Table '$name' already exists. " +
+            s"Please choose a different name.")
+        } else {
+          // wrapper contains only sink (not source)
+          replaceTableInternal(
+            name,
+            ConnectorCatalogTable
+              .sourceAndSink(tableSource, table.getTableSink.get, isBatch))
+        }
+
+      // no table is registered
+      case _ =>
+        registerTableInternal(name, ConnectorCatalogTable.source(tableSource, isBatch))
+    }
+  }
+
+  private def registerTableSinkInternal(
+    name: String,
+    tableSink: TableSink[_])
+  : Unit = {
+    // check if a table (source or sink) is registered
+    getCatalogTable(defaultCatalogName, defaultDatabaseName, name) match {
+
+      // table source and/or sink is registered
+      case Some(table: ConnectorCatalogTable[_, _]) =>
+        if (table.getTableSink.isPresent) {
+          // wrapper contains sink
+          throw new TableException(s"Table '$name' already exists. " +
+            s"Please choose a different name.")
+        } else {
+          // wrapper contains only source (not sink)
+          replaceTableInternal(
+            name,
+            ConnectorCatalogTable
+              .sourceAndSink(table.getTableSource.get, tableSink, isBatch))
+        }
+
+      // no table is registered
+      case _ =>
+        registerTableInternal(name, ConnectorCatalogTable.sink(tableSink, isBatch))
+    }
+  }
+
+  private def checkValidTableName(name: String) = {
+    if (StringUtils.isNullOrWhitespaceOnly(name)) {
+      throw new ValidationException("A table name cannot be null or consist of only whitespaces.")
+    }
+  }
+
+  protected def registerTableInternal(name: String, table: CatalogBaseTable): Unit = {
+    checkValidTableName(name)
+    val path = new ObjectPath(defaultDatabaseName, name)
+    JavaScalaConversionUtil.toScala(catalogManager.getCatalog(defaultCatalogName)) match {
+      case Some(catalog) =>
+        catalog.createTable(
+          path,
+          table,
+          false)
+      case None => throw new TableException("The default catalog does not exist.")
+    }
+  }
+
+  protected def replaceTableInternal(name: String, table: CatalogBaseTable): Unit = {
+    checkValidTableName(name)
     val path = new ObjectPath(defaultDatabaseName, name)
     JavaScalaConversionUtil.toScala(catalogManager.getCatalog(defaultCatalogName)) match {
       case Some(catalog) =>
         catalog.alterTable(
           path,
-          new CalciteCatalogTable(table, planningConfigurationBuilder.getTypeFactory),
+          table,
           false)
       case None => throw new TableException("The default catalog does not exist.")
     }
@@ -484,7 +580,8 @@ abstract class TableEnvImpl(
   }
 
   private[flink] def scanInternal(tablePath: Array[String]): Option[CatalogTableOperation] = {
-    JavaScalaConversionUtil.toScala(catalogManager.resolveTable(tablePath : _*))
+    JavaScalaConversionUtil.toScala(catalogManager.resolveTable(tablePath: _*))
+      .map(t => new CatalogTableOperation(t.getTablePath, t.getTableSchema))
   }
 
   override def listTables(): Array[String] = {
@@ -574,25 +671,28 @@ abstract class TableEnvImpl(
   private[flink] def insertInto(table: Table, conf: QueryConfig, sinkTablePath: String*): Unit = {
 
     // check that sink table exists
-    if (null == sinkTablePath) throw new TableException("Name of TableSink must not be null.")
-    if (sinkTablePath.isEmpty) throw new TableException("Name of TableSink must not be empty.")
+    if (null == sinkTablePath) {
+      throw new TableException("Name of TableSink must not be null.")
+    }
+    if (sinkTablePath.isEmpty) {
+      throw new TableException("Name of TableSink must not be empty.")
+    }
 
-    getTable(sinkTablePath: _*) match {
+    getTableSink(sinkTablePath: _*) match {
 
       case None =>
         throw new TableException(s"No table was registered under the name $sinkTablePath.")
 
-      case Some(s: TableSourceSinkTable[_, _]) if s.tableSinkTable.isDefined =>
-        val tableSink = s.tableSinkTable.get.tableSink
+      case Some(tableSink) =>
         // validate schema of source table and table sink
         val srcFieldTypes = table.getSchema.getFieldTypes
-        val sinkFieldTypes = tableSink.getFieldTypes
+        val sinkFieldTypes = tableSink.getTableSchema.getFieldTypes
 
         if (srcFieldTypes.length != sinkFieldTypes.length ||
           srcFieldTypes.zip(sinkFieldTypes).exists { case (srcF, snkF) => srcF != snkF }) {
 
           val srcFieldNames = table.getSchema.getFieldNames
-          val sinkFieldNames = tableSink.getFieldNames
+          val sinkFieldNames = tableSink.getTableSchema.getFieldNames
 
           // format table and table sink schema strings
           val srcSchema = srcFieldNames.zip(srcFieldTypes)
@@ -610,78 +710,35 @@ abstract class TableEnvImpl(
         }
         // emit the table to the configured table sink
         writeToSink(table, tableSink, conf)
-
-      case Some(_) =>
-        throw new TableException(s"The table registered as $sinkTablePath is not a TableSink. " +
-          s"You can only emit query results to a registered TableSink.")
     }
   }
 
-  /**
-    * Registers a Calcite [[AbstractTable]] in the TableEnvironment's default catalog.
-    *
-    * @param name The name under which the table will be registered.
-    * @param table The table to register in the catalog
-    * @throws TableException if another table is registered under the provided name.
-    */
-  @throws[TableException]
-  protected def registerTableInternal(name: String, table: AbstractTable): Unit = {
-    val path = new ObjectPath(defaultDatabaseName, name)
-    JavaScalaConversionUtil.toScala(catalogManager.getCatalog(defaultCatalogName)) match {
-      case Some(catalog) =>
-        catalog.createTable(
-          path,
-          new CalciteCatalogTable(table, planningConfigurationBuilder.getTypeFactory),
-          false)
-      case None => throw new TableException("The default catalog does not exist.")
+  private def getTableSink(name: String*): Option[TableSink[_]] = {
+    JavaScalaConversionUtil.toScala(catalogManager.resolveTable(name: _*)) match {
+      case Some(s) if s.getExternalCatalogTable.isPresent =>
+
+        Option(TableFactoryUtil.findAndCreateTableSink(s.getExternalCatalogTable.get()))
+
+      case Some(s) if JavaScalaConversionUtil.toScala(s.getCatalogTable)
+        .exists(_.isInstanceOf[ConnectorCatalogTable[_, _]]) =>
+
+        JavaScalaConversionUtil
+          .toScala(s.getCatalogTable.get().asInstanceOf[ConnectorCatalogTable[_, _]].getTableSink)
+
+      case Some(s) if JavaScalaConversionUtil.toScala(s.getCatalogTable)
+        .exists(_.isInstanceOf[CatalogTable]) =>
+
+        val sinkProperties = s.getCatalogTable.get().asInstanceOf[CatalogTable].toProperties
+        Option(TableFactoryService.find(classOf[TableSinkFactory[_]], sinkProperties)
+          .createTableSink(sinkProperties))
+
+      case _ => None
     }
   }
 
-  /** Returns a unique table name according to the internal naming pattern. */
-  protected def createUniqueTableName(): String
-
-  /**
-    * Checks if the chosen table name is valid.
-    *
-    * @param name The table name to check.
-    */
-  protected def checkValidTableName(name: String): Unit
-
-  /**
-    * Get a table from either internal or external catalogs.
-    *
-    * @param name The name of the table.
-    * @return The table registered either internally or externally, None otherwise.
-    */
-  protected def getTable(name: String*): Option[org.apache.calcite.schema.Table] = {
-
-    // recursively fetches a table from a schema.
-    def getTableFromSchema(
-        schema: SchemaPlus,
-        path: List[String]): Option[org.apache.calcite.schema.Table] = {
-
-      path match {
-        case tableName :: Nil =>
-          // look up table
-          Option(schema.getTable(tableName))
-        case subschemaName :: remain =>
-          // look up subschema
-          val subschema = Option(schema.getSubSchema(subschemaName))
-          subschema match {
-            case Some(s) =>
-              // search for table in subschema
-              getTableFromSchema(s, remain)
-            case None =>
-              // subschema does not exist
-              None
-          }
-      }
-    }
-
+  protected def getCatalogTable(name: String*): Option[CatalogBaseTable] = {
     JavaScalaConversionUtil.toScala(catalogManager.resolveTable(name: _*))
-      .flatMap(t =>
-        getTableFromSchema(internalSchema.plus(), t.getTablePath.asScala.toList)
-      )
+      .flatMap(t => JavaScalaConversionUtil.toScala(t.getCatalogTable))
   }
 
   /** Returns a unique temporary attribute name. */
