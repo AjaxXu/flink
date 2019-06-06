@@ -156,7 +156,7 @@ public class ExecutionVertex implements AccessExecutionVertex, Archiveable<Archi
 		this.jobVertex = jobVertex;
 		this.subTaskIndex = subTaskIndex;
 		this.taskNameWithSubtask = String.format("%s (%d/%d)",
-				jobVertex.getJobVertex().getName(), subTaskIndex + 1, jobVertex.getParallelism());
+				jobVertex.getName(), subTaskIndex + 1, jobVertex.getParallelism());
 
 		this.resultPartitions = new LinkedHashMap<>(producedDataSets.length, 1);
 

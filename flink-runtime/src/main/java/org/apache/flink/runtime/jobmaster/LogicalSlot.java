@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * A logical slot表示TaskManager中可以部署单个任务的资源
  * A logical slot represents a resource on a TaskManager into
  * which a single task can be deployed.
  */
@@ -50,6 +51,7 @@ public interface LogicalSlot {
 	};
 
 	/**
+	 * 	 * 返回该slot所在的TaskManager位置
 	 * Return the TaskManager location of this slot.
 	 *
 	 * @return TaskManager location of this slot
@@ -57,6 +59,7 @@ public interface LogicalSlot {
 	TaskManagerLocation getTaskManagerLocation();
 
 	/**
+	 * 返回与TaskManager关联的TaskManager 网关
 	 * Return the TaskManager gateway to talk to the TaskManager.
 	 *
 	 * @return TaskManager gateway to talk to the TaskManager
@@ -64,6 +67,7 @@ public interface LogicalSlot {
 	TaskManagerGateway getTaskManagerGateway();
 
 	/**
+	 * 获取slot的本地性
 	 * Gets the locality of this slot.
 	 *
 	 * @return locality of this slot
@@ -71,6 +75,7 @@ public interface LogicalSlot {
 	Locality getLocality();
 
 	/**
+	 * 是否alive且并没有被释放
 	 * True if the slot is alive and has not been released.
 	 *
 	 * @return True if the slot is alive, otherwise false if the slot is released
@@ -78,6 +83,7 @@ public interface LogicalSlot {
 	boolean isAlive();
 
 	/**
+	 * 赋予该slot一个payload。一次只能接收一个payload
 	 * Tries to assign a payload to this slot. One can only assign a single
 	 * payload once.
 	 *
@@ -114,6 +120,7 @@ public interface LogicalSlot {
 	CompletableFuture<?> releaseSlot(@Nullable Throwable cause);
 
 	/**
+	 * TaskManager上slot的编号
 	 * Gets the slot number on the TaskManager.
 	 *
 	 * @return slot number
@@ -128,6 +135,7 @@ public interface LogicalSlot {
 	AllocationID getAllocationId();
 
 	/**
+	 * 标识slot 请求ID
 	 * Gets the slot request id uniquely identifying the request with which this
 	 * slot has been allocated.
 	 *
@@ -144,6 +152,7 @@ public interface LogicalSlot {
 	SlotSharingGroupId getSlotSharingGroupId();
 
 	/**
+	 * Logical slot 的负载，在SimpleSlot中是Execution
 	 * Payload for a logical slot.
 	 */
 	interface Payload {

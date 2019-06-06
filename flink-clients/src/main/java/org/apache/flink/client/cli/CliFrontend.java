@@ -193,6 +193,7 @@ public class CliFrontend {
 			}
 		}
 
+		// jar包路径和参数配置封装成了 PackagedProgram
 		final PackagedProgram program;
 		try {
 			LOG.info("Building program from JAR file");
@@ -202,6 +203,7 @@ public class CliFrontend {
 			throw new CliArgsException("Could not build the program from JAR file.", e);
 		}
 
+		// 决定Cli的类型
 		final CustomCommandLine<?> customCommandLine = getActiveCustomCommandLine(commandLine);
 
 		try {
@@ -216,6 +218,7 @@ public class CliFrontend {
 			CommandLine commandLine,
 			RunOptions runOptions,
 			PackagedProgram program) throws ProgramInvocationException, FlinkException {
+		// 获取集群描述
 		final ClusterDescriptor<T> clusterDescriptor = customCommandLine.createClusterDescriptor(commandLine);
 
 		try {
@@ -224,6 +227,7 @@ public class CliFrontend {
 			final ClusterClient<T> client;
 
 			// directly deploy the job if the cluster is started in job mode and detached
+			// 如果集群是job模式且detacbed，直接部署job
 			if (clusterId == null && runOptions.getDetachedMode()) {
 				int parallelism = runOptions.getParallelism() == -1 ? defaultParallelism : runOptions.getParallelism();
 
@@ -1092,6 +1096,7 @@ public class CliFrontend {
 	//  Miscellaneous Utilities
 	// --------------------------------------------------------------------------------------------
 
+	// 先查环境变量"FLINK_CONF_DIR"，然后"../conf",再 conf
 	public static String getConfigurationDirectoryFromEnv() {
 		String location = System.getenv(ConfigConstants.ENV_FLINK_CONF_DIR);
 

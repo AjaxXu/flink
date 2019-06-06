@@ -35,6 +35,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * CoLocationConstraint管理task集合的位置。在co-location groups中，不同的JobVertices 的subtasks需要被运行在相同的{@link Instance}中。
+ * 通过创建一个特殊的shared slot实现
  * A CoLocationConstraint manages the location of a set of tasks
  * (Execution Vertices). In co-location groups, the different subtasks of
  * different JobVertices need to be executed on the same {@link Instance}.
@@ -81,6 +83,7 @@ public class CoLocationConstraint {
 	}
 
 	/**
+	 * 检查该constraint的位置是否已经分配
 	 * Checks whether the location of this constraint has been assigned.
 	 * The location is assigned once a slot has been set, via the
 	 * {@link #setSharedSlot(org.apache.flink.runtime.instance.SharedSlot)} method,
@@ -149,6 +152,7 @@ public class CoLocationConstraint {
 				throw new IllegalArgumentException(
 						"Cannot assign different location to a constraint whose location is locked.");
 			}
+			// 如果Location一样，释放原有的shared slot
 			if (this.sharedSlot.isAlive()) {
 				this.sharedSlot.releaseSlot(new FlinkException("Setting new shared slot for co-location constraint."));
 			}

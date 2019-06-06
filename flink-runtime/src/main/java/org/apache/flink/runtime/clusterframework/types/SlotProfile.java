@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
+ * slot的概括信息
  * A slot profile describes the profile of a slot into which a task wants to be scheduled. The profile contains
  * attributes such as resource or locality constraints, some of which may be hard or soft. A matcher can be generated
  * to filter out candidate slots by matching their {@link SlotContext} against the slot profile and, potentially,

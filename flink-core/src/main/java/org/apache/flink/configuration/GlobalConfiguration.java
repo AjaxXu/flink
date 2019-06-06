@@ -72,6 +72,7 @@ public final class GlobalConfiguration {
 	}
 
 	/**
+	 * 从指定目录加载配置，YAML也被支持
 	 * Loads the configuration files from the specified directory.
 	 *
 	 * <p>YAML files are supported as configuration files.
@@ -105,6 +106,7 @@ public final class GlobalConfiguration {
 		}
 
 		// get Flink yaml configuration file
+		// get flink-conf.yaml 文件
 		final File yamlConfigFile = new File(confDirFile, FLINK_CONF_FILENAME);
 
 		if (!yamlConfigFile.exists()) {

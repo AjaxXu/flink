@@ -44,6 +44,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * tasks is crucial for simple pipelined / streamed execution, where both the sender and the receiver
  * are typically active at the same time.
  *
+ * 该类是非同步的，调用者需要自己保证同步。在当前实现中，所有的并发修改操作都通过{@link SlotSharingGroupAssignment}，它是负责同步的。
  * <p><b>IMPORTANT:</b> This class contains no synchronization. Thus, the caller has to guarantee proper
  * synchronization. In the current implementation, all concurrently modifying operations are
  * passed through a {@link SlotSharingGroupAssignment} object which is responsible for
@@ -242,7 +243,7 @@ public class SharedSlot extends Slot implements LogicalSlot {
 	 * <b>NOTE:</b> This method is not synchronized and must only be called from
 	 *              the slot's assignment group.
 	 *
-	 * @param groupId The ID to identify tasks which can be deployed in this sub slot.
+	 * @param groupId The ID to identify tasks which can be deployed in this sub slot. 用于标识可在此sub slot中部署的task的ID
 	 * @return The new sub slot if the shared slot is still alive, otherwise null.
 	 */
 	SimpleSlot allocateSubSlot(AbstractID groupId) {
@@ -294,6 +295,7 @@ public class SharedSlot extends Slot implements LogicalSlot {
 	// ------------------------------------------------------------------------
 	
 	/**
+	 * 释放给定的sub slot，该方法只被child simple slot调用，告诉parent释放它
 	 * Disposes the given sub slot. This method is called by the child simple slot to tell this
 	 * shared slot to release it.
 	 *
@@ -309,6 +311,7 @@ public class SharedSlot extends Slot implements LogicalSlot {
 	}
 	
 	/**
+	 * 从shared slot删除指定的slot
 	 * Removes the given slot from this shared slot. This method Should only be called
 	 * through this shared slot's {@link SlotSharingGroupAssignment}
 	 *

@@ -19,6 +19,7 @@
 package org.apache.flink.runtime.jobmaster;
 
 /**
+ * Slot的拥有者
  * Interface for components that hold slots and to which slots get released / recycled.
  */
 public interface SlotOwner {

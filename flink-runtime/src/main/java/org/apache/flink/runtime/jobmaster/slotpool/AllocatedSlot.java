@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * {@code AllocatedSlot}代表JobMaster从TaskExecutor（TaskManager）处获取的一个slot。
  * The {@code AllocatedSlot} represents a slot that the JobMaster allocated from a TaskExecutor.
  * It represents a slice of allocated resources from the TaskExecutor.
  * 
@@ -123,6 +124,7 @@ class AllocatedSlot implements PhysicalSlot {
 	}
 
 	/**
+	 * 判断该slot是否在使用中
 	 * Returns true if this slot is being used (e.g. a logical slot is allocated from this slot).
 	 *
 	 * @return true if a logical slot is allocated from this slot, otherwise false

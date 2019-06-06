@@ -26,6 +26,7 @@ import org.apache.flink.runtime.taskmanager.TaskManagerLocation;
 import org.apache.flink.util.Preconditions;
 
 /**
+ * 遗留代码{@link SlotContext}接口的简单实现
  * Simple implementation of the {@link SlotContext} interface for the legacy code.
  */
 public class SimpleSlotContext implements SlotContext {

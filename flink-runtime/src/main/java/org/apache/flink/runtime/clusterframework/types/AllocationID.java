@@ -21,13 +21,18 @@ package org.apache.flink.runtime.clusterframework.types;
 import org.apache.flink.util.AbstractID;
 
 /**
+ * JobManager通过ResourceManager从TaskManager分配的物理槽的唯一标识符。
+ * 一旦JobManager（或其SlotPool）首次请求slot，就会分配ID，并且在重试时保持不变。
  * Unique identifier for a physical slot allocated by a JobManager via the ResourceManager
  * from a TaskManager. The ID is assigned once the JobManager (or its SlotPool) first
  * requests the slot and is constant across retries.
  *
+ * TaskManager和ResourceManager使用此ID来跟踪和同步哪些slot分配给哪个JobManager以及哪些空闲。
  * <p>This ID is used by the TaskManager and ResourceManager to track and synchronize which
  * slots are allocated to which JobManager and which are free.
  *
+ * 与此AllocationID相反，当task从SlotPool请求逻辑插槽时，将使用{@link org.apache.flink.runtime.jobmaster.SlotRequestId}。
+ * 多个logical slot请求可以映射到一个物理slot请求（由于插槽共享）。
  * <p>In contrast to this AllocationID, the {@link org.apache.flink.runtime.jobmaster.SlotRequestId}
  * is used when a task requests a logical slot from the SlotPool. Multiple logical slot requests
  * can map to one physical slot request (due to slot sharing).

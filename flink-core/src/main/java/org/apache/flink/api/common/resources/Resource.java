@@ -26,6 +26,7 @@ import java.io.Serializable;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 用户能指定的资源的基类，当前唯一的子类是{@link GPUResource}
  * Base class for resources one can specify.
  */
 @Internal
@@ -34,6 +35,7 @@ public abstract class Resource implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
+	 * 资源聚合类型
 	 * Enum defining how resources are aggregated.
 	 */
 	public enum ResourceAggregateType {

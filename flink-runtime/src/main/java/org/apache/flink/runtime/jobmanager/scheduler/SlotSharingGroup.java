@@ -18,6 +18,7 @@
 
 package org.apache.flink.runtime.jobmanager.scheduler;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,6 +28,8 @@ import org.apache.flink.runtime.instance.SlotSharingGroupId;
 import org.apache.flink.runtime.jobgraph.JobVertexID;
 
 /**
+ * 一个 SlotSharingGroup 规定了一个 Job 的 DAG 图中的哪些 JobVertex 的 sub task 可以部署到一个 SharedSlot 上，
+ * 这是一个软限制，并不是一定会满足，只是调度的时候有位置偏好
  * A slot sharing units defines which different task (from different job vertices) can be
  * deployed together within a slot. This is a soft permission, in contrast to the hard constraint
  * defined by a co-location hint.
@@ -38,7 +41,8 @@ public class SlotSharingGroup implements java.io.Serializable {
 
 	private final Set<JobVertexID> ids = new TreeSet<JobVertexID>();
 	
-	/** Mapping of tasks to subslots. This field is only needed inside the JobManager, and is not RPCed. */
+	/** task到subslot的映射，该字段只在JobManager内需要，而不是远程调用
+	 * Mapping of tasks to subslots. This field is only needed inside the JobManager, and is not RPCed. */
 	private transient SlotSharingGroupAssignment taskAssignment;
 
 	private final SlotSharingGroupId slotSharingGroupId = new SlotSharingGroupId();
@@ -46,9 +50,7 @@ public class SlotSharingGroup implements java.io.Serializable {
 	public SlotSharingGroup() {}
 	
 	public SlotSharingGroup(JobVertexID ... sharedVertices) {
-		for (JobVertexID id : sharedVertices) {
-			this.ids.add(id);
-		}
+		this.ids.addAll(Arrays.asList(sharedVertices));
 	}
 
 	// --------------------------------------------------------------------------------------------

@@ -46,6 +46,7 @@ public interface TaskManagerGateway {
 	String getAddress();
 
 	/**
+	 * 请求指定task的栈样本
 	 * Request a stack trace sample from the given task.
 	 *
 	 * @param executionAttemptID identifying the task to sample

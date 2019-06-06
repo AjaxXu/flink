@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * 描述slot的不可变资源配置文件，无论是请求还是归还。
  * Describe the immutable resource profile of the slot, either when requiring or offering it. The profile can be
  * checked whether it can match another profile's requirement, and furthermore we may calculate a matching
  * score to decide which profile we should choose when we have lots of candidate slots.
@@ -70,7 +71,8 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 	/** Memory used for the task in the slot to communicate with its upstreams. Set by job master. */
 	private final int networkMemoryInMB;
 
-	/** A extensible field for user specified resources from {@link ResourceSpec}. */
+	/** 来自{@link ResourceSpec}的用户指定资源的可扩展字段。
+	 * A extensible field for user specified resources from {@link ResourceSpec}. */
 	private final Map<String, Resource> extendedResources = new HashMap<>(1);
 
 	// ------------------------------------------------------------------------
@@ -230,6 +232,7 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 
 	@Override
 	public int compareTo(@Nonnull ResourceProfile other) {
+		// 先比较内存，再比较CPU核数，最后是其他资源
 		int cmp = Integer.compare(this.getMemoryInMB(), other.getMemoryInMB());
 		if (cmp == 0) {
 			cmp = Double.compare(this.cpuCores, other.cpuCores);

@@ -22,7 +22,7 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.operators.ResourceSpec;
 
 /**
- * The GPU resource.
+ * The GPU resource. GPU资源
  */
 @Internal
 public class GPUResource extends Resource {

@@ -137,6 +137,7 @@ public class BlobServer extends Thread implements BlobService, BlobWriter, Perma
 		this.readWriteLock = new ReentrantReadWriteLock();
 
 		// configure and create the storage directory
+		// 获取文件系统存储的根目录，可配置，默认是从系统环境变量 System.getProperty("java.io.tmpdir") 中获取，其实就是本次磁盘存储
 		this.storageDir = BlobUtils.initLocalStorageDirectory(config);
 		LOG.info("Created BLOB server storage directory {}", storageDir);
 
@@ -188,6 +189,7 @@ public class BlobServer extends Thread implements BlobService, BlobWriter, Perma
 		}
 
 		final int finalBacklog = backlog;
+		// 启动 ServerSocket
 		this.serverSocket = NetUtils.createSocketFromPorts(ports,
 				(port) -> socketFactory.createServerSocket(port, finalBacklog));
 
@@ -196,6 +198,7 @@ public class BlobServer extends Thread implements BlobService, BlobWriter, Perma
 		}
 
 		// start the server thread
+		// 启动 BlobServer 服务线程
 		setName("BLOB Server listener at " + getPort());
 		setDaemon(true);
 

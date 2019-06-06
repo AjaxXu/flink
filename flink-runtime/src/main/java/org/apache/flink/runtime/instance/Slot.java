@@ -36,6 +36,8 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * Scheduler / ExecutionGraph从SlotPool获取并用于将任务放入执行的slot的基类。
+ * slot对应于AllocatedSlot（TaskManager资源的一部分），以及用于跟踪当前在该插槽中执行的内容的其他字段，或者slot是否仍在使用或处置（ExecutionGraph将其返回到池中）。
  * Base class for slots that the Scheduler / ExecutionGraph take from the SlotPool and use to place
  * tasks to execute into. A slot corresponds to an AllocatedSlot (a slice of a TaskManager's resources),
  * plus additional fields to track what is currently executed in that slot, or if the slot is still
@@ -48,7 +50,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  */
 public abstract class Slot {
 
-	/** Updater for atomic state transitions */
+	/** Updater for atomic state transitions 状态原子更新器 */
 	private static final AtomicIntegerFieldUpdater<Slot> STATUS_UPDATER =
 			AtomicIntegerFieldUpdater.newUpdater(Slot.class, "status");
 
@@ -74,7 +76,8 @@ public abstract class Slot {
 	/** The owner of this slot - the slot was taken from that owner and must be disposed to it */
 	private final SlotOwner owner;
 
-	/** The parent of this slot in the hierarchy, or null, if this is the parent */
+	/** 该slot的父slot，如果自己就是root，则为null
+	 * The parent of this slot in the hierarchy, or null, if this is the parent */
 	@Nullable
 	private final SharedSlot parent;
 
@@ -211,6 +214,7 @@ public abstract class Slot {
 	}
 
 	/**
+	 * 获取根slot的序号
 	 * Gets the number of the root slot. This code behaves equal to {@code getRoot().getSlotNumber()}.
 	 * If this slot is the root of the tree of shared slots, then this method returns the same
 	 * value as {@link #getSlotNumber()}.
@@ -270,6 +274,7 @@ public abstract class Slot {
 	}
 
 	/**
+	 * 获取simple slot数量
 	 * Gets the number of simple slots that are at the leaves of the tree of slots.
 	 *
 	 * @return The number of simple slots at the leaves.

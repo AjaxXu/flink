@@ -21,6 +21,7 @@ package org.apache.flink.runtime.jobmaster.slotpool;
 import org.apache.flink.runtime.jobmaster.SlotContext;
 
 /**
+ * {@link AllocatedSlot}的上下文
  * The context of an {@link AllocatedSlot}. This represent an interface to classes outside the slot pool to interact
  * with allocated slots.
  */

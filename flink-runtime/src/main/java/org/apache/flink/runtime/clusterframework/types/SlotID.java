@@ -24,6 +24,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * TaskManager上slot的唯一表示
  * Unique identifier for a slot on a TaskManager. This ID is constant across the
  * life time of the TaskManager.
  * 

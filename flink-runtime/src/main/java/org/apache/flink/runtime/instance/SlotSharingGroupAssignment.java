@@ -43,6 +43,7 @@ import java.util.Set;
 
 
 /**
+ * SlotSharingGroupAssignment管理shared slots集合，它们在{@link org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup}的任务之间共享。
  * The SlotSharingGroupAssignment manages a set of shared slots, which are shared between
  * tasks of a {@link org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup}.
  * 
@@ -52,7 +53,9 @@ import java.util.Set;
  * each shared slot can hold one parallel subtask of the source, the map, the reduce, and the
  * sink vertex. Each shared slot holds the actual subtasks in child slots, which are (at the leaf level),
  * the {@link SimpleSlot}s.</p>
- * 
+ *
+ * 一个例外是co-location-constraints，表示vertex的第i个subtask必须和co-location-constraint的其他vertex的第i个subtask放在一起。
+ * 为了管理这种关系，co-location-constraint获得他自己的shared slot
  * <p>An exception are the co-location-constraints, that define that the i-th subtask of one
  * vertex needs to be scheduled strictly together with the i-th subtasks of the vertices
  * that share the co-location-constraint. To manage that, a co-location-constraint gets its
@@ -94,9 +97,11 @@ public class SlotSharingGroupAssignment {
 	private final Object lock = new Object();
 	
 	/** All slots currently allocated to this sharing group */
-	private final Set<SharedSlot> allSlots = new LinkedHashSet<SharedSlot>();
+	private final Set<SharedSlot> allSlots = new LinkedHashSet<>();
 
-	/** The slots available per vertex type (JobVertexId), keyed by TaskManager, to make them locatable */
+	/** Map<JobVertexId, Map<TaskManager, List<SharedSlot>>>
+	 * 资源以 JobVertex 微粒度划分 group，也就是一个 JobVertex 占有一个资源 group
+	 * The slots available per vertex type (JobVertexId), keyed by TaskManager, to make them locatable */
 	private final Map<AbstractID, Map<ResourceID, List<SharedSlot>>> availableSlotsPerJid = new LinkedHashMap<>();
 
 
@@ -130,14 +135,13 @@ public class SlotSharingGroupAssignment {
 				Set<SharedSlot> set = new HashSet<SharedSlot>();
 
 				for (List<SharedSlot> list : available.values()) {
-					for (SharedSlot slot : list) {
-						set.add(slot);
-					}
+					set.addAll(list);
 				}
 
 				return set.size();
 			}
 			else {
+				// 如果该JobVertexID没有entry，则该vertex可以把子任务加入任何一个shared slot中
 				// if no entry exists for a JobVertexID so far, then the vertex with that ID can
 				// add a subtask into each shared slot of this group. Consequently, all
 				// of them are available for that JobVertexID.
@@ -150,6 +154,7 @@ public class SlotSharingGroupAssignment {
 	//  Slot allocation
 	// ------------------------------------------------------------------------
 
+	// 添加Shared slot到 该assignment 中
 	public SimpleSlot addSharedSlotAndAllocateSubSlot(SharedSlot sharedSlot, Locality locality, JobVertexID groupId) {
 		return addSharedSlotAndAllocateSubSlot(sharedSlot, locality, groupId, null);
 	}
@@ -177,6 +182,7 @@ public class SlotSharingGroupAssignment {
 			}
 			
 			// add to the total bookkeeping
+			// 把shared slot 加入列表中
 			if (!allSlots.add(sharedSlot)) {
 				throw new IllegalArgumentException("Slot was already contained in the assignment group");
 			}
@@ -186,32 +192,38 @@ public class SlotSharingGroupAssignment {
 					
 			if (constraint == null) {
 				// allocate us a sub slot to return
+				// 从当前的shared slot分配sub slot
 				subSlot = sharedSlot.allocateSubSlot(groupId);
 				groupIdForMap = groupId;
 			}
 			else {
 				// sanity check
 				if (constraint.isAssignedAndAlive()) {
+					// constraint 已经有一个alive 的 shared slot，抛出异常
 					throw new IllegalStateException(
 							"Trying to add a shared slot to a co-location constraint that has a life slot.");
 				}
 				
 				// we need a co-location slot --> a SimpleSlot nested in a SharedSlot to
 				//                                host other co-located tasks
+				// 分配一个co-location slot
 				SharedSlot constraintGroupSlot = sharedSlot.allocateSharedSlot(constraint.getGroupId());
 				groupIdForMap = constraint.getGroupId();
 				
 				if (constraintGroupSlot != null) {
 					// the sub-slots in the co-location constraint slot have no own group IDs
+					// co-location constraint 里的sub-slots没有自己的 group id（JobVertex）
 					subSlot = constraintGroupSlot.allocateSubSlot(null);
 					if (subSlot != null) {
 						// all went well, we can give the constraint its slot
+						// 将分配的shared slot设置到constraint中
 						constraint.setSharedSlot(constraintGroupSlot);
 						
 						// NOTE: Do not lock the location constraint, because we don't yet know whether we will
 						// take the slot here
 					}
 					else {
+						// 如果不能分配sub-slot, 则释放该刚分配的shared slot
 						// if we could not create a sub slot, release the co-location slot
 						// note that this does implicitly release the slot we have just added
 						// as well, because we release its last child slot. That is expected
@@ -228,14 +240,18 @@ public class SlotSharingGroupAssignment {
 			
 			if (subSlot != null) {
 				// preserve the locality information
+				// 保存位置信息
 				subSlot.setLocality(locality);
 				
 				// let the other groups know that this slot exists and that they
 				// can place a task into this slot.
+				// 让其他group知道该shared slot（最开始的）存在，这样他们可以把task放在该slot上
 				boolean entryForNewJidExists = false;
-				
+
+				// 遍历可用的slot，把该shared slot 加入进去
 				for (Map.Entry<AbstractID, Map<ResourceID, List<SharedSlot>>> entry : availableSlotsPerJid.entrySet()) {
 					// there is already an entry for this groupID
+					// 该groupId已经存在一条，则直接跳过。因为已经被该groupId使用了，等release时可以加入
 					if (entry.getKey().equals(groupIdForMap)) {
 						entryForNewJidExists = true;
 						continue;
@@ -246,8 +262,9 @@ public class SlotSharingGroupAssignment {
 				}
 
 				// make sure an empty entry exists for this group, if no other entry exists
+				// 如果不存在则加入一条空的entry
 				if (!entryForNewJidExists) {
-					availableSlotsPerJid.put(groupIdForMap, new LinkedHashMap<ResourceID, List<SharedSlot>>());
+					availableSlotsPerJid.put(groupIdForMap, new LinkedHashMap<>());
 				}
 
 				return subSlot;
@@ -262,6 +279,7 @@ public class SlotSharingGroupAssignment {
 	}
 
 	/**
+	 * 为task vertex 获取一个合适的slot。会根据locationPreferences(位置偏好)先获取
 	 * Gets a slot suitable for the given task vertex. This method will prefer slots that are local
 	 * (with respect to {@link ExecutionVertex#getPreferredLocationsBasedOnInputs()}), but will return non local
 	 * slots if no local slot is available. The method returns null, when this sharing group has
@@ -279,6 +297,7 @@ public class SlotSharingGroupAssignment {
 			if (p != null) {
 				SharedSlot ss = p.f0;
 				SimpleSlot slot = ss.allocateSubSlot(vertexID);
+				// 为slot设置位置信息
 				slot.setLocality(p.f1);
 				return slot;
 			}
@@ -309,6 +328,7 @@ public class SlotSharingGroupAssignment {
 	 */
 	public SimpleSlot getSlotForTask(CoLocationConstraint constraint, Iterable<TaskManagerLocation> locationPreferences) {
 		synchronized (lock) {
+			// constraint中location已分配且shared slot is alive
 			if (constraint.isAssignedAndAlive()) {
 				// the shared slot of the co-location group is initialized and set we allocate a sub-slot
 				final SharedSlot shared = constraint.getSharedSlot();
@@ -318,7 +338,7 @@ public class SlotSharingGroupAssignment {
 			}
 			else if (constraint.isAssigned()) {
 				// we had an assignment before.
-				
+				// location is assigned but the slot is canceled or released
 				SharedSlot previous = constraint.getSharedSlot();
 				if (previous == null) {
 					throw new IllegalStateException("Bug: Found assigned co-location constraint without a slot.");
@@ -335,6 +355,7 @@ public class SlotSharingGroupAssignment {
 					SharedSlot newSharedSlot = p.f0;
 
 					// allocate the co-location group slot inside the shared slot
+					// 在根据location得到的shared slot 分配co-location group slot，分配内嵌的shared slot
 					SharedSlot constraintGroupSlot = newSharedSlot.allocateSharedSlot(constraint.getGroupId());
 					if (constraintGroupSlot != null) {
 						constraint.setSharedSlot(constraintGroupSlot);
@@ -352,6 +373,7 @@ public class SlotSharingGroupAssignment {
 				}
 			}
 			else {
+				// 位置限制还没有和shared slot绑定，则不需要根据本地性，获取一个shared slot
 				// the location constraint has not been associated with a shared slot, yet.
 				// grab a new slot and initialize the constraint with that one.
 				// preferred locations are defined by the vertex
@@ -370,6 +392,7 @@ public class SlotSharingGroupAssignment {
 					
 					// IMPORTANT: We do not lock the location, yet, since we cannot be sure that the
 					//            caller really sticks with the slot we picked!
+					// 重要：我们这里并不lock位置，因为不确定调用者是否坚持选择的slot
 					constraint.setSharedSlot(constraintGroupSlot);
 					
 					// the sub slots in the co location constraint slot have no group that they belong to
@@ -393,10 +416,12 @@ public class SlotSharingGroupAssignment {
 		}
 
 		// get the available slots for the group
+		// 获取该groupId(JobVertexID)对应的可用的slots集合
 		Map<ResourceID, List<SharedSlot>> slotsForGroup = availableSlotsPerJid.get(groupId);
 		
 		if (slotsForGroup == null) {
 			// we have a new group, so all slots are available
+			// 一个新的group，则所有的slots都可用
 			slotsForGroup = new LinkedHashMap<>();
 			availableSlotsPerJid.put(groupId, slotsForGroup);
 
@@ -406,6 +431,7 @@ public class SlotSharingGroupAssignment {
 		}
 		else if (slotsForGroup.isEmpty()) {
 			// the group exists, but nothing is available for that group
+			// group 存在，当没有可用的slot，直接返回null
 			return null;
 		}
 
@@ -417,6 +443,7 @@ public class SlotSharingGroupAssignment {
 
 				// set the flag that we failed a preferred location. If one will be found,
 				// we return early anyways and skip the flag evaluation
+				// 设置没有找到 preferred 位置。如果找到会直接返回，跳过该flag检测
 				didNotGetPreferred = true;
 
 				SharedSlot slot = removeFromMultiMap(slotsForGroup, location.getResourceID());
@@ -450,6 +477,7 @@ public class SlotSharingGroupAssignment {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * 从assignment group中释放。调用顺序为SimpleSlot.releaseSlot -> SharedSlot.releaseChild -> releaseSimpleSlot
 	 * Releases the simple slot from the assignment group.
 	 * 
 	 * @param simpleSlot The SimpleSlot to be released
@@ -469,6 +497,7 @@ public class SlotSharingGroupAssignment {
 				if (simpleSlot.markReleased()) {
 					LOG.debug("Release simple slot {}.", simpleSlot);
 
+					// JobVertexID, 该simpleSlot被该JobVertex使用
 					AbstractID groupID = simpleSlot.getGroupID();
 					SharedSlot parent = simpleSlot.getParent();
 
@@ -477,8 +506,10 @@ public class SlotSharingGroupAssignment {
 						throw new IllegalArgumentException("Slot was not associated with this SlotSharingGroup before.");
 					}
 
+					// 从parent的sub slots数组中删除
 					int parentRemaining = parent.removeDisposedChildSlot(simpleSlot);
 
+					// Shared slot 还有slot
 					if (parentRemaining > 0) {
 						// the parent shared slot is still alive. make sure we make it
 						// available again to the group of the just released slot
@@ -488,6 +519,7 @@ public class SlotSharingGroupAssignment {
 							// for that group again. otherwise, the slot is part of a
 							// co-location group and nothing becomes immediately available
 
+							// 该shared slot对JobVertex变得重新可用，因为该shared slot中对应的simple slot已经被删除
 							Map<ResourceID, List<SharedSlot>> slotsForJid = availableSlotsPerJid.get(groupID);
 
 							// sanity check
@@ -553,6 +585,7 @@ public class SlotSharingGroupAssignment {
 		
 		if (parent == null) {
 			// root slot, return to the instance.
+			// root slot , 返还给instance（代表注册在JobMaster上的TM）
 			sharedSlot.getOwner().returnLogicalSlot(sharedSlot);
 
 			// also, make sure we remove this slot from everywhere
@@ -561,6 +594,7 @@ public class SlotSharingGroupAssignment {
 		}
 		else if (groupID != null) {
 			// we remove ourselves from our parent slot
+			// 从parent slot中删除该 shared slot
 
 			if (sharedSlot.markReleased()) {
 				LOG.debug("Internally dispose empty shared slot {}.", sharedSlot);
@@ -597,13 +631,9 @@ public class SlotSharingGroupAssignment {
 	//  Utilities
 	// ------------------------------------------------------------------------
 
+	// 将这个 SharedSlot 加入到其它 JobVertex 的可调度资源队列中，也就是说其它的 JobVertex 都可以在这个 SharedSlot 上部署自己的 sub task
 	private static void putIntoMultiMap(Map<ResourceID, List<SharedSlot>> map, ResourceID location, SharedSlot slot) {
-		List<SharedSlot> slotsForInstance = map.get(location);
-		if (slotsForInstance == null) {
-			slotsForInstance = new ArrayList<SharedSlot>();
-			map.put(location, slotsForInstance);
-		}
-		slotsForInstance.add(slot);
+		map.computeIfAbsent(location, k -> new ArrayList<>()).add(slot);
 	}
 	
 	private static SharedSlot removeFromMultiMap(Map<ResourceID, List<SharedSlot>> map, ResourceID location) {
@@ -613,6 +643,7 @@ public class SlotSharingGroupAssignment {
 			return null;
 		}
 		else {
+			// 从末尾获取
 			SharedSlot slot = slotsForLocation.remove(slotsForLocation.size() - 1);
 			if (slotsForLocation.isEmpty()) {
 				map.remove(location);
@@ -652,10 +683,12 @@ public class SlotSharingGroupAssignment {
 		for (Map.Entry<AbstractID, Map<ResourceID, List<SharedSlot>>> entry : availableSlots.entrySet()) {
 			Map<ResourceID, List<SharedSlot>> map = entry.getValue();
 
+			// 获取TaskManager上的SharedSlot集合
 			List<SharedSlot> list = map.get(taskManagerId);
 			if (list != null) {
 				list.remove(slot);
 				if (list.isEmpty()) {
+					// 说明该TaskManager上没有可用的shared slot
 					map.remove(taskManagerId);
 				}
 			}
