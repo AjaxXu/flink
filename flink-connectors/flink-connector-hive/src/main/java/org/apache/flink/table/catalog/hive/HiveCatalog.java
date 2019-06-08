@@ -77,6 +77,9 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -90,8 +93,10 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * A catalog implementation for Hive.
  */
 public class HiveCatalog extends AbstractCatalog {
+	// Default database of Hive metastore
+	public static final String DEFAULT_DB = "default";
+
 	private static final Logger LOG = LoggerFactory.getLogger(HiveCatalog.class);
-	private static final String DEFAULT_DB = "default";
 	private static final StorageFormatFactory storageFormatFactory = new StorageFormatFactory();
 	private static final String DEFAULT_HIVE_TABLE_STORAGE_FORMAT = "TextFile";
 
@@ -105,31 +110,31 @@ public class HiveCatalog extends AbstractCatalog {
 	// because Hive's Function object doesn't have properties or other place to store the flag for Flink functions.
 	private static final String FLINK_FUNCTION_PREFIX = "flink:";
 
-	protected final HiveConf hiveConf;
+	private final HiveConf hiveConf;
 
-	protected HiveMetastoreClientWrapper client;
+	private HiveMetastoreClientWrapper client;
 
-	public HiveCatalog(String catalogName, String hivemetastoreURI) {
-		this(catalogName, DEFAULT_DB, getHiveConf(hivemetastoreURI));
+	public HiveCatalog(String catalogName, @Nullable String defaultDatabase, @Nullable URL hiveSiteUrl) {
+		this(catalogName,
+			defaultDatabase == null ? DEFAULT_DB : defaultDatabase,
+			createHiveConf(hiveSiteUrl));
 	}
 
-	public HiveCatalog(String catalogName, HiveConf hiveConf) {
-		this(catalogName, DEFAULT_DB, hiveConf);
-	}
+	@VisibleForTesting
+	protected HiveCatalog(String catalogName, String defaultDatabase, HiveConf hiveConf) {
+		super(catalogName, defaultDatabase == null ? DEFAULT_DB : defaultDatabase);
 
-	public HiveCatalog(String catalogName, String defaultDatabase, HiveConf hiveConf) {
-		super(catalogName, defaultDatabase);
-		this.hiveConf = checkNotNull(hiveConf, "hiveConf cannot be null");
+		this.hiveConf = hiveConf == null ? createHiveConf(null) : hiveConf;
 
 		LOG.info("Created HiveCatalog '{}'", catalogName);
 	}
 
-	private static HiveConf getHiveConf(String hiveMetastoreURI) {
-		checkArgument(!StringUtils.isNullOrWhitespaceOnly(hiveMetastoreURI), "hiveMetastoreURI cannot be null or empty");
+	private static HiveConf createHiveConf(URL hiveSiteUrl) {
+		LOG.info("Setting hive-site location as {}", hiveSiteUrl);
 
-		HiveConf hiveConf = new HiveConf();
-		hiveConf.setVar(HiveConf.ConfVars.METASTOREURIS, hiveMetastoreURI);
-		return hiveConf;
+		HiveConf.setHiveSiteLocation(hiveSiteUrl);
+
+		return new HiveConf();
 	}
 
 	@Override

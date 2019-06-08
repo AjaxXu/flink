@@ -29,18 +29,18 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.table.api.java.{BatchTableEnvImpl => JavaBatchTableEnvImpl, StreamTableEnvImpl => JavaStreamTableEnvImpl}
 import org.apache.flink.table.api.scala.{BatchTableEnvImpl => ScalaBatchTableEnvImpl, _}
-import org.apache.flink.table.api.{Table, TableConfig, TableImpl, TableSchema}
+import org.apache.flink.table.api.{BatchTableEnvImpl => _, StreamTableEnvImpl => _, _}
 import org.apache.flink.table.catalog.{CatalogManager, GenericInMemoryCatalog}
 import org.apache.flink.table.expressions.Expression
 import org.apache.flink.table.functions.{AggregateFunction, ScalarFunction, TableFunction}
-import org.apache.flink.table.operations.{CatalogTableOperation, DataSetTableOperation, DataStreamTableOperation}
+import org.apache.flink.table.operations.{DataSetQueryOperation, DataStreamQueryOperation}
 import org.apache.flink.table.utils.TableTestUtil.createCatalogManager
 import org.junit.Assert.assertEquals
 import org.junit.rules.ExpectedException
 import org.junit.{ComparisonFailure, Rule}
 import org.mockito.Mockito.{mock, when}
 
-import scala.util.control.Breaks._
+import _root_.scala.util.control.Breaks._
 
 /**
   * Test base for testing Table API / SQL plans.
@@ -65,9 +65,9 @@ class TableTestBase {
     assertEquals(
       "Logical plans do not match",
       LogicalPlanFormatUtils.formatTempTableId(RelOptUtil.toString(
-        expected.asInstanceOf[TableImpl].getRelNode)),
+        TableTestUtil.toRelNode(expected))),
       LogicalPlanFormatUtils.formatTempTableId(RelOptUtil.toString(
-        actual.asInstanceOf[TableImpl].getRelNode)))
+        TableTestUtil.toRelNode(actual))))
   }
 }
 
@@ -91,7 +91,7 @@ abstract class TableTestUtil(verifyCatalogPath: Boolean = false) {
   def verifyTable(resultTable: Table, expected: String): Unit
 
   def verifySchema(resultTable: Table, fields: Seq[(String, TypeInformation[_])]): Unit = {
-    val actual = resultTable.asInstanceOf[TableImpl].getSchema
+    val actual = resultTable.getSchema
     val expected = new TableSchema(fields.map(_._1).toArray, fields.map(_._2).toArray)
     assertEquals(expected, actual)
   }
@@ -155,6 +155,11 @@ object TableTestUtil {
     config
   }
 
+  private[utils] def toRelNode(expected: Table) = {
+    expected.asInstanceOf[TableImpl].getTableEnvironment.asInstanceOf[TableEnvImpl]
+      .getRelBuilder.tableOperation(expected.getQueryOperation).build()
+  }
+
   // this methods are currently just for simplifying string construction,
   // we could replace it with logic later
 
@@ -202,13 +207,13 @@ object TableTestUtil {
   }
 
   def batchTableNode(table: Table): String = {
-    val dataSetTable = table.getTableOperation.asInstanceOf[DataSetTableOperation[_]]
+    val dataSetTable = table.getQueryOperation.asInstanceOf[DataSetQueryOperation[_]]
     s"DataSetScan(ref=[${System.identityHashCode(dataSetTable.getDataSet)}], " +
       s"fields=[${dataSetTable.getTableSchema.getFieldNames.mkString(", ")}])"
   }
 
   def streamTableNode(table: Table): String = {
-    val dataStreamTable = table.getTableOperation.asInstanceOf[DataStreamTableOperation[_]]
+    val dataStreamTable = table.getQueryOperation.asInstanceOf[DataStreamQueryOperation[_]]
     s"DataStreamScan(id=[${dataStreamTable.getDataStream.getId}], " +
       s"fields=[${dataStreamTable.getTableSchema.getFieldNames.mkString(", ")}])"
   }
@@ -284,7 +289,7 @@ case class BatchTableTestUtil(
   }
 
   def verifyTable(resultTable: Table, expected: String): Unit = {
-    val relNode = resultTable.asInstanceOf[TableImpl].getRelNode
+    val relNode = TableTestUtil.toRelNode(resultTable)
     val optimized = tableEnv.optimize(relNode)
     verifyString(expected, optimized)
   }
@@ -294,13 +299,13 @@ case class BatchTableTestUtil(
   }
 
   def verifyJavaTable(resultTable: Table, expected: String): Unit = {
-    val relNode = resultTable.asInstanceOf[TableImpl].getRelNode
+    val relNode = TableTestUtil.toRelNode(resultTable)
     val optimized = javaTableEnv.optimize(relNode)
     verifyString(expected, optimized)
   }
 
   def printTable(resultTable: Table): Unit = {
-    val relNode = resultTable.asInstanceOf[TableImpl].getRelNode
+    val relNode = TableTestUtil.toRelNode(resultTable)
     val optimized = tableEnv.optimize(relNode)
     println(RelOptUtil.toString(optimized))
   }
@@ -311,6 +316,10 @@ case class BatchTableTestUtil(
 
   def explain(resultTable: Table): String = {
     tableEnv.explain(resultTable)
+  }
+
+  def toRelNode(table: Table): RelNode = {
+    tableEnv.getRelBuilder.tableOperation(table.getQueryOperation).build()
   }
 }
 
@@ -382,15 +391,15 @@ case class StreamTableTestUtil(
   }
 
   def verifyTable(resultTable: Table, expected: String): Unit = {
-    val relNode = resultTable.asInstanceOf[TableImpl].getRelNode
+    val relNode = TableTestUtil.toRelNode(resultTable)
     val optimized = tableEnv.optimize(relNode, updatesAsRetraction = false)
     verifyString(expected, optimized)
   }
 
   def verify2Tables(resultTable1: Table, resultTable2: Table): Unit = {
-    val relNode1 = resultTable1.asInstanceOf[TableImpl].getRelNode
+    val relNode1 = TableTestUtil.toRelNode(resultTable1)
     val optimized1 = tableEnv.optimize(relNode1, updatesAsRetraction = false)
-    val relNode2 = resultTable2.asInstanceOf[TableImpl].getRelNode
+    val relNode2 = TableTestUtil.toRelNode(resultTable2)
     val optimized2 = tableEnv.optimize(relNode2, updatesAsRetraction = false)
     assertEquals(RelOptUtil.toString(optimized1), RelOptUtil.toString(optimized2))
   }
@@ -400,14 +409,14 @@ case class StreamTableTestUtil(
   }
 
   def verifyJavaTable(resultTable: Table, expected: String): Unit = {
-    val relNode = resultTable.asInstanceOf[TableImpl].getRelNode
+    val relNode = TableTestUtil.toRelNode(resultTable)
     val optimized = javaTableEnv.optimize(relNode, updatesAsRetraction = false)
     verifyString(expected, optimized)
   }
 
   // the print methods are for debugging purposes only
   def printTable(resultTable: Table): Unit = {
-    val relNode = resultTable.asInstanceOf[TableImpl].getRelNode
+    val relNode = TableTestUtil.toRelNode(resultTable)
     val optimized = tableEnv.optimize(relNode, updatesAsRetraction = false)
     println(RelOptUtil.toString(optimized))
   }
@@ -418,6 +427,10 @@ case class StreamTableTestUtil(
 
   def explain(resultTable: Table): String = {
     tableEnv.explain(resultTable)
+  }
+
+  def toRelNode(table: Table): RelNode = {
+    tableEnv.getRelBuilder.tableOperation(table.getQueryOperation).build()
   }
 }
 

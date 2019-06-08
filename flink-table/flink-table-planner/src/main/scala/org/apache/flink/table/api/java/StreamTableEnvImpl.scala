@@ -50,7 +50,7 @@ class StreamTableEnvImpl(
   with org.apache.flink.table.api.java.StreamTableEnvironment {
 
   override def fromDataStream[T](dataStream: DataStream[T]): Table = {
-    new TableImpl(this, asTableOperation(dataStream, None))
+    new TableImpl(this, asQueryOperation(dataStream, None))
   }
 
   override def fromDataStream[T](dataStream: DataStream[T], fields: String): Table = {
@@ -58,7 +58,7 @@ class StreamTableEnvImpl(
       .parseExpressionList(fields).asScala
       .toArray
 
-    new TableImpl(this, asTableOperation(dataStream, Some(exprs)))
+    new TableImpl(this, asQueryOperation(dataStream, Some(exprs)))
   }
 
   override def registerDataStream[T](name: String, dataStream: DataStream[T]): Unit = {
@@ -87,7 +87,11 @@ class StreamTableEnvImpl(
       queryConfig: StreamQueryConfig): DataStream[T] = {
     val typeInfo = TypeExtractor.createTypeInfo(clazz)
     FieldInfoUtils.validateInputTypeInfo(typeInfo)
-    translate[T](table, queryConfig, updatesAsRetraction = false, withChangeFlag = false)(typeInfo)
+    translate[T](
+      table.getQueryOperation,
+      queryConfig,
+      updatesAsRetraction = false,
+      withChangeFlag = false)(typeInfo)
   }
 
   override def toAppendStream[T](
@@ -95,7 +99,11 @@ class StreamTableEnvImpl(
       typeInfo: TypeInformation[T],
       queryConfig: StreamQueryConfig): DataStream[T] = {
     FieldInfoUtils.validateInputTypeInfo(typeInfo)
-    translate[T](table, queryConfig, updatesAsRetraction = false, withChangeFlag = false)(typeInfo)
+    translate[T](
+      table.getQueryOperation,
+      queryConfig,
+      updatesAsRetraction = false,
+      withChangeFlag = false)(typeInfo)
   }
 
   override def toRetractStream[T](
@@ -121,7 +129,7 @@ class StreamTableEnvImpl(
     FieldInfoUtils.validateInputTypeInfo(typeInfo)
     val resultType = new TupleTypeInfo[JTuple2[JBool, T]](Types.BOOLEAN, typeInfo)
     translate[JTuple2[JBool, T]](
-      table,
+      table.getQueryOperation,
       queryConfig,
       updatesAsRetraction = true,
       withChangeFlag = true)(resultType)
@@ -138,7 +146,7 @@ class StreamTableEnvImpl(
       typeInfo
     )
     translate[JTuple2[JBool, T]](
-      table,
+      table.getQueryOperation,
       queryConfig,
       updatesAsRetraction = true,
       withChangeFlag = true)(resultTypeInfo)

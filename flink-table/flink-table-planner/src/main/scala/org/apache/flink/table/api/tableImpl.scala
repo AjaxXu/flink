@@ -18,14 +18,12 @@
 package org.apache.flink.table.api
 
 import _root_.java.util.Collections.emptyList
-import _root_.java.util.function.Supplier
 
-import org.apache.calcite.rel.RelNode
 import org.apache.flink.table.expressions.{Expression, ExpressionParser, LookupCallResolver}
 import org.apache.flink.table.functions.{TemporalTableFunction, TemporalTableFunctionImpl}
-import org.apache.flink.table.operations.JoinTableOperation.JoinType
+import org.apache.flink.table.operations.JoinQueryOperation.JoinType
 import org.apache.flink.table.operations.OperationExpressionsUtils.extractAggregationsAndProperties
-import org.apache.flink.table.operations.{OperationTreeBuilder, TableOperation}
+import org.apache.flink.table.operations.{OperationTreeBuilder, QueryOperation}
 import org.apache.flink.table.util.JavaScalaConversionUtil.toJava
 
 import _root_.scala.collection.JavaConversions._
@@ -43,7 +41,7 @@ import _root_.scala.collection.JavaConverters._
   */
 class TableImpl(
     private[flink] val tableEnv: TableEnvImpl,
-    private[flink] val operationTree: TableOperation)
+    private[flink] val operationTree: QueryOperation)
   extends Table {
 
   private[flink] val operationTreeBuilder: OperationTreeBuilder = tableEnv.operationTreeBuilder
@@ -54,8 +52,6 @@ class TableImpl(
 
   var tableName: String = _
 
-  def getRelNode: RelNode = tableEnv.getRelBuilder.tableOperation(operationTree).build()
-
   /**
     * Returns the [[TableEnvironment]] of this table.
     */
@@ -65,7 +61,7 @@ class TableImpl(
 
   override def printSchema(): Unit = print(tableSchema.toString)
 
-  override def getTableOperation: TableOperation = operationTree
+  override def getQueryOperation: QueryOperation = operationTree
 
   override def select(fields: String): Table = {
     select(ExpressionParser.parseExpressionList(fields).asScala: _*)
@@ -73,9 +69,7 @@ class TableImpl(
 
   override def select(fields: Expression*): Table = {
     val expressionsWithResolvedCalls = fields.map(_.accept(callResolver)).asJava
-    val extracted = extractAggregationsAndProperties(
-      expressionsWithResolvedCalls,
-      getUniqueAttributeSupplier)
+    val extracted = extractAggregationsAndProperties(expressionsWithResolvedCalls)
 
     if (!extracted.getWindowProperties.isEmpty) {
       throw new ValidationException("Window properties can only be used on windowed tables.")
@@ -91,12 +85,6 @@ class TableImpl(
       )
     } else {
       wrap(operationTreeBuilder.project(expressionsWithResolvedCalls, operationTree))
-    }
-  }
-
-  private[flink] def getUniqueAttributeSupplier: Supplier[String] = {
-    new Supplier[String] {
-      override def get(): String = tableEnv.createUniqueAttributeName()
     }
   }
 
@@ -212,7 +200,7 @@ class TableImpl(
 
     wrap(operationTreeBuilder.join(
         this.operationTree,
-        right.getTableOperation,
+        right.getQueryOperation,
         joinType,
         toJava(joinPredicate),
         correlated = false))
@@ -356,7 +344,7 @@ class TableImpl(
   }
 
   override def insertInto(tablePath: String, tablePathContinued: String*): Unit = {
-    insertInto(tableEnv.queryConfig, tablePath, tablePathContinued: _*)
+    tableEnv.insertInto(this, tablePath, tablePathContinued: _*)
   }
 
   override def insertInto(tableName: String, conf: QueryConfig): Unit = {
@@ -368,7 +356,7 @@ class TableImpl(
       tablePath: String,
       tablePathContinued: String*)
     : Unit = {
-    tableEnv.insertInto(this, conf, tablePath +: tablePathContinued:_*)
+    tableEnv.insertInto(this, conf, tablePath, tablePathContinued: _*)
   }
 
   override def window(window: GroupWindow): GroupWindowedTable = {
@@ -406,9 +394,7 @@ class TableImpl(
 
   private def addColumnsOperation(replaceIfExist: Boolean, fields: Expression*): Table = {
     val expressionsWithResolvedCalls = fields.map(_.accept(callResolver)).asJava
-    val extracted = extractAggregationsAndProperties(
-      expressionsWithResolvedCalls,
-      getUniqueAttributeSupplier)
+    val extracted = extractAggregationsAndProperties(expressionsWithResolvedCalls)
 
     val aggNames = extracted.getAggregations
 
@@ -481,7 +467,7 @@ class TableImpl(
     tableName
   }
 
-  private def wrap(operation: TableOperation): Table = {
+  private def wrap(operation: QueryOperation): Table = {
     new TableImpl(tableEnv, operation)
   }
 }
@@ -502,8 +488,7 @@ class GroupedTableImpl(
 
   override def select(fields: Expression*): Table = {
     val expressionsWithResolvedCalls = fields.map(_.accept(tableImpl.callResolver)).asJava
-    val extracted = extractAggregationsAndProperties(expressionsWithResolvedCalls,
-      tableImpl.getUniqueAttributeSupplier)
+    val extracted = extractAggregationsAndProperties(expressionsWithResolvedCalls)
 
     if (!extracted.getWindowProperties.isEmpty) {
       throw new ValidationException("Window properties can only be used on windowed tables.")
@@ -630,9 +615,7 @@ class WindowGroupedTableImpl(
 
   override def select(fields: Expression*): Table = {
     val expressionsWithResolvedCalls = fields.map(_.accept(tableImpl.callResolver)).asJava
-    val extracted = extractAggregationsAndProperties(
-      expressionsWithResolvedCalls,
-      tableImpl.getUniqueAttributeSupplier)
+    val extracted = extractAggregationsAndProperties(expressionsWithResolvedCalls)
 
     new TableImpl(tableImpl.tableEnv,
       tableImpl.operationTreeBuilder.project(
@@ -677,9 +660,7 @@ class WindowFlatAggregateTableImpl(
 
   override def select(fields: Expression*): Table = {
     val expressionsWithResolvedCalls = fields.map(_.accept(tableImpl.callResolver))
-    val extracted = extractAggregationsAndProperties(
-      expressionsWithResolvedCalls,
-      tableImpl.getUniqueAttributeSupplier)
+    val extracted = extractAggregationsAndProperties(expressionsWithResolvedCalls)
 
     if (extracted.getAggregations.nonEmpty) {
       throw new ValidationException("Aggregate functions cannot be used in the select right " +
