@@ -272,12 +272,7 @@ public class ContinuousFileMonitoringFunction<OUT>
 			FileStatus fileStatus = eligibleFiles.get(split.getPath());
 			if (fileStatus != null) {
 				Long modTime = fileStatus.getModificationTime();
-				List<TimestampedFileInputSplit> splitsToForward = splitsByModTime.get(modTime);
-				if (splitsToForward == null) {
-					splitsToForward = new ArrayList<>();
-					splitsByModTime.put(modTime, splitsToForward);
-				}
-				splitsToForward.add(new TimestampedFileInputSplit(
+				splitsByModTime.computeIfAbsent(modTime, k -> new ArrayList<>()).add(new TimestampedFileInputSplit(
 					modTime, split.getSplitNumber(), split.getPath(),
 					split.getStart(), split.getLength(), split.getHostnames()));
 			}

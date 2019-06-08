@@ -833,9 +833,7 @@ public class ExecutionConfig implements Serializable, Archiveable<ArchivedExecut
 		if (type == null) {
 			throw new NullPointerException("Cannot register null type class.");
 		}
-		if (!registeredPojoTypes.contains(type)) {
-			registeredPojoTypes.add(type);
-		}
+		registeredPojoTypes.add(type);
 	}
 
 	/**
@@ -889,13 +887,8 @@ public class ExecutionConfig implements Serializable, Archiveable<ArchivedExecut
 		if (isForceKryoEnabled()) {
 			// if we force kryo, we must also return all the types that
 			// were previously only registered as POJO
-			LinkedHashSet<Class<?>> result = new LinkedHashSet<>();
-			result.addAll(registeredKryoTypes);
-			for(Class<?> t : registeredPojoTypes) {
-				if (!result.contains(t)) {
-					result.add(t);
-				}
-			}
+			LinkedHashSet<Class<?>> result = new LinkedHashSet<>(registeredKryoTypes);
+			result.addAll(registeredPojoTypes);
 			return result;
 		} else {
 			return registeredKryoTypes;
@@ -1037,6 +1030,7 @@ public class ExecutionConfig implements Serializable, Archiveable<ArchivedExecut
 	}
 
 	/**
+	 * 用户注册在{@link ExecutionConfig}的配置
 	 * Abstract class for a custom user configuration object registered at the execution config.
 	 *
 	 * This user config is accessible at runtime through

@@ -21,17 +21,20 @@ package org.apache.flink.api.common;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * 该限制表示task该考虑它的输入处于何种状态才能被调度
  * This constraint indicates when a task should be scheduled considering its inputs status.
  */
 @PublicEvolving
 public enum InputDependencyConstraint {
 
 	/**
+	 * 任何输入可以被消费时就可以调度
 	 * Schedule the task if any input is consumable.
 	 */
 	ANY,
 
 	/**
+	 * 所有的输入都可消费时才能被调度
 	 * Schedule the task if all the inputs are consumable.
 	 */
 	ALL

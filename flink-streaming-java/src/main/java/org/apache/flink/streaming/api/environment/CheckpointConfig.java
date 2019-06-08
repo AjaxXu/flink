@@ -72,12 +72,14 @@ public class CheckpointConfig implements java.io.Serializable {
 	/** Determines if a tasks are failed or not if there is an error in their checkpointing. Default: true */
 	private boolean failOnCheckpointingErrors = true;
 
-	/** Determines if a job will fallback to checkpoint when there is a more recent savepoint. **/
+	/** 当有savepoint时，是否优先使用checkpoint恢复
+	 * Determines if a job will fallback to checkpoint when there is a more recent savepoint. **/
 	private boolean preferCheckpointForRecovery = false;
 
 	// ------------------------------------------------------------------------
 
 	/**
+	 * 通过{@code checkpointInterval} 大于0或者-1来标识是否支持checkpoint
 	 * Checks whether checkpointing is enabled.
 	 *
 	 * @return True if checkpointing is enables, false otherwise.
@@ -318,6 +320,7 @@ public class CheckpointConfig implements java.io.Serializable {
 	}
 
 	/**
+	 * Job取消时清除checkpoint
 	 * Cleanup behaviour for externalized checkpoints when the job is cancelled.
 	 */
 	@PublicEvolving

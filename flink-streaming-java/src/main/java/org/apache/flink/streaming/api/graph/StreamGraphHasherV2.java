@@ -47,6 +47,7 @@ import java.util.Set;
 import static org.apache.flink.util.StringUtils.byteToHexString;
 
 /**
+ * 包含重复的代码，以确保算法不会随着未来的Flink版本而改变。
  * StreamGraphHasher from Flink 1.2. This contains duplicated code to ensure that the algorithm does not change with
  * future Flink versions.
  *
@@ -67,12 +68,12 @@ public class StreamGraphHasherV2 implements StreamGraphHasher {
 	 *
 	 * <p>The generated hash is deterministic with respect to:生成的一个node的hash值由以下结构部分组成
 	 * <ul>
-	 *   <li>node-local properties (node ID),真正计算的时候只考虑了node的id属性，其他的并发度和userfunction可能认为改变了依然是同一个任务
+	 *   <li>node-local properties (node ID),真正计算的时候只考虑了node的id属性，其他的并发度和userfunction可能改变了依然是同一个任务
 	 *   <li>chained output nodes, and  能够chain上的output算子
 	 *   <li>input nodes hashes input节点的hash值
 	 * </ul>
 	 *
-	 * @return A map from {@link StreamNode#id} to hash as 16-byte array.
+	 * @return A map from {@code StreamNode#id} to hash as 16-byte array. key为{@code StreamNode#id}，value为16byte数组
 	 */
 	@Override
 	public Map<Integer, byte[]> traverseStreamGraphAndGenerateHashes(StreamGraph streamGraph) {
@@ -94,10 +95,7 @@ public class StreamGraphHasherV2 implements StreamGraphHasher {
 		//hash值的生成是顺序敏感的（依赖于顺序），因此首先要对source ID集合进行排序
 		//因为如果source的ID集合顺序不固定，那意味着多次提交包含该source ID集合的程序时可能导致不同的遍历路径，
 		//从而破坏了hash生成的因素
-		List<Integer> sources = new ArrayList<>();
-		for (Integer sourceNodeId : streamGraph.getSourceIDs()) {
-			sources.add(sourceNodeId);
-		}
+		List<Integer> sources = new ArrayList<>(streamGraph.getSourceIDs());
 		Collections.sort(sources);
 
 		//
@@ -126,7 +124,7 @@ public class StreamGraphHasherV2 implements StreamGraphHasher {
 					//获取输出边的目标顶点（该边另一头的顶点）
 					StreamNode child = streamGraph.getTargetVertex(outEdge);
 
-					//如果目标顶点没被访问过，则加入待访问队列和易访问元素集合
+					//如果目标顶点没被访问过，则加入待访问队列和已访问元素集合
 					if (!visited.contains(child.getId())) {
 						remaining.add(child);
 						visited.add(child.getId());
@@ -292,7 +290,7 @@ public class StreamGraphHasherV2 implements StreamGraphHasher {
 	 * the current state of the hash.
 	 *
 	 * <p>The specified ID is local to this node. We cannot use the
-	 * {@link StreamNode#id}, because it is incremented in a static counter.
+	 * {@code StreamNode#id}, because it is incremented in a static counter.
 	 * Therefore, the IDs for identical jobs will otherwise be different.
 	 */
 	private void generateNodeLocalHash(Hasher hasher, int id) {

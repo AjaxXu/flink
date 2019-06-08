@@ -109,7 +109,7 @@ public abstract class StreamExecutionEnvironment {
 	/** The time characteristic that is used if none other is set. */
 	private static final TimeCharacteristic DEFAULT_TIME_CHARACTERISTIC = TimeCharacteristic.ProcessingTime;
 
-	/** The default buffer timeout (max delay of records in the network stack). */
+	/** The default buffer timeout (max delay of records in the network stack). 网络中buffer最大缓存时间*/
 	private static final long DEFAULT_NETWORK_BUFFER_TIMEOUT = 100L;
 
 	/**
