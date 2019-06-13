@@ -44,6 +44,7 @@ public class StreamSQLExample {
 
 		// set up execution environment
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+		env.setParallelism(2);
 		StreamTableEnvironment tEnv = StreamTableEnvironment.create(env);
 
 		DataStream<Order> orderA = env.fromCollection(Arrays.asList(
