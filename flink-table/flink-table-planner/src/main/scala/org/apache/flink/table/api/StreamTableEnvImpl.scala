@@ -84,7 +84,7 @@ abstract class StreamTableEnvImpl(
     tableSource match {
 
       // check for proper stream table source
-      case streamTableSource: StreamTableSource[_] =>
+      case streamTableSource: StreamTableSource[_] if !streamTableSource.isBounded =>
         // check that event-time is enabled if table source includes rowtime attributes
         if (TableSourceUtil.hasRowtimeAttribute(streamTableSource) &&
           execEnv.getStreamTimeCharacteristic != TimeCharacteristic.EventTime) {
@@ -92,6 +92,10 @@ abstract class StreamTableEnvImpl(
               s"A rowtime attribute requires an EventTime time characteristic in stream " +
                 s"environment. But is: ${execEnv.getStreamTimeCharacteristic}")
         }
+
+      case streamTableSource: StreamTableSource[_] if streamTableSource.isBounded =>
+        throw new TableException("Only unbounded StreamTableSource (isBounded returns false) " +
+          "can be registered in StreamTableEnvironment")
 
       // not a stream table source
       case _ =>
@@ -152,7 +156,7 @@ abstract class StreamTableEnvImpl(
             withChangeFlag = true)(outputType)
         // Give the DataStream to the TableSink to emit it.
         retractSink.asInstanceOf[RetractStreamTableSink[Any]]
-          .emitDataStream(result.asInstanceOf[DataStream[JTuple2[JBool, Any]]])
+          .consumeDataStream(result.asInstanceOf[DataStream[JTuple2[JBool, Any]]])
 
       case upsertSink: UpsertStreamTableSink[_] =>
         // optimize plan
@@ -181,7 +185,7 @@ abstract class StreamTableEnvImpl(
             withChangeFlag = true)(outputType)
         // Give the DataStream to the TableSink to emit it.
         upsertSink.asInstanceOf[UpsertStreamTableSink[Any]]
-          .emitDataStream(result.asInstanceOf[DataStream[JTuple2[JBool, Any]]])
+          .consumeDataStream(result.asInstanceOf[DataStream[JTuple2[JBool, Any]]])
 
       case appendSink: AppendStreamTableSink[_] =>
         // optimize plan
@@ -202,7 +206,7 @@ abstract class StreamTableEnvImpl(
             streamQueryConfig,
             withChangeFlag = false)(outputType)
         // Give the DataStream to the TableSink to emit it.
-        appendSink.asInstanceOf[AppendStreamTableSink[T]].emitDataStream(result)
+        appendSink.asInstanceOf[AppendStreamTableSink[T]].consumeDataStream(result)
 
       case _ =>
         throw new TableException("Stream Tables can only be emitted by AppendStreamTableSink, " +

@@ -40,9 +40,10 @@ import org.apache.flink.table.plan.rules.FlinkRuleSets
 import org.apache.flink.table.plan.schema._
 import org.apache.flink.table.runtime.MapRunner
 import org.apache.flink.table.sinks._
-import org.apache.flink.table.sources.{BatchTableSource, TableSource, TableSourceUtil}
+import org.apache.flink.table.sources.{BatchTableSource, InputFormatTableSource, TableSource, TableSourceUtil}
 import org.apache.flink.table.types.utils.TypeConversions.fromDataTypeToLegacyInfo
 import org.apache.flink.table.typeutils.FieldInfoUtils.{calculateTableSchema, getFieldsInfo, validateInputTypeInfo}
+import org.apache.flink.table.utils.TableConnectorUtils
 import org.apache.flink.types.Row
 
 /**
@@ -68,15 +69,18 @@ abstract class BatchTableEnvImpl(
   override protected def validateTableSource(tableSource: TableSource[_]): Unit = {
     TableSourceUtil.validateTableSource(tableSource)
 
-    if (!tableSource.isInstanceOf[BatchTableSource[_]]) {
-      throw new TableException("Only BatchTableSource can be registered in " +
-        "BatchTableEnvironment.")
+    if (!tableSource.isInstanceOf[BatchTableSource[_]] &&
+        !tableSource.isInstanceOf[InputFormatTableSource[_]]) {
+      throw new TableException("Only BatchTableSource and InputFormatTableSource " +
+        "can be registered in BatchTableEnvironment.")
     }
   }
 
   override protected  def validateTableSink(configuredSink: TableSink[_]): Unit = {
-    if (!configuredSink.isInstanceOf[BatchTableSink[_]]) {
-      throw new TableException("Only BatchTableSink can be registered in BatchTableEnvironment.")
+    if (!configuredSink.isInstanceOf[BatchTableSink[_]] &&
+        !configuredSink.isInstanceOf[OutputFormatTableSink[_]]) {
+      throw new TableException("Only BatchTableSink and OutputFormatTableSink " +
+        "can be registered in BatchTableEnvironment.")
     }
   }
 
@@ -115,8 +119,20 @@ abstract class BatchTableEnvImpl(
         val result: DataSet[T] = translate(table, batchQueryConfig)(outputType)
         // Give the DataSet to the TableSink to emit it.
         batchSink.emitDataSet(result)
+      case boundedSink: OutputFormatTableSink[T] =>
+        val outputType = fromDataTypeToLegacyInfo(sink.getConsumedDataType)
+          .asInstanceOf[TypeInformation[T]]
+        // translate the Table into a DataSet and provide the type that the TableSink expects.
+        val result: DataSet[T] = translate(table, batchQueryConfig)(outputType)
+        // use the OutputFormat to consume the DataSet.
+        val dataSink = result.output(boundedSink.getOutputFormat)
+        dataSink.name(
+          TableConnectorUtils.generateRuntimeName(
+            boundedSink.getClass,
+            boundedSink.getTableSchema.getFieldNames))
       case _ =>
-        throw new TableException("BatchTableSink required to emit batch Table.")
+        throw new TableException(
+          "BatchTableSink or OutputFormatTableSink required to emit batch Table.")
     }
   }
 
