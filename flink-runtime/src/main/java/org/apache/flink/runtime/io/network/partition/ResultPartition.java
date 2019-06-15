@@ -38,7 +38,6 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkElementIndex;
@@ -71,33 +70,26 @@ import static org.apache.flink.util.Preconditions.checkState;
  */
 public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ResultPartition.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(ResultPartition.class);
 
 	private final String owningTaskName;
 
 	// 结果分区编号（ResultPartitionID）用来标识ResultPartition
-	private final ResultPartitionID partitionId;
+	protected final ResultPartitionID partitionId;
 
 	/** Type of this partition. Defines the concrete subpartition implementation to use. */
-	private final ResultPartitionType partitionType;
+	protected final ResultPartitionType partitionType;
 
 	/** The subpartitions of this partition. At least one. */
-	private final ResultSubpartition[] subpartitions;
+	protected final ResultSubpartition[] subpartitions;
 
-	private final ResultPartitionManager partitionManager;
+	protected final ResultPartitionManager partitionManager;
 
 	public final int numTargetKeyGroups;
 
 	// - Runtime state --------------------------------------------------------
 
 	private final AtomicBoolean isReleased = new AtomicBoolean();
-
-	/**
-	 * The total number of references to subpartitions of this result. The result partition can be
-	 * safely released, iff the reference count is zero. A reference count of -1 denotes that the
-	 * result partition has been released.
-	 */
-	private final AtomicInteger pendingReferences = new AtomicInteger();
 
 	private BufferPool bufferPool;
 
@@ -286,11 +278,6 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 	 * Returns the requested subpartition.
 	 */
 	public ResultSubpartitionView createSubpartitionView(int index, BufferAvailabilityListener availabilityListener) throws IOException {
-		int refCnt = pendingReferences.get();
-
-		checkState(refCnt != -1, "Partition released.");
-		checkState(refCnt > 0, "Partition not pinned.");
-
 		checkElementIndex(index, subpartitions.length, "Subpartition not found.");
 
 		ResultSubpartitionView readView = subpartitions[index].createReadView(availabilityListener);
@@ -342,31 +329,15 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 	@Override
 	public String toString() {
 		return "ResultPartition " + partitionId.toString() + " [" + partitionType + ", "
-				+ subpartitions.length + " subpartitions, "
-				+ pendingReferences + " pending references]";
+				+ subpartitions.length + " subpartitions]";
 	}
 
 	// ------------------------------------------------------------------------
 
 	/**
 	 * Pins the result partition.
-	 *
-	 * <p>The partition can only be released after each subpartition has been consumed once per pin
-	 * operation.
 	 */
 	void pin() {
-		while (true) {
-			int refCnt = pendingReferences.get();
-
-			if (refCnt >= 0) {
-				if (pendingReferences.compareAndSet(refCnt, refCnt + subpartitions.length)) {
-					break;
-				}
-			}
-			else {
-				throw new IllegalStateException("Released.");
-			}
-		}
 	}
 
 	/**
@@ -378,21 +349,9 @@ public class ResultPartition implements ResultPartitionWriter, BufferPoolOwner {
 		if (isReleased.get()) {
 			return;
 		}
-
-		//计数器减一后获得未完成的子分区计数
-		int refCnt = pendingReferences.decrementAndGet();
-
-		//如果全部都已完成，则通知ResultPartitionManager，它会将ResultPartition直接释放
-		if (refCnt == 0) {
-			partitionManager.onConsumedPartition(this);
-		}
-		//异常
-		else if (refCnt < 0) {
-			throw new IllegalStateException("All references released.");
-		}
-
-		LOG.debug("{}: Received release notification for subpartition {} (reference count now at: {}).",
-				this, subpartitionIndex, pendingReferences);
+		
+		LOG.debug("{}: Received release notification for subpartition {}.",
+				this, subpartitionIndex);
 	}
 
 	public ResultSubpartition[] getAllPartitions() {
