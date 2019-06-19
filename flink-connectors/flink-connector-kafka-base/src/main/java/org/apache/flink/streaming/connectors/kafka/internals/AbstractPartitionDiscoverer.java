@@ -27,6 +27,7 @@ import java.util.Set;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 所有partition discoveries的基类
  * Base class for all partition discoverers.
  *
  * <p>This partition discoverer base class implements the logic around bookkeeping
@@ -46,7 +47,8 @@ public abstract class AbstractPartitionDiscoverer {
 	/** Describes whether we are discovering partitions for fixed topics or a topic pattern. */
 	private final KafkaTopicsDescriptor topicsDescriptor;
 
-	/** Index of the consumer subtask that this partition discoverer belongs to. */
+	/** Index of the consumer subtask that this partition discoverer belongs to.
+	 * 该partition discoverer 属于哪个consumer子任务*/
 	private final int indexOfThisSubtask;
 
 	/** The total number of consumer subtasks. */
@@ -55,14 +57,14 @@ public abstract class AbstractPartitionDiscoverer {
 	/** Flag to determine whether or not the discoverer is closed. */
 	private volatile boolean closed = true;
 
-	/**
+	/** 决定该discoverer 是否被唤醒。当设为true时，{@link #discoverPartitions()}将被中断。一旦被中断，该flag将重置
 	 * Flag to determine whether or not the discoverer had been woken up.
 	 * When set to {@code true}, {@link #discoverPartitions()} would be interrupted as early as possible.
 	 * Once interrupted, the flag is reset.
 	 */
 	private volatile boolean wakeup;
 
-	/**
+	/** topics到它们最大的 partition id。
 	 * Map of topics to they're largest discovered partition id seen by this subtask.
 	 * This state may be updated whenever {@link AbstractPartitionDiscoverer#discoverPartitions()} or
 	 * {@link AbstractPartitionDiscoverer#setAndCheckDiscoveredPartition(KafkaTopicPartition)} is called.
@@ -91,6 +93,7 @@ public abstract class AbstractPartitionDiscoverer {
 	 */
 	public void open() throws Exception {
 		closed = false;
+		// 初始化所有的Kafka连接
 		initializeConnections();
 	}
 
@@ -105,6 +108,7 @@ public abstract class AbstractPartitionDiscoverer {
 	}
 
 	/**
+	 * 中断一个正在进行的discovery 尝试，通过抛出{@link WakeupException}
 	 * Interrupt an in-progress discovery attempt by throwing a {@link WakeupException}.
 	 * If no attempt is in progress, the immediate next attempt will throw a {@link WakeupException}.
 	 *
@@ -116,6 +120,7 @@ public abstract class AbstractPartitionDiscoverer {
 	}
 
 	/**
+	 * 发现新的partitions
 	 * Execute a partition discovery attempt for this subtask.
 	 * This method lets the partition discoverer update what partitions it has discovered so far.
 	 *
@@ -179,12 +184,14 @@ public abstract class AbstractPartitionDiscoverer {
 	}
 
 	/**
+	 * 设置partition为已发现的。
 	 * Sets a partition as discovered. Partitions are considered as new
 	 * if its partition id is larger than all partition ids previously
 	 * seen for the topic it belongs to. Therefore, for a set of
 	 * discovered partitions, the order that this method is invoked with
 	 * each partition is important.
 	 *
+	 * 如果partition确实是新发现的，方法同样返回该新的partition是否会被这个subtask订阅
 	 * <p>If the partition is indeed newly discovered, this method also returns
 	 * whether the new partition should be subscribed by this subtask.
 	 *

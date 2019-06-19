@@ -20,6 +20,7 @@ package org.apache.flink.streaming.connectors.kafka.config;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * OffsetCommitMode的工具类
  * Utilities for {@link OffsetCommitMode}.
  */
 @Internal
@@ -40,9 +41,11 @@ public class OffsetCommitModes {
 			boolean enableCheckpointing) {
 
 		if (enableCheckpointing) {
+			// 如果支持checkpoint，mode依赖于checkpoint时是否commit
 			// if checkpointing is enabled, the mode depends only on whether committing on checkpoints is enabled
 			return (enableCommitOnCheckpoint) ? OffsetCommitMode.ON_CHECKPOINTS : OffsetCommitMode.DISABLED;
 		} else {
+			// 如果不支持checkpoint，依赖于是否支持自动commit
 			// else, the mode depends only on whether auto committing is enabled in the provided Kafka properties
 			return (enableAutoCommit) ? OffsetCommitMode.KAFKA_PERIODIC : OffsetCommitMode.DISABLED;
 		}

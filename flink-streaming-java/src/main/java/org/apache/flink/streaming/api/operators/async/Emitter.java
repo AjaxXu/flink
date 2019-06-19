@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 
 /**
+ * 从给定的queue中消费，然后output到给定的output/timestampedCollector
  * Runnable responsible for consuming elements from the given queue and outputting them to the
  * given output/timestampedCollector.
  *

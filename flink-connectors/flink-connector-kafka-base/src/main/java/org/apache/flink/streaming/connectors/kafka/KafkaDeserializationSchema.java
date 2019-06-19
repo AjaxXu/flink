@@ -25,6 +25,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import java.io.Serializable;
 
 /**
+ * 反序列化模式描述如何将Kafka的消息转化为Flink的对象
  * The deserialization schema describes how to turn the Kafka ConsumerRecords
  * into data types (Java/Scala objects) that are processed by Flink.
  *
@@ -34,6 +35,7 @@ import java.io.Serializable;
 public interface KafkaDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T> {
 
 	/**
+	 * 决定the element是否标识end of stream
 	 * Method to decide whether the element signals the end of the stream. If
 	 * true is returned the element won't be emitted.
 	 *
@@ -44,6 +46,7 @@ public interface KafkaDeserializationSchema<T> extends Serializable, ResultTypeQ
 	boolean isEndOfStream(T nextElement);
 
 	/**
+	 * 反序列化
 	 * Deserializes the Kafka record.
 	 *
 	 * @param record Kafka record to be deserialized.

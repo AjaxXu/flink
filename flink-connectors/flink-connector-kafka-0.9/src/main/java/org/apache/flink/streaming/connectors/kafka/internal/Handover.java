@@ -120,6 +120,7 @@ public final class Handover implements Closeable {
 			wakeupProducer = false;
 
 			// if there is still an element, we must have been woken up
+			// 被wakeup了，抛出一个异常给producer
 			if (next != null) {
 				throw new WakeupException();
 			}

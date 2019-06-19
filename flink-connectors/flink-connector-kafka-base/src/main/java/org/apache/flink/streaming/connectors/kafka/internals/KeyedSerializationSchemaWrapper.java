@@ -22,6 +22,7 @@ import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 
 /**
+ * 一个简单实现，不会序列化key和返回topic
  * A simple wrapper for using the SerializationSchema with the KeyedSerializationSchema
  * interface.
  * @param <T> The type to serialize

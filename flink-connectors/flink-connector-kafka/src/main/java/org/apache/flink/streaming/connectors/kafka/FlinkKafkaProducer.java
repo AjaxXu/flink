@@ -90,6 +90,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 生产数据到Kafka的对应topic里
  * Flink Sink to produce data into a Kafka topic. By default producer
  * will use {@link FlinkKafkaProducer.Semantic#AT_LEAST_ONCE} semantic.
  * Before using {@link FlinkKafkaProducer.Semantic#EXACTLY_ONCE} please refer to Flink's
@@ -198,6 +199,7 @@ public class FlinkKafkaProducer<IN>
 	private transient TransactionalIdsGenerator transactionalIdsGenerator;
 
 	/**
+	 * 获取下一个事务ID的线索
 	 * Hint for picking next transactional id.
 	 */
 	private transient FlinkKafkaProducer.NextTransactionalIdHint nextTransactionalIdHint;
@@ -219,6 +221,7 @@ public class FlinkKafkaProducer<IN>
 	private final KeyedSerializationSchema<IN> schema;
 
 	/**
+	 * 用户提供的partitioner，用来分区
 	 * User-provided partitioner for assigning an object to a Kafka partition for each topic.
 	 */
 	private final FlinkKafkaPartitioner<IN> flinkKafkaPartitioner;
@@ -263,7 +266,8 @@ public class FlinkKafkaProducer<IN>
 	@Nullable
 	private transient volatile Exception asyncException;
 
-	/** Number of unacknowledged records. */
+	/** 没有确认的records数量
+	 * Number of unacknowledged records. */
 	private final AtomicLong pendingRecords = new AtomicLong();
 
 	/** Cache of metrics to replace already registered metrics instead of overwriting existing ones. */
@@ -506,6 +510,7 @@ public class FlinkKafkaProducer<IN>
 		if (!producerConfig.containsKey(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG)) {
 			this.producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
 		} else {
+			// 可以设置，仍然使用用户设置的serializer，不过不建议
 			LOG.warn("Overwriting the '{}' is not recommended", ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG);
 		}
 
@@ -520,6 +525,7 @@ public class FlinkKafkaProducer<IN>
 			throw new IllegalArgumentException(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG + " must be supplied in the producer config properties.");
 		}
 
+		// 事务超时设置
 		if (!producerConfig.containsKey(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG)) {
 			long timeout = DEFAULT_KAFKA_TRANSACTION_TIMEOUT.toMilliseconds();
 			checkState(timeout < Integer.MAX_VALUE && timeout > 0, "timeout does not fit into 32 bit integer");
@@ -551,6 +557,7 @@ public class FlinkKafkaProducer<IN>
 	// ---------------------------------- Properties --------------------------
 
 	/**
+	 * 设置写(event time) timestamp到Kafka
 	 * If set to true, Flink will write the (event time) timestamp attached to each record into Kafka.
 	 * Timestamps must be positive for Kafka to accept them.
 	 *
@@ -561,6 +568,7 @@ public class FlinkKafkaProducer<IN>
 	}
 
 	/**
+	 * 设置异常时是fail还是只打印日志
 	 * Defines whether the producer should fail on errors, or only log them.
 	 * If this is set to true, then exceptions will be only logged, if set to false,
 	 * exceptions will be eventually thrown and cause the streaming program to
@@ -591,6 +599,7 @@ public class FlinkKafkaProducer<IN>
 	// ----------------------------------- Utilities --------------------------
 
 	/**
+	 * 初始化到Kafka的连接
 	 * Initializes the connection to Kafka.
 	 */
 	@Override
@@ -640,6 +649,7 @@ public class FlinkKafkaProducer<IN>
 		ProducerRecord<byte[], byte[]> record;
 		int[] partitions = topicPartitionsMap.get(targetTopic);
 		if (null == partitions) {
+			// 根据topic获取partitions
 			partitions = getPartitionsByTopic(targetTopic, transaction.producer);
 			topicPartitionsMap.put(targetTopic, partitions);
 		}
@@ -653,6 +663,7 @@ public class FlinkKafkaProducer<IN>
 		} else {
 			record = new ProducerRecord<>(targetTopic, null, timestamp, serializedKey, serializedValue);
 		}
+		// 未确认的record加1
 		pendingRecords.incrementAndGet();
 		transaction.producer.send(record, callback);
 	}
@@ -781,6 +792,7 @@ public class FlinkKafkaProducer<IN>
 	}
 
 	private void acknowledgeMessage() {
+		// 没确认的record减一
 		pendingRecords.decrementAndGet();
 	}
 
@@ -1057,6 +1069,7 @@ public class FlinkKafkaProducer<IN>
 		// the fetched list is immutable, so we're creating a mutable copy in order to sort it
 		List<PartitionInfo> partitionsList = new ArrayList<>(producer.partitionsFor(topic));
 
+		// 根据partition id 排序
 		// sort the partitions by partition id to make sure the fetched partition list is the same across subtasks
 		Collections.sort(partitionsList, new Comparator<PartitionInfo>() {
 			@Override
@@ -1074,6 +1087,7 @@ public class FlinkKafkaProducer<IN>
 	}
 
 	/**
+	 * 事务状态
 	 * State for handling transactions.
 	 */
 	@VisibleForTesting

@@ -26,6 +26,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 事务ID生成类
  * Class responsible for generating transactional ids to use when communicating with Kafka.
  *
  * <p>It guarantees that:

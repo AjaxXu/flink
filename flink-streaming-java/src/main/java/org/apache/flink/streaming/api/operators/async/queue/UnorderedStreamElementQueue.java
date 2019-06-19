@@ -56,7 +56,8 @@ public class UnorderedStreamElementQueue implements StreamElementQueue {
 	/** OperatorActions to signal the owning operator a failure. */
 	private final OperatorActions operatorActions;
 
-	/** Queue of uncompleted stream element queue entries segmented by watermarks. */
+	/** Queue of uncompleted stream element queue entries segmented by watermarks.
+	 * 被watermark分隔的未完成的element*/
 	private final ArrayDeque<Set<StreamElementQueueEntry<?>>> uncompletedQueue;
 
 	/** Queue of completed stream element queue entries. */
@@ -232,10 +233,14 @@ public class UnorderedStreamElementQueue implements StreamElementQueue {
 		lock.lockInterruptibly();
 
 		try {
+			// 如果streamElementQueueEntry在firstSet中
 			if (firstSet.remove(streamElementQueueEntry)) {
+				// 把streamElementQueueEntry加入completedQueue
 				completedQueue.offer(streamElementQueueEntry);
 
+				// 如果firstSet为空，且不是lastSet，循环判断知道firstSet不为空或者firstSet=lastSet
 				while (firstSet.isEmpty() && firstSet != lastSet) {
+					// 从uncompletedQueue获取最早加入的set
 					firstSet = uncompletedQueue.poll();
 
 					Iterator<StreamElementQueueEntry<?>> it = firstSet.iterator();
@@ -243,7 +248,9 @@ public class UnorderedStreamElementQueue implements StreamElementQueue {
 					while (it.hasNext()) {
 						StreamElementQueueEntry<?> bufferEntry = it.next();
 
+						// bufferEntry中的数据已经完成
 						if (bufferEntry.isDone()) {
+							// 加入到completedQueue中
 							completedQueue.offer(bufferEntry);
 							it.remove();
 						}

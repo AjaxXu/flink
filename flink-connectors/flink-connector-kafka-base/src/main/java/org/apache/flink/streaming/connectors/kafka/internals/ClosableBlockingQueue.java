@@ -33,12 +33,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import static java.util.Objects.requireNonNull;
 
 /**
+ * 一种指定模式的blocking queue，有2个补充：
  * A special form of blocking queue with two additions:
  * <ol>
- *     <li>The queue can be closed atomically when empty. Adding elements after the queue
- *         is closed fails. This allows queue consumers to atomically discover that no elements
- *         are available and mark themselves as shut down.</li>
- *     <li>The queue allows to poll batches of elements in one polling call.</li>
+ *     <li>The queue can be closed atomically when empty. 空的时候会被自动close
+ *     		Adding elements after the queue is closed fails. This allows queue consumers to atomically
+ *     		discover that no elements are available and mark themselves as shut down.</li>
+ *     <li>The queue allows to poll batches of elements in one polling call.允许拉取一批elements</li>
  * </ol>
  *
  * <p>The queue has no capacity restriction and is safe for multiple producers and consumers.

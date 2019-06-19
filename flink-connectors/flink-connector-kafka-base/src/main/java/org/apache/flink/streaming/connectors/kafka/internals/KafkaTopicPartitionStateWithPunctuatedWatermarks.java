@@ -24,8 +24,9 @@ import org.apache.flink.streaming.api.watermark.Watermark;
 import javax.annotation.Nullable;
 
 /**
+ * 一个特殊版本的KafkaTopicPartitionState，加了一个punctuate产生watermark的产生器
  * A special version of the per-kafka-partition-state that additionally holds
- * a periodic watermark generator (and timestamp extractor) per partition.
+ * a punctuate watermark generator (and timestamp extractor) per partition.
  *
  * <p>This class is not thread safe, but it gives volatile access to the current
  * partition watermark ({@link #getCurrentPartitionWatermark()}).

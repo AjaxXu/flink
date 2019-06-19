@@ -53,6 +53,7 @@ import static org.apache.flink.util.PropertiesUtil.getBoolean;
 import static org.apache.flink.util.PropertiesUtil.getLong;
 
 /**
+ * Flink Kafka Consumer是streaming 数据源，从Kafka中拉取并行的数据流。该Consumer能运行在多个并行的实例中，每个实例将从1个或多个Kafka partition中拉取数据
  * The Flink Kafka Consumer is a streaming data source that pulls a parallel data stream from
  * Apache Kafka. The consumer can run in multiple parallel instances, each of which will pull
  * data from one or more Kafka partitions.
@@ -220,6 +221,7 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
 
 		// make sure that auto commit is disabled when our offset commit mode is ON_CHECKPOINTS;
 		// this overwrites whatever setting the user configured in the properties
+		// 如果commit mode为ON_CHECKPOINTS或DISABLED，则关闭auto commit
 		adjustAutoCommitConfig(properties, offsetCommitMode);
 
 		return new KafkaFetcher<>(

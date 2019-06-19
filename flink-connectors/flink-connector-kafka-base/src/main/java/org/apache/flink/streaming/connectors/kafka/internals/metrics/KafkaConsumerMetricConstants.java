@@ -20,6 +20,7 @@ package org.apache.flink.streaming.connectors.kafka.internals.metrics;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * Kafka consumer指标相关的常数集合
  * A collection of Kafka consumer metrics related constant strings.
  *
  * <p>The names must not be changed, as that would break backward compatibility for the consumer's metrics.

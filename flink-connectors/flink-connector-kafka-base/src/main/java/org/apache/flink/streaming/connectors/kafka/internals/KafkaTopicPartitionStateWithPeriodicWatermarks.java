@@ -22,6 +22,7 @@ import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
 
 /**
+ * 一个特殊版本的KafkaTopicPartitionState，加了一个周期性产生watermark的产生器
  * A special version of the per-kafka-partition-state that additionally holds
  * a periodic watermark generator (and timestamp extractor) per partition.
  *

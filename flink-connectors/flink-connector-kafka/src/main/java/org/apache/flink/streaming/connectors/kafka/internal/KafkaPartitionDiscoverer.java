@@ -33,6 +33,7 @@ import java.util.Properties;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * partition discover 能通过Kafka的高层消费者API从Brokers中发现topics和partitions的metadata
  * A partition discoverer that can be used to discover topics and partitions metadata
  * from Kafka brokers via the Kafka high-level consumer API.
  */

@@ -25,6 +25,7 @@ import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 /**
+ * 简单的封装器，将DeserializationSchema封装为KafkaDeserializationSchema
  * A simple wrapper for using the DeserializationSchema with the KafkaDeserializationSchema
  * interface.
  * @param <T> The type created by the deserialization schema.

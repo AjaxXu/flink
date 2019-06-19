@@ -27,9 +27,11 @@ import java.util.Map;
 import static java.util.Objects.requireNonNull;
 
 /**
+ * Kafka topic partion的描述
  * Flink's description of a partition in a Kafka topic.
  * Serializable, and common across all Kafka consumer subclasses (0.8, 0.9, ...)
  *
+ * <p>不能被改动
  * <p>Note: This class must not change in its structure, because it would change the
  * serialization format and make previous savepoints unreadable.
  */

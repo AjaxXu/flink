@@ -75,10 +75,11 @@ public abstract class AbstractFetcher<T, KPH> {
 	 * from the view of taking a checkpoint. */
 	private final Object checkpointLock;
 
-	/** All partitions (and their state) that this fetcher is subscribed to. */
+	/** 该fetcher订阅的所有partitions
+	 * All partitions (and their state) that this fetcher is subscribed to. */
 	private final List<KafkaTopicPartitionState<KPH>> subscribedPartitionStates;
 
-	/**
+	/** 还没有分配给Kafka客户端消费的partition队列
 	 * Queue of partitions that are not yet assigned to any Kafka clients for consuming.
 	 * Kafka version-specific implementations of {@link AbstractFetcher#runFetchLoop()}
 	 * should continuously poll this queue for unassigned partitions, and start consuming
@@ -89,7 +90,8 @@ public abstract class AbstractFetcher<T, KPH> {
 	 */
 	protected final ClosableBlockingQueue<KafkaTopicPartitionState<KPH>> unassignedPartitionsQueue;
 
-	/** The mode describing whether the fetcher also generates timestamps and watermarks. */
+	/** 表明该fetcher是否生成timestamps和watermarks
+	 * The mode describing whether the fetcher also generates timestamps and watermarks. */
 	private final int timestampWatermarkMode;
 
 	/**
@@ -155,6 +157,7 @@ public abstract class AbstractFetcher<T, KPH> {
 		this.legacyCommittedOffsetsMetricGroup = consumerMetricGroup.addGroup(LEGACY_COMMITTED_OFFSETS_METRICS_GROUP);
 
 		// figure out what we watermark mode we will be using
+		// 指明使用哪种watermark模式
 		this.watermarksPeriodic = watermarksPeriodic;
 		this.watermarksPunctuated = watermarksPunctuated;
 
@@ -176,6 +179,7 @@ public abstract class AbstractFetcher<T, KPH> {
 		this.unassignedPartitionsQueue = new ClosableBlockingQueue<>();
 
 		// initialize subscribed partition states with seed partitions
+		// 初始化订阅的partition 状态
 		this.subscribedPartitionStates = createPartitionStateHolders(
 				seedPartitionsWithInitialOffsets,
 				timestampWatermarkMode,
@@ -184,6 +188,7 @@ public abstract class AbstractFetcher<T, KPH> {
 				userCodeClassLoader);
 
 		// check that all seed partition states have a defined offset
+		// 检查所有的订阅的partition状态都有offset
 		for (KafkaTopicPartitionState partitionState : subscribedPartitionStates) {
 			if (!partitionState.isOffsetDefined()) {
 				throw new IllegalArgumentException("The fetcher was assigned seed partitions with undefined initial offsets.");
@@ -196,11 +201,13 @@ public abstract class AbstractFetcher<T, KPH> {
 		}
 
 		// register metrics for the initial seed partitions
+		// 为初始的订阅partition注册监控
 		if (useMetrics) {
 			registerOffsetMetrics(consumerMetricGroup, subscribedPartitionStates);
 		}
 
 		// if we have periodic watermarks, kick off the interval scheduler
+		// 如果是周期性的watermark，开始定时器
 		if (timestampWatermarkMode == PERIODIC_WATERMARKS) {
 			@SuppressWarnings("unchecked")
 			PeriodicWatermarkEmitter periodicEmitter = new PeriodicWatermarkEmitter(
@@ -236,6 +243,7 @@ public abstract class AbstractFetcher<T, KPH> {
 				userCodeClassLoader);
 
 		if (useMetrics) {
+			// 为新发现的partition注册offset监控
 			registerOffsetMetrics(consumerMetricGroup, newPartitionStates);
 		}
 
@@ -306,6 +314,7 @@ public abstract class AbstractFetcher<T, KPH> {
 	}
 
 	/**
+	 * 根据Flink中TopicPartition类生成Kafka版本相关的TopicPartition类。这里的泛型指{@link org.apache.kafka.common.TopicPartition}
 	 * Creates the Kafka version specific representation of the given
 	 * topic partition.
 	 *
@@ -463,13 +472,15 @@ public abstract class AbstractFetcher<T, KPH> {
 
 		// if we also have a new per-partition watermark, check if that is also a
 		// new cross-partition watermark
+		// 如果有一个单独partition的watermark，检查它是不是全部partition的watermark
 		if (newWatermark != null) {
 			updateMinPunctuatedWatermark(newWatermark);
 		}
 	}
 
 	/**
-	 *Checks whether a new per-partition watermark is also a new cross-partition watermark.
+	 * 检查watermark是否超过目前最大的watermark
+	 * Checks whether a new per-partition watermark is also a new cross-partition watermark.
 	 */
 	private void updateMinPunctuatedWatermark(Watermark nextWatermark) {
 		if (nextWatermark.getTimestamp() > maxWatermarkSoFar) {
@@ -488,6 +499,7 @@ public abstract class AbstractFetcher<T, KPH> {
 				synchronized (checkpointLock) {
 					if (newMin > maxWatermarkSoFar) {
 						maxWatermarkSoFar = newMin;
+						// 如果是的话，就emit一个watermark
 						sourceContext.emitWatermark(new Watermark(newMin));
 					}
 				}
@@ -605,6 +617,7 @@ public abstract class AbstractFetcher<T, KPH> {
 	// ------------------------- Metrics ----------------------------------
 
 	/**
+	 * 对每个partition，注册一个新的metric group来暴露当前拉取的offset和committed offsets
 	 * For each partition, register a new metric group to expose current offsets and committed offsets.
 	 * Per-partition metric groups can be scoped by user variables {@link KafkaConsumerMetricConstants#OFFSETS_BY_TOPIC_METRICS_GROUP}
 	 * and {@link KafkaConsumerMetricConstants#OFFSETS_BY_PARTITION_METRICS_GROUP}.
@@ -644,6 +657,7 @@ public abstract class AbstractFetcher<T, KPH> {
 	}
 
 	/**
+	 * 获得KafkaTopicPartitionState的offset的度量
 	 * Gauge for getting the offset of a KafkaTopicPartitionState.
 	 */
 	private static class OffsetGauge implements Gauge<Long> {
@@ -671,6 +685,7 @@ public abstract class AbstractFetcher<T, KPH> {
  	// ------------------------------------------------------------------------
 
 	/**
+	 * 周期性watermark发射器。在给定的时间间隔内，检查所有的partition的当前event time watermark
 	 * The periodic watermark emitter. In its given interval, it checks all partitions for
 	 * the current event time watermark, and possibly emits the next watermark.
 	 */
@@ -703,6 +718,7 @@ public abstract class AbstractFetcher<T, KPH> {
 		//-------------------------------------------------
 
 		public void start() {
+			// 注册一次，然后回调自己，再注册
 			timerService.registerTimer(timerService.getCurrentProcessingTime() + interval, this);
 		}
 
@@ -710,7 +726,7 @@ public abstract class AbstractFetcher<T, KPH> {
 		public void onProcessingTime(long timestamp) throws Exception {
 
 			long minAcrossAll = Long.MAX_VALUE;
-			boolean isEffectiveMinAggregation = false;
+			boolean isEffectiveMinAggregation = false; // 标记是否进行了聚合操作
 			for (KafkaTopicPartitionState<?> state : allPartitions) {
 
 				// we access the current watermark for the periodic assigners under the state
@@ -726,6 +742,7 @@ public abstract class AbstractFetcher<T, KPH> {
 			}
 
 			// emit next watermark, if there is one
+			// 发送下一个watermark
 			if (isEffectiveMinAggregation && minAcrossAll > lastWatermarkTimestamp) {
 				lastWatermarkTimestamp = minAcrossAll;
 				emitter.emitWatermark(new Watermark(minAcrossAll));

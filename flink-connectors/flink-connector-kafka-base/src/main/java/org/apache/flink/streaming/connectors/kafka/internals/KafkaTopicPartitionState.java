@@ -37,13 +37,16 @@ public class KafkaTopicPartitionState<KPH> {
 	/** The Flink description of a Kafka partition. */
 	private final KafkaTopicPartition partition;
 
-	/** The Kafka description of a Kafka partition (varies across different Kafka versions). */
+	/** Kafka partition的描述(指Kafka里的描述类)
+	 * The Kafka description of a Kafka partition (varies across different Kafka versions). */
 	private final KPH kafkaPartitionHandle;
 
-	/** The offset within the Kafka partition that we already processed. */
+	/** 已经处理的offset
+	 * The offset within the Kafka partition that we already processed. */
 	private volatile long offset;
 
-	/** The offset of the Kafka partition that has been committed. */
+	/** 已经commit的offset
+	 * The offset of the Kafka partition that has been committed. */
 	private volatile long committedOffset;
 
 	// ------------------------------------------------------------------------

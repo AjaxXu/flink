@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.util.Preconditions;
 
 /**
+ * 固定的分区器，一个Flink partition固定对应到Kafka的partition
  * A partitioner ensuring that each internal Flink partition ends up in one Kafka partition.
  *
  * <p>Note, one Kafka partition can contain multiple Flink partitions.

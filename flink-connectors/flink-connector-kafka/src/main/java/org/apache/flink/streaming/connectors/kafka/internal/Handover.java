@@ -30,7 +30,7 @@ import java.io.Closeable;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-/**
+/** Handover是一个数据交换的工具类。类似于blocking queue
  * The Handover is a utility to hand over data (a buffer of records) and exception from a
  * <i>producer</i> thread to a <i>consumer</i> thread. It effectively behaves like a
  * "size one blocking queue", with some extras around exception reporting, closing, and
@@ -120,6 +120,7 @@ public final class Handover implements Closeable {
 			wakeupProducer = false;
 
 			// if there is still an element, we must have been woken up
+			// 被唤醒了
 			if (next != null) {
 				throw new WakeupException();
 			}
@@ -136,6 +137,7 @@ public final class Handover implements Closeable {
 	}
 
 	/**
+	 * 报告一个异常。消费者应该立刻抛出异常，只要block在{@link #pollNext()}方法或者下一次方法调用
 	 * Reports an exception. The consumer will throw the given exception immediately, if
 	 * it is currently blocked in the {@link #pollNext()} method, or the next time it
 	 * calls that method.
@@ -186,6 +188,7 @@ public final class Handover implements Closeable {
 	}
 
 	/**
+	 * 把阻塞的线程wakeup
 	 * Wakes the producer thread up. If the producer thread is currently blocked in
 	 * the {@link #produce(ConsumerRecords)} method, it will exit the method throwing
 	 * a {@link WakeupException}.

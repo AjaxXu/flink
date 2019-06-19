@@ -20,6 +20,7 @@ package org.apache.flink.streaming.connectors.kafka.internals;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * 分配Kafka partition到消费者的subtask的工具类
  * Utility for assigning Kafka partitions to consumer subtasks.
  */
 @Internal
@@ -51,6 +52,7 @@ public class KafkaTopicPartitionAssigner {
 	public static int assign(KafkaTopicPartition partition, int numParallelSubtasks) {
 		int startIndex = ((partition.getTopic().hashCode() * 31) & 0x7FFFFFFF) % numParallelSubtasks;
 
+		// 这里假设Kafka partition id总是从0开始增长
 		// here, the assumption is that the id of Kafka partitions are always ascending
 		// starting from 0, and therefore can be used directly as the offset clockwise from the start index
 		// 这里看出：每个Partition只会分配到一个subtask来消费

@@ -47,6 +47,7 @@ import java.util.Properties;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
+ * 通过Kafka consumer API从Kafka broker获取数据的提取程序。
  * A fetcher that fetches data from Kafka brokers via the Kafka consumer API.
  *
  * @param <T> The type of elements produced by the fetcher.
@@ -133,7 +134,7 @@ public class KafkaFetcher<T> extends AbstractFetcher<T, TopicPartition> {
 				final ConsumerRecords<byte[], byte[]> records = handover.pollNext();
 
 				// get the records for each topic partition
-				// subscribedPartitionStates维护的是每个partition的状态（partition，KPH（partition的描述，依据版本可能不同），offset, committedOffset, watermark）
+				// subscribedPartitionStates维护的是每个partition的状态（partition，KPH（partition的描述，依据Kafka版本可能不同），offset, committedOffset, watermark）
 				for (KafkaTopicPartitionState<TopicPartition> partition : subscribedPartitionStates()) {
 
 					List<ConsumerRecord<byte[], byte[]>> partitionRecords =
@@ -158,6 +159,7 @@ public class KafkaFetcher<T> extends AbstractFetcher<T, TopicPartition> {
 		}
 		finally {
 			// this signals the consumer thread that no more work is to be done
+			// 关闭消费者线程
 			consumerThread.shutdown();
 		}
 

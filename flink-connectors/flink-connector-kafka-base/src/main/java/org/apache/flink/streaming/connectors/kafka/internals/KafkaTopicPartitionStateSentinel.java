@@ -20,6 +20,7 @@ package org.apache.flink.streaming.connectors.kafka.internals;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * 用于表示实际读取分区之前的特殊偏移状态的魔术值
  * Magic values used to represent special offset states before partitions are actually read.
  *
  * <p>The values are all negative. Negative offsets are not used by Kafka (invalid), so we

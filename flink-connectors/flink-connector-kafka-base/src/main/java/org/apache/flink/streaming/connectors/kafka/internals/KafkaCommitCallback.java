@@ -21,6 +21,7 @@ package org.apache.flink.streaming.connectors.kafka.internals;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * commit 请求完成时的回调
  * A callback interface that the source operator can implement to trigger custom actions when a commit request completes,
  * which should normally be triggered from checkpoint complete event.
  */

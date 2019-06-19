@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * 在不同线程间进行异常通信的代理
  * A proxy that communicates exceptions between threads. Typically used if an exception
  * from a spawned thread needs to be recognized by the "parent" (spawner) thread.
  *

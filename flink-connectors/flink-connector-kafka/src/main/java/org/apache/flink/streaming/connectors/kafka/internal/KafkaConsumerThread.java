@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * Kafka的消费线程，该线程把数据朴树到{@link Handover}，然后再被fetcher拉取
  * The thread the runs the {@link KafkaConsumer}, connecting to the brokers and polling records.
  * The thread pushes the data into a {@link Handover} to be picked up by the fetcher that will
  * deserialize and emit the records.
@@ -160,7 +162,7 @@ public class KafkaConsumerThread extends Thread {
 		// this is the means to talk to FlinkKafkaConsumer's main thread
 		final Handover handover = this.handover;
 
-		// This method initializes the KafkaConsumer and guarantees it is torn down properly.
+		// This method initializes the KafkaConsumer and guarantees it is turn down properly.
 		// This is important, because the consumer has multi-threading issues,
 		// including concurrent 'close()' calls.
 		try {
@@ -172,8 +174,10 @@ public class KafkaConsumerThread extends Thread {
 		}
 
 		// from here on, the consumer is guaranteed to be closed properly
+		// 这里开始，consumer能保证正确关闭
 		try {
 			// register Kafka's very own metrics in Flink's metric reporters
+			// 把kafka的监控指标注册到Flink中
 			if (useMetrics) {
 				// register Kafka metrics to Flink
 				Map<MetricName, ? extends Metric> metrics = consumer.metrics();
@@ -211,12 +215,14 @@ public class KafkaConsumerThread extends Thread {
 				// check if there is something to commit
 				if (!commitInProgress) {
 					// get and reset the work-to-be committed, so we don't repeatedly commit the same
+					// 获取将被commit的partition
 					final Tuple2<Map<TopicPartition, OffsetAndMetadata>, KafkaCommitCallback> commitOffsetsAndCallback =
 							nextOffsetsToCommit.getAndSet(null);
 
 					if (commitOffsetsAndCallback != null) {
 						log.debug("Sending async offset commit request to Kafka broker");
 
+						// 异步发生offset commit请求到Kafka broker
 						// also record that a commit is already in progress
 						// the order here matters! first set the flag, then send the commit command.
 						commitInProgress = true;
@@ -236,6 +242,7 @@ public class KafkaConsumerThread extends Thread {
 						newPartitions = unassignedPartitionsQueue.getBatchBlocking();
 					}
 					if (newPartitions != null) {
+						// 重新给consumer设置partition
 						reassignPartitions(newPartitions);
 					}
 				} catch (AbortedReassignmentException e) {
@@ -301,6 +308,7 @@ public class KafkaConsumerThread extends Thread {
 		// an exception if a concurrent call is in progress
 
 		// this wakes up the consumer if it is blocked handing over records
+		// 唤醒往handover produce数据时，被阻塞的过程
 		handover.wakeupProducer();
 
 		// this wakes up the consumer if it is blocked in a kafka poll
@@ -331,6 +339,7 @@ public class KafkaConsumerThread extends Thread {
 			@Nonnull KafkaCommitCallback commitCallback) {
 
 		// record the work to be committed by the main consumer thread and make sure the consumer notices that
+		// 通过主线程来commit offset
 		if (nextOffsetsToCommit.getAndSet(Tuple2.of(offsetsToCommit, commitCallback)) != null) {
 			log.warn("Committing offsets to Kafka takes longer than the checkpoint interval. " +
 					"Skipping commit of previous offsets because newer complete checkpoint offsets are available. " +
@@ -338,6 +347,7 @@ public class KafkaConsumerThread extends Thread {
 		}
 
 		// if the consumer is blocked in a poll() or handover operation, wake it up to commit soon
+		// 如果消费者线程阻塞在poll数据(从Kafka)或者handover(主要是producer),则wakeup来快速commit
 		handover.wakeupProducer();
 
 		synchronized (consumerReassignmentLock) {
@@ -393,6 +403,7 @@ public class KafkaConsumerThread extends Thread {
 				oldPartitionAssignmentsToPosition.put(oldPartition, consumerTmp.position(oldPartition));
 			}
 
+			// 由2部分组成，新到来的和已经assign的
 			final List<TopicPartition> newPartitionAssignments =
 				new ArrayList<>(newPartitions.size() + oldPartitionAssignmentsToPosition.size());
 			newPartitionAssignments.addAll(oldPartitionAssignmentsToPosition.keySet());
@@ -413,6 +424,7 @@ public class KafkaConsumerThread extends Thread {
 			//       been replaced with actual offset values yet, or
 			//   (3) the partition was newly discovered after startup;
 			// replace those with actual offsets, according to what the sentinel value represent.
+			// 使用真正的offset取代占位符
 			for (KafkaTopicPartitionState<TopicPartition> newPartitionState : newPartitions) {
 				if (newPartitionState.getOffset() == KafkaTopicPartitionStateSentinel.EARLIEST_OFFSET) {
 					consumerTmp.seekToBeginning(Collections.singletonList(newPartitionState.getKafkaPartitionHandle()));
@@ -426,6 +438,7 @@ public class KafkaConsumerThread extends Thread {
 
 					newPartitionState.setOffset(consumerTmp.position(newPartitionState.getKafkaPartitionHandle()) - 1);
 				} else {
+					// 如果设置了offset，则用offset替代
 					consumerTmp.seek(newPartitionState.getKafkaPartitionHandle(), newPartitionState.getOffset() + 1);
 				}
 			}
@@ -439,6 +452,7 @@ public class KafkaConsumerThread extends Thread {
 
 				// if reassignment had already started and affected the consumer,
 				// we do a full roll back so that it is as if it was left untouched
+				// 如果reassignment已经开始，则做一次回滚
 				if (reassignmentStarted) {
 					this.consumer.assign(new ArrayList<>(oldPartitionAssignmentsToPosition.keySet()));
 
@@ -452,15 +466,18 @@ public class KafkaConsumerThread extends Thread {
 				hasBufferedWakeup = false;
 
 				// re-add all new partitions back to the unassigned partitions queue to be picked up again
+				// 重新加入unassigned队列中
 				for (KafkaTopicPartitionState<TopicPartition> newPartition : newPartitions) {
 					unassignedPartitionsQueue.add(newPartition);
 				}
 
 				// this signals the main fetch loop to continue through the loop
+				// 该异常通知主fetch loop继续
 				throw new AbortedReassignmentException();
 			}
 		}
 
+		// 没有发生异常，reassignment完成，暴露reassigned consumer
 		// reassignment complete; expose the reassigned consumer
 		synchronized (consumerReassignmentLock) {
 			this.consumer = consumerTmp;
@@ -490,6 +507,7 @@ public class KafkaConsumerThread extends Thread {
 		return result;
 	}
 
+	// Kafka OffsetCommitCallback的实现类，内部封装了Flink的回调类
 	private class CommitCallback implements OffsetCommitCallback {
 
 		private final KafkaCommitCallback internalCommitCallback;

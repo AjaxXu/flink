@@ -31,6 +31,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 public interface ResultTypeQueryable<T> {
 
 	/**
+	 * 该函数或InputFormat的生成的数据类型
 	 * Gets the data type (as a {@link TypeInformation}) produced by this function or input format.
 	 * 
 	 * @return The data type produced by this function or input format.

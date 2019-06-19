@@ -21,21 +21,25 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartitionStateSentinel;
 
 /**
+ * Kafka Consumer的启动模式
  * Startup modes for the Kafka Consumer.
  */
 @Internal
 public enum StartupMode {
 
-	/** Start from committed offsets in ZK / Kafka brokers of a specific consumer group (default). */
+	/** 从已经commit的offset开始
+	 * Start from committed offsets in ZK / Kafka brokers of a specific consumer group (default). */
 	GROUP_OFFSETS(KafkaTopicPartitionStateSentinel.GROUP_OFFSET),
 
-	/** Start from the earliest offset possible. */
+	/** 从最早的offset
+	 * Start from the earliest offset possible. */
 	EARLIEST(KafkaTopicPartitionStateSentinel.EARLIEST_OFFSET),
 
-	/** Start from the latest offset. */
+	/** 最晚的offset
+	 * Start from the latest offset. */
 	LATEST(KafkaTopicPartitionStateSentinel.LATEST_OFFSET),
 
-	/**
+	/** 用户提供的timestamp
 	 * Start from user-supplied timestamp for each partition.
 	 * Since this mode will have specific offsets to start with, we do not need a sentinel value;
 	 * using Long.MIN_VALUE as a placeholder.
