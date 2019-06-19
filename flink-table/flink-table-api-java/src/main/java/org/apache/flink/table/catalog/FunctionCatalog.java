@@ -20,28 +20,41 @@ package org.apache.flink.table.catalog;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.table.expressions.AggregateFunctionDefinition;
-import org.apache.flink.table.expressions.BuiltInFunctionDefinitions;
-import org.apache.flink.table.expressions.FunctionDefinition;
-import org.apache.flink.table.expressions.ScalarFunctionDefinition;
-import org.apache.flink.table.expressions.TableFunctionDefinition;
-import org.apache.flink.table.expressions.catalog.FunctionDefinitionCatalog;
+import org.apache.flink.table.api.TableException;
+import org.apache.flink.table.functions.AggregateFunction;
+import org.apache.flink.table.functions.AggregateFunctionDefinition;
+import org.apache.flink.table.functions.BuiltInFunctionDefinitions;
+import org.apache.flink.table.functions.FunctionDefinition;
 import org.apache.flink.table.functions.ScalarFunction;
+import org.apache.flink.table.functions.ScalarFunctionDefinition;
+import org.apache.flink.table.functions.TableAggregateFunction;
+import org.apache.flink.table.functions.TableAggregateFunctionDefinition;
 import org.apache.flink.table.functions.TableFunction;
+import org.apache.flink.table.functions.TableFunctionDefinition;
 import org.apache.flink.table.functions.UserDefinedAggregateFunction;
 import org.apache.flink.table.functions.UserFunctionsTypeHelper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Simple function catalog to store {@link FunctionDefinition}s in memory.
  */
 @Internal
-public class FunctionCatalog implements FunctionDefinitionCatalog {
+public class FunctionCatalog implements FunctionLookup {
+
+	private final String defaultCatalogName;
+
+	private final String defaultDatabaseName;
 
 	private final Map<String, FunctionDefinition> userFunctions = new LinkedHashMap<>();
+
+	public FunctionCatalog(String defaultCatalogName, String defaultDatabaseName) {
+		this.defaultCatalogName = defaultCatalogName;
+		this.defaultDatabaseName = defaultDatabaseName;
+	}
 
 	public void registerScalarFunction(String name, ScalarFunction function) {
 		UserFunctionsTypeHelper.validateInstantiation(function.getClass());
@@ -62,7 +75,10 @@ public class FunctionCatalog implements FunctionDefinitionCatalog {
 
 		registerFunction(
 			name,
-			new TableFunctionDefinition(name, function, resultType)
+			new TableFunctionDefinition(
+				name,
+				function,
+				resultType)
 		);
 	}
 
@@ -76,27 +92,53 @@ public class FunctionCatalog implements FunctionDefinitionCatalog {
 		// check if class could be instantiated
 		UserFunctionsTypeHelper.validateInstantiation(function.getClass());
 
+		final FunctionDefinition definition;
+		if (function instanceof AggregateFunction) {
+			definition = new AggregateFunctionDefinition(
+				name,
+				(AggregateFunction<?, ?>) function,
+				resultType,
+				accType);
+		} else if (function instanceof TableAggregateFunction) {
+			definition = new TableAggregateFunctionDefinition(
+				name,
+				(TableAggregateFunction<?, ?>) function,
+				resultType,
+				accType);
+		} else {
+			throw new TableException("Unknown function class: " + function.getClass());
+		}
+
 		registerFunction(
 			name,
-			new AggregateFunctionDefinition(name, function, resultType, accType)
+			definition
 		);
 	}
 
 	public String[] getUserDefinedFunctions() {
-		return userFunctions.values().stream().map(FunctionDefinition::getName).toArray(String[]::new);
+		return userFunctions.values().stream()
+			.map(FunctionDefinition::toString)
+			.toArray(String[]::new);
 	}
 
 	@Override
-	public Optional<FunctionDefinition> lookupFunction(String name) {
-		FunctionDefinition userCandidate = userFunctions.get(normalizeName(name));
+	public Optional<FunctionLookup.Result> lookupFunction(String name) {
+		final FunctionDefinition userCandidate = userFunctions.get(normalizeName(name));
+		final Optional<FunctionDefinition> foundDefinition;
 		if (userCandidate != null) {
-			return Optional.of(userCandidate);
+			foundDefinition = Optional.of(userCandidate);
 		} else {
-			return BuiltInFunctionDefinitions.getDefinitions()
+			foundDefinition = BuiltInFunctionDefinitions.getDefinitions()
 				.stream()
 				.filter(f -> normalizeName(name).equals(normalizeName(f.getName())))
-				.findFirst();
+				.findFirst()
+				.map(Function.identity());
 		}
+
+		return foundDefinition.map(definition -> new FunctionLookup.Result(
+			ObjectIdentifier.of(defaultCatalogName, defaultDatabaseName, name),
+			definition)
+		);
 	}
 
 	private void registerFunction(String name, FunctionDefinition functionDefinition) {

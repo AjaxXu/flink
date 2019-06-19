@@ -25,9 +25,9 @@ import java.time.{LocalDate, LocalDateTime}
 import org.apache.flink.api.common.typeinfo.{SqlTimeTypeInfo, TypeInformation}
 import org.apache.flink.table.api.{DataTypes, Over, Table, ValidationException}
 import org.apache.flink.table.expressions.ApiExpressionUtils._
-import org.apache.flink.table.expressions.BuiltInFunctionDefinitions.{RANGE_TO, WITH_COLUMNS, E => FDE, UUID => FDUUID, _}
 import org.apache.flink.table.expressions._
-import org.apache.flink.table.functions.{ScalarFunction, TableFunction, UserDefinedAggregateFunction, UserFunctionsTypeHelper}
+import org.apache.flink.table.functions.BuiltInFunctionDefinitions.{RANGE_TO, WITH_COLUMNS, E => FDE, UUID => FDUUID, _}
+import org.apache.flink.table.functions.{ScalarFunction, TableFunction, UserDefinedAggregateFunction, UserFunctionsTypeHelper, _}
 import org.apache.flink.table.types.DataType
 import org.apache.flink.table.types.utils.TypeConversions
 import org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoToDataType
@@ -1112,14 +1112,21 @@ trait ImplicitExpressionConversions {
   implicit class UserDefinedAggregateFunctionCall[T: TypeInformation, ACC: TypeInformation]
       (val a: UserDefinedAggregateFunction[T, ACC]) {
 
-    private def createFunctionDefinition(): AggregateFunctionDefinition = {
+    private def createFunctionDefinition(): FunctionDefinition = {
       val resultTypeInfo: TypeInformation[T] = UserFunctionsTypeHelper
         .getReturnTypeOfAggregateFunction(a, implicitly[TypeInformation[T]])
 
       val accTypeInfo: TypeInformation[ACC] = UserFunctionsTypeHelper.
         getAccumulatorTypeOfAggregateFunction(a, implicitly[TypeInformation[ACC]])
 
-      new AggregateFunctionDefinition(a.getClass.getName, a, resultTypeInfo, accTypeInfo)
+      a match {
+        case af: AggregateFunction[_, _] =>
+          new AggregateFunctionDefinition(
+            af.getClass.getName, af, resultTypeInfo, accTypeInfo)
+        case taf: TableAggregateFunction[_, _] =>
+          new TableAggregateFunctionDefinition(
+            taf.getClass.getName, taf, resultTypeInfo, accTypeInfo)
+      }
     }
 
     /**

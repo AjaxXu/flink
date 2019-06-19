@@ -87,8 +87,7 @@ public class LocalStreamEnvironment extends StreamExecutionEnvironment {
 	public JobExecutionResult execute(String jobName) throws Exception {
 		// transform the streaming program into a JobGraph
 		// 生成StreamGraph。代表程序的拓扑结构，是从用户代码直接生成的图
-		StreamGraph streamGraph = getStreamGraph();
-		streamGraph.setJobName(jobName);
+		StreamGraph streamGraph = getStreamGraph(jobName);
 
 		// 生成JobGraph。这个图是要交给flink去生成task的图
 		JobGraph jobGraph = streamGraph.getJobGraph();

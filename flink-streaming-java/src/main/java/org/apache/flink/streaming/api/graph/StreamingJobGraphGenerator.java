@@ -22,7 +22,6 @@ import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.operators.ResourceSpec;
-import org.apache.flink.api.common.operators.util.UserCodeObjectWrapper;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.IllegalConfigurationException;
@@ -31,13 +30,13 @@ import org.apache.flink.runtime.checkpoint.CheckpointRetentionPolicy;
 import org.apache.flink.runtime.checkpoint.MasterTriggerRestoreHook;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
 import org.apache.flink.runtime.jobgraph.DistributionPattern;
-import org.apache.flink.runtime.jobgraph.InputFormatVertex;
+import org.apache.flink.runtime.jobgraph.InputOutputFormatContainer;
+import org.apache.flink.runtime.jobgraph.InputOutputFormatVertex;
 import org.apache.flink.runtime.jobgraph.JobEdge;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobgraph.JobVertexID;
 import org.apache.flink.runtime.jobgraph.OperatorID;
-import org.apache.flink.runtime.jobgraph.ScheduleMode;
 import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
 import org.apache.flink.runtime.jobgraph.tasks.CheckpointCoordinatorConfiguration;
 import org.apache.flink.runtime.jobgraph.tasks.JobCheckpointingSettings;
@@ -51,6 +50,7 @@ import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.operators.ChainingStrategy;
 import org.apache.flink.streaming.api.operators.StreamOperatorFactory;
 import org.apache.flink.streaming.api.operators.UdfStreamOperatorFactory;
+import org.apache.flink.streaming.api.transformations.ShuffleMode;
 import org.apache.flink.streaming.runtime.partitioner.ForwardPartitioner;
 import org.apache.flink.streaming.runtime.partitioner.RescalePartitioner;
 import org.apache.flink.streaming.runtime.partitioner.StreamPartitioner;
@@ -111,6 +111,8 @@ public class StreamingJobGraphGenerator {
 	private final Map<Integer, ResourceSpec> chainedMinResources;
 	private final Map<Integer, ResourceSpec> chainedPreferredResources;
 
+	private final Map<Integer, InputOutputFormatContainer> chainedInputOutputFormats;
+
 	private final StreamGraphHasher defaultStreamGraphHasher;
 	private final List<StreamGraphHasher> legacyStreamGraphHashers;
 
@@ -130,6 +132,7 @@ public class StreamingJobGraphGenerator {
 		this.chainedNames = new HashMap<>();
 		this.chainedMinResources = new HashMap<>();
 		this.chainedPreferredResources = new HashMap<>();
+		this.chainedInputOutputFormats = new HashMap<>();
 		this.physicalEdgesInOrder = new ArrayList<>();
 
 		jobGraph = new JobGraph(jobID, streamGraph.getJobName());
@@ -139,7 +142,7 @@ public class StreamingJobGraphGenerator {
 
 		// make sure that all vertices start immediately
 		// 设置启动模式为所有节点均在一开始就启动
-		jobGraph.setScheduleMode(ScheduleMode.EAGER);
+		jobGraph.setScheduleMode(streamGraph.getScheduleMode());
 
 		// Generate deterministic hashes for the nodes in order to identify them across
 		// submission iff they didn't change.
@@ -169,7 +172,7 @@ public class StreamingJobGraphGenerator {
 		//配置检查点。当用户的Flink程序配置了检查点信息，那么需要将检查点相关的配置加入到JobGraph中去，这部分逻辑通过方法configureCheckpointing来完
 		configureCheckpointing();
 
-		JobGraphGenerator.addUserArtifactEntries(streamGraph.getEnvironment().getCachedFiles(), jobGraph);
+		JobGraphGenerator.addUserArtifactEntries(streamGraph.getUserArtifacts(), jobGraph);
 
 		// set the ExecutionConfig last when it has been finalized
 		// 传递执行环境配置
@@ -245,8 +248,9 @@ public class StreamingJobGraphGenerator {
 			//存储不可被链接的出边
 			List<StreamEdge> nonChainableOutputs = new ArrayList<StreamEdge>();
 
+			StreamNode currentNode = streamGraph.getStreamNode(currentNodeId);
 			//遍历当前节点的每个出边
-			for (StreamEdge outEdge : streamGraph.getStreamNode(currentNodeId).getOutEdges()) {
+			for (StreamEdge outEdge : currentNode.getOutEdges()) {
 				//如果该出边是可被链接的，则加入可被链接的出边集合，否则加入不可被链接的出边集合
 				if (isChainable(outEdge, streamGraph)) {
 					chainableOutputs.add(outEdge);
@@ -279,6 +283,7 @@ public class StreamingJobGraphGenerator {
 				chainedOperatorHashes.computeIfAbsent(startNodeId, k -> new ArrayList<>());
 
 			byte[] primaryHashBytes = hashes.get(currentNodeId);
+			OperatorID currentOperatorId = new OperatorID(primaryHashBytes);
 
 			for (Map<Integer, byte[]> legacyHash : legacyHashes) {
 				operatorHashes.add(new Tuple2<>(primaryHashBytes, legacyHash.get(currentNodeId)));
@@ -289,6 +294,14 @@ public class StreamingJobGraphGenerator {
 			// 资源计算主要针对的是chain的算子的计算
 			chainedMinResources.put(currentNodeId, createChainedMinResources(currentNodeId, chainableOutputs));
 			chainedPreferredResources.put(currentNodeId, createChainedPreferredResources(currentNodeId, chainableOutputs));
+
+			if (currentNode.getInputFormat() != null) {
+				getOrCreateFormatContainer(startNodeId).addInputFormat(currentOperatorId, currentNode.getInputFormat());
+			}
+
+			if (currentNode.getOutputFormat() != null) {
+				getOrCreateFormatContainer(startNodeId).addOutputFormat(currentOperatorId, currentNode.getOutputFormat());
+			}
 
 			//创建流配置对象，流配置对象针对单个作业顶点而言，包含了顶点相关的所有信息。
 			//当创建配置对象的时候，如果当前节点即为起始节点（链接头），会先为该节点创建JobVertex对象
@@ -333,7 +346,7 @@ public class StreamingJobGraphGenerator {
 				chainedConfigs.get(startNodeId).put(currentNodeId, config);
 			}
 
-			config.setOperatorID(new OperatorID(primaryHashBytes));
+			config.setOperatorID(currentOperatorId);
 
 			// 可链接的出边为空，则链接结束
 			if (chainableOutputs.isEmpty()) {
@@ -345,6 +358,11 @@ public class StreamingJobGraphGenerator {
 		} else {
 			return new ArrayList<>();
 		}
+	}
+
+	private InputOutputFormatContainer getOrCreateFormatContainer(Integer startNodeId) {
+		return chainedInputOutputFormats
+			.computeIfAbsent(startNodeId, k -> new InputOutputFormatContainer(Thread.currentThread().getContextClassLoader()));
 	}
 
 	private String createChainedName(Integer vertexID, List<StreamEdge> chainedOutputs) {
@@ -416,15 +434,17 @@ public class StreamingJobGraphGenerator {
 			}
 		}
 
-		if (streamNode.getInputFormat() != null) {
-			jobVertex = new InputFormatVertex(
+		if (chainedInputOutputFormats.containsKey(streamNodeId)) {
+			jobVertex = new InputOutputFormatVertex(
 					chainedNames.get(streamNodeId),
 					jobVertexId,
 					legacyJobVertexIds,
 					chainedOperatorVertexIds,
 					userDefinedChainedOperatorVertexIds);
-			TaskConfig taskConfig = new TaskConfig(jobVertex.getConfiguration());
-			taskConfig.setStubWrapper(new UserCodeObjectWrapper<Object>(streamNode.getInputFormat()));
+
+			chainedInputOutputFormats
+				.get(streamNodeId)
+				.write(new TaskConfig(jobVertex.getConfiguration()));
 		} else {
 			jobVertex = new JobVertex(
 					chainedNames.get(streamNodeId),
@@ -500,7 +520,7 @@ public class StreamingJobGraphGenerator {
 		config.setNonChainedOutputs(nonChainableOutputs);
 		config.setChainedOutputs(chainableOutputs);
 
-		config.setTimeCharacteristic(streamGraph.getEnvironment().getStreamTimeCharacteristic());
+		config.setTimeCharacteristic(streamGraph.getTimeCharacteristic());
 
 		final CheckpointConfig checkpointCfg = streamGraph.getCheckpointConfig();
 
@@ -544,18 +564,32 @@ public class StreamingJobGraphGenerator {
 
 		// 根据partitioner定义上下游的连接规则，其实是生成相应的JobEdge
 		StreamPartitioner<?> partitioner = edge.getPartitioner();
+
+		ResultPartitionType resultPartitionType;
+		switch (edge.getShuffleMode()) {
+			case PIPELINED:
+				resultPartitionType = ResultPartitionType.PIPELINED_BOUNDED;
+				break;
+			case BATCH:
+				resultPartitionType = ResultPartitionType.BLOCKING;
+				break;
+			default:
+				throw new UnsupportedOperationException("Data exchange mode " +
+					edge.getShuffleMode() + " is not supported yet.");
+		}
+
 		JobEdge jobEdge;
 		if (partitioner instanceof ForwardPartitioner || partitioner instanceof RescalePartitioner) {
 			// 这里涉及到了IntermediateDataSet的生成，具体代码见JobVertex内部
 			jobEdge = downStreamVertex.connectNewDataSetAsInput(
 				headVertex,
 				DistributionPattern.POINTWISE,
-				ResultPartitionType.PIPELINED_BOUNDED);
+				resultPartitionType);
 		} else {
 			jobEdge = downStreamVertex.connectNewDataSetAsInput(
 					headVertex,
 					DistributionPattern.ALL_TO_ALL,
-					ResultPartitionType.PIPELINED_BOUNDED);
+					resultPartitionType);
 		}
 		// set strategy name so that web interface can show it.
 		jobEdge.setShipStrategyName(partitioner.toString());
@@ -581,6 +615,7 @@ public class StreamingJobGraphGenerator {
 				&& (headOperator.getChainingStrategy() == ChainingStrategy.HEAD ||
 					headOperator.getChainingStrategy() == ChainingStrategy.ALWAYS)
 				&& (edge.getPartitioner() instanceof ForwardPartitioner)
+				&& edge.getShuffleMode() != ShuffleMode.BATCH
 				&& upStreamVertex.getParallelism() == downStreamVertex.getParallelism()
 				&& streamGraph.isChainingEnabled();
 	}
@@ -621,22 +656,9 @@ public class StreamingJobGraphGenerator {
 				}
 
 				vertex.updateCoLocationGroup(constraint.f1);
+				constraint.f1.addVertex(vertex);
 			}
 		}
-
-		for (Tuple2<StreamNode, StreamNode> pair : streamGraph.getIterationSourceSinkPairs()) {
-
-			CoLocationGroup ccg = new CoLocationGroup();
-
-			JobVertex source = jobVertices.get(pair.f0.getId());
-			JobVertex sink = jobVertices.get(pair.f1.getId());
-
-			ccg.addVertex(source);
-			ccg.addVertex(sink);
-			source.updateCoLocationGroup(ccg);
-			sink.updateCoLocationGroup(ccg);
-		}
-
 	}
 
 	private void configureCheckpointing() {

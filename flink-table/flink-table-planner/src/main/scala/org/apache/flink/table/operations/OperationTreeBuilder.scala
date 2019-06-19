@@ -21,18 +21,19 @@ package org.apache.flink.table.operations
 import java.util.{Collections, Optional, List => JList}
 
 import org.apache.flink.table.api._
+import org.apache.flink.table.catalog.FunctionLookup
 import org.apache.flink.table.expressions.ApiExpressionUtils.{call, valueLiteral}
 import org.apache.flink.table.expressions.ExpressionResolver.resolverFor
-import org.apache.flink.table.expressions.ExpressionUtils.isFunctionOfType
-import org.apache.flink.table.expressions.FunctionDefinition.Type.{SCALAR_FUNCTION, TABLE_FUNCTION}
+import org.apache.flink.table.expressions.ExpressionUtils.isFunctionOfKind
 import org.apache.flink.table.expressions._
-import org.apache.flink.table.expressions.catalog.FunctionDefinitionCatalog
 import org.apache.flink.table.expressions.lookups.TableReferenceLookup
+import org.apache.flink.table.functions.FunctionKind.{SCALAR, TABLE}
 import org.apache.flink.table.functions.utils.UserDefinedFunctionUtils
+import org.apache.flink.table.functions.{AggregateFunctionDefinition, BuiltInFunctionDefinitions, TableFunctionDefinition}
 import org.apache.flink.table.operations.AliasOperationUtils.createAliasList
-import JoinQueryOperation.JoinType
+import org.apache.flink.table.operations.JoinQueryOperation.JoinType
 import org.apache.flink.table.operations.OperationExpressionsUtils.extractAggregationsAndProperties
-import SetQueryOperation.SetQueryOperationType._
+import org.apache.flink.table.operations.SetQueryOperation.SetQueryOperationType._
 import org.apache.flink.table.util.JavaScalaConversionUtil
 import org.apache.flink.table.util.JavaScalaConversionUtil.toScala
 import org.apache.flink.util.Preconditions
@@ -46,7 +47,7 @@ import _root_.scala.collection.JavaConverters._
 class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
 
   private val expressionBridge: ExpressionBridge[PlannerExpression] = tableEnv.expressionBridge
-  private val functionCatalog: FunctionDefinitionCatalog = tableEnv.functionCatalog
+  private val functionCatalog: FunctionLookup = tableEnv.functionCatalog
 
   private val isStreaming = tableEnv.isInstanceOf[StreamTableEnvImpl]
   private val projectionOperationFactory = new ProjectionOperationFactory(expressionBridge)
@@ -200,8 +201,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     // extract alias and aggregate function
     var alias: Seq[String] = Seq()
     val aggWithoutAlias = resolvedAggregate match {
-      case c: CallExpression
-        if c.getFunctionDefinition.getName == BuiltInFunctionDefinitions.AS.getName =>
+      case c: CallExpression if c.getFunctionDefinition == BuiltInFunctionDefinitions.AS =>
         alias = c.getChildren
           .drop(1)
           .map(e => ExpressionUtils.extractValue(e, classOf[String]).get())
@@ -367,7 +367,8 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     val resolver = resolverFor(tableCatalog, functionCatalog, left).build()
     val resolvedFunction = resolveSingleExpression(tableFunction, resolver)
 
-    val temporalTable = calculatedTableFactory.create(resolvedFunction)
+    val temporalTable =
+      calculatedTableFactory.create(resolvedFunction, left.getTableSchema.getFieldNames)
 
     join(left, temporalTable, joinType, condition, correlated = true)
   }
@@ -471,7 +472,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     val resolver = resolverFor(tableCatalog, functionCatalog, child).build()
     val resolvedMapFunction = resolveSingleExpression(mapFunction, resolver)
 
-    if (!isFunctionOfType(resolvedMapFunction, SCALAR_FUNCTION)) {
+    if (!isFunctionOfKind(resolvedMapFunction, SCALAR)) {
       throw new ValidationException("Only ScalarFunction can be used in the map operator.")
     }
 
@@ -485,7 +486,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     val resolver = resolverFor(tableCatalog, functionCatalog, child).build()
     val resolvedTableFunction = resolveSingleExpression(tableFunction, resolver)
 
-    if (!isFunctionOfType(resolvedTableFunction, TABLE_FUNCTION)) {
+    if (!isFunctionOfKind(resolvedTableFunction, TABLE)) {
       throw new ValidationException("Only TableFunction can be used in the flatMap operator.")
     }
 
@@ -537,8 +538,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     var attrNameCntr: Int = 0
     val usedFieldNames = inputFieldNames.toBuffer
     groupingExpressions.map {
-      case c: CallExpression
-        if !c.getFunctionDefinition.getName.equals(BuiltInFunctionDefinitions.AS.getName) => {
+      case c: CallExpression if c.getFunctionDefinition != BuiltInFunctionDefinitions.AS =>
         val tempName = getUniqueName("TMP_" + attrNameCntr, usedFieldNames)
         usedFieldNames.append(tempName)
         attrNameCntr += 1
@@ -546,7 +546,6 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
           BuiltInFunctionDefinitions.AS,
           Seq(c, new ValueLiteralExpression(tempName))
         )
-      }
       case e => e
     }
   }

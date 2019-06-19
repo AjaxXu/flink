@@ -19,6 +19,7 @@
 package org.apache.flink.table.expressions;
 
 import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.table.functions.FunctionDefinition;
 import org.apache.flink.util.Preconditions;
 
 import java.util.ArrayList;
@@ -79,6 +80,6 @@ public final class CallExpression implements Expression {
 	@Override
 	public String toString() {
 		final List<String> argList = args.stream().map(Object::toString).collect(Collectors.toList());
-		return functionDefinition.getName() + "(" + String.join(", ", argList) + ")";
+		return functionDefinition.toString() + "(" + String.join(", ", argList) + ")";
 	}
 }

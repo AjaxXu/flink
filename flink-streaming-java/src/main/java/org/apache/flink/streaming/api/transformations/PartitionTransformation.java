@@ -27,6 +27,8 @@ import org.apache.flink.shaded.guava18.com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 /**
  * 该转换器用于改变输入元素的分区，其名称为：Partition。
  * 因此，工作时除了提供一个StreamTransformation作为输入，还需要提供一个StreamPartitioner的实例来进行分区。
@@ -42,7 +44,10 @@ import java.util.List;
 public class PartitionTransformation<T> extends StreamTransformation<T> {
 
 	private final StreamTransformation<T> input;
+
 	private final StreamPartitioner<T> partitioner;
+
+	private final ShuffleMode shuffleMode;
 
 	/**
 	 * Creates a new {@code PartitionTransformation} from the given input and
@@ -52,9 +57,25 @@ public class PartitionTransformation<T> extends StreamTransformation<T> {
 	 * @param partitioner The {@code StreamPartitioner}
 	 */
 	public PartitionTransformation(StreamTransformation<T> input, StreamPartitioner<T> partitioner) {
+		this(input, partitioner, ShuffleMode.PIPELINED);
+	}
+
+	/**
+	 * Creates a new {@code PartitionTransformation} from the given input and
+	 * {@link StreamPartitioner}.
+	 *
+	 * @param input The input {@code StreamTransformation}
+	 * @param partitioner The {@code StreamPartitioner}
+	 * @param shuffleMode The {@code ShuffleMode}
+	 */
+	public PartitionTransformation(
+			StreamTransformation<T> input,
+			StreamPartitioner<T> partitioner,
+			ShuffleMode shuffleMode) {
 		super("Partition", input.getOutputType(), input.getParallelism());
 		this.input = input;
 		this.partitioner = partitioner;
+		this.shuffleMode = checkNotNull(shuffleMode);
 	}
 
 	/**
@@ -72,6 +93,13 @@ public class PartitionTransformation<T> extends StreamTransformation<T> {
 		return partitioner;
 	}
 
+	/**
+	 * Returns the {@link ShuffleMode} of this {@link PartitionTransformation}.
+	 */
+	public ShuffleMode getShuffleMode() {
+		return shuffleMode;
+	}
+
 	@Override
 	public Collection<StreamTransformation<?>> getTransitivePredecessors() {
 		List<StreamTransformation<?>> result = Lists.newArrayList();
@@ -82,6 +110,6 @@ public class PartitionTransformation<T> extends StreamTransformation<T> {
 
 	@Override
 	public final void setChainingStrategy(ChainingStrategy strategy) {
-		throw new UnsupportedOperationException("Cannot set chaining strategy on Union Transformation.");
+		throw new UnsupportedOperationException("Cannot set chaining strategy on Partition Transformation.");
 	}
 }

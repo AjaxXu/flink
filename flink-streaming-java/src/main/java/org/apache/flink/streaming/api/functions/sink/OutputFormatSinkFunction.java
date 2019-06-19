@@ -112,4 +112,7 @@ public class OutputFormatSinkFunction<IN> extends RichSinkFunction<IN> implement
 		}
 	}
 
+	public OutputFormat<IN> getFormat() {
+		return format;
+	}
 }
