@@ -22,7 +22,7 @@ import java.util.{Collections, Optional, List => JList}
 
 import org.apache.flink.table.api._
 import org.apache.flink.table.catalog.FunctionLookup
-import org.apache.flink.table.expressions.ApiExpressionUtils.{call, valueLiteral}
+import org.apache.flink.table.expressions.ApiExpressionUtils.{unresolvedCall, unresolvedRef, valueLiteral}
 import org.apache.flink.table.expressions.ExpressionResolver.resolverFor
 import org.apache.flink.table.expressions.ExpressionUtils.isFunctionOfKind
 import org.apache.flink.table.expressions._
@@ -143,7 +143,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
       val fieldNames = child.getTableSchema.getFieldNames.toList.asJava
       ColumnOperationUtils.addOrReplaceColumns(fieldNames, fieldLists)
     } else {
-      (new UnresolvedReferenceExpression("*") +: fieldLists.asScala).asJava
+      (unresolvedRef("*") +: fieldLists.asScala).asJava
     }
     project(newColumns, child)
   }
@@ -201,12 +201,13 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     // extract alias and aggregate function
     var alias: Seq[String] = Seq()
     val aggWithoutAlias = resolvedAggregate match {
-      case c: CallExpression if c.getFunctionDefinition == BuiltInFunctionDefinitions.AS =>
+      case c: UnresolvedCallExpression
+          if c.getFunctionDefinition == BuiltInFunctionDefinitions.AS =>
         alias = c.getChildren
           .drop(1)
           .map(e => ExpressionUtils.extractValue(e, classOf[String]).get())
         c.getChildren.get(0)
-      case c: CallExpression
+      case c: UnresolvedCallExpression
         if c.getFunctionDefinition.isInstanceOf[AggregateFunctionDefinition] =>
         if (alias.isEmpty) alias = UserDefinedFunctionUtils.getFieldInfo(
           c.getFunctionDefinition.asInstanceOf[AggregateFunctionDefinition].getResultTypeInfo)._1
@@ -220,7 +221,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     while (childNames.contains("TMP_" + cnt)) {
       cnt += 1
     }
-    val aggWithNamedAlias = call(
+    val aggWithNamedAlias = unresolvedCall(
       BuiltInFunctionDefinitions.AS,
       aggWithoutAlias,
       valueLiteral("TMP_" + cnt))
@@ -231,9 +232,8 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     // flatten the aggregate function
     val aggNames = aggQueryOperation.getTableSchema.getFieldNames
     val flattenExpressions = aggNames.take(groupingExpressions.size())
-      .map(e => new UnresolvedReferenceExpression(e)) ++
-      Seq(new CallExpression(BuiltInFunctionDefinitions.FLATTEN,
-        Seq(new UnresolvedReferenceExpression(aggNames.last))))
+      .map(e => unresolvedRef(e)) ++
+      Seq(unresolvedCall(BuiltInFunctionDefinitions.FLATTEN, unresolvedRef(aggNames.last)))
     val flattenedOperation = this.project(flattenExpressions.toList, aggQueryOperation)
 
     // add alias
@@ -476,8 +476,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
       throw new ValidationException("Only ScalarFunction can be used in the map operator.")
     }
 
-    val expandedFields = new CallExpression(BuiltInFunctionDefinitions.FLATTEN,
-      List(resolvedMapFunction).asJava)
+    val expandedFields = unresolvedCall(BuiltInFunctionDefinitions.FLATTEN, resolvedMapFunction)
     project(Collections.singletonList(expandedFields), child)
   }
 
@@ -491,7 +490,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     }
 
     val originFieldNames: Seq[String] =
-      resolvedTableFunction.asInstanceOf[CallExpression].getFunctionDefinition match {
+      resolvedTableFunction.asInstanceOf[UnresolvedCallExpression].getFunctionDefinition match {
         case tfd: TableFunctionDefinition =>
           UserDefinedFunctionUtils.getFieldInfo(tfd.getResultType)._1
       }
@@ -503,14 +502,14 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
       resultName
     })
 
-    val renamedTableFunction = call(
+    val renamedTableFunction = unresolvedCall(
       BuiltInFunctionDefinitions.AS,
       resolvedTableFunction +: newFieldNames.map(ApiExpressionUtils.valueLiteral(_)): _*)
     val joinNode = joinLateral(child, renamedTableFunction, JoinType.INNER, Optional.empty())
     val rightNode = dropColumns(
-      child.getTableSchema.getFieldNames.map(a => new UnresolvedReferenceExpression(a)).toList,
+      child.getTableSchema.getFieldNames.map(ApiExpressionUtils.unresolvedRef).toList,
       joinNode)
-    alias(originFieldNames.map(a => new UnresolvedReferenceExpression(a)), rightNode)
+    alias(originFieldNames.map(a => unresolvedRef(a)), rightNode)
   }
 
   /**
@@ -538,13 +537,15 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
     var attrNameCntr: Int = 0
     val usedFieldNames = inputFieldNames.toBuffer
     groupingExpressions.map {
-      case c: CallExpression if c.getFunctionDefinition != BuiltInFunctionDefinitions.AS =>
+      case c: UnresolvedCallExpression
+          if c.getFunctionDefinition != BuiltInFunctionDefinitions.AS =>
         val tempName = getUniqueName("TMP_" + attrNameCntr, usedFieldNames)
         usedFieldNames.append(tempName)
         attrNameCntr += 1
-        new CallExpression(
+        unresolvedCall(
           BuiltInFunctionDefinitions.AS,
-          Seq(c, new ValueLiteralExpression(tempName))
+          c,
+          valueLiteral(tempName)
         )
       case e => e
     }
@@ -563,8 +564,7 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
       val namesBeforeAlias = inputOperation.getTableSchema.getFieldNames
       val namesAfterAlias = namesBeforeAlias.take(aliasStartIndex) ++ alias ++
         namesBeforeAlias.takeRight(namesBeforeAlias.length - alias.size - aliasStartIndex)
-      this.alias(namesAfterAlias.map(e =>
-        new UnresolvedReferenceExpression(e)).toList, inputOperation)
+      this.alias(namesAfterAlias.map(e => unresolvedRef(e)).toList, inputOperation)
     } else {
       inputOperation
     }
@@ -572,13 +572,13 @@ class OperationTreeBuilder(private val tableEnv: TableEnvImpl) {
 
   class NoWindowPropertyChecker(val exceptionMessage: String)
     extends ApiExpressionDefaultVisitor[Void] {
-    override def visitCall(call: CallExpression): Void = {
-      val functionDefinition = call.getFunctionDefinition
+    override def visit(unresolvedCall: UnresolvedCallExpression): Void = {
+      val functionDefinition = unresolvedCall.getFunctionDefinition
       if (BuiltInFunctionDefinitions.WINDOW_PROPERTIES
         .contains(functionDefinition)) {
         throw new ValidationException(exceptionMessage)
       }
-      call.getChildren.asScala.foreach(expr => expr.accept(this))
+      unresolvedCall.getChildren.asScala.foreach(expr => expr.accept(this))
       null
     }
 

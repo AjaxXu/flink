@@ -19,13 +19,10 @@ package org.apache.flink.streaming.runtime.io;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
+import org.apache.flink.runtime.checkpoint.CheckpointException;
+import org.apache.flink.runtime.checkpoint.CheckpointFailureReason;
 import org.apache.flink.runtime.checkpoint.CheckpointMetaData;
 import org.apache.flink.runtime.checkpoint.CheckpointMetrics;
-import org.apache.flink.runtime.checkpoint.decline.AlignmentLimitExceededException;
-import org.apache.flink.runtime.checkpoint.decline.CheckpointDeclineException;
-import org.apache.flink.runtime.checkpoint.decline.CheckpointDeclineOnCancellationBarrierException;
-import org.apache.flink.runtime.checkpoint.decline.CheckpointDeclineSubsumedException;
-import org.apache.flink.runtime.checkpoint.decline.InputEndOfStreamException;
 import org.apache.flink.runtime.io.network.api.CancelCheckpointMarker;
 import org.apache.flink.runtime.io.network.api.CheckpointBarrier;
 import org.apache.flink.runtime.io.network.api.EndOfPartitionEvent;
@@ -296,7 +293,10 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 					currentCheckpointId);
 
 				// let the task know we are not completing this
-				notifyAbort(currentCheckpointId, new CheckpointDeclineSubsumedException(barrierId));
+				notifyAbort(currentCheckpointId,
+					new CheckpointException(
+						"Barrier id: " + barrierId,
+						CheckpointFailureReason.CHECKPOINT_DECLINED_SUBSUMED));
 
 				// abort the current checkpoint
 				releaseBlocksAndResetBarriers();
@@ -383,7 +383,11 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 				startOfAlignmentTimestamp = 0L;
 				latestAlignmentDurationNanos = 0L;
 
-				notifyAbort(currentCheckpointId, new CheckpointDeclineSubsumedException(barrierId));
+				notifyAbort(currentCheckpointId,
+					new CheckpointException(
+						"Barrier id: " + barrierId,
+						CheckpointFailureReason.CHECKPOINT_DECLINED_SUBSUMED
+					));
 
 				notifyAbortOnCancellationBarrier(barrierId);
 			}
@@ -420,7 +424,8 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 		if (numBarriersReceived > 0) {
 			// let the task know we skip a checkpoint
 			// 通知task，将跳过这次checkpoint
-			notifyAbort(currentCheckpointId, new InputEndOfStreamException());
+			notifyAbort(currentCheckpointId,
+				new CheckpointException(CheckpointFailureReason.CHECKPOINT_DECLINED_INPUT_END_OF_STREAM));
 
 			// no chance to complete this checkpoint
 			//此时已经没有机会完成该检查点，则解除阻塞
@@ -447,10 +452,11 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 	}
 
 	private void notifyAbortOnCancellationBarrier(long checkpointId) throws Exception {
-		notifyAbort(checkpointId, new CheckpointDeclineOnCancellationBarrierException());
+		notifyAbort(checkpointId,
+			new CheckpointException(CheckpointFailureReason.CHECKPOINT_DECLINED_ON_CANCELLATION_BARRIER));
 	}
 
-	private void notifyAbort(long checkpointId, CheckpointDeclineException cause) throws Exception {
+	private void notifyAbort(long checkpointId, CheckpointException cause) throws Exception {
 		if (toNotifyOnCheckpoint != null) {
 			toNotifyOnCheckpoint.abortCheckpointOnBarrier(checkpointId, cause);
 		}
@@ -465,7 +471,10 @@ public class BarrierBuffer implements CheckpointBarrierHandler {
 				maxBufferedBytes);
 
 			releaseBlocksAndResetBarriers();
-			notifyAbort(currentCheckpointId, new AlignmentLimitExceededException(maxBufferedBytes));
+			notifyAbort(currentCheckpointId,
+				new CheckpointException(
+					"Max buffered bytes: " + maxBufferedBytes,
+					CheckpointFailureReason.CHECKPOINT_DECLINED_ALIGNMENT_LIMIT_EXCEEDED));
 		}
 	}
 

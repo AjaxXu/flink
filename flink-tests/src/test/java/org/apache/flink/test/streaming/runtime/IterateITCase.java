@@ -615,7 +615,7 @@ public class IterateITCase extends AbstractTestBase {
 				// Test force checkpointing
 
 				try {
-					env.enableCheckpointing(1, CheckpointingMode.EXACTLY_ONCE, false);
+					env.enableCheckpointing(10, CheckpointingMode.EXACTLY_ONCE, false);
 					env.execute();
 
 					// this statement should never be reached
@@ -624,7 +624,7 @@ public class IterateITCase extends AbstractTestBase {
 					// expected behaviour
 				}
 
-				env.enableCheckpointing(1, CheckpointingMode.EXACTLY_ONCE, true);
+				env.enableCheckpointing(10, CheckpointingMode.EXACTLY_ONCE, true);
 				env.getStreamGraph().getJobGraph();
 
 				break; // success

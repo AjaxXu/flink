@@ -76,6 +76,9 @@ public class CheckpointConfig implements java.io.Serializable {
 	 * Determines if a job will fallback to checkpoint when there is a more recent savepoint. **/
 	private boolean preferCheckpointForRecovery = false;
 
+	/** Determines the threshold that we tolerance checkpoint failure number. */
+	private int tolerableCheckpointFailureNumber = 0;
+
 	// ------------------------------------------------------------------------
 
 	/**
@@ -127,8 +130,8 @@ public class CheckpointConfig implements java.io.Serializable {
 	 * @param checkpointInterval The checkpoint interval, in milliseconds.
 	 */
 	public void setCheckpointInterval(long checkpointInterval) {
-		if (checkpointInterval <= 0) {
-			throw new IllegalArgumentException("Checkpoint interval must be larger than zero");
+		if (checkpointInterval < 10) {
+			throw new IllegalArgumentException("Checkpoint interval must be larger than or equal to 10ms");
 		}
 		this.checkpointInterval = checkpointInterval;
 	}
@@ -148,8 +151,8 @@ public class CheckpointConfig implements java.io.Serializable {
 	 * @param checkpointTimeout The checkpoint timeout, in milliseconds.
 	 */
 	public void setCheckpointTimeout(long checkpointTimeout) {
-		if (checkpointTimeout <= 0) {
-			throw new IllegalArgumentException("Checkpoint timeout must be larger than zero");
+		if (checkpointTimeout < 10) {
+			throw new IllegalArgumentException("Checkpoint timeout must be larger than or equal to 10ms");
 		}
 		this.checkpointTimeout = checkpointTimeout;
 	}
@@ -252,6 +255,22 @@ public class CheckpointConfig implements java.io.Serializable {
 	 */
 	public void setFailOnCheckpointingErrors(boolean failOnCheckpointingErrors) {
 		this.failOnCheckpointingErrors = failOnCheckpointingErrors;
+	}
+
+	/**
+	 * Get the tolerable checkpoint failure number which used by the checkpoint failure manager
+	 * to determine when we need to fail the job.
+	 */
+	public int getTolerableCheckpointFailureNumber() {
+		return tolerableCheckpointFailureNumber;
+	}
+
+	/**
+	 * Set the tolerable checkpoint failure number, the default value is 0 that means
+	 * we do not tolerance any checkpoint failure.
+	 */
+	public void setTolerableCheckpointFailureNumber(int tolerableCheckpointFailureNumber) {
+		this.tolerableCheckpointFailureNumber = tolerableCheckpointFailureNumber;
 	}
 
 	/**
