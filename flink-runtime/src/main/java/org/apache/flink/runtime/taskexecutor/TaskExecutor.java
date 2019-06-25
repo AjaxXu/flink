@@ -669,7 +669,7 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 	public void releasePartitions(JobID jobId, Collection<ResultPartitionID> partitionIds) {
 		try {
 			// 在对Task解除注册时，会调用ResultPartitionManager的releasePartitionsProducedBy方法
-			shuffleEnvironment.releasePartitions(partitionIds);
+			shuffleEnvironment.releasePartitionsLocally(partitionIds);
 		} catch (Throwable t) {
 			// TODO: Do we still need this catch branch?
 			onFatalError(t);
