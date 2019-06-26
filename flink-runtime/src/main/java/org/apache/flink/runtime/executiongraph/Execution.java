@@ -1045,6 +1045,7 @@ public class Execution implements AccessExecution, Archiveable<ArchivedExecution
 		processFail(t, true, userAccumulators, metrics);
 	}
 
+	@VisibleForTesting
 	void markFinished() {
 		markFinished(null, null);
 	}
