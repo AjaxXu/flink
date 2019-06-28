@@ -16,17 +16,27 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.sinks
+package org.apache.flink.table.types.inference;
 
-import org.apache.flink.streaming.api.datastream.DataStream
-import org.apache.flink.table.api.Table
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.types.inference.strategies.MissingTypeStrategy;
 
 /**
-  * Defines an external [[TableSink]] to emit streaming [[Table]] with only insert changes.
-  *
-  * If the [[Table]] is also modified by update or delete changes, a
-  * [[org.apache.flink.table.api.TableException]] will be thrown.
-  *
-  * @tparam T Type of [[DataStream]] that this [[TableSink]] expects and supports.
-  */
-trait AppendStreamTableSink[T] extends StreamTableSink[T]
+ * Strategies for inferring an output or accumulator data type of a function call.
+ *
+ * @see TypeStrategy
+ */
+@Internal
+public final class TypeStrategies {
+
+	/**
+	 * Placeholder for a missing type strategy.
+	 */
+	public static final TypeStrategy MISSING = new MissingTypeStrategy();
+
+	// --------------------------------------------------------------------------------------------
+
+	private TypeStrategies() {
+		// no instantiation
+	}
+}

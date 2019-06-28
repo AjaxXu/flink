@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,25 +16,25 @@
  * limitations under the License.
  */
 
-package org.apache.flink.runtime.instance;
+package org.apache.flink.streaming.util;
+
+import org.apache.flink.streaming.runtime.tasks.StreamTask;
+
+import java.util.concurrent.CompletableFuture;
+
+import static org.junit.Assert.fail;
 
 /**
- * Classes implementing the InstanceListener interface can be notified about
- * the availability disappearance of instances.
+ * Utils for working with StreamTask.
  */
-public interface InstanceListener {
+public class StreamTaskUtil {
 
-	/**
-	 * Called when a new instance becomes available.
-	 * 
-	 * @param instance The instance that became available.
-	 */
-	void newInstanceAvailable(Instance instance);
-	
-	/**
-	 * Called when an instance died.
-	 * 
-	 * @param instance The instance that died.
-	 */
-	void instanceDied(Instance instance);
+	public static void waitTaskIsRunning(StreamTask<?, ?> task, CompletableFuture<Void> taskInvocation) throws InterruptedException {
+		while (!task.isRunning()) {
+			if (taskInvocation.isDone()) {
+				fail("Task has stopped");
+			}
+			Thread.sleep(10L);
+		}
+	}
 }

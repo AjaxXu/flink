@@ -16,25 +16,27 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.sources;
+package org.apache.flink.table.types.inference;
 
-import java.util.Collection;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.types.inference.validators.PassingTypeValidator;
 
 /**
- * The {@link DefinedIndexes} interface can extends a {@link TableSource} to specify the
- * indexes meta information.
+ * Validators for checking the input data types of a function call.
  *
- * <p>An Index can be a Unique Index or Normal Index. An Unique Index is similar to primary
- * key which defines a column or a group of columns that uniquely identifies each row in
- * a table or stream. An Normal Index is an index on the defined columns used to accelerate
- * querying.
+ * @see InputTypeValidator
  */
-public interface DefinedIndexes {
+@Internal
+public final class InputTypeValidators {
 
 	/**
-	 * Returns the list of {@link TableIndex}s. Returns empty collection or null if no
-	 * index is exist.
+	 * Validator that does not perform any validation and always passes.
 	 */
-	Collection<TableIndex> getIndexes();
+	public static final InputTypeValidator PASSING = new PassingTypeValidator();
 
+	// --------------------------------------------------------------------------------------------
+
+	private InputTypeValidators() {
+		// no instantiation
+	}
 }

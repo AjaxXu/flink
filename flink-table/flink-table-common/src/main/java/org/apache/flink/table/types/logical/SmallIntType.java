@@ -33,6 +33,8 @@ import java.util.Set;
 @PublicEvolving
 public final class SmallIntType extends LogicalType {
 
+	public static final int PRECISION = 5;
+
 	private static final String FORMAT = "SMALLINT";
 
 	private static final Set<String> NULL_OUTPUT_CONVERSION = conversionSet(

@@ -20,6 +20,7 @@ package org.apache.flink.table.functions;
 
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.api.TableException;
+import org.apache.flink.table.types.inference.TypeStrategies;
 import org.apache.flink.util.Preconditions;
 
 import java.lang.reflect.Field;
@@ -45,21 +46,25 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("and")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition OR =
 		new BuiltInFunctionDefinition.Builder()
 			.name("or")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition NOT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("not")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition IF =
 		new BuiltInFunctionDefinition.Builder()
 			.name("ifThenElse")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// comparison functions
@@ -67,71 +72,85 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("equals")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition GREATER_THAN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("greaterThan")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition GREATER_THAN_OR_EQUAL =
 		new BuiltInFunctionDefinition.Builder()
 			.name("greaterThanOrEqual")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LESS_THAN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("lessThan")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LESS_THAN_OR_EQUAL =
 		new BuiltInFunctionDefinition.Builder()
 			.name("lessThanOrEqual")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition NOT_EQUALS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("notEquals")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition IS_NULL =
 		new BuiltInFunctionDefinition.Builder()
 			.name("isNull")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition IS_NOT_NULL =
 		new BuiltInFunctionDefinition.Builder()
 			.name("isNotNull")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition IS_TRUE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("isTrue")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition IS_FALSE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("isFalse")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition IS_NOT_TRUE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("isNotTrue")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition IS_NOT_FALSE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("isNotFalse")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition BETWEEN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("between")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition NOT_BETWEEN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("notBetween")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// aggregate functions
@@ -139,65 +158,77 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("avg")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition COUNT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("count")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition MAX =
 		new BuiltInFunctionDefinition.Builder()
 			.name("max")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition MIN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("min")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SUM =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sum")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SUM0 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sum0")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 计算输入值的总体标准差
 	public static final BuiltInFunctionDefinition STDDEV_POP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("stddevPop")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 计算输入值的样本标准偏差
 	public static final BuiltInFunctionDefinition STDDEV_SAMP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("stddevSamp")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 计算输入值的总体方差
 	public static final BuiltInFunctionDefinition VAR_POP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("varPop")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 计算输入值的样本方差
 	public static final BuiltInFunctionDefinition VAR_SAMP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("varSamp")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition COLLECT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("collect")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition DISTINCT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("distinct")
 			.kind(AGGREGATE)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// string functions
@@ -206,67 +237,79 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("charLength")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 将每个单词的首字母大写，其它小写
 	public static final BuiltInFunctionDefinition INIT_CAP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("initCap")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LIKE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("like")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LOWER =
 		new BuiltInFunctionDefinition.Builder()
 			.name("lowerCase")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 使用正规表达式来匹配，功能类似like，但使用的是 正规表达式
 	public static final BuiltInFunctionDefinition SIMILAR =
 		new BuiltInFunctionDefinition.Builder()
 			.name("similar")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SUBSTRING =
 		new BuiltInFunctionDefinition.Builder()
 			.name("substring")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// VARCHAR REPLACE(str1, str2, str3), 在str1中使用str3替换str2
 	public static final BuiltInFunctionDefinition REPLACE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("replace")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition TRIM =
 		new BuiltInFunctionDefinition.Builder()
 			.name("trim")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition UPPER =
 		new BuiltInFunctionDefinition.Builder()
 			.name("upperCase")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 返回要查询的字符串在被查询字符串里第一次出现的位置
 	public static final BuiltInFunctionDefinition POSITION =
 		new BuiltInFunctionDefinition.Builder()
 			.name("position")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 用y替换x的子串。下标从start_position开始，替换length+1个字符
 	public static final BuiltInFunctionDefinition OVERLAY =
 		new BuiltInFunctionDefinition.Builder()
 			.name("overlay")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 连接两个或多个字符串值从而组成一个新的字符串。任一参数为NULL，跳过该参数
 	public static final BuiltInFunctionDefinition CONCAT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("concat")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// VARCHAR CONCAT_WS(VARCHAR separator, VARCHAR var1, VARCHAR var2, ...)
 	// 将每个参数值和第一个参数separator指定的分隔符依次连接到一起组成新的字符串,长度和类型取决于输入值。
@@ -275,6 +318,7 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("concat_ws")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// VARCHAR LPAD(VARCHAR str, INT len, VARCHAR pad)
 	// 字符串str左端填充若干个字符串pad, 直到新的字符串达到指定长度len为止。
@@ -285,12 +329,14 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("lpad")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 功能同 "lpad"
 	public static final BuiltInFunctionDefinition RPAD =
 		new BuiltInFunctionDefinition.Builder()
 			.name("rpad")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// VARCHAR REGEXP_EXTRACT(VARCHAR str, VARCHAR pattern, INT index)
 	// 使用正则模式pattern匹配抽取字符串str中的第index个子串，index从1开始，正则匹配提取。参数为null或者正则不合法返回null
@@ -298,41 +344,49 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("regexpExtract")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition FROM_BASE64 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("fromBase64")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition TO_BASE64 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("toBase64")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition UUID =
 		new BuiltInFunctionDefinition.Builder()
 			.name("uuid")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LTRIM =
 		new BuiltInFunctionDefinition.Builder()
 			.name("ltrim")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition RTRIM =
 		new BuiltInFunctionDefinition.Builder()
 			.name("rtrim")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition REPEAT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("repeat")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition REGEXP_REPLACE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("regexpReplace")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// math functions
@@ -340,194 +394,232 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("plus")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition MINUS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("minus")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition DIVIDE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("divide")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 乘
 	public static final BuiltInFunctionDefinition TIMES =
 		new BuiltInFunctionDefinition.Builder()
 			.name("times")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ABS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("abs")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition CEIL =
 		new BuiltInFunctionDefinition.Builder()
 			.name("ceil")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 返回自然常数e的A次幂的DOUBLE类型数值
 	public static final BuiltInFunctionDefinition EXP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("exp")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition FLOOR =
 		new BuiltInFunctionDefinition.Builder()
 			.name("floor")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LOG10 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("log10")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LOG2 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("log2")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("ln")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LOG =
 		new BuiltInFunctionDefinition.Builder()
 			.name("log")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition POWER =
 		new BuiltInFunctionDefinition.Builder()
 			.name("power")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition MOD =
 		new BuiltInFunctionDefinition.Builder()
 			.name("mod")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SQRT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sqrt")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition MINUS_PREFIX =
 		new BuiltInFunctionDefinition.Builder()
 			.name("minusPrefix")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SIN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sin")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition COS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("cos")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SINH =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sinh")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition TAN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("tan")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition TANH =
 		new BuiltInFunctionDefinition.Builder()
 			.name("tanh")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition COT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("cot")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ASIN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("asin")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ACOS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("acos")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ATAN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("atan")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ATAN2 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("atan2")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition COSH =
 		new BuiltInFunctionDefinition.Builder()
 			.name("cosh")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition DEGREES =
 		new BuiltInFunctionDefinition.Builder()
 			.name("degrees")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition RADIANS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("radians")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SIGN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sign")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	// 把数值x字段舍入为指定的小数n位数
 	public static final BuiltInFunctionDefinition ROUND =
 		new BuiltInFunctionDefinition.Builder()
 			.name("round")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition PI =
 		new BuiltInFunctionDefinition.Builder()
 			.name("pi")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition E =
 		new BuiltInFunctionDefinition.Builder()
 			.name("e")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition RAND =
 		new BuiltInFunctionDefinition.Builder()
 			.name("rand")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition RAND_INTEGER =
 		new BuiltInFunctionDefinition.Builder()
 			.name("randInteger")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition BIN =
 		new BuiltInFunctionDefinition.Builder()
 			.name("bin")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition HEX =
 		new BuiltInFunctionDefinition.Builder()
 			.name("hex")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition TRUNCATE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("truncate")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// time functions
@@ -535,51 +627,61 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("extract")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition CURRENT_DATE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("currentDate")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition CURRENT_TIME =
 		new BuiltInFunctionDefinition.Builder()
 			.name("currentTime")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition CURRENT_TIMESTAMP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("currentTimestamp")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LOCAL_TIME =
 		new BuiltInFunctionDefinition.Builder()
 			.name("localTime")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition LOCAL_TIMESTAMP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("localTimestamp")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition TEMPORAL_OVERLAPS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("temporalOverlaps")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition DATE_TIME_PLUS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("dateTimePlus")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition DATE_FORMAT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("dateFormat")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition TIMESTAMP_DIFF =
 		new BuiltInFunctionDefinition.Builder()
 			.name("timestampDiff")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// collection
@@ -587,31 +689,37 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("at")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition CARDINALITY =
 		new BuiltInFunctionDefinition.Builder()
 			.name("cardinality")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ARRAY =
 		new BuiltInFunctionDefinition.Builder()
 			.name("array")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ARRAY_ELEMENT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("element")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition MAP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("map")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ROW =
 		new BuiltInFunctionDefinition.Builder()
 			.name("row")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// composite
@@ -619,11 +727,13 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("flatten")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition GET =
 		new BuiltInFunctionDefinition.Builder()
 			.name("get")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// window properties
@@ -631,11 +741,13 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("start")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition WINDOW_END =
 		new BuiltInFunctionDefinition.Builder()
 			.name("end")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// ordering
@@ -643,11 +755,13 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("asc")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ORDER_DESC =
 		new BuiltInFunctionDefinition.Builder()
 			.name("desc")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// crypto hash
@@ -655,36 +769,43 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("md5")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SHA1 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sha1")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SHA224 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sha224")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SHA256 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sha256")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SHA384 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sha384")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SHA512 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sha512")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition SHA2 =
 		new BuiltInFunctionDefinition.Builder()
 			.name("sha2")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// time attributes
@@ -692,11 +813,13 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("proctime")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition ROWTIME =
 		new BuiltInFunctionDefinition.Builder()
 			.name("rowtime")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// over window
@@ -704,26 +827,31 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("over")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition UNBOUNDED_RANGE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("unboundedRange")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition UNBOUNDED_ROW =
 		new BuiltInFunctionDefinition.Builder()
 			.name("unboundedRow")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition CURRENT_RANGE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("currentRange")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition CURRENT_ROW =
 		new BuiltInFunctionDefinition.Builder()
 			.name("currentRow")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// columns
@@ -731,11 +859,13 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("withColumns")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition WITHOUT_COLUMNS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("withoutColumns")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	// etc
@@ -743,31 +873,37 @@ public final class BuiltInFunctionDefinitions {
 		new BuiltInFunctionDefinition.Builder()
 			.name("in")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition CAST =
 		new BuiltInFunctionDefinition.Builder()
 			.name("cast")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition REINTERPRET_CAST =
 			new BuiltInFunctionDefinition.Builder()
 			.name("reinterpretCast")
 			.kind(SCALAR)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition AS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("as")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition STREAM_RECORD_TIMESTAMP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("streamRecordTimestamp")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 	public static final BuiltInFunctionDefinition RANGE_TO =
 		new BuiltInFunctionDefinition.Builder()
 			.name("rangeTo")
 			.kind(OTHER)
+			.outputTypeStrategy(TypeStrategies.MISSING)
 			.build();
 
 	public static final Set<FunctionDefinition> WINDOW_PROPERTIES = new HashSet<>(Arrays.asList(

@@ -16,29 +16,22 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.sources;
+package org.apache.flink.table.types.inference;
 
-import javax.annotation.Nullable;
+import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.table.types.DataType;
 
 import java.util.List;
 
 /**
- * The {@link DefinedPrimaryKey} interface can extends a {@link TableSource} to specify the
- * primary key meta information.
- *
- * <p>A primary key is a column or a group of columns that uniquely identifies each row in
- * a table or stream.
- *
- * <p>NOTE: Although a primary key usually has an Unique Index, if you have defined
- * a primary key, there is no need to define a same index in {@link DefinedIndexes} again.
+ * Provides details about the function call for {@link InputTypeValidator} and {@link TypeStrategy}.
  */
-public interface DefinedPrimaryKey {
+@PublicEvolving
+public interface CallContext extends CallContextBase {
 
 	/**
-	 * Returns the column names of the primary key. Returns null if no primary key existed
-	 * in the {@link TableSource}.
+	 * Returns a resolved list of the call's argument types. It also includes a type for every argument
+	 * in a vararg function call.
 	 */
-	@Nullable
-	List<String> getPrimaryKeyColumns();
-
+	List<DataType> getArgumentDataTypes();
 }
