@@ -19,6 +19,7 @@
 package org.apache.flink.table.catalog.config;
 
 /**
+ * 目录和目录元对象配置
  * Config for catalog and catalog meta-objects.
  */
 public class CatalogConfig {

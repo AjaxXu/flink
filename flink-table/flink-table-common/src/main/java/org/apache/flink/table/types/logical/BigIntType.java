@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 8字节有符号整数的LogicalType
  * Logical type of an 8-byte signed integer with values from -9,223,372,036,854,775,808 to
  * 9,223,372,036,854,775,807.
  *

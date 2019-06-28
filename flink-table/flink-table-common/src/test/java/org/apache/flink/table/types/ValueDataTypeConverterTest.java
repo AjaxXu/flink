@@ -160,6 +160,10 @@ public class ValueDataTypeConverterTest {
 
 	@Test
 	public void testClassToDataTypeConversion() {
+		if (value instanceof LocalTime) {
+			System.out.println(String.format("%09d", ((LocalTime) value).getNano()));
+			System.out.println(String.format("%09d", ((LocalTime) value).getNano()).replaceAll("0+$", "").length());
+		}
 		assertEquals(
 			Optional.ofNullable(dataType).map(DataType::notNull),
 			ValueDataTypeConverter.extractDataType(value));

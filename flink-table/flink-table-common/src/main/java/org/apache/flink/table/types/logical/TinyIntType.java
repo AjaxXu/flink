@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 1字节有符号整数的LogicalType
  * Logical type of a 1-byte signed integer with values from -128 to 127.
  *
  * <p>The serialized string representation is {@code TINYINT}.

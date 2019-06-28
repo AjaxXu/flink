@@ -21,6 +21,7 @@ package org.apache.flink.table.types.logical;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * 内部时间戳类型，用于将时间属性元数据附加到带或不带时区的时间戳
  * Internal timestamp kind for attaching time attribute metadata to timestamps with or without a
  * time zone.
  */
@@ -29,7 +30,7 @@ public enum TimestampKind {
 
 	REGULAR,
 
-	ROWTIME,
+	ROWTIME, // EventTime
 
-	PROCTIME
+	PROCTIME // ProcessingTime
 }

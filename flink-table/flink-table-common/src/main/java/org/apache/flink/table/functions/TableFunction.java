@@ -26,6 +26,7 @@ import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.util.Collector;
 
 /**
+ * 用户自定义的表函数的基类
  * Base class for a user-defined table function (UDTF). A user-defined table functions works on
  * zero, one, or multiple scalar values as input and returns multiple rows as output.
  *

@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 拥有本地时区的时间戳LogicalType
  * Logical type of a timestamp WITH LOCAL time zone consisting of {@code year-month-day hour:minute:second[.fractional] zone}
  * with up to nanosecond precision and values ranging from {@code 0000-01-01 00:00:00.000000000 +14:59} to
  * {@code 9999-12-31 23:59:59.999999999 -14:59}. Leap seconds (23:59:60 and 23:59:61) are not

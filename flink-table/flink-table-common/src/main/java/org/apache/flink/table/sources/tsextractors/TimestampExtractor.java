@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 提供表达式以提取rowtime属性的时间戳
  * Provides an expression to extract the timestamp for a rowtime attribute.
  */
 @PublicEvolving

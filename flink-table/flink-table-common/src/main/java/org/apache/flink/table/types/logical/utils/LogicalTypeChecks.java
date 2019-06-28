@@ -36,6 +36,7 @@ import org.apache.flink.table.types.logical.YearMonthIntervalType;
 import org.apache.flink.table.types.logical.ZonedTimestampType;
 
 /**
+ * 用于检查{@link LogicalType}并避免大量类型转换和重复工作的实用程序
  * Utilities for checking {@link LogicalType} and avoiding a lot of type casting and repetitive work.
  */
 @Internal
@@ -130,6 +131,7 @@ public final class LogicalTypeChecks {
 	// --------------------------------------------------------------------------------------------
 
 	/**
+	 * 提取定义该属性的逻辑类型的属性
 	 * Extracts an attribute of logical types that define that attribute.
 	 */
 	private static class Extractor<T> extends LogicalTypeDefaultVisitor<T> {

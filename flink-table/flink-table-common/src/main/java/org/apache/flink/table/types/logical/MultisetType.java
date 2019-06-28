@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * multiset（= bag）的逻辑类型。 与集合不同，它允许每个元素具有公共子类型的多个实例。
  * Logical type of a multiset (=bag). Unlike a set, it allows for multiple instances for each of its
  * elements with a common subtype. Each unique value (including {@code NULL}) is mapped to some
  * multiplicity. There is no restriction of element types; it is the responsibility of the user to

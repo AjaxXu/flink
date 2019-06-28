@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * {@link TableFormatFactory}的基类
  * Base class for {@link TableFormatFactory}s.
  *
  * @param <T> record type that the format produces or consumes.
@@ -126,6 +127,7 @@ public abstract class TableFormatFactoryBase<T> implements TableFormatFactory<T>
 	// --------------------------------------------------------------------------------------------
 
 	/**
+	 * 查找可用于格式架构的表架构（没有时间属性）
 	 * Finds the table schema that can be used for a format schema (without time attributes).
 	 */
 	public static TableSchema deriveSchema(Map<String, String> properties) {
@@ -152,6 +154,7 @@ public abstract class TableFormatFactoryBase<T> implements TableFormatFactory<T>
 				builder.field(aliasName, fieldType);
 			}
 			// only use the rowtime attribute if it references a field
+			// 只在关联一个字段时使用rowtime属性
 			else if (isRowtime &&
 					descriptorProperties.isValue(timestampKey, ROWTIME_TIMESTAMPS_TYPE_VALUE_FROM_FIELD)) {
 				final String aliasName = descriptorProperties

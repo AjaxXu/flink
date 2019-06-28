@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 2字节有符号整数的LogicalType
  * Logical type of a 2-byte signed integer with values from -32,768 to 32,767.
  *
  * <p>The serialized string representation is {@code SMALLINT}.

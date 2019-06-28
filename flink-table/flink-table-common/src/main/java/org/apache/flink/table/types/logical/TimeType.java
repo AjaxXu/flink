@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 没有时区的时间的LogicalType
  * Logical type of a time WITHOUT time zone consisting of {@code hour:minute:second[.fractional]} with
  * up to nanosecond precision and values ranging from {@code 00:00:00.000000000} to
  * {@code 23:59:59.999999999}. Compared to the SQL standard, leap seconds (23:59:60 and 23:59:61) are

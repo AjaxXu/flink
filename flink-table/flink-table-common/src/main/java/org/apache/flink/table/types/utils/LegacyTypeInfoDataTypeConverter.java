@@ -55,6 +55,7 @@ import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRo
 import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.isRowtimeAttribute;
 
 /**
+ * {@link TypeInformation}和{@link DataType}之间的转换器
  * Converter between {@link TypeInformation} and {@link DataType} that reflects the behavior before
  * Flink 1.9. The conversion is a 1:1 mapping that allows back-and-forth conversion. Note that nullability
  * constraints might get lost during the back-and-forth conversion.
@@ -253,6 +254,7 @@ public final class LegacyTypeInfoDataTypeConverter {
 
 	private static DataType convertToRowType(RowTypeInfo rowTypeInfo) {
 		final String[] fieldNames = rowTypeInfo.getFieldNames();
+		// RowTypeInfo没有直接返回Field type的接口
 		final DataTypes.Field[] fields = IntStream.range(0, rowTypeInfo.getArity())
 			.mapToObj(i -> {
 				DataType fieldType = toDataType(rowTypeInfo.getTypeAt(i));

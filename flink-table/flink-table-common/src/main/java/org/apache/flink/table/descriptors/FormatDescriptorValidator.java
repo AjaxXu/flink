@@ -21,6 +21,7 @@ package org.apache.flink.table.descriptors;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * {@link FormatDescriptor}的验证器
  * Validator for {@link FormatDescriptor}.
  */
 @Internal

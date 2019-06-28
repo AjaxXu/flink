@@ -21,6 +21,7 @@ package org.apache.flink.table.expressions;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * 用于处理时间点的单位
  * Units for working with points in time.
  */
 @PublicEvolving

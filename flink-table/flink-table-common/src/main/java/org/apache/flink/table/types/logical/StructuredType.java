@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * 用户自定义的结构化的LogicalType。可以想象成一个类，该类有父类、子类及成员变量
  * Logical type of a user-defined object structured type. Structured types contain one or more
  * attributes. Each attribute consists of a name and a type. A type cannot be defined so that one of
  * its attribute types (transitively) uses itself.
@@ -64,6 +65,7 @@ public final class StructuredType extends UserDefinedType {
 	private static final Class<?> FALLBACK_CONVERSION = Row.class;
 
 	/**
+	 * {@link StructuredType}的属性定义
 	 * Defines an attribute of a {@link StructuredType}.
 	 */
 	public static final class StructuredAttribute implements Serializable {
@@ -218,7 +220,7 @@ public final class StructuredType extends UserDefinedType {
 
 	private final StructuredComparision comparision;
 
-	private final @Nullable StructuredType superType;
+	private final @Nullable StructuredType superType; // 可以想象成父类
 
 	private final @Nullable Class<?> implementationClass;
 
@@ -280,12 +282,20 @@ public final class StructuredType extends UserDefinedType {
 			implementationClass);
 	}
 
+	/**
+	 * clazz能不能转化为该StructuredType，比如父类不能转化为子类，但子类可以转化为父类
+	 * @param clazz input class to be converted into this logical type
+	 */
 	@Override
 	public boolean supportsInputConversion(Class<?> clazz) {
 		return (implementationClass != null && implementationClass.isAssignableFrom(clazz)) ||
 			INPUT_OUTPUT_CONVERSION.contains(clazz.getName());
 	}
 
+	/**
+	 * 该StructuredType能不能转化为clazz
+	 * @param clazz output class to be converted from this logical type
+	 */
 	@Override
 	public boolean supportsOutputConversion(Class<?> clazz) {
 		StructuredType currentType = this;

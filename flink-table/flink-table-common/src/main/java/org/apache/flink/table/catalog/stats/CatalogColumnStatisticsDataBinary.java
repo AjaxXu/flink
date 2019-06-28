@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 二进制类型的列统计值
  * Column statistics value of binary type.
  */
 public class CatalogColumnStatisticsDataBinary extends CatalogColumnStatisticsDataBase {

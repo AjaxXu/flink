@@ -39,6 +39,7 @@ import static org.apache.flink.table.utils.EncodingUtils.escapeIdentifier;
 import static org.apache.flink.table.utils.EncodingUtils.escapeSingleQuotes;
 
 /**
+ * 域的序列的LogicalType
  * Logical type of a sequence of fields. A field consists of a field name, field type, and an optional
  * description. The most specific type of a row of a table is a row type. In this case, each column
  * of the row corresponds to the field of the row type that has the same ordinal position as the

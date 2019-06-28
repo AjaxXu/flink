@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * {@link LogicalType}和{@link DataType}之间的转换器
  * A converter between {@link LogicalType} and {@link DataType}.
  */
 public final class LogicalTypeDataTypeConverter {

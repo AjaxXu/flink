@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 列统计值基类
  * Column statistics value base class.
  */
 public abstract class CatalogColumnStatisticsDataBase {

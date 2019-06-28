@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 列统计
  * Column statistics.
  */
 @PublicEvolving

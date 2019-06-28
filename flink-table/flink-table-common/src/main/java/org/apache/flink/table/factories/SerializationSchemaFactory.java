@@ -24,6 +24,7 @@ import org.apache.flink.api.common.serialization.SerializationSchema;
 import java.util.Map;
 
 /**
+ * 创建{@link SerializationSchema}实例的工厂
  * Factory for creating configured instances of {@link SerializationSchema}.
  *
  * @param <T> record type that the format produces or consumes.

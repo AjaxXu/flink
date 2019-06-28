@@ -24,6 +24,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * 用户自定义的异步表函数
  * Base class for a user-defined asynchronously table function (UDTF). This is similar to
  * {@link TableFunction} but this function is asynchronously.
  *

@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
+ * {@link DefinedFieldMapping}提供了schema中字段名到返回类型字段名的映射
  * The {@link DefinedFieldMapping} interface provides a mapping for the fields of the table schema
  * ({@link TableSource#getTableSchema} to fields of the physical produced data type
  * {@link TableSource#getProducedDataType()} of a {@link TableSource}.

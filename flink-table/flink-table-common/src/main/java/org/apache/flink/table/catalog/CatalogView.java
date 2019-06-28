@@ -19,6 +19,7 @@
 package org.apache.flink.table.catalog;
 
 /**
+ * 代表catalog中的视图
  * Represents a view in a catalog.
  */
 public interface CatalogView extends CatalogBaseTable {

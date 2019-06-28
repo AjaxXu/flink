@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * long类型的列统计值
  * Column statistics value of long type.
  */
 public class CatalogColumnStatisticsDataLong extends CatalogColumnStatisticsDataBase {

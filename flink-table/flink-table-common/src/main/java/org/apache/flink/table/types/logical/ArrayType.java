@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 拥有相同子类型的数组LogicalType
  * Logical type of an array of elements with same subtype. Compared to the SQL standard, the maximum
  * cardinality of an array cannot be specified but is fixed at {@link Integer#MAX_VALUE}. Also, any
  * valid type is supported as a subtype.

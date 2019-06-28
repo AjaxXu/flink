@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * catalog中代表function的接口
  * Interface for a function in a catalog.
  */
 public interface CatalogFunction {

@@ -41,6 +41,7 @@ import static org.apache.flink.table.descriptors.StatisticsValidator.STATISTICS_
 import static org.apache.flink.table.descriptors.StatisticsValidator.normalizeColumnStats;
 
 /**
+ * 用于描述表统计信息的统计描述符
  * Statistics descriptor for describing table stats.
  */
 @PublicEvolving

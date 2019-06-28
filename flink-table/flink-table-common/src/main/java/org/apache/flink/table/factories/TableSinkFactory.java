@@ -25,6 +25,7 @@ import org.apache.flink.table.sinks.TableSink;
 import java.util.Map;
 
 /**
+ * 创建一个Table Sink实例的工厂
  * A factory to create configured table sink instances in a batch or stream environment based on
  * string-based properties. See also {@link TableFactory} for more information.
  *

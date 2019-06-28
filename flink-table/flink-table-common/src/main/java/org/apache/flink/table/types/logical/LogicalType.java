@@ -110,6 +110,7 @@ public abstract class LogicalType implements Serializable {
 	}
 
 	/**
+	 * 判断给定类能不能转化为该logicalType，比如Long或者long能转化为BigInt
 	 * Returns whether an instance of the given class can be represented as a value of this logical
 	 * type when entering the table ecosystem. This method helps for the interoperability between
 	 * JVM-based languages and the relational type system.
@@ -128,6 +129,7 @@ public abstract class LogicalType implements Serializable {
 	public abstract boolean supportsInputConversion(Class<?> clazz);
 
 	/**
+	 * 判断该LogicalType能不能转化为给定的类
 	 * Returns whether a value of this logical type can be represented as an instance of the given
 	 * class when leaving the table ecosystem. This method helps for the interoperability between
 	 * JVM-based languages and the relational type system.

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * double类型的列统计值
  * Column statistics value of double type.
  */
 public class CatalogColumnStatisticsDataDouble extends CatalogColumnStatisticsDataBase {

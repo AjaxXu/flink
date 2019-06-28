@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 非分区表或分区表的分区的统计信息
  * Statistics for a non-partitioned table or a partition of a partitioned table.
  */
 public class CatalogTableStatistics {

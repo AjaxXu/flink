@@ -23,6 +23,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.util.Map;
 
 /**
+ * 数据格式化的描述
  * Describes the format of data.
  */
 @PublicEvolving

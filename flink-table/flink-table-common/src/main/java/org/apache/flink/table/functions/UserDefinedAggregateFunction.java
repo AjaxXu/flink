@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 
 /**
+ * 用户定义的聚合和表聚合函数的基类
  * Base class for user-defined aggregates and table aggregates.
  */
 @PublicEvolving
@@ -32,7 +33,7 @@ public abstract class UserDefinedAggregateFunction<T, ACC> extends UserDefinedFu
 	 * accumulator is used to keep the aggregated values which are needed to compute an aggregation
 	 * result.
 	 *
-	 * @return the accumulator with the initial value
+	 * @return the accumulator with the initial value 返回有初始值的累加器
 	 */
 	public abstract ACC createAccumulator();
 

@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 固定精度和进制数的小数的LogicalType
  * Logical type of a decimal number with fixed precision and scale.
  *
  * <p>The serialized string representation is {@code DECIMAL(p, s)} where {@code p} is the number of

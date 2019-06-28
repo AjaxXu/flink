@@ -25,6 +25,7 @@ import java.util.Objects;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
+ * 一个"数据库名"和"对象"(table/view/function)名的组合
  * A database name and object (table/view/function) name combo in a catalog.
  */
 public class ObjectPath {

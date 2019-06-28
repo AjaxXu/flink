@@ -30,6 +30,7 @@ import java.lang.reflect.Array;
 import java.util.Objects;
 
 /**
+ * 包含元素类型的数据类型
  * A data type that contains an element type (e.g. {@code ARRAY} or {@code MULTISET}).
  *
  * @see DataTypes for a list of supported data types

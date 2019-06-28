@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 可变长度二进制字符串的逻辑类型（=字节序列）
  * Logical type of a variable-length binary string (=a sequence of bytes).
  *
  * <p>The serialized string representation is {@code VARBINARY(n)} where {@code n} is the maximum

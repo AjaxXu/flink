@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * 常量字面值的表达式
  * Expression for constant literal values.
  *
  * <p>By design, this class can take any value described by a {@link DataType}. However, it is

@@ -19,6 +19,7 @@
 package org.apache.flink.table.catalog.stats;
 
 /**
+ * 表示统计信息中的日期值的类
  * Class representing a date value in statistics.
  */
 public class Date {

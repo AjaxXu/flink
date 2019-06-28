@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 4字节整数的LogicalType
  * Logical type of a 4-byte signed integer with values from -2,147,483,648 to 2,147,483,647.
  *
  * <p>The serialized string representation is {@code INT}.

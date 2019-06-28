@@ -26,10 +26,12 @@ import java.util.Objects;
 import static org.apache.flink.table.utils.EncodingUtils.escapeIdentifier;
 
 /**
+ * 在catalog中辨别一个对象
  * Identifies an object in a catalog. It allows to identify objects such as tables, views, function,
  * or types in a catalog. An identifier must be fully qualified. It is the responsibility of the
  * catalog manager to resolve an identifier to an object.
  *
+ * 虽然{@link ObjectPath}在同一目录中使用，但此类的实例可以跨目录使用。
  * <p>While {@link ObjectPath} is used within the same catalog, instances of this class can be used
  * across catalogs.
  *

@@ -21,8 +21,10 @@ package org.apache.flink.table.expressions;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * {@link Expression}的访问者定义
  * The visitor definition of {@link Expression}.
  *
+ * 表达式visitor将表达式转换为{@code R}的实例
  * <p>An expression visitor transforms an expression to instances of {@code R}.
  *
  * <p>Please note that only {@link ResolvedExpression}s are listed here. Pure API expression are handled

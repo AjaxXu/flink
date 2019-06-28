@@ -21,6 +21,7 @@ package org.apache.flink.table.sources;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * {@link TableSource}支持投影下推
  * Adds support for projection push-down to a {@link TableSource}.
  *
  * <p>A {@link TableSource} extending this interface is able to project the fields of the returned

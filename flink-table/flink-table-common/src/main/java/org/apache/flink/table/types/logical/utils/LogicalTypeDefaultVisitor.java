@@ -51,6 +51,7 @@ import org.apache.flink.table.types.logical.YearMonthIntervalType;
 import org.apache.flink.table.types.logical.ZonedTimestampType;
 
 /**
+ * 实现{@link LogicalTypeVisitor}，将所有调用重定向到{@link LogicalTypeDefaultVisitor＃defaultMethod（LogicalType）}
  * Implementation of {@link LogicalTypeVisitor} that redirects all calls to
  * {@link LogicalTypeDefaultVisitor#defaultMethod(LogicalType)}.
  */

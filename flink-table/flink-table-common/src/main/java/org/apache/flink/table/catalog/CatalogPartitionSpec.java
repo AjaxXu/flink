@@ -25,6 +25,7 @@ import java.util.Objects;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 目录中代表分区规则的对象
  * Represents a partition spec object in catalog.
  * Partition columns and values are NOT of strict order, and they need to be re-arranged to the correct order
  * by comparing with a list of strictly ordered partition keys.

@@ -23,6 +23,7 @@ import org.apache.flink.table.expressions.Expression;
 import java.util.List;
 
 /**
+ * 在{@link TableSource}中添加过滤下推
  * Adds support for filtering push-down to a {@link TableSource}.
  * A {@link TableSource} extending this interface is able to filter records before returning.
  */

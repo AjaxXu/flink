@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 用户自定义聚合函数的函数定义
  * The function definition of an user-defined aggregate function.
  *
  * <p>This class can be dropped once we introduce a new type inference.

@@ -25,6 +25,7 @@ import org.apache.flink.table.sources.TableSource;
 import java.util.Map;
 
 /**
+ * 创建一个Table Source 实例的工厂
  * A factory to create configured table source instances in a batch or stream environment based on
  * string-based properties. See also {@link TableFactory} for more information.
  *

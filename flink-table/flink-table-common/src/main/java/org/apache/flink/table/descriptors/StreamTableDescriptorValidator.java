@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * {@code StreamTableDescriptor}的验证器
  * Validator for {@code StreamTableDescriptor}.
  */
 @Internal

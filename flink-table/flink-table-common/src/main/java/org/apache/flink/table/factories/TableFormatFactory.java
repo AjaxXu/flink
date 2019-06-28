@@ -23,6 +23,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.util.List;
 
 /**
+ * 根据字符串的属性创建已配置的表格式实例的工厂
  * A factory to create configured table format instances based on string-based properties. See
  * also {@link TableFactory} for more information.
  *

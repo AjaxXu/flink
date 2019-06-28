@@ -22,6 +22,7 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.util.Preconditions;
 
 /**
+ * 内置的函数定义
  * Definition of a built-in function. It enables unique identification across different
  * modules by reference equality.
  *

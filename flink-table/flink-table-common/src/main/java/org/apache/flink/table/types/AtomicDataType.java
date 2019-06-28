@@ -26,6 +26,7 @@ import org.apache.flink.util.Preconditions;
 import javax.annotation.Nullable;
 
 /**
+ * 不包含其他数据类型的数据类型
  * A data type that does not contain further data types (e.g. {@code INT} or {@code BOOLEAN}).
  *
  * @see DataTypes for a list of supported data types

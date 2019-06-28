@@ -28,6 +28,7 @@ import org.apache.flink.table.types.DataType;
 import static org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoToDataType;
 
 /**
+ * {@link TableSink}指明如何发出table到外部系统或地址
  * A {@link TableSink} specifies how to emit a table to an external
  * system or location.
  *
@@ -39,6 +40,7 @@ import static org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoT
 public interface TableSink<T> {
 
 	/**
+	 * 返回该Sink要消费的类型
 	 * Returns the data type consumed by this {@link TableSink}.
 	 *
 	 * @return The data type expected by this {@link TableSink}.
@@ -94,6 +96,7 @@ public interface TableSink<T> {
 	}
 
 	/**
+	 * 根据配置的字段名和类型返回{@link TableSink}的备份
 	 * Returns a copy of this {@link TableSink} configured with the field names and types of the
 	 * table to emit.
 	 *

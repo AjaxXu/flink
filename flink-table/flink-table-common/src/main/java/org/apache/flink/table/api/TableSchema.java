@@ -43,6 +43,7 @@ import static org.apache.flink.table.types.utils.TypeConversions.fromDataTypeToL
 import static org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoToDataType;
 
 /**
+ * TableSchema代表table的包括名字和数据类型的结构
  * A table schema that represents a table's structure with field names and data types.
  */
 @PublicEvolving

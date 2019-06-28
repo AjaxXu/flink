@@ -30,6 +30,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
+ * 在table生态中描述value的数据类型
  * Describes the data type of a value in the table ecosystem. Instances of this class can be used to
  * declare input and/or output types of operations.
  *
@@ -54,7 +55,7 @@ public abstract class DataType implements Serializable {
 
 	protected final LogicalType logicalType;
 
-	protected final Class<?> conversionClass;
+	protected final Class<?> conversionClass; // 转换类
 
 	DataType(LogicalType logicalType, @Nullable Class<?> conversionClass) {
 		this.logicalType = Preconditions.checkNotNull(logicalType, "Logical type must not be null.");
@@ -85,6 +86,7 @@ public abstract class DataType implements Serializable {
 	}
 
 	/**
+	 * 添加一个提示，指出此类型的数据中不需要空值
 	 * Adds a hint that null values are not expected in the data for this type.
 	 *
 	 * @return a new, reconfigured data type instance
@@ -92,6 +94,7 @@ public abstract class DataType implements Serializable {
 	public abstract DataType notNull();
 
 	/**
+	 * 添加一个提示，指出此类型的数据中存在空值（默认行为）
 	 * Adds a hint that null values are expected in the data for this type (default behavior).
 	 *
 	 * <p>This method exists for explicit declaration of the default behavior or for invalidation of
@@ -102,6 +105,7 @@ public abstract class DataType implements Serializable {
 	public abstract DataType nullable();
 
 	/**
+	 * 添加一个提示，即在进入或离开表生态系统时，应使用给定的类表示数据。返回一个新的、重新配置的数据类型实例
 	 * Adds a hint that data should be represented using the given class when entering or leaving
 	 * the table ecosystem.
 	 *
@@ -143,6 +147,7 @@ public abstract class DataType implements Serializable {
 	// --------------------------------------------------------------------------------------------
 
 	/**
+	 * 此方法应捕获最常见的错误。 但是，在更深层中需要进行另一次验证，因为我们不知道数据类型是用于输入还是输出声明
 	 * This method should catch the most common errors. However, another validation is required in
 	 * deeper layers as we don't know whether the data type is used for input or output declaration.
 	 */

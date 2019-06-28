@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 固定长度的二进制字符串LogicalType
  * Logical type of a fixed-length binary string (=a sequence of bytes).
  *
  * <p>The serialized string representation is {@code BINARY(n)} where {@code n} is the number of
@@ -87,6 +88,7 @@ public final class BinaryType extends LogicalType {
 	}
 
 	/**
+	 * SQL标准允许定义0长度的字符串
 	 * The SQL standard defines that character string literals are allowed to be zero-length strings
 	 * (i.e., to contain no characters) even though it is not permitted to declare a type that is zero.
 	 * For consistent behavior, the same logic applies to binary strings.

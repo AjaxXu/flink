@@ -23,6 +23,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.util.Map;
 
 /**
+ * 描述DDL信息的接口
  * Interface that adds a set of string-based, normalized properties for describing DDL information.
  *
  * <p>Typical characteristics of a descriptor are:

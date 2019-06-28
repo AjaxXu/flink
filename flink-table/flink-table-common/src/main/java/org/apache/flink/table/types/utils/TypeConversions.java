@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
+ * 转换中心，用于{@link Class}，{@link TypeInformation}，{@link DataType}和{@link LogicalType}的互操作性
  * Conversion hub for interoperability of {@link Class}, {@link TypeInformation}, {@link DataType},
  * and {@link LogicalType}.
  *
@@ -75,7 +76,7 @@ public final class TypeConversions {
 
 	public static LogicalType[] fromDataToLogicalType(DataType[] dataTypes) {
 		return Stream.of(dataTypes)
-			.map(TypeConversions::fromDataToLogicalType)
+			.map(DataType::getLogicalType)
 			.toArray(LogicalType[]::new);
 	}
 

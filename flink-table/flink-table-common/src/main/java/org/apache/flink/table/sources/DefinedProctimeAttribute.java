@@ -25,6 +25,7 @@ import org.apache.flink.table.api.TableSchema;
 import javax.annotation.Nullable;
 
 /**
+ * 扩展{@link TableSource}指定processing time属性
  * Extends a {@link TableSource} to specify a processing time attribute.
  */
 @PublicEvolving

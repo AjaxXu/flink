@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 用户自定义的distinct类型的LogicalType
  * Logical type of a user-defined distinct type. A distinct type specifies an identifier and is backed
  * by a source type. A distinct type has the same internal representation as a source type, but is
  * considered to be a separate and incompatible data type for most operations. Compared to the SQL

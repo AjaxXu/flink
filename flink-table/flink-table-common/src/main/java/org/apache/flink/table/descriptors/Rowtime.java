@@ -26,6 +26,7 @@ import org.apache.flink.table.sources.wmstrategies.WatermarkStrategy;
 import java.util.Map;
 
 /**
+ * 用于描述模式中的eventTime属性的Rowtime描述符
  * Rowtime descriptor for describing an event time attribute in the schema.
  */
 @PublicEvolving
@@ -57,7 +58,7 @@ public class Rowtime implements Descriptor {
 	 * Sets a built-in timestamp extractor that converts an existing {@link Long} or
 	 * {@link Types#SQL_TIMESTAMP} field into the rowtime attribute.
 	 *
-	 * @param fieldName The field to convert into a rowtime attribute.
+	 * @param fieldName The field to convert into a rowtime attribute. 要转换为rowtime属性的字段
 	 */
 	public Rowtime timestampsFromField(String fieldName) {
 		internalProperties.putString(ROWTIME_TIMESTAMPS_TYPE, ROWTIME_TIMESTAMPS_TYPE_VALUE_FROM_FIELD);

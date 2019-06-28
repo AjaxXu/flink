@@ -24,6 +24,7 @@ import org.apache.flink.table.utils.EncodingUtils;
 import java.io.Serializable;
 
 /**
+ * 所有用户定义的函数的基类
  * Base class for all user-defined functions.
  *
  * <p>User-defined functions combine the logical definition of a function for validation and planning

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 描述表的模式
  * Describes a schema of a table.
  *
  * <p>Note: Field names are matched by the exact name by default (case sensitive).

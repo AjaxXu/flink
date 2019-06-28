@@ -24,12 +24,14 @@ import java.util.Map;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 表或分区的列统计信息
  * Column statistics of a table or partition.
  */
 public class CatalogColumnStatistics {
 	public static final CatalogColumnStatistics UNKNOWN = new CatalogColumnStatistics(new HashMap<>());
 
 	/**
+	 * 列名到列统计数据的映射
 	 * A map of column name and column statistic data.
 	 */
 	private final Map<String, CatalogColumnStatisticsDataBase> columnStatisticsData;

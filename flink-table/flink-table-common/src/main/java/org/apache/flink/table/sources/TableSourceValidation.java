@@ -41,6 +41,7 @@ import java.util.Optional;
 import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasFamily;
 
 /**
+ * TableSource的验证器
  * Logic to validate {@link TableSource} types.
  */
 @Internal
@@ -63,11 +64,17 @@ public class TableSourceValidation {
 		List<RowtimeAttributeDescriptor> rowtimeAttributes = getRowtimeAttributes(tableSource);
 		Optional<String> proctimeAttribute = getProctimeAttribute(tableSource);
 
+		// 验证rowtime只有一个
 		validateSingleRowtimeAttribute(rowtimeAttributes);
+		// 验证rowtime属性在schema中
 		validateRowtimeAttributesExistInSchema(rowtimeAttributes, schema);
+		// 验证proctime属性在schema中
 		validateProctimeAttributesExistInSchema(proctimeAttribute, schema);
+		// 验证逻辑类型和实际类型是否一致
 		validateLogicalToPhysicalMapping(tableSource, schema, rowtimeAttributes, proctimeAttribute);
+		// 验证时间戳提取器的参数类型是否和TableSource中返回(提取器需要的几个字段)类型一致
 		validateTimestampExtractorArguments(rowtimeAttributes, tableSource);
+		// 验证rowtime和proctime没有重复
 		validateNotOverlapping(rowtimeAttributes, proctimeAttribute);
 	}
 
@@ -185,9 +192,9 @@ public class TableSourceValidation {
 				"Type %s of table field '%s' does not " +
 					"match with type '%s; of the field '%s' of the TableSource return type.",
 				logicalType,
-				resolvedField.getType(),
 				fieldName,
-				resolvedField.getType()));
+				resolvedField.getType(),
+				resolvedField.getName()));
 		}
 	}
 
@@ -197,12 +204,14 @@ public class TableSourceValidation {
 		if (descriptors.size() == 1) {
 			RowtimeAttributeDescriptor descriptor = descriptors.get(0);
 			// look up extractor input fields in return type
+			// 在TableSource返回类型中查找时间戳提取器对应的输入字段
 			String[] extractorInputFields = descriptor.getTimestampExtractor().getArgumentFields();
 			TypeInformation[] physicalTypes = Arrays.stream(extractorInputFields)
 				.map(fieldName -> resolveField(fieldName, tableSource))
 				.map(resolvedField -> TypeConversions.fromDataTypeToLegacyInfo(resolvedField.getType()))
 				.toArray(TypeInformation[]::new);
 			// validate timestamp extractor
+			// 验证timestamp提取器的参数类型
 			descriptor.getTimestampExtractor().validateArgumentFields(physicalTypes);
 		}
 	}
@@ -226,6 +235,7 @@ public class TableSourceValidation {
 	}
 
 	/**
+	 * 标识逻辑模式的字段名称，在{@link TableSource}的返回类型中的相应物理字段。
 	 * Identifies for a field name of the logical schema, the corresponding physical field in the
 	 * return type of a {@link TableSource}.
 	 *

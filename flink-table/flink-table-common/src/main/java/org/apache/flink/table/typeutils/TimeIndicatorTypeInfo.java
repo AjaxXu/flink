@@ -30,6 +30,7 @@ import org.apache.flink.table.api.DataTypes;
 import java.sql.Timestamp;
 
 /**
+ * 指示event或processing时间的类型信息。 但是，它的行为类似于常规SQL时间戳，但序列化为Long。
  * Type information for indicating event or processing time. However, it behaves like a
  * regular SQL timestamp but is serialized as Long.
  *

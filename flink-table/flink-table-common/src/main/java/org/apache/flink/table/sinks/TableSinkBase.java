@@ -24,6 +24,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import java.util.Optional;
 
 /**
+ * @link TableSink}的基类
  * Base class for {@link TableSink}.
  *
  * @param <T> The return type of the {@link TableSinkBase}.

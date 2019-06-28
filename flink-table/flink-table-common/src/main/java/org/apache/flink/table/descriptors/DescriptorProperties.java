@@ -53,6 +53,7 @@ import java.util.stream.Stream;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 用于具有Table API相关类的统一的基于字符串的表示的实用程序类
  * Utility class for having a unified string-based representation of Table API related classes
  * such as TableSchema, TypeInformation, etc.
  *
@@ -72,7 +73,7 @@ public class DescriptorProperties {
 
 	private static final Consumer<String> EMPTY_CONSUMER = (value) -> {};
 
-	private final boolean normalizeKeys;
+	private final boolean normalizeKeys; // 用于表示key是否使用小写字母
 
 	private final Map<String, String> properties;
 
@@ -124,6 +125,7 @@ public class DescriptorProperties {
 	public void putClass(String key, Class<?> clazz) {
 		checkNotNull(key);
 		checkNotNull(clazz);
+		// 判断clazz能不能通过{@code Class#newInstance()}实例化
 		final String error = InstantiationUtil.checkForInstantiationError(clazz);
 		if (error != null) {
 			throw new ValidationException("Class '" + clazz.getName() + "' is not supported: " + error);
@@ -1068,7 +1070,7 @@ public class DescriptorProperties {
 		validateEnum(
 			key,
 			isOptional,
-			values.stream().collect(Collectors.toMap(v -> v, v -> noValidation())));
+			values.stream().collect(Collectors.toMap(v -> v, v -> noValidation()))); // 只需要验证properties中的值是不是在给定的values里面
 	}
 
 	/**

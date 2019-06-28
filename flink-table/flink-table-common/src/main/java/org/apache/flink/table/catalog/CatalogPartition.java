@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * catalog中代表partition的对象
  * Represents a partition object in catalog.
  */
 public interface CatalogPartition {

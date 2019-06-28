@@ -27,8 +27,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 将{@link DataType}包装为文字的表达式
  * Expression that wraps {@link DataType} as a literal.
  *
+ * 表达类型主要用于cast操作。 此表达式简化了{@link Expression}设计，因为它使{@link CallExpression}成为唯一采用子表达式的表达式。
  * <p>Expressing a type is primarily needed for casting operations. This expression simplifies the
  * {@link Expression} design as it makes {@link CallExpression} the only expression that takes
  * subexpressions.

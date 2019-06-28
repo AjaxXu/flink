@@ -36,6 +36,7 @@ import java.util.Objects;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * SQL INTERVAL类型的类型信息
  * Type information for SQL INTERVAL types.
  *
  * @deprecated This class will be removed in future versions as it is used for the old type system. It

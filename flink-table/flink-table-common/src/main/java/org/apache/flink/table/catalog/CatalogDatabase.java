@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * 目录中的数据库的接口
  * Interface of a database in a catalog.
  */
 public interface CatalogDatabase {

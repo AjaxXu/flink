@@ -25,6 +25,7 @@ import java.util.Map;
 import static org.apache.flink.table.descriptors.GenericInMemoryCatalogValidator.CATALOG_TYPE_VALUE_GENERIC_IN_MEMORY;
 
 /**
+ * 内存目录中一般的目录描述符
  * Catalog descriptor for the generic in memory catalog.
  */
 public class GenericInMemoryCatalogDescriptor extends CatalogDescriptor {

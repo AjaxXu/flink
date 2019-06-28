@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
+ * 基于值的数据类型提取器，支持提取可清晰识别的数据类型以进行输入转换
  * Value-based data type extractor that supports extraction of clearly identifiable data types for
  * input conversion.
  *

@@ -21,6 +21,7 @@ package org.apache.flink.table.sources;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * {@link TableSource}使用嵌套的字段支持投影下推
  * Adds support for projection push-down to a {@link TableSource} with nested fields.
  *
  * <p>A {@link TableSource} extending this interface is able to project the fields of its returned
@@ -75,9 +76,9 @@ public interface NestedFieldsProjectableTableSource<T> {
 	 * <p>IMPORTANT: This method must return a true copy and must not modify the original table source
 	 * object.
 	 *
-	 * @param fields       The indexes of the fields to return.
+	 * @param fields       The indexes of the fields to return. 返回的字段
 	 * @param nestedFields The paths of all nested fields which are accessed by the query. All other
-	 *                     nested fields may be empty.
+	 *                     nested fields may be empty. 嵌套的字段
 	 * @return A copy of the {@link TableSource} that projects its output.
 	 */
 	TableSource<T> projectNestedFields(

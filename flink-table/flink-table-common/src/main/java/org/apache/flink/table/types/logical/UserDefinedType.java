@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
+ * 表示一个或多个内置类型的用户定义的逻辑类型。 用户定义的类型是distinct类型或structured类型。
  * Logical type of a user-defined representation for one or more built-in types. A user-defined
  * type is either a distinct type or a structured type.
  *

@@ -47,6 +47,7 @@ import static org.apache.flink.table.descriptors.MetadataValidator.METADATA_PROP
 import static org.apache.flink.table.descriptors.StatisticsValidator.STATISTICS_PROPERTY_VERSION;
 
 /**
+ * 统一类，用于搜索从META-INF/services/下发现 提供的类型和属性的{@link TableFactory}
  * Unified class to search for a {@link TableFactory} of provided type and properties.
  */
 public class TableFactoryService {
@@ -190,6 +191,7 @@ public class TableFactoryService {
 	}
 
 	/**
+	 * 根据TableFactory的requiredContext，返回properties中包含全部requiredContext的TableFactory
 	 * Filters for factories with matching context.
 	 *
 	 * @return all matching factories
@@ -242,6 +244,7 @@ public class TableFactoryService {
 	}
 
 	/**
+	 * 过滤出完全支持给定properties的TableFactory
 	 * Filters the matching class factories by supported properties.
 	 */
 	private static <T> T filterBySupportedProperties(
@@ -264,11 +267,13 @@ public class TableFactoryService {
 		List<TableFactory> supportedFactories = new LinkedList<>();
 		for (TableFactory factory: classFactories) {
 			Set<String> requiredContextKeys = normalizeContext(factory).keySet();
+			// factory 支持的属性
 			Tuple2<List<String>, List<String>> tuple2 = normalizeSupportedProperties(factory);
 			// ignore context keys
 			List<String> givenContextFreeKeys = plainGivenKeys.stream()
 				.filter(p -> !requiredContextKeys.contains(p))
 				.collect(Collectors.toList());
+			// 过滤特殊的TableFactory指定的keys
 			List<String> givenFilteredKeys = filterSupportedPropertiesFactorySpecific(
 				factory,
 				givenContextFreeKeys);
@@ -311,6 +316,7 @@ public class TableFactoryService {
 				foundFactories,
 				properties);
 		} else if (supportedFactories.size() > 1) {
+			// 多于1个匹配
 			throw new AmbiguousTableFactoryException(
 				supportedFactories,
 				factoryClass,
@@ -336,6 +342,7 @@ public class TableFactoryService {
 			.collect(Collectors.toList());
 
 		// extract wildcard prefixes
+		// 抽取通配符前缀
 		List<String> wildcards = extractWildcardPrefixes(supportedKeys);
 		return Tuple2.of(supportedKeys, wildcards);
 	}

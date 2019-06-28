@@ -27,6 +27,7 @@ import static org.apache.flink.table.descriptors.MetadataValidator.METADATA_CREA
 import static org.apache.flink.table.descriptors.MetadataValidator.METADATA_LAST_ACCESS_TIME;
 
 /**
+ * 用于添加其他有用信息的元数据描述符
  * Metadata descriptor for adding additional, useful information.
  */
 @PublicEvolving

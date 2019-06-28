@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * 用户定义的aggregates的基类
  * Base class for user-defined aggregates.
  *
  * <p>The behavior of an {@link AggregateFunction} can be defined by implementing a series of custom
@@ -42,6 +43,7 @@ import java.util.Set;
  *     <li>resetAccumulator</li>
  * </ul>
  *
+ * 所有方法定义为publicly, not static，并且名字必须和上面的一样
  * <p>All these methods must be declared publicly, not static, and named exactly as the names
  * mentioned above. The method {@link #createAccumulator()} is defined in the
  * {@link UserDefinedAggregateFunction} function, and method {@link #getValue} is defined in
@@ -126,6 +128,7 @@ public abstract class AggregateFunction<T, ACC> extends UserDefinedAggregateFunc
 	public abstract T getValue(ACC accumulator);
 
 	/**
+	 * 是否允许应用在OVER window
 	 * Returns <code>true</code> if this {@link AggregateFunction} can only be applied in an
 	 * OVER window.
 	 *

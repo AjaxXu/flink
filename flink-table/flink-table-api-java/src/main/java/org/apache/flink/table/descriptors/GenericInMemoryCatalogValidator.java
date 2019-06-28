@@ -19,6 +19,7 @@
 package org.apache.flink.table.descriptors;
 
 /**
+ * {@link GenericInMemoryCatalogDescriptor}的验证器
  * Validator for {@link GenericInMemoryCatalogDescriptor}.
  */
 public class GenericInMemoryCatalogValidator extends CatalogDescriptorValidator {

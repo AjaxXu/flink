@@ -21,6 +21,7 @@ package org.apache.flink.table.functions;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * 对{@link FunctionDefinition}的语义进行分类。
  * Categorizes the semantics of a {@link FunctionDefinition}.
  */
 @PublicEvolving

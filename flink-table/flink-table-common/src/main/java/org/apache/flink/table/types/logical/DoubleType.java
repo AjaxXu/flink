@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 8字节精度浮点数的LogicalType
  * Logical type of an 8-byte double precision floating point number.
  *
  * <p>The serialized string representation is {@code DOUBLE}.

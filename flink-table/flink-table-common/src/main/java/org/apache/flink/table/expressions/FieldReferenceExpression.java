@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 对输入中字段的引用
  * A reference to a field in an input. The reference contains:
  * <ul>
  *     <li>type</li>
@@ -42,12 +43,14 @@ public final class FieldReferenceExpression implements ResolvedExpression {
 	private final DataType dataType;
 
 	/**
+	 * 字段所属输入的索引
 	 * index of an input the field belongs to.
 	 * e.g. for a join, `inputIndex` of left input is 0 and `inputIndex` of right input is 1.
 	 */
 	private final int inputIndex;
 
 	/**
+	 * 相应输入中的字段的索引
 	 * index of a field within the corresponding input.
 	 */
 	private final int fieldIndex;

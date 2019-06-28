@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * 用于调用函数的已解析和验证的调用表达式
  * Resolved and validated call expression for calling a function.
  *
  * <p>A call contains:

@@ -28,11 +28,14 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 用于表示符号值的逻辑类型。 符号类型是SQL标准的扩展，仅用作表达式堆栈中的帮助程序类型
  * Logical type for representing symbol values. The symbol type is an extension to the SQL standard
  * and only serves as a helper type within the expression stack.
  *
+ * 符号类型仅接受来自其枚举类的转换
  * <p>A symbol type only accepts conversions from and to its enum class.
  *
+ * 此类型没有可序列化的字符串表示形式。
  * <p>This type has no serializable string representation.
  *
  * @param <T> table symbol

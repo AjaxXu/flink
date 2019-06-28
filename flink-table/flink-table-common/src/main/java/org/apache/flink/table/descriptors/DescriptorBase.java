@@ -21,6 +21,7 @@ package org.apache.flink.table.descriptors;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * {@link Descriptor}的基类
  * Base class for {@link Descriptor}s.
  */
 @PublicEvolving

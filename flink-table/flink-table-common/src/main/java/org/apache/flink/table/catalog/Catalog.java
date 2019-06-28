@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * 从注册的目录中读写元数据的接口
  * This interface is responsible for reading and writing metadata such as database/table/views/UDFs
  * from a registered catalog. It connects a registered catalog and Flink's Table API.
  */
@@ -154,6 +155,7 @@ public interface Catalog {
 	// ------ tables and views ------
 
 	/**
+	 * 获取该database下所有table和view的names
 	 * Get names of all tables and views under this database. An empty list is returned if none exists.
 	 *
 	 * @return a list of the names of all tables and views in this database
@@ -265,6 +267,7 @@ public interface Catalog {
 		throws TableNotExistException, TableNotPartitionedException, CatalogException;
 
 	/**
+	 * 返回table中包含partitionSpec的所有CatalogPartitionSpec
 	 * Get CatalogPartitionSpec of all partitions that is under the given CatalogPartitionSpec in the table.
 	 *
 	 * @param tablePath	path of the table

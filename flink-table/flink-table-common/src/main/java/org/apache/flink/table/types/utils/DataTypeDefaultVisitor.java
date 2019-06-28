@@ -27,6 +27,7 @@ import org.apache.flink.table.types.FieldsDataType;
 import org.apache.flink.table.types.KeyValueDataType;
 
 /**
+ * {@link DataTypeVisitor}的实现，将所有调用重定向到{@link DataTypeDefaultVisitor＃defaultMethod（DataType）}
  * Implementation of {@link DataTypeVisitor} that redirects all calls to
  * {@link DataTypeDefaultVisitor#defaultMethod(DataType)}.
  */

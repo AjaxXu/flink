@@ -22,10 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 代表catalog中的一个table
  * Represents a table in a catalog.
  */
 public interface CatalogTable extends CatalogBaseTable {
 	/**
+	 * 检查table是否分区
 	 * Check if the table is partitioned or not.
 	 *
 	 * @return true if the table is partitioned; otherwise, false

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 日期类型的列统计值
  * Column statistics value of date type.
  */
 public class CatalogColumnStatisticsDataDate extends CatalogColumnStatisticsDataBase {

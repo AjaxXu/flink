@@ -24,6 +24,7 @@ import org.apache.flink.table.sources.wmstrategies.WatermarkStrategy;
 import java.util.Objects;
 
 /**
+ * 描述{@link TableSource}的rowtime属性，包括属性名、timestamp抽取器、watermark策略
  * Describes a rowtime attribute of a {@link TableSource}.
  */
 public final class RowtimeAttributeDescriptor {

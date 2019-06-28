@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 用户定义的标量函数的函数定义
  * The function definition of an user-defined scalar function.
  *
  * <p>This class can be dropped once we introduce a new type inference.

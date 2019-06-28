@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 暂时的方案
  * This type is a temporary solution to fully support the old type system stack through the new
  * stack. Many types can be mapped directly to the new type system, however, some types such as
  * {@code DECIMAL}, POJOs, or case classes need special handling.

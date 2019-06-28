@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 布尔类型的列统计值
  * Column statistics value of boolean type.
  */
 public class CatalogColumnStatisticsDataBoolean extends CatalogColumnStatisticsDataBase {

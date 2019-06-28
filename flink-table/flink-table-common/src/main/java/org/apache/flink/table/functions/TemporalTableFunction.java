@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.types.Row;
 
 /**
+ * 临时的table 函数
  * Class representing temporal table function over some history table. A
  * {@link TemporalTableFunction} is also an instance of {@link TableFunction}.
  *

@@ -23,6 +23,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.sources.FieldComputer;
 
 /**
+ * 对已解析的输入中的字段的引用
  * A reference to a field in an input which has been resolved.
  *
  * <p>Note: This interface is added as a temporary solution. It is used to keep api compatible

@@ -21,6 +21,7 @@ package org.apache.flink.table.functions;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * {@link FunctionDefinition}需要的特征
  * Characteristics that a {@link FunctionDefinition} requires.
  */
 @PublicEvolving

@@ -25,6 +25,7 @@ import org.apache.flink.table.api.TableSchema;
 import java.util.List;
 
 /**
+ * 扩展{@link TableSource}指定rowtime属性
  * Extends a {@link TableSource} to specify rowtime attributes via a
  * {@link RowtimeAttributeDescriptor}.
  */

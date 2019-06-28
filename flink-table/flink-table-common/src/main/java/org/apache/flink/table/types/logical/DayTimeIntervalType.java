@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * day-time时间间隔类型的Logical type
  * Logical type for a group of day-time interval types. The type must be parameterized to one of
  * the following resolutions with up to nanosecond precision: interval of days, interval of days to
  * hours, interval of days to minutes, interval of days to seconds, interval of hours, interval of
@@ -100,6 +101,7 @@ public final class DayTimeIntervalType extends LogicalType {
 	private static final Class<?> DEFAULT_CONVERSION = java.time.Duration.class;
 
 	/**
+	 * DateTime方案
 	 * Supported resolutions of this type.
 	 */
 	public enum DayTimeResolution {

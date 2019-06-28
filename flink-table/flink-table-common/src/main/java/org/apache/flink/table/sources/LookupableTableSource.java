@@ -23,6 +23,7 @@ import org.apache.flink.table.functions.AsyncTableFunction;
 import org.apache.flink.table.functions.TableFunction;
 
 /**
+ * {@link TableSource}支持查找访问
  * A {@link TableSource} which supports for lookup accessing via key column(s).
  * For example, MySQL TableSource can implement this interface to support lookup accessing.
  * When temporal join this MySQL table, the runtime behavior could be in a lookup fashion.

@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * {@link DataType}可用于声明操作的输入和/或输出类型。 此类枚举Table＆SQL API的所有支持的数据类型。
  * A {@link DataType} can be used to declare input and/or output types of operations. This class
  * enumerates all supported data types of the Table & SQL API.
  */
@@ -248,6 +249,7 @@ public final class DataTypes {
 	}
 
 	/**
+	 * 默认没有小数的
 	 * Data type of a time WITHOUT time zone {@code TIME} with no fractional seconds by default.
 	 *
 	 * <p>An instance consists of {@code hour:minute:second} with up to second precision
@@ -681,6 +683,7 @@ public final class DataTypes {
 	// --------------------------------------------------------------------------------------------
 
 	/**
+	 * 辅助类用于定义间隔的分辨
 	 * Helper class for defining the resolution of an interval.
 	 */
 	public static final class Resolution {

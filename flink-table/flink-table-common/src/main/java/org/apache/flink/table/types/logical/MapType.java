@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * Map的LogicalType，是SQL标准的扩展
  * Logical type of an associative array that maps keys (including {@code NULL}) to values (including
  * {@code NULL}). A map cannot contain duplicate keys; each key can map to at most one value. There
  * is no restriction of key types; it is the responsibility of the user to ensure uniqueness. The map

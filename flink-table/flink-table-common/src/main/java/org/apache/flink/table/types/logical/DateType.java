@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Date的LogicalType
  * Logical type of a date consisting of {@code year-month-day} with values ranging from {@code 0000-01-01}
  * to {@code 9999-12-31}. Compared to the SQL standard, the range starts at year {@code 0000}.
  *

@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.util.Collector;
 
 /**
+ * 用户定义的表聚合基类
  * Base class for user-defined table aggregates.
  *
  * <p>The behavior of a {@link TableAggregateFunction} can be defined by implementing a series of

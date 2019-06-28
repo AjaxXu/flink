@@ -23,12 +23,14 @@ import org.apache.flink.annotation.Internal;
 import java.util.Optional;
 
 /**
+ * {@link Expression}的工具方法
  * Utility methods for working with {@link Expression}s.
  */
 @Internal
 public final class ExpressionUtils {
 
 	/**
+	 * 假设它是{@link ValueLiteralExpression}，从表达式中提取给定类的值（不包括null）
 	 * Extracts the value (excluding null) of a given class from an expression assuming it is a
 	 * {@link ValueLiteralExpression}.
 	 *

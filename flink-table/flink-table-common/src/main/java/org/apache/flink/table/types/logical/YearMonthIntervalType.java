@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 一组年 - 月间隔类型的逻辑类型
  * Logical type for a group of year-month interval types. The type must be parameterized to one of
  * the following resolutions: interval of years, interval of years to months, or interval of months.
  *

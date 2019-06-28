@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 有时区的时间戳的LogicalType
  * Logical type of a timestamp WITH time zone consisting of {@code year-month-day hour:minute:second[.fractional] zone}
  * with up to nanosecond precision and values ranging from {@code 0000-01-01 00:00:00.000000000 +14:59} to
  * {@code 9999-12-31 23:59:59.999999999 -14:59}. Compared to the SQL standard, leap seconds (23:59:60 and
@@ -58,7 +59,7 @@ public final class ZonedTimestampType extends LogicalType {
 	private static final String FORMAT = "TIMESTAMP(%d) WITH TIME ZONE";
 
 	private static final Set<String> INPUT_CONVERSION = conversionSet(
-		java.time.ZonedDateTime.class.getName(),
+		java.time.ZonedDateTime.class.getName(), // 从ZonedDateTime转化到该类型会忽略zone ID
 		java.time.OffsetDateTime.class.getName());
 
 	private static final Set<String> OUTPUT_CONVERSION = conversionSet(

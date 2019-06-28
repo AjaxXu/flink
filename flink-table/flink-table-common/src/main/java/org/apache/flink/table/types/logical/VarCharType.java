@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 可变长度字符串的逻辑类型
  * Logical type of a variable-length character string.
  *
  * <p>The serialized string representation is {@code VARCHAR(n)} where {@code n} is the maximum

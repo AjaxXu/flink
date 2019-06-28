@@ -21,6 +21,7 @@ package org.apache.flink.table.descriptors;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * 描述符的接口，允许注册表源和/或接收器
  * An interface for descriptors that allow to register table source and/or sinks.
  */
 @PublicEvolving
@@ -30,7 +31,7 @@ public interface RegistrableDescriptor extends Descriptor {
 	 * Searches for the specified table source, configures it accordingly, and registers it as
 	 * a table under the given name.
 	 *
-	 * @param name table name to be registered in the table environment
+	 * @param name table name to be registered in the table environment 注册在table environment中的表名
 	 */
 	void registerTableSource(String name);
 

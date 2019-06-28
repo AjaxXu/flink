@@ -34,6 +34,7 @@ import static org.apache.flink.table.functions.FunctionKind.OTHER;
 import static org.apache.flink.table.functions.FunctionKind.SCALAR;
 
 /**
+ * 所有内置函数的函数定义字典
  * Dictionary of function definitions for all built-in functions.
  */
 @PublicEvolving
@@ -164,21 +165,25 @@ public final class BuiltInFunctionDefinitions {
 			.name("sum0")
 			.kind(AGGREGATE)
 			.build();
+	// 计算输入值的总体标准差
 	public static final BuiltInFunctionDefinition STDDEV_POP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("stddevPop")
 			.kind(AGGREGATE)
 			.build();
+	// 计算输入值的样本标准偏差
 	public static final BuiltInFunctionDefinition STDDEV_SAMP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("stddevSamp")
 			.kind(AGGREGATE)
 			.build();
+	// 计算输入值的总体方差
 	public static final BuiltInFunctionDefinition VAR_POP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("varPop")
 			.kind(AGGREGATE)
 			.build();
+	// 计算输入值的样本方差
 	public static final BuiltInFunctionDefinition VAR_SAMP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("varSamp")
@@ -196,11 +201,13 @@ public final class BuiltInFunctionDefinitions {
 			.build();
 
 	// string functions
+	// 返回字符串长度
 	public static final BuiltInFunctionDefinition CHAR_LENGTH =
 		new BuiltInFunctionDefinition.Builder()
 			.name("charLength")
 			.kind(SCALAR)
 			.build();
+	// 将每个单词的首字母大写，其它小写
 	public static final BuiltInFunctionDefinition INIT_CAP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("initCap")
@@ -216,6 +223,7 @@ public final class BuiltInFunctionDefinitions {
 			.name("lowerCase")
 			.kind(SCALAR)
 			.build();
+	// 使用正规表达式来匹配，功能类似like，但使用的是 正规表达式
 	public static final BuiltInFunctionDefinition SIMILAR =
 		new BuiltInFunctionDefinition.Builder()
 			.name("similar")
@@ -226,6 +234,7 @@ public final class BuiltInFunctionDefinitions {
 			.name("substring")
 			.kind(SCALAR)
 			.build();
+	// VARCHAR REPLACE(str1, str2, str3), 在str1中使用str3替换str2
 	public static final BuiltInFunctionDefinition REPLACE =
 		new BuiltInFunctionDefinition.Builder()
 			.name("replace")
@@ -241,36 +250,50 @@ public final class BuiltInFunctionDefinitions {
 			.name("upperCase")
 			.kind(SCALAR)
 			.build();
+	// 返回要查询的字符串在被查询字符串里第一次出现的位置
 	public static final BuiltInFunctionDefinition POSITION =
 		new BuiltInFunctionDefinition.Builder()
 			.name("position")
 			.kind(SCALAR)
 			.build();
+	// 用y替换x的子串。下标从start_position开始，替换length+1个字符
 	public static final BuiltInFunctionDefinition OVERLAY =
 		new BuiltInFunctionDefinition.Builder()
 			.name("overlay")
 			.kind(SCALAR)
 			.build();
+	// 连接两个或多个字符串值从而组成一个新的字符串。任一参数为NULL，跳过该参数
 	public static final BuiltInFunctionDefinition CONCAT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("concat")
 			.kind(SCALAR)
 			.build();
+	// VARCHAR CONCAT_WS(VARCHAR separator, VARCHAR var1, VARCHAR var2, ...)
+	// 将每个参数值和第一个参数separator指定的分隔符依次连接到一起组成新的字符串,长度和类型取决于输入值。
+	// Important：当separator取值为null，则将separator视作空串进行拼接。当其它参数为NULL，在执行拼接过程中跳过该为NULL的参数
 	public static final BuiltInFunctionDefinition CONCAT_WS =
 		new BuiltInFunctionDefinition.Builder()
 			.name("concat_ws")
 			.kind(SCALAR)
 			.build();
+	// VARCHAR LPAD(VARCHAR str, INT len, VARCHAR pad)
+	// 字符串str左端填充若干个字符串pad, 直到新的字符串达到指定长度len为止。
+	//    -- 任意参数为null时返回null。
+	//    -- len为负数时返回为null。
+	//    -- pad为空串时，若len不大于str长度，返回str裁剪后的结果。若len大于str长度，返回null。
 	public static final BuiltInFunctionDefinition LPAD =
 		new BuiltInFunctionDefinition.Builder()
 			.name("lpad")
 			.kind(SCALAR)
 			.build();
+	// 功能同 "lpad"
 	public static final BuiltInFunctionDefinition RPAD =
 		new BuiltInFunctionDefinition.Builder()
 			.name("rpad")
 			.kind(SCALAR)
 			.build();
+	// VARCHAR REGEXP_EXTRACT(VARCHAR str, VARCHAR pattern, INT index)
+	// 使用正则模式pattern匹配抽取字符串str中的第index个子串，index从1开始，正则匹配提取。参数为null或者正则不合法返回null
 	public static final BuiltInFunctionDefinition REGEXP_EXTRACT =
 		new BuiltInFunctionDefinition.Builder()
 			.name("regexpExtract")
@@ -328,6 +351,7 @@ public final class BuiltInFunctionDefinitions {
 			.name("divide")
 			.kind(SCALAR)
 			.build();
+	// 乘
 	public static final BuiltInFunctionDefinition TIMES =
 		new BuiltInFunctionDefinition.Builder()
 			.name("times")
@@ -343,6 +367,7 @@ public final class BuiltInFunctionDefinitions {
 			.name("ceil")
 			.kind(SCALAR)
 			.build();
+	// 返回自然常数e的A次幂的DOUBLE类型数值
 	public static final BuiltInFunctionDefinition EXP =
 		new BuiltInFunctionDefinition.Builder()
 			.name("exp")
@@ -463,6 +488,7 @@ public final class BuiltInFunctionDefinitions {
 			.name("sign")
 			.kind(SCALAR)
 			.build();
+	// 把数值x字段舍入为指定的小数n位数
 	public static final BuiltInFunctionDefinition ROUND =
 		new BuiltInFunctionDefinition.Builder()
 			.name("round")

@@ -24,6 +24,7 @@ import org.apache.flink.table.catalog.Catalog;
 import java.util.Map;
 
 /**
+ * 生成可配置的catalog实例的工厂类
  * A factory to create configured catalog instances based on string-based properties. See
  * also {@link TableFactory} for more information.
  */

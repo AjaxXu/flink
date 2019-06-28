@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
+ * 函数的定义。 此类的实例提供验证函数调用和执行计划所需的所有详细信息。
  * Definition of a function. Instances of this class provide all details necessary to validate a function
  * call and perform planning.
  *
@@ -48,6 +49,7 @@ public interface FunctionDefinition {
 	}
 
 	/**
+	 * 返回函数的结果是否是确定的。就是根据相同的参数返回结果一致
 	 * Returns information about the determinism of the function's results.
 	 *
 	 * <p>It returns <code>true</code> if and only if a call to this function is guaranteed to

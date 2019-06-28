@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * {@link TypeInformation}支持的任意序列化类型的占位符类型
  * Placeholder type of an arbitrary serialized type backed by {@link TypeInformation}. This type is
  * a black box within the table ecosystem and is only deserialized at the edges. The any type is an
  * extension to the SQL standard.

@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 固定长度的字符 字符串的LogicalType
  * Logical type of a fixed-length character string.
  *
  * <p>The serialized string representation is {@code CHAR(n)} where {@code n} is the number of

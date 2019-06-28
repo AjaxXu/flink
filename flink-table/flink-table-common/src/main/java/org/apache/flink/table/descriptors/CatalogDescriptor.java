@@ -29,6 +29,7 @@ import static org.apache.flink.table.descriptors.CatalogDescriptorValidator.CATA
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
+ * 描述表，视图和函数的目录
  * Describes a catalog of tables, views, and functions.
  */
 @PublicEvolving

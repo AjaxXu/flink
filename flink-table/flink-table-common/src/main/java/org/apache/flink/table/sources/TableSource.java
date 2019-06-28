@@ -29,10 +29,11 @@ import org.apache.flink.table.utils.TableConnectorUtils;
 import static org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoToDataType;
 
 /**
+ * 定义外部表
  * Defines an external table with the schema that is provided by {@link TableSource#getTableSchema}.
  *
  * <p>The data of a {@link TableSource} is produced as a {@code DataSet} in case of a {@code BatchTableSource}
- * or as a {@code DataStream} in case of a {@code StreamTableSource}. The type of ths produced
+ * or as a {@code DataStream} in case of a {@code StreamTableSource}. The type of the produced
  * {@code DataSet} or {@code DataStream} is specified by the {@link TableSource#getProducedDataType()} method.
  *
  * <p>By default, the fields of the {@link TableSchema} are implicitly mapped by name to the fields of

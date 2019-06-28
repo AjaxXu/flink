@@ -21,6 +21,7 @@ package org.apache.flink.table.expressions;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * 将所有调用都通过{@link #defaultMethod(Expression)}来实现
  * Implementation of {@link ExpressionVisitor} that redirects all calls to {@link #defaultMethod(Expression)}.
  */
 @Internal

@@ -24,11 +24,13 @@ import org.apache.flink.table.types.DataType;
 import java.util.List;
 
 /**
+ * 已完全解析和验证的表达式。
  * Expression that has been fully resolved and validated.
  *
  * <p>Compared to {@link Expression}, resolved expressions do not contain unresolved subexpressions
  * anymore and provide an output data type for the computation result.
  *
+ * 此类的实例描述了可以序列化和持久化的完全参数化的不可变表达式。
  * <p>Instances of this class describe a fully parameterized, immutable expression that can be serialized
  * and persisted.
  *

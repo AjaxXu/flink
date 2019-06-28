@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * {@link Statistics}的验证器
  * Validator for {@link Statistics}.
  */
 @Internal

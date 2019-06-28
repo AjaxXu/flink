@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
+ * 包含键和值数据类型的数据类型
  * A data type that contains a key and value data type (e.g. {@code MAP}).
  *
  * @see DataTypes for a list of supported data types

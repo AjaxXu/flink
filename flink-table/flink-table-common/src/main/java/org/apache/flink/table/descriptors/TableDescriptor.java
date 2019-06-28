@@ -21,6 +21,7 @@ package org.apache.flink.table.descriptors;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * 描述table源和接收器的所有descriptors的共同类
   * Common class for all descriptors describing table sources and sinks.
   */
 @PublicEvolving

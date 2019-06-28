@@ -24,6 +24,7 @@ import org.apache.flink.table.expressions.Expression;
 import org.apache.flink.table.expressions.ResolvedFieldReference;
 
 /**
+ * {@link FieldComputer}接口返回一个表达式，用于从{@link TableSource}的返回类型的一个或多个字段计算{@link TableSource}的表模式字段
  * The {@link FieldComputer} interface returns an expression to compute the field of the table
  * schema of a {@link TableSource} from one or more fields of the {@link TableSource}'s return type.
  *
