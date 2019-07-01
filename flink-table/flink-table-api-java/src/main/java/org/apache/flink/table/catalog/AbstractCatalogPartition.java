@@ -23,6 +23,7 @@ import java.util.Map;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * catalog partition的抽象类
  * An abstract catalog partition implementation.
  */
 public abstract class AbstractCatalogPartition implements CatalogPartition {

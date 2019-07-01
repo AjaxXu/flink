@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.expressions.Expression;
 
 /**
+ * 执行了聚合函数的table
  * A table that has been performed on the aggregate function.
  */
 @PublicEvolving

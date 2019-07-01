@@ -29,6 +29,7 @@ import org.apache.flink.table.delegation.Planner;
 import java.lang.reflect.Constructor;
 
 /**
+ * 构造规划器的工厂类
  * Factory to construct a {@link Planner}. It will look for the planner on the classpath.
  */
 @Internal

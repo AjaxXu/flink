@@ -26,6 +26,7 @@ import java.math.MathContext;
 import java.util.TimeZone;
 
 /**
+ * 用于定义Table API的运行时行为的配置
  * A config to define the runtime behavior of the Table API.
  */
 @PublicEvolving
@@ -42,11 +43,13 @@ public class TableConfig {
 	private Boolean nullCheck = true;
 
 	/**
+	 * 规划器的配置
 	 * Defines the configuration of Planner for Table API and SQL queries.
 	 */
 	private CompositePlannerConfig plannerConfig = new CompositePlannerConfig();
 
 	/**
+	 * 定义小数除法计算的默认上下文。
 	 * Defines the default context for decimal division calculation.
 	 * We use Scala's default MathContext.DECIMAL128.
 	 */

@@ -27,6 +27,7 @@ import java.util.Map;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 抽象的catalog table
  * An abstract catalog table.
  */
 public abstract class AbstractCatalogTable implements CatalogTable {

@@ -27,6 +27,7 @@ import java.util.Optional;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * {@link CatalogDatabase}的实现
  * A implementation of {@link CatalogDatabase}.
  */
 public class CatalogDatabaseImpl implements CatalogDatabase {

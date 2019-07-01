@@ -26,7 +26,7 @@ import org.apache.flink.table.operations.QueryOperation;
 import org.apache.flink.table.sinks.TableSink;
 
 /**
- * A Table is the core component of the Table API.
+ * A Table is the core component of the Table API. 表是Table API 的核心
  * Similar to how the batch and streaming APIs have DataSet and DataStream,
  * the Table API is built around {@link Table}.
  *
@@ -85,6 +85,7 @@ public interface Table {
 	void printSchema();
 
 	/**
+	 * 返回此表的基础逻辑表示形式
 	 * Returns underlying logical representation of this table.
 	 */
 	QueryOperation getQueryOperation();
@@ -118,6 +119,7 @@ public interface Table {
 	Table select(Expression... fields);
 
 	/**
+	 * 临时表代表改变多次的表的概念，Flink用来追踪表的改变
 	 * Creates {@link TemporalTableFunction} backed up by this table as a history table.
 	 * Temporal Tables represent a concept of a table that changes over time and for which
 	 * Flink keeps track of those changes. {@link TemporalTableFunction} provides a way how to
@@ -864,6 +866,7 @@ public interface Table {
 	void insertInto(QueryConfig conf, String tablePath, String... tablePathContinued);
 
 	/**
+	 * 通过将表的记录分配给由时间或行间隔定义的窗口来对表的记录进行分组
 	 * Groups the records of a table by assigning them to windows defined by a time or row interval.
 	 *
 	 * <p>For streaming tables of infinite size, grouping into windows is required to define finite
@@ -940,6 +943,8 @@ public interface Table {
 	Table addColumns(Expression... fields);
 
 	/**
+	 * 添加其他列。 与SQL SELECT语句类似。 字段表达式可以包含复杂表达式，但不能包含聚合。 如果添加列名称与现有列名称相同，
+	 * 则将替换现有字段。 此外，如果添加的字段具有重复的字段名称，则使用最后一个字段。
 	 * Adds additional columns. Similar to a SQL SELECT statement. The field expressions
 	 * can contain complex expressions, but can not contain aggregations. Existing fields will be
      * replaced if add columns name is the same as the existing column name. Moreover, if the added

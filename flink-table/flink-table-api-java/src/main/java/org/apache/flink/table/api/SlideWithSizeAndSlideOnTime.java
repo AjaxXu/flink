@@ -23,6 +23,7 @@ import org.apache.flink.table.expressions.Expression;
 import org.apache.flink.table.expressions.ExpressionParser;
 
 /**
+ * 滑动窗口
  * Sliding window on time.
  */
 @PublicEvolving

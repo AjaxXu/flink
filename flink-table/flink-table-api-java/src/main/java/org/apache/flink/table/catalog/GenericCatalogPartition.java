@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * 通用的catalog partition实现
  * A generic catalog partition implementation.
  */
 public class GenericCatalogPartition extends AbstractCatalogPartition {

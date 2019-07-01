@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 告诉写入接收器的DML操作。 必须在{@link org.apache.flink.table.catalog.Catalog}中查找接收器
  * DML operation that tells to write to a sink. The sink has to be looked up in a
  * {@link org.apache.flink.table.catalog.Catalog}.
  */

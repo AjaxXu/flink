@@ -29,6 +29,7 @@ import org.apache.flink.table.types.DataType;
 import java.util.Arrays;
 
 /**
+ * API特定{@link Expression}的实用程序
  * Utilities for API-specific {@link Expression}s.
  */
 @Internal

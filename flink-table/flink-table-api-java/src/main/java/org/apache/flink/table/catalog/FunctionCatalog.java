@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
+ * 在内存中存储{@link FunctionDefinition}s的简单函数目录
  * Simple function catalog to store {@link FunctionDefinition}s in memory.
  */
 @Internal
@@ -57,6 +58,7 @@ public class FunctionCatalog implements FunctionLookup {
 	}
 
 	public void registerScalarFunction(String name, ScalarFunction function) {
+		// 验证是否可实例化
 		UserFunctionsTypeHelper.validateInstantiation(function.getClass());
 		registerFunction(
 			name,

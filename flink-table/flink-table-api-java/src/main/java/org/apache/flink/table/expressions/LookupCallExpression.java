@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
+ * 目标函数尚未解析的调用表达式
  * A call expression where the target function has not been resolved yet.
  *
  * <p>Instead of a {@link FunctionDefinition}, the call is identified by the function's name and needs to be lookup in

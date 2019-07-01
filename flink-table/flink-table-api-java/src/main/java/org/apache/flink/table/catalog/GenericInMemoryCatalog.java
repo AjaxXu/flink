@@ -45,6 +45,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * 一种通用目录实现，在内存中保持所有元对象
  * A generic catalog implementation that holds all meta objects in memory.
  */
 public class GenericInMemoryCatalog extends AbstractCatalog {

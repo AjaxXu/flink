@@ -25,6 +25,7 @@ import org.apache.flink.table.api.TableSchema;
 import java.util.List;
 
 /**
+ * 查询操作
  * Base class for representing an operation structure behind a user-facing {@link Table} API.
  *
  * <p>It represents an operation that can be a node of a relational query. It has a schema, that

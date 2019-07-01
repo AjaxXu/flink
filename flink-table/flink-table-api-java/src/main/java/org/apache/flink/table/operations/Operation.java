@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.delegation.Planner;
 
 /**
+ * 覆盖所有的Table操作
  * Covers all sort of Table operations such as queries(DQL), modifications(DML), definitions(DDL),
  * or control actions(DCL). This is the output of
  * {@link Planner#parse(String)}.

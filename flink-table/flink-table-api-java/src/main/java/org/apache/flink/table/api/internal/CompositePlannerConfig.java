@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * 组合的规划器配置
  * A {@link PlannerConfig} to pass multiple different configs under a single object. It allows storing only a single
  * instance of a given class. If there is an object of the same class already, it is replaced with the new one.
  */

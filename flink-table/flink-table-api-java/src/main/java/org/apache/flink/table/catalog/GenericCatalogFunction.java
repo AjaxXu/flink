@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * 通用的catalog function实现
  * A generic catalog function implementation.
  */
 public class GenericCatalogFunction extends AbstractCatalogFunction {

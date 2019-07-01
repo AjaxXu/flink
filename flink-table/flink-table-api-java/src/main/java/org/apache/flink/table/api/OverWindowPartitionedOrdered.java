@@ -29,6 +29,7 @@ import java.util.Optional;
 import static org.apache.flink.table.expressions.ApiExpressionUtils.unresolvedCall;
 
 /**
+ * 部分定义over window
  * Partially defined over window with (optional) partitioning and order.
  */
 @PublicEvolving

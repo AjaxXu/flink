@@ -25,6 +25,7 @@ import org.apache.flink.table.expressions.ExpressionParser;
 import java.util.List;
 
 /**
+ * 使用partitioning部分定义over window
  * Partially defined over window with partitioning.
  */
 @PublicEvolving

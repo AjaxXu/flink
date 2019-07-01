@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.expressions.Expression;
 
 /**
+ * 使用{@link OverWindow}窗口化的table
  * A table that has been windowed for {@link OverWindow}s.
  *
  * <p>Unlike group windows, which are specified in the

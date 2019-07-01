@@ -21,6 +21,7 @@ package org.apache.flink.table.api;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
+ * batch 查询时的配置参数
  * The {@link BatchQueryConfig} holds parameters to configure the behavior of batch queries.
  */
 @PublicEvolving

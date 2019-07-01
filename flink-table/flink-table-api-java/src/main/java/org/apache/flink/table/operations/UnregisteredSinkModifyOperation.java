@@ -24,6 +24,7 @@ import org.apache.flink.table.sinks.TableSink;
 import java.util.Collections;
 
 /**
+ * 未注册的sink
  * DML operation that tells to write to the given sink.
  */
 @Internal

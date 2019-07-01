@@ -23,6 +23,7 @@ import org.apache.flink.table.expressions.Expression;
 import org.apache.flink.table.expressions.ExpressionParser;
 
 /**
+ * 翻滚窗口
  * Tumbling window.
  *
  * <p>For streaming tables you can specify grouping by a event-time or processing-time attribute.

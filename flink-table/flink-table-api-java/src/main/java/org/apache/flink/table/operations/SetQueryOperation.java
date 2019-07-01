@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 关于两个关系表的集合操作
  * A set operation on two relations. It provides a way to union, intersect or subtract underlying
  * data sets/streams. Both relations must have equal schemas.
  */

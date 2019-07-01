@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * Over 窗口规范。over window有点类似于SlideWindow
  * An over window specification.
  *
  * <p>Similar to SQL, over window aggregates compute an aggregate for each input row over a range

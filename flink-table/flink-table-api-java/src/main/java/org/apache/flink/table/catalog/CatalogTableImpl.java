@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * 一个catalog table实现
  * A catalog table implementation.
  */
 public class CatalogTableImpl extends AbstractCatalogTable {

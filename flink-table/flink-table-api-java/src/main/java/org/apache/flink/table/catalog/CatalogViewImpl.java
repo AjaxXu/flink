@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * catalog view的实现
  * An implementation of catalog view.
  */
 public class CatalogViewImpl extends AbstractCatalogView {

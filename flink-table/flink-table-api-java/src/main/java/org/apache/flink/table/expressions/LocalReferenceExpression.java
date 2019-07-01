@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 引用某个{@link QueryOperation}的本地实体。 该实体不是来自任何操作输入。 它可能是例如窗口聚合中的组窗口。
  * Reference to entity local to a certain {@link QueryOperation}.
  * That entity does not come from any of the Operations input. It might be for example a group
  * window in window aggregation.

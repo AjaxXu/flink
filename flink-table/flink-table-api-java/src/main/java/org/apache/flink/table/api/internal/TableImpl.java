@@ -53,6 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
+ * {@link Table}的实现
  * Implementation for {@link Table}.
  */
 @Internal

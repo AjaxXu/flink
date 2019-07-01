@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 投影
  * Table operation that computes new table using given {@link Expression}s
  * from its input relational operation.
  */

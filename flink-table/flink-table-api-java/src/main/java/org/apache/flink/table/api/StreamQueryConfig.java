@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.time.Time;
 
 /**
+ * streaming查询时的配置参数
  * The {@link StreamQueryConfig} holds parameters to configure the behavior of streaming queries.
  */
 @PublicEvolving

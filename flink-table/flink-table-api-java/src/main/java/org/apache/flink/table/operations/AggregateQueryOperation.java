@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 在按键分组的输入行的子集之上执行计算的关系操作
  * Relational operation that performs computations on top of subsets of input rows grouped by
  * key.
  */

@@ -23,6 +23,7 @@ import org.apache.flink.table.expressions.Expression;
 import org.apache.flink.table.expressions.ExpressionParser;
 
 /**
+ * 滑动窗口
  * Sliding window. The size of the window either as time or row-count interval.
  *
  * <p>For streaming tables you can specify grouping by a event-time or processing-time attribute.

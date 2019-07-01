@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 引用另一个表的表达式
  * Expression that references another table.
  *
  * <p>This is a pure API expression that is translated into uncorrelated sub-queries by the planner.

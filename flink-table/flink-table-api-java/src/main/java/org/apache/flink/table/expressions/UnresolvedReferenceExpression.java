@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 对字段，表或本地引用的未解析引用。只有name熟悉，没有其他属性
  * An unresolved reference to a field, table, or local reference.
  *
  * <p>This is a purely API facing expression that will be resolved into

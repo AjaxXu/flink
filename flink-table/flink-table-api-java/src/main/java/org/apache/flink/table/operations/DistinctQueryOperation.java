@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 删除重复行
  * Removes duplicated rows of underlying relational operation.
  */
 @Internal

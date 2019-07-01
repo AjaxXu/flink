@@ -26,6 +26,7 @@ import org.apache.flink.table.functions.FunctionDefinition;
 import java.util.Optional;
 
 /**
+ * 可以将函数名称解析为{@link FunctionLookup.Result}的函数目录
  * Catalog of functions that can resolve the name of a function to a {@link FunctionLookup.Result}.
  */
 @Internal

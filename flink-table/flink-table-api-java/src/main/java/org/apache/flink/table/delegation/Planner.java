@@ -27,6 +27,7 @@ import org.apache.flink.table.operations.QueryOperation;
 import java.util.List;
 
 /**
+ * 规划器
  * This interface serves two purposes:
  * <ul>
  * <li>SQL parser - transforms a SQL string into a Table API specific tree of

@@ -24,6 +24,7 @@ import org.apache.flink.table.api.StreamQueryConfig;
 import org.apache.flink.table.delegation.Planner;
 
 /**
+ * {@link PlannerConfig}的适配器，提供{@link org.apache.flink.table.api.QueryConfig}
  * An adapter to {@link PlannerConfig} that enables to pass {@link org.apache.flink.table.api.QueryConfig}
  * to {@link Planner} via {@link org.apache.flink.table.api.TableConfig}.
  */

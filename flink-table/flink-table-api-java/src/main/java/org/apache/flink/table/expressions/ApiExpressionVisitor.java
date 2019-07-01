@@ -21,6 +21,7 @@ package org.apache.flink.table.expressions;
 import org.apache.flink.annotation.Internal;
 
 /**
+ * API翻译期间可能创建的所有{@link Expression}的访问者
  * A visitor for all {@link Expression}s that might be created during API translation.
  */
 @Internal

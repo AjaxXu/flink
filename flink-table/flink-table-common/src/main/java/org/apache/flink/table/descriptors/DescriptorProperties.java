@@ -189,6 +189,7 @@ public class DescriptorProperties {
 			values.add(Arrays.asList(fieldNames[i], TypeStringUtils.writeTypeInfo(fieldTypes[i])));
 		}
 
+		// key.#.name=fieldName, key.#.type=fieldType
 		putIndexedFixedProperties(
 			key,
 			Arrays.asList(TABLE_SCHEMA_NAME, TABLE_SCHEMA_TYPE),

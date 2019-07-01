@@ -68,6 +68,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * {@link TableEnvironment}的实现，仅适用于Table API接口。 仅支持{@link TableSource}作为输入，{@link TableSink}作为输出。
+ * 它也不会绑定到任何特定的{@code StreamExecutionEnvironment}。
  * Implementation of {@link TableEnvironment} that works exclusively with Table API interfaces.
  * Only {@link TableSource} is supported as an input and {@link TableSink} as an output. It also does
  * not bind to any particular {@code StreamExecutionEnvironment}.

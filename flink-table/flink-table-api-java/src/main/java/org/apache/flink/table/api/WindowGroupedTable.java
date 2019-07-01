@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.expressions.Expression;
 
 /**
+ * 被窗口化和分组的table
  * A table that has been windowed and grouped for {@link GroupWindow}s.
  */
 @PublicEvolving
@@ -56,6 +57,8 @@ public interface WindowGroupedTable {
 	Table select(Expression... fields);
 
 	/**
+	 * 在窗口分组表上执行flatAggregate操作。 FlatAggregate接受一个返回多行的TableAggregateFunction。
+	 * 在flatAggregate之后使用select操作。
 	 * Performs a flatAggregate operation on a window grouped table. FlatAggregate takes a
 	 * TableAggregateFunction which returns multiple rows. Use a selection after flatAggregate.
 	 *

@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * 包含{@link TableSource}和/或{@link TableSink}的{@link CatalogTable}
  * A {@link CatalogTable} that wraps a {@link TableSource} and/or {@link TableSink}.
  * This allows registering those in a {@link Catalog}. It can not be persisted as the
  * source and/or sink might be inline implementations and not be representable in a

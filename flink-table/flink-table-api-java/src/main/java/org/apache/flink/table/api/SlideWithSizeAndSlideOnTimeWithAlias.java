@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.expressions.Expression;
 
 /**
+ * 滑动窗口
  * Sliding window on time with alias. Fully specifies a window.
  */
 @PublicEvolving

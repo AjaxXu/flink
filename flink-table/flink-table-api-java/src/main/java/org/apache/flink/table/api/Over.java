@@ -25,6 +25,7 @@ import org.apache.flink.table.expressions.ExpressionParser;
 import java.util.Arrays;
 
 /**
+ * 创建over window的帮助函数
  * Helper class for creating an over window. Similar to SQL, over window aggregates compute an
  * aggregate for each input row over a range of its neighboring rows.
  *

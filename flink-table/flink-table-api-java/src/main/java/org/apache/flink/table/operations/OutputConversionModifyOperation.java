@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * 将关系查询转化为{@link StreamTransformation}
  * Special, internal kind of {@link ModifyOperation} that allows converting a tree of
  * {@link QueryOperation}s to a {@link StreamTransformation} of given type described with
  * {@link TypeInformation}. This is used to convert a relational query to a datastream.

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 /**
+ * 通过一个在Table上执行{@link QueryOperation}得到的view
  * A view created from a {@link QueryOperation} via operations on {@link org.apache.flink.table.api.Table}.
  */
 @Internal

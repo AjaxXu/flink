@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.api.TableEnvironment;
 
 /**
+ * 用于在batch传输环境中指定表源和/或接收器的描述符
  * Descriptor for specifying a table source and/or sink in a batch environment.
  */
 @PublicEvolving

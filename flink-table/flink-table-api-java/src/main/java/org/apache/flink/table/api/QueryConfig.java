@@ -23,6 +23,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.io.Serializable;
 
 /**
+ * {@link QueryConfig}包含用于配置查询行为的参数
  * The {@link QueryConfig} holds parameters to configure the behavior of queries.
  */
 @PublicEvolving

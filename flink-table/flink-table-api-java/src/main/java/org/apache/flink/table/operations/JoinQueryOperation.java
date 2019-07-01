@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 基于给定条件连接两个相关的operations的表操作
  * Table operation that joins two relational operations based on given condition.
  */
 @Internal

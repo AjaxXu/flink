@@ -27,6 +27,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
+ * catalog view的抽象类
  * An abstract catalog view.
  */
 public abstract class AbstractCatalogView implements CatalogView {

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * 用于验证的{@link QueryOperation}的构建器
  * Builder for validated {@link QueryOperation}s.
  *
  * <p>TODO. This is a temporary solution. The actual implementation should be ported.

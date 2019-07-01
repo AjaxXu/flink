@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 内联扫描{@link TableSource}
  * Inline scan of a {@link TableSource}. Used only when a {@link org.apache.flink.table.api.Table} was created
  * from {@link org.apache.flink.table.api.TableEnvironment#fromTableSource(TableSource)}.
  */

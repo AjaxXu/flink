@@ -24,6 +24,7 @@ import org.apache.flink.table.expressions.TableReferenceExpression;
 import java.util.Optional;
 
 /**
+ * 提供按表名称查找表引用的方法
  * Provides a way to look up table reference by the name of the table.
  */
 @Internal

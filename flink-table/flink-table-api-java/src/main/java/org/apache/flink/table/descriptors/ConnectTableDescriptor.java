@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * 使用{@link TableEnvironment#connect(ConnectorDescriptor connectorDescriptor)}创建的表的公共类
  * Common class for table's created with {@link TableEnvironment#connect(ConnectorDescriptor connectorDescriptor)}.
  */
 @PublicEvolving

@@ -24,6 +24,7 @@ import org.apache.flink.table.delegation.Planner;
 import java.util.List;
 
 /**
+ * 修改操作
  * A {@link Operation} that describes the DML queries such as e.g. INSERT or conversion to a
  * DataStream.
  *

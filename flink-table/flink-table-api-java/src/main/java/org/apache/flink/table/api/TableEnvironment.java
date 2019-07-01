@@ -31,17 +31,19 @@ import org.apache.flink.table.sources.TableSource;
 import java.util.Optional;
 
 /**
+ * 批 和 流 TableEnvironments的基类
  * The base class for batch and stream TableEnvironments.
  *
  * <p>The TableEnvironment is a central concept of the Table API and SQL integration. It is
  * responsible for:
- *
+ * 负责：
  * <ul>
- *     <li>Registering a Table in the internal catalog</li>
- *     <li>Registering an external catalog</li>
- *     <li>Executing SQL queries</li>
+ *     <li>Registering a Table in the internal catalog</li>在内部catalog中注册table
+ *     <li>Registering an external catalog</li>注册外部的catalog
+ *     <li>Executing SQL queries</li>执行sql查询
  *     <li>Registering a user-defined scalar function. For the user-defined table and aggregate
  *     function, use the StreamTableEnvironment or BatchTableEnvironment</li>
+ *     注册用户自定义的标量函数。对于用户自定义的table和聚合函数，使用StreamTableEnvironment or BatchTableEnvironment
  * </ul>
  *
  * <p>This environment is unified both on a language level (for all JVM-based languages, i.e. no distinction between
@@ -209,6 +211,7 @@ public interface TableEnvironment {
 	void insertInto(Table table, String sinkPath, String... sinkPathContinued);
 
 	/**
+	 * 从描述器中创建table源或接收器
 	 * Creates a table source and/or table sink from a descriptor.
 	 *
 	 * <p>Descriptors allow for declaring the communication to external systems in an

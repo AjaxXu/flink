@@ -111,6 +111,7 @@ public class WindowAggregateQueryOperation implements QueryOperation {
 	}
 
 	/**
+	 * 对解析的GroupWindow表达式的封装
 	 * Wrapper for resolved expressions of a {@link org.apache.flink.table.api.GroupWindow}.
 	 */
 	@Internal

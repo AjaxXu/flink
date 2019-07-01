@@ -28,6 +28,7 @@ import org.apache.flink.table.sources.TableSource;
 import java.util.Map;
 
 /**
+ * 使用{@link TableFactoryService}处理{@link TableFactory}的实用程序
  * Utility for dealing with {@link TableFactory} using the {@link TableFactoryService}.
  */
 public class TableFactoryUtil {

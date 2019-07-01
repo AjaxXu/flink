@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 描述从查找目录创建的关系操作
  * Describes a relational operation that was created from a lookup to a catalog.
  */
 @Internal

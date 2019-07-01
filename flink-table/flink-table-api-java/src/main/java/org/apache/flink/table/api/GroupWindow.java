@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.expressions.Expression;
 
 /**
+ * 组窗口规范
  * A group window specification.
  *
  * <p>Group windows group rows based on time or row-count intervals and is therefore essentially a
@@ -36,7 +37,7 @@ import org.apache.flink.table.expressions.Expression;
 @PublicEvolving
 public abstract class GroupWindow {
 
-	/** Alias name for the group window. */
+	/** Alias name for the group window. 组窗口的别名*/
 	private final Expression alias;
 	private final Expression timeField;
 

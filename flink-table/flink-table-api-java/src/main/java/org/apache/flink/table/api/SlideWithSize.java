@@ -23,6 +23,7 @@ import org.apache.flink.table.expressions.Expression;
 import org.apache.flink.table.expressions.ExpressionParser;
 
 /**
+ * 滑动窗口
  * Partially specified sliding window. The size of the window either as time or row-count interval.
  */
 @PublicEvolving

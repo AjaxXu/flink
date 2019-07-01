@@ -23,6 +23,7 @@ import org.apache.flink.annotation.Internal;
 import java.util.List;
 
 /**
+ * 解析String中的表达式
  * Parser for expressions inside a String. This parses exactly the same expressions that
  * would be accepted by the Scala Expression DSL.
  *

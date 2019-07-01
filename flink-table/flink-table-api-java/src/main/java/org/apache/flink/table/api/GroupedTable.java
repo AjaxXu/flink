@@ -22,6 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.expressions.Expression;
 
 /**
+ * 分组后的table
  * A table that has been grouped on a set of grouping keys.
  */
 @PublicEvolving

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * 部分定义over window
  * Partially defined over window with (optional) partitioning, order, and preceding.
  */
 @PublicEvolving

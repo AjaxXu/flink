@@ -143,6 +143,7 @@ public class UserFunctionsTypeHelper {
 	}
 
 	/**
+	 * 检查是否可以轻松实例化用户定义的函数
 	 * Checks if a user-defined function can be easily instantiated.
 	 */
 	public static void validateInstantiation(Class<?> clazz) {
@@ -159,6 +160,7 @@ public class UserFunctionsTypeHelper {
 	}
 
 	/**
+	 * 检查这是否是Scala对象。 由于并发风险，禁止使用由Scala对象实现的{@link TableFunction}
 	 * Check whether this is a Scala object. It is forbidden to use {@link TableFunction} implemented
 	 * by a Scala object, since concurrent risks.
 	 */

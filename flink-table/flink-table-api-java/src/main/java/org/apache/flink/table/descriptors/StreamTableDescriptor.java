@@ -30,6 +30,7 @@ import static org.apache.flink.table.descriptors.StreamTableDescriptorValidator.
 import static org.apache.flink.table.descriptors.StreamTableDescriptorValidator.UPDATE_MODE_VALUE_UPSERT;
 
 /**
+ * 用于在streaming传输环境中指定表源和/或接收器的描述符
  * Descriptor for specifying a table source and/or sink in a streaming environment.
  */
 @PublicEvolving

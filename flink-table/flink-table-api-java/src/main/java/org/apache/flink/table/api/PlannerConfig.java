@@ -23,6 +23,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.util.Optional;
 
 /**
+ * 规划器配置
  * The {@link PlannerConfig} holds parameters to configure the behavior of queries.
  */
 @PublicEvolving
@@ -32,6 +33,7 @@ public interface PlannerConfig {
 
 	@SuppressWarnings("unchecked")
 	default <T extends PlannerConfig> Optional<T> unwrap(Class<T> type) {
+		// 判断this能不能转化为type类
 		if (type.isInstance(this)) {
 			return Optional.of((T) this);
 		} else {

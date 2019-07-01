@@ -34,6 +34,7 @@ import static org.apache.flink.table.descriptors.CatalogDescriptorValidator.CATA
 import static org.apache.flink.table.descriptors.GenericInMemoryCatalogValidator.CATALOG_TYPE_VALUE_GENERIC_IN_MEMORY;
 
 /**
+ * 生产{@link GenericInMemoryCatalog}的工厂类
  * Catalog factory for {@link GenericInMemoryCatalog}.
  */
 public class GenericInMemoryCatalogFactory implements CatalogFactory {
