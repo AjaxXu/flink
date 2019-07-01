@@ -21,7 +21,9 @@ package org.apache.flink.table.sources;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-/** Defines an external stream table and provides read access to its data.
+/**
+ * 定义外部流表并提供对其数据的读访问权
+ * Defines an external stream table and provides read access to its data.
  *
  * @param <T> Type of the {@link DataStream} created by this {@link TableSource}.
  */

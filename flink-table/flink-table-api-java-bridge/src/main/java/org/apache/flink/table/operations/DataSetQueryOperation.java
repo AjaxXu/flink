@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 描述从{@link DataSet}读取的关系操作
  * Describes a relational operation that reads from a {@link DataSet}.
  *
  * <p>This operation may expose only part, or change the order of the fields available in a

@@ -25,6 +25,7 @@ import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.table.api.Table;
 
 /**
+ * 发送有限数据的{@link Table}的接收器
  * Defines an external {@link TableSink} to emit a bounded {@link Table}.
  *
  * @param <T> Type of the bounded {@link OutputFormat} that this {@link TableSink} expects and supports.

@@ -27,6 +27,7 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableException;
 
 /**
+ * upsert模式的流式Table接收器
  * Defines an external {@link TableSink} to emit a streaming {@link Table} with insert, update,
  * and delete changes. The {@link Table} must be have unique key fields (atomic or composite)
  * or be append-only.

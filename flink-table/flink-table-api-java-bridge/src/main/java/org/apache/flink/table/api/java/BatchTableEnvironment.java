@@ -37,6 +37,7 @@ import org.apache.flink.table.functions.TableFunction;
 import java.lang.reflect.Constructor;
 
 /**
+ * 批处理相关的表环境
  * The {@link TableEnvironment} for a Java batch {@link ExecutionEnvironment} that works
  * with {@link DataSet}s.
  *

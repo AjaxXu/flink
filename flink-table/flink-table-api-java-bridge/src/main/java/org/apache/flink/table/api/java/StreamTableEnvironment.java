@@ -35,6 +35,7 @@ import org.apache.flink.table.functions.TableAggregateFunction;
 import org.apache.flink.table.functions.TableFunction;
 
 /**
+ * 流处理相关的表环境
  * The {@link TableEnvironment} for a Java {@link StreamExecutionEnvironment} that works with
  * {@link DataStream}s.
  *

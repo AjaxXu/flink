@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * {@link StreamTableEnvironment}的实现
  * The implementation for a Java {@link StreamTableEnvironment}. This enables conversions from/to
  * {@link DataStream}.
  *

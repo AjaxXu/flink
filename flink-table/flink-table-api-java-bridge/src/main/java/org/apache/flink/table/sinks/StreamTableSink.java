@@ -22,6 +22,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 
 /**
+ * 定义外部流表并提供对其数据的写访问权
  * Defines an external stream table and provides write access to its data.
  *
  * @param <T> Type of the {@link DataStream} created by this {@link TableSink}.

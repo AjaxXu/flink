@@ -26,6 +26,7 @@ import org.apache.flink.api.java.typeutils.TupleTypeInfo;
 import org.apache.flink.table.api.Table;
 
 /**
+ * retract模式的流式Table接收器
  * Defines an external {@link TableSink} to emit a streaming {@link Table} with insert, update,
  * and delete changes.
  *
