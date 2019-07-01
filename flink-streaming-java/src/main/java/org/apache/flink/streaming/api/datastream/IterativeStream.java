@@ -21,10 +21,10 @@ import org.apache.flink.annotation.Public;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.dag.Transformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.transformations.CoFeedbackTransformation;
 import org.apache.flink.streaming.api.transformations.FeedbackTransformation;
-import org.apache.flink.streaming.api.transformations.StreamTransformation;
 
 import java.util.Collection;
 
@@ -67,8 +67,8 @@ public class IterativeStream<T> extends SingleOutputStreamOperator<T> {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public DataStream<T> closeWith(DataStream<T> feedbackStream) {
 
-		// 基于需要反馈给迭代头的反馈流对象获取其所有前任的SteamTransformation对象，目的是为了下文的检查
-		Collection<StreamTransformation<?>> predecessors = feedbackStream.getTransformation().getTransitivePredecessors();
+		// 基于需要反馈给迭代头的反馈流对象获取其所有前任的Transformation对象，目的是为了下文的检查
+		Collection<Transformation<?>> predecessors = feedbackStream.getTransformation().getTransitivePredecessors();
 
 		// 基于前任向上游追溯的原因是确保反馈流的源头是来自迭代头（从而形成迭代这样一个闭环），而不是任意的某个流都可以作为反馈流
 		if (!predecessors.contains(this.transformation)) {
@@ -172,7 +172,7 @@ public class IterativeStream<T> extends SingleOutputStreamOperator<T> {
 		 */
 		public DataStream<F> closeWith(DataStream<F> feedbackStream) {
 
-			Collection<StreamTransformation<?>> predecessors = feedbackStream.getTransformation().getTransitivePredecessors();
+			Collection<Transformation<?>> predecessors = feedbackStream.getTransformation().getTransitivePredecessors();
 
 			if (!predecessors.contains(this.coFeedbackTransformation)) {
 				throw new UnsupportedOperationException(

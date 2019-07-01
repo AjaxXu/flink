@@ -20,20 +20,22 @@ package org.apache.flink.table.catalog;
 
 import org.apache.flink.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * catalog function的抽象类
- * An abstract catalog function implementation.
+ * catalog function的实现
+ * A catalog function implementation.
  */
-public abstract class AbstractCatalogFunction implements CatalogFunction {
+public class CatalogFunctionImpl implements CatalogFunction {
 	private final String className; // Fully qualified class name of the function
 	private final Map<String, String> properties;
 
-	public AbstractCatalogFunction(String className, Map<String, String> properties) {
+	public CatalogFunctionImpl(String className, Map<String, String> properties) {
 		checkArgument(!StringUtils.isNullOrWhitespaceOnly(className), "className cannot be null or empty");
 
 		this.className = className;
@@ -50,4 +52,26 @@ public abstract class AbstractCatalogFunction implements CatalogFunction {
 		return this.properties;
 	}
 
+	@Override
+	public CatalogFunction copy() {
+		return new CatalogFunctionImpl(getClassName(), new HashMap<>(getProperties()));
+	}
+
+	@Override
+	public Optional<String> getDescription() {
+		return Optional.of("This is a user-defined function");
+	}
+
+	@Override
+	public Optional<String> getDetailedDescription() {
+		return Optional.of("This is a user-defined function");
+	}
+
+	@Override
+	public String toString() {
+		return "CatalogFunctionImpl{" +
+			", className='" + getClassName() + '\'' +
+			", properties=" + getProperties() +
+			'}';
+	}
 }

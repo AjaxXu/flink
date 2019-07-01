@@ -16,34 +16,28 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.catalog.hive;
+package org.apache.flink.runtime.io.network.partition;
 
-import org.apache.flink.table.catalog.AbstractCatalogFunction;
-
-import java.util.HashMap;
-import java.util.Optional;
+import java.io.IOException;
+import java.nio.file.Path;
 
 /**
- * A hive catalog function implementation.
+ * Tests that read the BoundedBlockingSubpartition with multiple threads in parallel.
  */
-public class HiveCatalogFunction extends AbstractCatalogFunction {
+public class MemoryMappedBoundedDataTest extends BoundedDataTestBase {
 
-	public HiveCatalogFunction(String className) {
-		super(className, new HashMap<>());
+	@Override
+	protected boolean isRegionBased() {
+		return true;
 	}
 
 	@Override
-	public HiveCatalogFunction copy() {
-		return new HiveCatalogFunction(getClassName());
+	protected BoundedData createBoundedData(Path tempFilePath) throws IOException {
+		return MemoryMappedBoundedData.create(tempFilePath);
 	}
 
 	@Override
-	public Optional<String> getDescription() {
-		return Optional.empty();
-	}
-
-	@Override
-	public Optional<String> getDetailedDescription() {
-		return Optional.empty();
+	protected BoundedData createBoundedDataWithRegion(Path tempFilePath, int regionSize) throws IOException {
+		return MemoryMappedBoundedData.createWithRegionSize(tempFilePath, regionSize);
 	}
 }

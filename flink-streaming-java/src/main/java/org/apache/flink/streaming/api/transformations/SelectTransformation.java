@@ -19,7 +19,7 @@
 package org.apache.flink.streaming.api.transformations;
 
 import org.apache.flink.annotation.Internal;
-import org.apache.flink.streaming.api.operators.ChainingStrategy;
+import org.apache.flink.api.dag.Transformation;
 
 import org.apache.flink.shaded.guava18.com.google.common.collect.Lists;
 
@@ -39,9 +39,9 @@ import java.util.List;
  * @param <T> The type of the elements that result from this {@code SelectTransformation}
  */
 @Internal
-public class SelectTransformation<T> extends StreamTransformation<T> {
+public class SelectTransformation<T> extends Transformation<T> {
 
-	private final StreamTransformation<T> input;
+	private final Transformation<T> input;
 	private final List<String> selectedNames;
 
 	/**
@@ -50,11 +50,12 @@ public class SelectTransformation<T> extends StreamTransformation<T> {
 	 * Creates a new {@code SelectionTransformation} from the given input that only selects
 	 * the streams with the selected names.
 	 *
-	 * @param input The input {@code StreamTransformation}
+	 * @param input The input {@code Transformation}
 	 * @param selectedNames The names from the upstream {@code SplitTransformation} that this
 	 *                      {@code SelectTransformation} selects.
 	 */
-	public SelectTransformation(StreamTransformation<T> input,
+	public SelectTransformation(
+		Transformation<T> input,
 			List<String> selectedNames) {
 		super("Select", input.getOutputType(), input.getParallelism());
 		this.input = input;
@@ -62,9 +63,9 @@ public class SelectTransformation<T> extends StreamTransformation<T> {
 	}
 
 	/**
-	 * Returns the input {@code StreamTransformation}.
+	 * Returns the input {@code Transformation}.
 	 */
-	public StreamTransformation<T> getInput() {
+	public Transformation<T> getInput() {
 		return input;
 	}
 
@@ -76,16 +77,10 @@ public class SelectTransformation<T> extends StreamTransformation<T> {
 	}
 
 	@Override
-	public Collection<StreamTransformation<?>> getTransitivePredecessors() {
-		List<StreamTransformation<?>> result = Lists.newArrayList();
+	public Collection<Transformation<?>> getTransitivePredecessors() {
+		List<Transformation<?>> result = Lists.newArrayList();
 		result.add(this);
 		result.addAll(input.getTransitivePredecessors());
 		return result;
 	}
-
-	@Override
-	public final void setChainingStrategy(ChainingStrategy strategy) {
-		throw new UnsupportedOperationException("Cannot set chaining strategy on Select Transformation.");
-	}
-
 }
