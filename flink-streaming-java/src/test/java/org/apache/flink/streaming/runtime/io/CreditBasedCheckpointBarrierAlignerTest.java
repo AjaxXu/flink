@@ -18,54 +18,22 @@
 
 package org.apache.flink.streaming.runtime.io;
 
-import org.apache.flink.runtime.io.disk.iomanager.IOManager;
-import org.apache.flink.runtime.io.disk.iomanager.IOManagerAsync;
 import org.apache.flink.runtime.io.network.partition.consumer.BufferOrEvent;
 import org.apache.flink.runtime.io.network.partition.consumer.InputGate;
+import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-
-import java.io.File;
-import java.io.IOException;
+import javax.annotation.Nullable;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
- * Tests for the behavior of the {@link BarrierBuffer} with {@link BufferSpiller}.
+ * Tests for the behaviors of the {@link CheckpointedInputGate} with {@link CachedBufferStorage}.
  */
-public class SpillingBarrierBufferTest extends BarrierBufferTestBase {
-
-	private static IOManager ioManager;
-
-	@BeforeClass
-	public static void setup() {
-		ioManager = new IOManagerAsync();
-	}
-
-	@AfterClass
-	public static void shutdownIOManager() {
-		ioManager.shutdown();
-	}
+public class CreditBasedCheckpointBarrierAlignerTest extends CheckpointBarrierAlignerTestBase {
 
 	@Override
-	public void ensureEmpty() throws Exception {
-		super.ensureEmpty();
-
-		// validate that all temp files have been removed
-		for (File dir : ioManager.getSpillingDirectories()) {
-			for (String file : dir.list()) {
-				if (file != null && !(file.equals(".") || file.equals(".."))) {
-					fail("barrier buffer did not clean up temp files. remaining file: " + file);
-				}
-			}
-		}
-	}
-
-	@Override
-	public BarrierBuffer createBarrierBuffer(InputGate gate) throws IOException{
-		return new BarrierBuffer(gate, new BufferSpiller(ioManager, PAGE_SIZE));
+	CheckpointedInputGate createBarrierBuffer(InputGate gate, @Nullable AbstractInvokable toNotify) {
+		return new CheckpointedInputGate(gate, new CachedBufferStorage(PAGE_SIZE), "Testing", toNotify);
 	}
 
 	@Override
@@ -73,7 +41,7 @@ public class SpillingBarrierBufferTest extends BarrierBufferTestBase {
 		long expectedBuffered = 0;
 		for (BufferOrEvent boe : sequence) {
 			if (boe.isBuffer()) {
-				expectedBuffered += BufferSpiller.HEADER_SIZE + boe.getBuffer().getSize();
+				expectedBuffered += PAGE_SIZE;
 			}
 		}
 

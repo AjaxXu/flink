@@ -21,32 +21,26 @@ package org.apache.flink.streaming.runtime.io;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.runtime.checkpoint.CheckpointException;
 import org.apache.flink.runtime.checkpoint.CheckpointFailureReason;
-import org.apache.flink.runtime.checkpoint.CheckpointMetaData;
-import org.apache.flink.runtime.checkpoint.CheckpointMetrics;
-import org.apache.flink.runtime.checkpoint.CheckpointOptions;
 import org.apache.flink.runtime.io.network.api.CancelCheckpointMarker;
 import org.apache.flink.runtime.io.network.api.CheckpointBarrier;
-import org.apache.flink.runtime.io.network.partition.consumer.BufferOrEvent;
-import org.apache.flink.runtime.io.network.partition.consumer.InputGate;
 import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+
 import java.util.ArrayDeque;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * BarrierTracker会对各个input channel接收到的检查点的barrier进行跟踪。
  * 一旦它观察到某个检查点的所有barrier都已经到达，它将会通知监听器检查点已完成，以触发相应地回调处理
- * The BarrierTracker keeps track of what checkpoint barriers have been received from
+ * The {@link CheckpointBarrierTracker} keeps track of what checkpoint barriers have been received from
  * which input channels. Once it has observed all checkpoint barriers for a checkpoint ID,
  * it notifies its listener of a completed checkpoint.
- *
  * 不像BarrierBuffer，BarrierTracker不阻塞已经发送了barrier的input channel，所以它不能提供exactly-once的一致性保证。
- * 但是它可以提供at least once的一致性保证。
- * <p>Unlike the {@link BarrierBuffer}, the BarrierTracker does not block the input
+ *  但是它可以提供at least once的一致性保证。
+ * <p>Unlike the {@link CheckpointBarrierAligner}, the BarrierTracker does not block the input
  * channels that have sent barriers, so it cannot be used to gain "exactly-once" processing
  * guarantees. It can, however, be used to gain "at least once" processing guarantees.
  *
@@ -56,9 +50,9 @@ import java.util.concurrent.CompletableFuture;
  * 并且因此下一个检查点的数据可能会在该检查点还没有完成时就已经到来。所以，在恢复时只能提供AT_LEAST_ONCE保证
  */
 @Internal
-public class BarrierTracker implements CheckpointBarrierHandler {
+public class CheckpointBarrierTracker extends CheckpointBarrierHandler {
 
-	private static final Logger LOG = LoggerFactory.getLogger(BarrierTracker.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CheckpointBarrierTracker.class);
 
 	/**
 	 * The tracker tracks a maximum number of checkpoints, for which some, but not all barriers
@@ -67,9 +61,6 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 	private static final int MAX_CHECKPOINTS_TO_TRACK = 50;
 
 	// ------------------------------------------------------------------------
-
-	/** The input gate, to draw the buffers and events from. */
-	private final InputGate inputGate;
 
 	/**
 	 * The number of channels. Once that many barriers have been received for a checkpoint, the
@@ -83,98 +74,38 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 	 */
 	private final ArrayDeque<CheckpointBarrierCount> pendingCheckpoints;
 
-	/** The listener to be notified on complete checkpoints. */
-	private AbstractInvokable toNotifyOnCheckpoint;
-
 	/** The highest checkpoint ID encountered so far. */
 	private long latestPendingCheckpointID = -1;
 
-	// ------------------------------------------------------------------------
+	public CheckpointBarrierTracker(int totalNumberOfInputChannels) {
+		this(totalNumberOfInputChannels, null);
+	}
 
-	public BarrierTracker(InputGate inputGate) {
-		this.inputGate = inputGate;
-		this.totalNumberOfInputChannels = inputGate.getNumberOfInputChannels();
+	public CheckpointBarrierTracker(int totalNumberOfInputChannels, @Nullable AbstractInvokable toNotifyOnCheckpoint) {
+		super(toNotifyOnCheckpoint);
+		this.totalNumberOfInputChannels = totalNumberOfInputChannels;
 		this.pendingCheckpoints = new ArrayDeque<>();
 	}
 
 	@Override
-	public CompletableFuture<?> isAvailable() {
-		return inputGate.isAvailable();
+	public void releaseBlocksAndResetBarriers() {
 	}
 
 	@Override
-	public boolean isFinished() {
-		return inputGate.isFinished();
+	public boolean isBlocked(int channelIndex) {
+		return false;
 	}
 
 	@Override
-	public Optional<BufferOrEvent> pollNext() throws Exception {
-		while (true) {
-			Optional<BufferOrEvent> next = inputGate.pollNext();
-			if (!next.isPresent()) {
-				// buffer or input exhausted
-				return next;
-			}
-
-			BufferOrEvent bufferOrEvent = next.get();
-			//不管BufferOrEvent对应的channel是否已处于阻塞状态，这里不存在缓存数据的做法，直接返回
-			if (bufferOrEvent.isBuffer()) {
-				return next;
-			}
-			//如果是barrier，则进入barrier的处理逻辑
-			else if (bufferOrEvent.getEvent().getClass() == CheckpointBarrier.class) {
-				processBarrier((CheckpointBarrier) bufferOrEvent.getEvent(), bufferOrEvent.getChannelIndex());
-			}
-			else if (bufferOrEvent.getEvent().getClass() == CancelCheckpointMarker.class) {
-				processCheckpointAbortBarrier((CancelCheckpointMarker) bufferOrEvent.getEvent(), bufferOrEvent.getChannelIndex());
-			}
-			else {
-				// some other event
-				return next;
-			}
-		}
-	}
-
-	@Override
-	public void registerCheckpointEventHandler(AbstractInvokable toNotifyOnCheckpoint) {
-		if (this.toNotifyOnCheckpoint == null) {
-			this.toNotifyOnCheckpoint = toNotifyOnCheckpoint;
-		}
-		else {
-			throw new IllegalStateException("BarrierTracker already has a registered checkpoint notifyee");
-		}
-	}
-
-	@Override
-	public void cleanup() {
-		pendingCheckpoints.clear();
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return pendingCheckpoints.isEmpty();
-	}
-
-	@Override
-	public long getAlignmentDurationNanos() {
-		// this one does not do alignment at all
-		return 0L;
-	}
-
-	@Override
-	public int getNumberOfInputChannels() {
-		return totalNumberOfInputChannels;
-	}
-
-	private void processBarrier(CheckpointBarrier receivedBarrier, int channelIndex) throws Exception {
+	public boolean processBarrier(CheckpointBarrier receivedBarrier, int channelIndex, long bufferedBytes) throws Exception {
 		final long barrierId = receivedBarrier.getId();
 
 		// fast path for single channel trackers
 		//首先判断特殊情况：当前operator是否只有一个input channel
 		//如果是，那么就省略了统计的步骤，直接触发barrier handler回调
 		if (totalNumberOfInputChannels == 1) {
-			notifyCheckpoint(barrierId, receivedBarrier.getTimestamp(), receivedBarrier.getCheckpointOptions());
-			return;
+			notifyCheckpoint(receivedBarrier, 0, 0);
+			return false;
 		}
 
 		// general path for multiple input channels
@@ -185,13 +116,13 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 
 		// find the checkpoint barrier in the queue of pending barriers
 		//所有未完成的检查点都存储在一个队列里，需要找到当前barrier对应的检查点
-		CheckpointBarrierCount cbc = null;
+		CheckpointBarrierCount barrierCount = null;
 		int pos = 0;
 
 		for (CheckpointBarrierCount next : pendingCheckpoints) {
 			if (next.checkpointId == barrierId) {
 				//如果找到则跳出循环
-				cbc = next;
+				barrierCount = next;
 				break;
 			}
 			//没找到位置加一
@@ -199,10 +130,10 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 		}
 
 		//最终找到了对应的未完成的检查点
-		if (cbc != null) {
+		if (barrierCount != null) {
 			// add one to the count to that barrier and check for completion
 			//将barrier计数器加一
-			int numBarriersNew = cbc.incrementBarrierCount();
+			int numBarriersNew = barrierCount.incrementBarrierCount();
 			//如果barrier计数器等于input channel的总数
 			if (numBarriersNew == totalNumberOfInputChannels) {
 				// checkpoint can be triggered (or is aborted and all barriers have been seen)
@@ -214,12 +145,13 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 				}
 
 				// notify the listener
-				if (!cbc.isAborted()) {
+				if (!barrierCount.isAborted()) {
 					if (LOG.isDebugEnabled()) {
 						LOG.debug("Received all barriers for checkpoint {}", barrierId);
 					}
+
 					//触发检查点处理器事件
-					notifyCheckpoint(receivedBarrier.getId(), receivedBarrier.getTimestamp(), receivedBarrier.getCheckpointOptions());
+					notifyCheckpoint(receivedBarrier, 0, 0);
 				}
 			}
 		}
@@ -241,19 +173,21 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 				}
 			}
 		}
+		return false;
 	}
 
-	private void processCheckpointAbortBarrier(CancelCheckpointMarker barrier, int channelIndex) throws Exception {
-		final long checkpointId = barrier.getCheckpointId();
+	@Override
+	public boolean processCancellationBarrier(CancelCheckpointMarker cancelBarrier) throws Exception {
+		final long checkpointId = cancelBarrier.getCheckpointId();
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("Received cancellation barrier for checkpoint {} from channel {}", checkpointId, channelIndex);
+			LOG.debug("Received cancellation barrier for checkpoint {}", checkpointId);
 		}
 
 		// fast path for single channel trackers
 		if (totalNumberOfInputChannels == 1) {
-			notifyAbort(checkpointId);
-			return;
+			notifyAbortOnCancellationBarrier(checkpointId);
+			return false;
 		}
 
 		// -- general path for multiple input channels --
@@ -266,7 +200,7 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 
 			if (cbc.markAborted()) {
 				// abort the subsumed checkpoints if not already done
-				notifyAbort(cbc.checkpointId());
+				notifyAbortOnCancellationBarrier(cbc.checkpointId());
 			}
 		}
 
@@ -274,7 +208,7 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 			// make sure the checkpoint is remembered as aborted
 			if (cbc.markAborted()) {
 				// this was the first time the checkpoint was aborted - notify
-				notifyAbort(checkpointId);
+				notifyAbortOnCancellationBarrier(checkpointId);
 			}
 
 			// we still count the barriers to be able to remove the entry once all barriers have been seen
@@ -284,7 +218,7 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 			}
 		}
 		else if (checkpointId > latestPendingCheckpointID) {
-			notifyAbort(checkpointId);
+			notifyAbortOnCancellationBarrier(checkpointId);
 
 			latestPendingCheckpointID = checkpointId;
 
@@ -297,28 +231,33 @@ public class BarrierTracker implements CheckpointBarrierHandler {
 		} else {
 			// trailing cancellation barrier which was already cancelled
 		}
+		return false;
 	}
 
-	private void notifyCheckpoint(long checkpointId, long timestamp, CheckpointOptions checkpointOptions) throws Exception {
-		if (toNotifyOnCheckpoint != null) {
-			CheckpointMetaData checkpointMetaData = new CheckpointMetaData(checkpointId, timestamp);
-			CheckpointMetrics checkpointMetrics = new CheckpointMetrics()
-				.setBytesBufferedInAlignment(0L)
-				.setAlignmentDurationNanos(0L);
-
-			toNotifyOnCheckpoint.triggerCheckpointOnBarrier(checkpointMetaData, checkpointOptions, checkpointMetrics);
+	@Override
+	public boolean processEndOfPartition() throws Exception {
+		while (!pendingCheckpoints.isEmpty()) {
+			CheckpointBarrierCount barrierCount = pendingCheckpoints.removeFirst();
+			if (barrierCount.markAborted()) {
+				notifyAbort(barrierCount.checkpointId(),
+					new CheckpointException(CheckpointFailureReason.CHECKPOINT_DECLINED_INPUT_END_OF_STREAM));
+			}
 		}
+		return false;
 	}
 
-	private void notifyAbort(long checkpointId) throws Exception {
-		if (toNotifyOnCheckpoint != null) {
-			toNotifyOnCheckpoint.abortCheckpointOnBarrier(
-				checkpointId,
-				new CheckpointException(CheckpointFailureReason.CHECKPOINT_DECLINED_ON_CANCELLATION_BARRIER));
-		}
+	public long getLatestCheckpointId() {
+		return pendingCheckpoints.isEmpty() ? -1 : pendingCheckpoints.peekLast().checkpointId();
 	}
 
-	// ------------------------------------------------------------------------
+	public long getAlignmentDurationNanos() {
+		return 0;
+	}
+
+	@Override
+	public void checkpointSizeLimitExceeded(long maxBufferedBytes) throws Exception {
+		throw new UnsupportedOperationException("This should never happened as this class doesn't block any data");
+	}
 
 	/**
 	 * Simple class for a checkpoint ID with a barrier counter.

@@ -21,35 +21,29 @@ package org.apache.flink.streaming.runtime.io;
 import org.apache.flink.runtime.io.disk.iomanager.IOManager;
 import org.apache.flink.runtime.io.disk.iomanager.IOManagerAsync;
 import org.apache.flink.runtime.io.network.partition.consumer.BufferOrEvent;
+import org.apache.flink.runtime.io.network.partition.consumer.InputGate;
+import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**
- * Tests for {@link BufferSpiller}.
+ * Tests for the behavior of the {@link CheckpointedInputGate} with {@link BufferSpiller}.
  */
-public class BufferSpillerTest extends BufferStorageTestBase {
+public class SpillingCheckpointBarrierAlignerTest extends CheckpointBarrierAlignerTestBase {
 
 	private static IOManager ioManager;
 
-	private BufferSpiller spiller;
-
-	// ------------------------------------------------------------------------
-	//  Setup / Cleanup
-	// ------------------------------------------------------------------------
-
 	@BeforeClass
-	public static void setupIOManager() {
+	public static void setup() {
 		ioManager = new IOManagerAsync();
 	}
 
@@ -58,44 +52,10 @@ public class BufferSpillerTest extends BufferStorageTestBase {
 		ioManager.shutdown();
 	}
 
-	@Before
-	public void createSpiller() throws IOException {
-		spiller = new BufferSpiller(ioManager, PAGE_SIZE);
-	}
-
-	@After
-	public void cleanupSpiller() throws IOException {
-		if (spiller != null) {
-			spiller.close();
-
-			assertFalse(spiller.getCurrentChannel().isOpen());
-			assertFalse(spiller.getCurrentSpillFile().exists());
-		}
-
-		checkNoTempFilesRemain();
-	}
-
 	@Override
-	public BufferStorage createBufferStorage() {
-		return spiller;
-	}
+	public void ensureEmpty() throws Exception {
+		super.ensureEmpty();
 
-	/**
-	 * Tests that the static HEADER_SIZE field has valid header size.
-	 */
-	@Test
-	public void testHeaderSizeStaticField() throws Exception {
-		int size = 13;
-		BufferOrEvent boe = generateRandomBuffer(size, 0);
-		spiller.add(boe);
-
-		assertEquals(
-			"Changed the header format, but did not adjust the HEADER_SIZE field",
-			BufferSpiller.HEADER_SIZE + size,
-			spiller.getPendingBytes());
-	}
-
-	private static void checkNoTempFilesRemain() {
 		// validate that all temp files have been removed
 		for (File dir : ioManager.getSpillingDirectories()) {
 			for (String file : dir.list()) {
@@ -104,5 +64,22 @@ public class BufferSpillerTest extends BufferStorageTestBase {
 				}
 			}
 		}
+	}
+
+	@Override
+	CheckpointedInputGate createBarrierBuffer(InputGate gate, @Nullable AbstractInvokable toNotify) throws IOException {
+		return new CheckpointedInputGate(gate, new BufferSpiller(ioManager, PAGE_SIZE), "Testing", toNotify);
+	}
+
+	@Override
+	public void validateAlignmentBuffered(long actualBytesBuffered, BufferOrEvent... sequence) {
+		long expectedBuffered = 0;
+		for (BufferOrEvent boe : sequence) {
+			if (boe.isBuffer()) {
+				expectedBuffered += BufferSpiller.HEADER_SIZE + boe.getBuffer().getSize();
+			}
+		}
+
+		assertEquals("Wrong alignment buffered bytes", actualBytesBuffered, expectedBuffered);
 	}
 }

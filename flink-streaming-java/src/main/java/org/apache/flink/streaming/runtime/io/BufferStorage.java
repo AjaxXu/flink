@@ -22,47 +22,56 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.runtime.io.network.partition.consumer.BufferOrEvent;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
- * The buffer blocker takes the buffers and events from a data stream and adds them in a sequence.
- * After a number of elements have been added, the blocker can "roll over": It presents the added
- * elements as a readable sequence, and creates a new sequence.
+ * The {@link BufferStorage} takes the buffers and events from a data stream and adds them in a sequence.
+ * After a number of elements have been added, the {@link BufferStorage} can {@link #rollOver() "roll over"}.
+ * After rolling over, previously stored buffers are available for reading via {@link #pollNext()}.
  */
 @Internal
-public interface BufferBlocker {
+public interface BufferStorage extends AutoCloseable {
 
 	/**
-	 * Adds a buffer or event to the blocker.
+	 * Adds a buffer or event to the {@link BufferStorage}.
 	 *
 	 * @param boe The buffer or event to be added into the blocker.
 	 */
 	void add(BufferOrEvent boe) throws IOException;
 
 	/**
-	 * Starts a new sequence of buffers and event without reusing the same resources and
-	 * returns the current sequence of buffers for reading.
-	 *
-	 * @return The readable sequence of buffers and events, or 'null', if nothing was added.
+	 * @return true if size limit was exceeded.
 	 */
-	BufferOrEventSequence rollOverWithoutReusingResources() throws IOException;
+	boolean isFull();
 
 	/**
-	 * Starts a new sequence of buffers and event reusing the same resources and
-	 * returns the current sequence of buffers for reading.
-	 *
-	 * @return The readable sequence of buffers and events, or 'null', if nothing was added.
+	 * Start returning next sequence of stored {@link BufferOrEvent}s.
 	 */
-	BufferOrEventSequence rollOverReusingResources() throws IOException;
+	void rollOver() throws IOException;
+
+	/**
+	 * @return the number of pending bytes blocked in the current sequence - bytes that are have not
+	 * been yet rolled, but are already blocked.
+	 */
+	long getPendingBytes();
+
+	/**
+	 * @return the number of already rolled bytes in in blocked sequences.
+	 */
+	long getRolledBytes();
+
+	/**
+	 * @return true if this {@link BufferStorage} doesn't store and data.
+	 */
+	boolean isEmpty();
+
+	Optional<BufferOrEvent> pollNext() throws IOException;
+
+	long getMaxBufferedBytes();
 
 	/**
 	 * Cleans up all the resources in the current sequence.
 	 */
+	@Override
 	void close() throws IOException;
-
-	/**
-	 * Gets the number of bytes blocked in the current sequence.
-	 *
-	 * @return the number of bytes blocked in the current sequence.
-	 */
-	long getBytesBlocked();
 }
