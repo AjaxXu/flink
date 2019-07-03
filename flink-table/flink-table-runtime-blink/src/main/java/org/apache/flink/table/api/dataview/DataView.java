@@ -21,6 +21,7 @@ package org.apache.flink.table.api.dataview;
 import java.io.Serializable;
 
 /**
+ * {@link DataView}是一个集合类型，被用在{@link org.apache.flink.table.functions.AggregateFunction}的累加器中
  * A {@link DataView} is a collection type that can be used in the accumulator of an
  * {@link org.apache.flink.table.functions.AggregateFunction}.
  *

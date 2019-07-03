@@ -24,6 +24,7 @@ import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.table.dataformat.BinaryString;
 
 /**
+ * BinaryString的类型信息
  * TypeInfo for BinaryString.
  */
 public class BinaryStringTypeInfo extends TypeInformation<BinaryString> {

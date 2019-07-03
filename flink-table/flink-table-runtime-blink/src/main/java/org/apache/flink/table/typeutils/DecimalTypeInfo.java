@@ -26,6 +26,7 @@ import org.apache.flink.table.dataformat.Decimal;
 import java.util.Arrays;
 
 /**
+ * Decimal的类型信息
  * TypeInfo for Decimal.
  */
 public class DecimalTypeInfo extends TypeInformation<Decimal> {

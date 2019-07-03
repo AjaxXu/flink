@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
+ * {@link MapView}的序列化器
  * A serializer for {@link MapView}. The serializer relies on a key serializer and a value
  * serializer for the serialization of the map's key-value pairs.
  *

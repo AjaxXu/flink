@@ -27,6 +27,7 @@ import org.apache.flink.table.api.dataview.MapView;
 import java.util.Objects;
 
 /**
+ * {@link MapView}的类型信息
  * TypeInformation for {@link MapView}.
  *
  * @param <K> key type

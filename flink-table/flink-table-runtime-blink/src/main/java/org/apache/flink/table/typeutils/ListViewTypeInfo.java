@@ -25,6 +25,7 @@ import org.apache.flink.api.common.typeutils.base.ListSerializer;
 import org.apache.flink.table.api.dataview.ListView;
 
 /**
+ * {@link ListView}的类型信息
  * Type information for {@link ListView}.
  *
  * @param <T> element type

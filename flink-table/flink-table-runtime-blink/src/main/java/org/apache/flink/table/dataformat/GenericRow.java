@@ -18,12 +18,14 @@
 package org.apache.flink.table.dataformat;
 
 /**
+ * GenericRow可以具有任意数量的字段并包含一组字段，这些字段可以是不同的类型。 GenericRow中的字段可以为null。
  * A GenericRow can have arbitrary number of fields and contain a set of fields, which may all be
  * different types. The fields in GenericRow can be null.
  *
  * <p>The fields in the Row can be accessed by position (zero-based) {@link #getInt}.
  * And can update fields by {@link #setField(int, Object)}.
  *
+ * GenericRow原则上是可序列化的，但有可能包含非序列化的字段，这种情况下序列化将失败(底层是对象数组)
  * <p>GenericRow is in principle serializable. However, it may contain non-serializable fields,
  * in which case serialization will fail.
  */

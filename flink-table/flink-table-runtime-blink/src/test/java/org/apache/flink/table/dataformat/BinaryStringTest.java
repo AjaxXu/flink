@@ -277,6 +277,9 @@ public class BinaryStringTest {
 		assertEquals(
 			fromString("数据哈哈砖头"),
 			concatWs(sep, fromString("数据"), fromString("砖头")));
+		assertEquals(
+			fromString("哈哈哈哈b"),
+			concatWs(sep, fromString("哈哈"), fromString("b")));
 	}
 
 	@Test
@@ -388,6 +391,7 @@ public class BinaryStringTest {
 		assertNull(fromString("hello").substringSQL(0, -1));
 		assertEquals(empty, fromString("hello").substringSQL(10));
 		assertEquals(fromString("hel"), fromString("hello").substringSQL(0, 3));
+		assertEquals(fromString("hel"), fromString("hello").substringSQL(1, 3));
 		assertEquals(fromString("lo"), fromString("hello").substringSQL(-2, 3));
 		assertEquals(empty, fromString("hello").substringSQL(-100, 3));
 	}

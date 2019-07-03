@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
+ * ListView的序列化器
  * A serializer for [[ListView]]. The serializer relies on an element
  * serializer for the serialization of the list's elements.
  *
@@ -78,6 +79,7 @@ public class ListViewSerializer<T> extends TypeSerializer<ListView<T>> {
 
 	@Override
 	public void serialize(ListView<T> record, DataOutputView target) throws IOException {
+		// listSerializer本身就包含了element的类型信息
 		listSerializer.serialize(record.list, target);
 	}
 

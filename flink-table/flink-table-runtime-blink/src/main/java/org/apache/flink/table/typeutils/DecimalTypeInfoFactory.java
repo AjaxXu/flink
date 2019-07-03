@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
+ * Decimal的类型工厂
  * The type factory of Decimal.
  */
 public class DecimalTypeInfoFactory extends TypeInfoFactory<Decimal> {

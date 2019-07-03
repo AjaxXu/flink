@@ -26,6 +26,7 @@ import static org.apache.flink.table.util.SegmentsUtil.allocateReuseBytes;
 import static org.apache.flink.table.util.SegmentsUtil.allocateReuseChars;
 
 /**
+ * utf-8字符串工具类
  * String utf-8 utils.
  *
  * <p>{@code StringUtf8Utils} refers to the implementation from SerializeWriter and IOUtils of Alibaba fastjson.
@@ -39,7 +40,9 @@ public class StringUtf8Utils {
 	 * This method must have the same result with JDK's String.getBytes.
 	 */
 	public static byte[] encodeUTF8(String str) {
+		// 分配可重用的字节数组
 		byte[] bytes = allocateReuseBytes(str.length() * MAX_BYTES_PER_CHAR);
+		// 把string编码到bytes数组中
 		int len = encodeUTF8(str, bytes);
 		return Arrays.copyOf(bytes, len);
 	}
@@ -123,7 +126,9 @@ public class StringUtf8Utils {
 	}
 
 	public static String decodeUTF8(byte[] input, int offset, int byteLen) {
+		// 分配可重用的char数组
 		char[] chars = allocateReuseChars(byteLen);
+		// 解码字节数组
 		int len = decodeUTF8Strict(input, offset, byteLen, chars);
 		if (len < 0) {
 			return defaultDecodeUTF8(input, offset, byteLen);

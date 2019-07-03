@@ -30,6 +30,7 @@ import org.apache.flink.table.util.SegmentsUtil;
 import java.io.IOException;
 
 /**
+ * BinaryString的序列化器
  * Serializer for {@link BinaryString}.
  */
 @Internal

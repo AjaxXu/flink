@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
+ * {@link ListView}的类型信息工厂
  * TypeInformation factory for {@link ListView}.
  */
 public class ListViewTypeInfoFactory<T> extends TypeInfoFactory<ListView<T>> {

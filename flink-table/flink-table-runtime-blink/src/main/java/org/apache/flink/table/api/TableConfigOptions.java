@@ -24,6 +24,7 @@ import org.apache.flink.table.runtime.window.grouping.HeapWindowsGrouping;
 import static org.apache.flink.configuration.ConfigOptions.key;
 
 /**
+ * 该类保存Flink表模块使用的配置常量
  * This class holds configuration constants used by Flink's table module.
  */
 public class TableConfigOptions {

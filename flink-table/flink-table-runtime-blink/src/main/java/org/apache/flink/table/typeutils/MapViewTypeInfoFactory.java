@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
+ * {@link MapView}的类型信息工厂
  * TypeInformation factory for {@link MapView}.
  */
 public class MapViewTypeInfoFactory<K, V> extends TypeInfoFactory<MapView<K, V>> {

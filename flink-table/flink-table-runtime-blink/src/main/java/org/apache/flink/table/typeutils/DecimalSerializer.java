@@ -29,6 +29,7 @@ import org.apache.flink.table.dataformat.Decimal;
 import java.io.IOException;
 
 /**
+ * Decimal的序列化器
  * Serializer for {@link Decimal}.
  */
 @Internal

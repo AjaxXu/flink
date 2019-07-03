@@ -294,7 +294,7 @@ public class BinaryRowTest {
 			BinaryRowWriter writer = new BinaryRowWriter(row);
 			assertFalse(row.anyNull());
 
-			writer.setNullAt(3);
+			writer.setNullAt(31);
 			assertTrue(row.anyNull());
 
 			writer = new BinaryRowWriter(row);

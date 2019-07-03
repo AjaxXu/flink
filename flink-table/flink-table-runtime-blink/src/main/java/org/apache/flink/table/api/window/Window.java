@@ -20,6 +20,7 @@ package org.apache.flink.table.api.window;
 
 
 /**
+ * {@code Window}将一组元素放到有限桶中。 Windows具有最大时间戳，这意味着在这个时刻，进入一个窗口的所有元素都将到达。
  * A {@code Window} is a grouping of elements into finite buckets. Windows have a maximum timestamp
  * which means that, at some point, all elements that go into one window will have arrived.
  *

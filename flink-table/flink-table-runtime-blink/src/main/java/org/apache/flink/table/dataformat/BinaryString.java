@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
+ * 一个utf8字符串，由{@link MemorySegment}而不是String支持。 它的数据可能跨越多个{@link MemorySegment}
  * A utf8 string which is backed by {@link MemorySegment} instead of String. Its data may span
  * multiple {@link MemorySegment}s.
  *
@@ -355,6 +356,8 @@ public final class BinaryString extends LazyBinaryFormat<String> implements Comp
 		return substringSQL(pos, Integer.MAX_VALUE);
 	}
 
+	// 该函数中pos参数，针对的是以1作为开始计数的数组
+	// pos为0或1，对应返回的结果是一样的
 	public BinaryString substringSQL(int pos, int length) {
 		if (length < 0) {
 			return null;
@@ -369,7 +372,7 @@ public final class BinaryString extends LazyBinaryFormat<String> implements Comp
 		int numChars = numChars();
 
 		if (pos > 0) {
-			start = pos - 1;
+			start = pos - 1; // 从1开始，对应到底层存储要减去1，变为从0开始
 			if (start >= numChars) {
 				return EMPTY_UTF8;
 			}
@@ -391,7 +394,7 @@ public final class BinaryString extends LazyBinaryFormat<String> implements Comp
 	}
 
 	/**
-	 * Returns a substring of this.
+	 * Returns a substring of this. [start, until)
 	 * @param start the position of first code point
 	 * @param until the position after last code point, exclusive.
 	 */

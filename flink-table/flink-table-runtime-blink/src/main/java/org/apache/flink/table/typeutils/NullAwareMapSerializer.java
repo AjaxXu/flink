@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * {@link NullAwareMapSerializer}和MapSerializer类似，区别是能处理null键
  * The {@link NullAwareMapSerializer} is similar to MapSerializer, the only difference is that
  * the {@link NullAwareMapSerializer} can handle null keys.
  */

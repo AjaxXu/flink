@@ -22,6 +22,7 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 
 /**
+ * 提供类型专用的getter和setter来减少if / else并消除box和unbox
  * Provide type specialized getters and setters to reduce if/else and eliminate box and unbox.
  *
  * <p>There is only setter for the fixed-length type field, because the variable-length type

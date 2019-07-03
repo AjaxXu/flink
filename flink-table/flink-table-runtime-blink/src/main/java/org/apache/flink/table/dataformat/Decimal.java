@@ -31,6 +31,7 @@ import java.math.RoundingMode;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
+ * Sql小数值。如果精度够小(<=18)可以用long类型来表示，否则需要用BigDecimal来表示
  * Sql Decimal value. A mutable implementation of BigDecimal that can hold a Long if values
  * are small enough.
  *
@@ -42,9 +43,10 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 @TypeInfo(DecimalTypeInfoFactory.class)
 public final class Decimal implements Comparable<Decimal> {
 
+	// 精度和取整模式
 	private static final MathContext MC_DIVIDE = new MathContext(38, RoundingMode.HALF_UP);
 
-	public static final int MAX_COMPACT_PRECISION = 18;
+	public static final int MAX_COMPACT_PRECISION = 18; // 最大压缩精度
 
 	/**
 	 * Maximum number of decimal digits an Int can represent. (1e9 < Int.MaxValue < 1e10)
@@ -136,7 +138,7 @@ public final class Decimal implements Comparable<Decimal> {
 	 * Returns the signum function of this decimal.  (The return value is -1 if this decimal
 	 * is negative; 0 if this decimal is zero; and 1 if this decimal is positive.)
 	 *
-	 * @return the signum function of this decimal.
+	 * @return the signum function of this decimal.正负号
 	 */
 	public int signum() {
 		if (isCompact()) {
@@ -193,6 +195,7 @@ public final class Decimal implements Comparable<Decimal> {
 		return new Decimal(precision, scale, longVal, null);
 	}
 
+	// byte数组最大为16bit
 	public byte[] toUnscaledBytes() {
 		if (!isCompact()) {
 			return toBigDecimal().unscaledValue().toByteArray();
@@ -448,6 +451,7 @@ public final class Decimal implements Comparable<Decimal> {
 
 	/**
 	 * SQL <code>ROUND</code> operator applied to BigDecimal values.
+	 * 根据四舍五入的规则，将Decimal的小数位数指定到r位
 	 */
 	public static Decimal sround(Decimal b0, int r) {
 		if (r >= b0.scale) {
@@ -480,6 +484,7 @@ public final class Decimal implements Comparable<Decimal> {
 
 	static Decimal readDecimalFieldFromSegments(MemorySegment[] segments, int baseOffset,
 			long offsetAndSize, int precision, int scale) {
+		// offsetAndSize，高32位为subOffset，低32位位size
 		final int size = ((int) offsetAndSize);
 		int subOffset = (int) (offsetAndSize >> 32);
 		byte[] bytes = new byte[size];

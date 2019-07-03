@@ -29,17 +29,22 @@ import java.nio.ByteOrder;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
+ * 由{@link MemorySegment}而不是Object支持的特殊行。 它可以显着减少Java对象的序列化/反序列化
  * A special row which is backed by {@link MemorySegment} instead of Object. It can significantly
  * reduce the serialization/deserialization of Java objects.
  *
  * <p>A Row has two part: Fixed-length part and variable-length part.
  *
+ * 固定长度部分：1byte的头，null字段(用于null检测，8byte对齐)，字段值(固定长度的字段直接用8字节表示，比如byte、int等，
+ * 如果是变长字段则前4byte为offset，后4byte为length)
  * <p>Fixed-length part contains 1 byte header and null bit set and field values. Null bit set is
  * used for null tracking and is aligned to 8-byte word boundaries. `Field values` holds
  * fixed-length primitive types and variable-length values which can be stored in 8 bytes inside.
  * If it do not fit the variable-length field, then store the length and offset of variable-length
  * part.
  *
+ * 固定长度的部分肯定会落入一个MemorySegment，这将加速字段的读写。 在写入阶段，如果目标内存段的空间小于固定长度的部件大小，
+ * 我们将跳过该空间。 所以单行中的字段数不能超过单个MemorySegment的容量，如果字段太多，我们建议用户设置更大的MemorySegment的大小。
  * <p>Fixed-length part will certainly fall into a MemorySegment, which will speed up the read
  * and write of field. During the write phase, if the target memory segment has less space than
  * fixed length part size, we will skip the space. So the number of fields in a single Row cannot
@@ -56,13 +61,15 @@ public final class BinaryRow extends BinaryFormat implements BaseRow {
 
 	public static final boolean LITTLE_ENDIAN = (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN);
 	private static final long FIRST_BYTE_ZERO = LITTLE_ENDIAN ? 0xFFF0 : 0x0FFF;
-	public static final int HEADER_SIZE_IN_BITS = 8;
+	public static final int HEADER_SIZE_IN_BITS = 8; // header的bit数
 
+	// 计算header+null检测字段占用的字节数
 	public static int calculateBitSetWidthInBytes(int arity) {
 		return ((arity + 63 + HEADER_SIZE_IN_BITS) / 64) * 8;
 	}
 
 	public static int calculateFixPartSizeInBytes(int arity) {
+		// header+null检测字段+每个字段对应的long类型的8bytes
 		return calculateBitSetWidthInBytes(arity) + 8 * arity;
 	}
 
@@ -106,6 +113,7 @@ public final class BinaryRow extends BinaryFormat implements BaseRow {
 	}
 
 	private int getFieldOffset(int pos) {
+		// 在固定长度部分，field长度为8
 		return offset + nullBitsSizeInBytes + pos * 8;
 	}
 
@@ -114,6 +122,7 @@ public final class BinaryRow extends BinaryFormat implements BaseRow {
 		assert index < arity : "index (" + index + ") should < " + arity;
 	}
 
+	// 获取固定部分长度
 	public int getFixedLengthPartSize() {
 		return nullBitsSizeInBytes + 8 * arity;
 	}
@@ -198,6 +207,7 @@ public final class BinaryRow extends BinaryFormat implements BaseRow {
 			if (value == null) {
 				setNullAt(pos);
 				// keep the offset for future update
+				// 将offset记录回原来的位置，去掉length
 				segments[0].putLong(fieldOffset, ((long) cursor) << 32);
 			} else {
 
@@ -330,7 +340,7 @@ public final class BinaryRow extends BinaryFormat implements BaseRow {
 	}
 
 	@Override
-	public BaseRow getRow(int pos, int numFields) {
+	public BaseRow getRow(int pos, int numFields) { // 获取内嵌的row
 		assertIndexIsValid(pos);
 		return NestedRow.readNestedRowFieldFromSegments(segments, numFields, offset, getLong(pos));
 	}
@@ -340,6 +350,7 @@ public final class BinaryRow extends BinaryFormat implements BaseRow {
 	 */
 	public boolean anyNull() {
 		// Skip the header.
+		// 跳过header，只比较其他
 		if ((segments[0].getLong(0) & FIRST_BYTE_ZERO) != 0) {
 			return true;
 		}

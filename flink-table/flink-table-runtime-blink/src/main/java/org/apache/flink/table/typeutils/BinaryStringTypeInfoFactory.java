@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
+ * BinaryString的类型工厂
  * The type factory of BinaryString.
  */
 public class BinaryStringTypeInfoFactory extends TypeInfoFactory<BinaryString> {

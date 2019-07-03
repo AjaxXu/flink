@@ -28,6 +28,7 @@ import org.apache.flink.util.MathUtils;
 import java.io.IOException;
 
 /**
+ * 计数窗口
  * A {@link Window} that represents a count window. For each count window, we will assign a unique
  * id. Thus this CountWindow can act as namespace part in state. We can attach data to each
  * different CountWindow.

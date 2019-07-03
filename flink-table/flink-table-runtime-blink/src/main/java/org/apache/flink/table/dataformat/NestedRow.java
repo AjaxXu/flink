@@ -25,6 +25,7 @@ import static org.apache.flink.table.dataformat.BinaryRow.calculateBitSetWidthIn
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
+ * 它的内存存储结构与{@link BinaryRow}完全相同，唯一不同的是它支持不同的MemorySegments中的所有字节。
  * Its memory storage structure and {@link BinaryRow} exactly the same, the only different is it supports
  * all bytes in variable MemorySegments.
  */

@@ -21,6 +21,7 @@ import org.apache.flink.core.memory.MemorySegment;
 import org.apache.flink.table.util.SegmentsUtil;
 
 /**
+ * {@link MemorySegment}中的二进制格式
  * Binary format that in {@link MemorySegment}s.
  */
 public abstract class BinaryFormat {
@@ -28,17 +29,22 @@ public abstract class BinaryFormat {
 	/**
 	 * It decides whether to put data in FixLenPart or VarLenPart. See more in {@link BinaryRow}.
 	 *
+	 * 一个long字段：
+	 *
+	 * 如果长度小于8，二进制格式为：1bit标志，7bit长度，7bytes数据。数据存储在定长部分
 	 * <p>If len is less than 8, its binary format is:
 	 * 1-bit mark(1) = 1, 7-bits len, and 7-bytes data.
 	 * Data is stored in fix-length part.
 	 *
+	 * 如果长度大于等于8，二进制格式为：1bit标志，31bit的到data的offset，4byte的数据的长度，数据存储在变长部分
 	 * <p>If len is greater or equal to 8, its binary format is:
 	 * 1-bit mark(1) = 0, 31-bits offset to the data, and 4-bytes length of data.
 	 * Data is stored in variable-length part.
 	 */
-	static final int MAX_FIX_PART_DATA_SIZE = 7;
+	static final int MAX_FIX_PART_DATA_SIZE = 7; // 固定部分的最大数据大小(byte)
 
 	/**
+	 * 获得标志位
 	 * To get the mark in highest bit of long.
 	 * Form: 10000000 00000000 ... (8 bytes)
 	 *
@@ -48,6 +54,7 @@ public abstract class BinaryFormat {
 	private static final long HIGHEST_FIRST_BIT = 0x80L << 56;
 
 	/**
+	 * 获得7bit的长度，当数据存在固定部分时
 	 * To get the 7 bits length in second bit to eighth bit out of a long.
 	 * Form: 01111111 00000000 ... (8 bytes)
 	 *
@@ -113,23 +120,29 @@ public abstract class BinaryFormat {
 	 * <p>Note: Need to consider the ByteOrder.
 	 *
 	 * @param baseOffset base offset of composite binary format.
-	 * @param fieldOffset absolute start offset of 'variablePartOffsetAndLen'.
+	 * @param fieldOffset absolute start offset of 'variablePartOffsetAndLen'. variablePartOffsetAndLen的绝对offset
 	 * @param variablePartOffsetAndLen a long value, real data or offset and len.
 	 */
 	static byte[] readBinaryFieldFromSegments(
 			MemorySegment[] segments, int baseOffset, int fieldOffset,
 			long variablePartOffsetAndLen) {
 		long mark = variablePartOffsetAndLen & HIGHEST_FIRST_BIT;
+		// 0代表有变长部分
 		if (mark == 0) {
+			// 高31位为到data的offset
 			final int subOffset = (int) (variablePartOffsetAndLen >> 32);
+			// 低32位为长度
 			final int len = (int) variablePartOffsetAndLen;
 			return SegmentsUtil.copyToBytes(segments, baseOffset + subOffset, len);
 		} else {
+			// 定长部分的数据length
 			int len = (int) ((variablePartOffsetAndLen & HIGHEST_SECOND_TO_EIGHTH_BIT) >>> 56);
 			if (SegmentsUtil.LITTLE_ENDIAN) {
+				// 小端存储，高字节存储数据，低字节存储标志和长度
 				return SegmentsUtil.copyToBytes(segments, fieldOffset, len);
 			} else {
 				// fieldOffset + 1 to skip header.
+				// 大端存储，低字节存储标志和长度，高字节存储数据
 				return SegmentsUtil.copyToBytes(segments, fieldOffset + 1, len);
 			}
 		}
@@ -141,7 +154,7 @@ public abstract class BinaryFormat {
 	 * <p>Note: Need to consider the ByteOrder.
 	 *
 	 * @param baseOffset base offset of composite binary format.
-	 * @param fieldOffset absolute start offset of 'variablePartOffsetAndLen'.
+	 * @param fieldOffset absolute start offset of 'variablePartOffsetAndLen'.  variablePartOffsetAndLen的绝对offset
 	 * @param variablePartOffsetAndLen a long value, real data or offset and len.
 	 */
 	static BinaryString readBinaryStringFieldFromSegments(

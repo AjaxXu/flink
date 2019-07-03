@@ -27,6 +27,7 @@ import org.apache.flink.core.memory.DataOutputView;
 import java.io.IOException;
 
 /**
+ * 代表一个时间间隔的窗口，从start到end(前闭后开)
  * A {@link Window} that represents a time interval from {@code start} (inclusive) to
  * {@code end} (exclusive).
  */

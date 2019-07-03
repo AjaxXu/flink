@@ -20,6 +20,7 @@ package org.apache.flink.table.dataformat;
 import org.apache.flink.core.memory.MemorySegment;
 
 /**
+ * 延后的二进制格式
  * Lazy binary format.
  *
  * <p>If the Binary format is used in all the SQL representations, consider the following Case:
@@ -83,6 +84,7 @@ public abstract class LazyBinaryFormat<T> extends BinaryFormat {
 	}
 
 	/**
+	 * 确保已经二进制化
 	 * Ensure we have materialized binary format.
 	 */
 	public void ensureMaterialized() {
