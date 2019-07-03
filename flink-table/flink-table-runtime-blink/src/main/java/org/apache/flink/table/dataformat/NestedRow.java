@@ -232,10 +232,7 @@ public final class NestedRow extends BinaryFormat implements BaseRow {
 			return Decimal.fromUnscaledLong(precision, scale,
 					SegmentsUtil.getLong(segments, getFieldOffset(pos)));
 		}
-
-		int fieldOffset = getFieldOffset(pos);
-		final long offsetAndSize = SegmentsUtil.getLong(segments, fieldOffset);
-		return Decimal.readDecimalFieldFromSegments(segments, offset, offsetAndSize, precision, scale);
+		return Decimal.readDecimalFieldFromSegments(segments, offset, getLong(pos), precision, scale);
 	}
 
 	@Override

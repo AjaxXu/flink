@@ -18,7 +18,7 @@
 package org.apache.flink.table.dataformat;
 
 /**
- * GenericRow可以具有任意数量的字段并包含一组字段，这些字段可以是不同的类型。 GenericRow中的字段可以为null。
+ * GenericRow可以具有任意数量的字段并包含一组字段，这些字段可以是不同的类型。GenericRow中的字段可以为null。
  * A GenericRow can have arbitrary number of fields and contain a set of fields, which may all be
  * different types. The fields in GenericRow can be null.
  *

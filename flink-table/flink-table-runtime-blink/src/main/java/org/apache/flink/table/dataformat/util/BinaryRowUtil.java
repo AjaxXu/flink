@@ -23,7 +23,7 @@ import org.apache.flink.core.memory.MemoryUtils;
 import org.apache.flink.table.dataformat.BinaryRow;
 
 /**
- * BinaryRow的工具类
+ * BinaryRow 的工具类
  * Util for binary row. Many of the methods in this class are used in code generation.
  * So ignore IDE warnings.
  */

@@ -18,6 +18,7 @@
 package org.apache.flink.table.dataformat;
 
 /**
+ * 把2行连接成1行
  * Join two row to one row.
  */
 public final class JoinedRow implements BaseRow {

@@ -29,7 +29,7 @@ import java.nio.ByteOrder;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
- * 由{@link MemorySegment}而不是Object支持的特殊行。 它可以显着减少Java对象的序列化/反序列化
+ * 由{@link MemorySegment}而不是Object支持的特殊行。它可以显着减少Java对象的序列化/反序列化
  * A special row which is backed by {@link MemorySegment} instead of Object. It can significantly
  * reduce the serialization/deserialization of Java objects.
  *
@@ -307,10 +307,7 @@ public final class BinaryRow extends BinaryFormat implements BaseRow {
 			return Decimal.fromUnscaledLong(precision, scale,
 					segments[0].getLong(getFieldOffset(pos)));
 		}
-
-		int fieldOffset = getFieldOffset(pos);
-		final long offsetAndSize = segments[0].getLong(fieldOffset);
-		return Decimal.readDecimalFieldFromSegments(segments, offset, offsetAndSize, precision, scale);
+		return Decimal.readDecimalFieldFromSegments(segments, offset, getLong(pos), precision, scale);
 	}
 
 	@Override

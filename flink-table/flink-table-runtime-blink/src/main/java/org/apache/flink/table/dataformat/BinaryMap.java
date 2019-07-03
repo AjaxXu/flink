@@ -25,7 +25,7 @@ import org.apache.flink.table.util.SegmentsUtil;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
- * 二进制的map类型
+ * 二进制的 map 类型
  * [4 byte(keyArray size in bytes)] + [Key BinaryArray] + [Value BinaryArray].
  *
  * <p>{@code BinaryMap} are influenced by Apache Spark UnsafeMapData.

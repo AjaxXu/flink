@@ -24,7 +24,7 @@ import org.apache.flink.table.dataformat.TypeGetterSetters;
 import org.apache.flink.table.types.logical.LogicalType;
 
 /**
- * BaseRow的工具类
+ * BaseRow 的工具类
  * Util for base row.
  */
 public final class BaseRowUtil {

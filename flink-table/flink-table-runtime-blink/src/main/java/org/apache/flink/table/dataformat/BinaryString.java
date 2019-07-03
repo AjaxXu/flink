@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
- * 一个utf8字符串，由{@link MemorySegment}而不是String支持。 它的数据可能跨越多个{@link MemorySegment}
+ * 一个utf8字符串，由{@link MemorySegment}而不是String支持。它的数据可能跨越多个{@link MemorySegment}
  * A utf8 string which is backed by {@link MemorySegment} instead of String. Its data may span
  * multiple {@link MemorySegment}s.
  *

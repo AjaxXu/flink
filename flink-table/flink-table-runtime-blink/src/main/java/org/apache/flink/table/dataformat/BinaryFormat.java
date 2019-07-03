@@ -21,7 +21,7 @@ import org.apache.flink.core.memory.MemorySegment;
 import org.apache.flink.table.util.SegmentsUtil;
 
 /**
- * {@link MemorySegment}中的二进制格式
+ * {@link MemorySegment} 中的二进制格式
  * Binary format that in {@link MemorySegment}s.
  */
 public abstract class BinaryFormat {

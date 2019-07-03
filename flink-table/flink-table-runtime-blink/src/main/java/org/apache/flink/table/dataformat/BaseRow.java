@@ -18,7 +18,7 @@
 package org.apache.flink.table.dataformat;
 
 /**
- * Flink Table / SQL内部使用的row接口
+ * Flink Table/SQL内部使用的row接口
  * An interface for row used internally in Flink Table/SQL.
  *
  * <p>There are different implementations depending on the scenario:

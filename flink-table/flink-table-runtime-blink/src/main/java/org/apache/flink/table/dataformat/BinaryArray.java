@@ -26,7 +26,7 @@ import org.apache.flink.table.util.SegmentsUtil;
 import static org.apache.flink.core.memory.MemoryUtils.UNSAFE;
 
 /**
- * 对于包含固定长度基本类型（如long，double或int）的字段，我们将值直接存储在字段中，就像原始java数组一样。
+ * 对于包含固定长度基本类型（如long,double或int）的字段，我们将值直接存储在字段中，就像原始java数组一样。
  * For fields that hold fixed-length primitive types, such as long, double, or int, we store the
  * value directly in the field, just like the original java array.
  *

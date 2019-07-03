@@ -31,7 +31,7 @@ import java.math.RoundingMode;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
- * Sql小数值。如果精度够小(<=18)可以用long类型来表示，否则需要用BigDecimal来表示
+ * Sql小数值。如果精度够小 (<=18) 可以用long类型来表示，否则需要用BigDecimal来表示
  * Sql Decimal value. A mutable implementation of BigDecimal that can hold a Long if values
  * are small enough.
  *

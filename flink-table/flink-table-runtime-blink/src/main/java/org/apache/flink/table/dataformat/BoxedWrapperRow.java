@@ -26,7 +26,7 @@ import org.apache.flink.types.LongValue;
 import org.apache.flink.types.ShortValue;
 
 /**
- * 一个{@link ObjectArrayRow}，它将原始类型包装到装箱对象中以便重用
+ * 一个{@link ObjectArrayRow}，它将原始类型包装到装箱对象 中以便重用
  * A {@link ObjectArrayRow} that wrap primitive type to boxed object to reuse.
  */
 public final class BoxedWrapperRow extends ObjectArrayRow {

@@ -23,7 +23,7 @@ import org.apache.flink.util.StringUtils;
 import java.util.Arrays;
 
 /**
- * 使用对象数组作为底层存储的行实现
+ * 使用对象数组作为 底层存储的行实现
  * An row implementation that uses an array of objects as the underlying storage.
  */
 public abstract class ObjectArrayRow implements BaseRow {
