@@ -22,6 +22,7 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 
 /**
+ * Writer写一个复合数据格式，如row，array
  * Writer to write a composite data format, like row, array.
  * 1. Invoke {@link #reset()}.
  * 2. Write each field by writeXX or setNullAt. (Same field can not be written repeatedly.)

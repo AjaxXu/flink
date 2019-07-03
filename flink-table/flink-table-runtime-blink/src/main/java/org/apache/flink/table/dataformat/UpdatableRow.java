@@ -18,6 +18,7 @@
 package org.apache.flink.table.dataformat;
 
 /**
+ * 将row封装为可更新的row
  * Wrap row to a updatable Generic Row.
  */
 public final class UpdatableRow implements BaseRow {

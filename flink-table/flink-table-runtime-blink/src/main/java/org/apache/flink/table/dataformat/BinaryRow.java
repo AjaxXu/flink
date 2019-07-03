@@ -348,7 +348,10 @@ public final class BinaryRow extends BinaryFormat implements BaseRow {
 	public boolean anyNull() {
 		// Skip the header.
 		// 跳过header，只比较其他
-		if ((segments[0].getLong(0) & FIRST_BYTE_ZERO) != 0) {
+		long aLong = segments[0].getLong(0);
+//		System.out.println(Long.toBinaryString(aLong));
+		aLong = aLong & FIRST_BYTE_ZERO;
+		if ( aLong != 0) {
 			return true;
 		}
 		for (int i = 8; i < nullBitsSizeInBytes; i += 8) {

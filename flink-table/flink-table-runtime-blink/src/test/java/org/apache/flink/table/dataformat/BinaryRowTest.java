@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static org.apache.flink.table.dataformat.BinaryString.fromBytes;
 import static org.apache.flink.table.dataformat.BinaryString.fromString;
@@ -294,7 +295,7 @@ public class BinaryRowTest {
 			BinaryRowWriter writer = new BinaryRowWriter(row);
 			assertFalse(row.anyNull());
 
-			writer.setNullAt(3);
+			writer.setNullAt(12);
 			assertTrue(row.anyNull());
 
 			writer = new BinaryRowWriter(row);

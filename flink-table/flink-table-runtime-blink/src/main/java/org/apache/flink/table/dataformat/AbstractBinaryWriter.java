@@ -31,6 +31,7 @@ import java.util.Arrays;
 import static org.apache.flink.table.dataformat.BinaryFormat.MAX_FIX_PART_DATA_SIZE;
 
 /**
+ * 使用特殊的格式将数据写入{@link MemorySegment}(容量自动增加)
  * Use the special format to write data to a {@link MemorySegment} (its capacity grows
  * automatically).
  *
@@ -62,6 +63,7 @@ public abstract class AbstractBinaryWriter implements BinaryWriter {
 
 	/**
 	 * After grow, need point to new memory.
+	 * 增长完成后，需要指向新内存
 	 */
 	protected abstract void afterGrow();
 
