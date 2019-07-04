@@ -21,6 +21,7 @@ package org.apache.flink.table.dataformat.vector.heap;
 import org.apache.flink.table.dataformat.vector.DoubleColumnVector;
 
 /**
+ * 此类表示可以为空的heap double列向量
  * This class represents a nullable double precision floating point column vector.
  * This class will be used for operations on all floating point double types
  * and as such will use a 64-bit double value to hold the biggest possible value.

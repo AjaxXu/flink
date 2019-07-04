@@ -21,6 +21,7 @@ import org.apache.flink.core.memory.MemorySegmentFactory;
 import org.apache.flink.table.util.SegmentsUtil;
 
 /**
+ * {@link BinaryRow}的writer
  * Writer for {@link BinaryRow}.
  */
 public final class BinaryRowWriter extends AbstractBinaryWriter {

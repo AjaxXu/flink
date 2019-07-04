@@ -27,6 +27,7 @@ import org.apache.flink.table.dataformat.BinaryRow;
 import java.io.IOException;
 
 /**
+ * 行序列化器，提供分页序列化分页方法。
  * Row serializer, provided paged serialize paged method.
  */
 public abstract class AbstractRowSerializer<T extends BaseRow> extends TypeSerializer<T> {

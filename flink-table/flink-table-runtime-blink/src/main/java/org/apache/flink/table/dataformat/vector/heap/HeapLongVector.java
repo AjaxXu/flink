@@ -21,6 +21,7 @@ package org.apache.flink.table.dataformat.vector.heap;
 import org.apache.flink.table.dataformat.vector.LongColumnVector;
 
 /**
+ * 此类表示可以为空的heap long列向量
  * This class represents a nullable long column vector.
  */
 public class HeapLongVector extends AbstractHeapVector implements LongColumnVector {

@@ -21,6 +21,7 @@ package org.apache.flink.table.dataformat.vector.heap;
 import org.apache.flink.table.dataformat.vector.ShortColumnVector;
 
 /**
+ * 此类表示可以为空的heap short列向量
  * This class represents a nullable short column vector.
  */
 public class HeapShortVector extends AbstractHeapVector implements ShortColumnVector {

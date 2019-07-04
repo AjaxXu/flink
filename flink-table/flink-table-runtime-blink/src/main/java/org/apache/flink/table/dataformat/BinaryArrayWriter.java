@@ -22,6 +22,7 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.util.SegmentsUtil;
 
 /**
+ * 二进制数组的writer
  * Writer for binary array. See {@link BinaryArray}.
  */
 public final class BinaryArrayWriter extends AbstractBinaryWriter {

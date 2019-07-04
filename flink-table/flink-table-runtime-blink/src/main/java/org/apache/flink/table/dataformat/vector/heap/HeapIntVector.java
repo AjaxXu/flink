@@ -21,6 +21,7 @@ package org.apache.flink.table.dataformat.vector.heap;
 import org.apache.flink.table.dataformat.vector.IntColumnVector;
 
 /**
+ * 此类表示可以为空的heap int列向量
  * This class represents a nullable int column vector.
  */
 public class HeapIntVector extends AbstractHeapVector implements IntColumnVector {

@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
+ * BaseRow的序列化器
  * Serializer for BaseRow.
  */
 public class BaseRowSerializer extends AbstractRowSerializer<BaseRow> {

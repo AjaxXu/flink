@@ -18,6 +18,7 @@
 package org.apache.flink.table.dataformat.vector;
 
 /**
+ * AbstractColumnVector中字典的接口，用于解码字典编码值
  * The interface for dictionary in AbstractColumnVector to decode dictionary encoded values.
  */
 public interface Dictionary {

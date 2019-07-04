@@ -24,6 +24,7 @@ import org.apache.flink.table.dataformat.vector.BytesColumnVector.Bytes;
 import java.io.Serializable;
 
 /**
+ * VectorizedColumnBatch是一组行，以每列作为向量进行组织。 它是查询执行的单元，用于最小化每行的成本。
  * A VectorizedColumnBatch is a set of rows, organized with each column as a vector. It is the
  * unit of query execution, organized to minimize the cost per row.
  *

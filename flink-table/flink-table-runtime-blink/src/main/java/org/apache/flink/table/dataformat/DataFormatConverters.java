@@ -262,6 +262,7 @@ public class DataFormatConverters {
 	}
 
 	/**
+	 * 内部数据格式和java格式之间的转换。
 	 * Converter between internal data format and java format.
 	 *
 	 * @param <Internal> Internal data format.

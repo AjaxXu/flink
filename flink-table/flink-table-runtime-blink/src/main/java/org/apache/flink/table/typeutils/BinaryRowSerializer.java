@@ -35,6 +35,7 @@ import java.io.IOException;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
+ * {@link BinaryRow}的序列化器
  * Serializer for {@link BinaryRow}.
  */
 public class BinaryRowSerializer extends AbstractRowSerializer<BinaryRow> {

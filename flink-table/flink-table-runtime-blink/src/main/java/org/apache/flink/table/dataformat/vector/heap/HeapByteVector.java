@@ -21,6 +21,7 @@ package org.apache.flink.table.dataformat.vector.heap;
 import org.apache.flink.table.dataformat.vector.ByteColumnVector;
 
 /**
+ * 此类表示可以为空的heap byte列向量
  * This class represents a nullable byte column vector.
  */
 public class HeapByteVector extends AbstractHeapVector implements ByteColumnVector {

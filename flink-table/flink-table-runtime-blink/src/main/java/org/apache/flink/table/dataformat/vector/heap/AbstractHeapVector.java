@@ -26,6 +26,7 @@ import org.apache.flink.table.types.logical.LogicalType;
 import java.util.Arrays;
 
 /**
+ * 可以为空的共享结构的堆矢量
  * Heap vector that nullable shared structure.
  */
 public abstract class AbstractHeapVector extends AbstractColumnVector {
@@ -38,6 +39,7 @@ public abstract class AbstractHeapVector extends AbstractColumnVector {
 	protected boolean[] isNull;
 
 	/**
+	 * 在dictionary中使用的可重用的id列
 	 * Reusable column for ids of dictionary.
 	 */
 	protected HeapIntVector dictionaryIds;

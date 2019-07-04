@@ -21,6 +21,7 @@ package org.apache.flink.table.dataformat.vector;
 import java.io.Serializable;
 
 /**
+ * 包含{@link ColumnVector}的共享结构，包括NULL信息和字典
  * Contains the shared structure for {@link ColumnVector}s, including NULL information and dictionary.
  * NOTE: if there are some nulls, must set {@link #noNulls} to false.
  */
@@ -29,6 +30,7 @@ public abstract class AbstractColumnVector implements ColumnVector, Serializable
 	private static final long serialVersionUID = 5340018531388047747L;
 
 	// If the whole column vector has no nulls, this is true, otherwise false.
+	// 如果全部的列向量都没有null，则设为true，否则为false
 	protected boolean noNulls = true;
 
 	/**
@@ -45,6 +47,7 @@ public abstract class AbstractColumnVector implements ColumnVector, Serializable
 	}
 
 	/**
+	 * 为字典的id保留一个整数列
 	 * Reserve a integer column for ids of dictionary.
 	 * DictionaryIds maybe inconsistent with {@link #setDictionary}. Suppose a ColumnVector's data
 	 * comes from two pages. Perhaps one page uses a dictionary and the other page does not use a

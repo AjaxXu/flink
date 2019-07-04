@@ -281,6 +281,7 @@ public abstract class AbstractBinaryWriter implements BinaryWriter {
 		afterGrow();
 	}
 
+	// 最接近numBytes的8的整数倍数
 	protected static int roundNumberOfBytesToNearestWord(int numBytes) {
 		int remainder = numBytes & 0x07;
 		if (remainder == 0) {

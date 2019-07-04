@@ -21,6 +21,7 @@ package org.apache.flink.table.dataformat.vector.heap;
 import org.apache.flink.table.dataformat.vector.BooleanColumnVector;
 
 /**
+ * 此类表示可以为空的heap boolean列向量
  * This class represents a nullable heap boolean column vector.
  */
 public class HeapBooleanVector extends AbstractHeapVector implements BooleanColumnVector {

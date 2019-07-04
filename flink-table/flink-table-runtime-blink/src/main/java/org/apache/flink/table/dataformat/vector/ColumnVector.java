@@ -19,6 +19,7 @@
 package org.apache.flink.table.dataformat.vector;
 
 /**
+ * 可以为null的列向量
  * Nullable column vector. Access data through specific subclasses.
  */
 public interface ColumnVector {
