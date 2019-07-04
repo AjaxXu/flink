@@ -23,6 +23,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import java.util.Optional;
 
 /**
+ * 定义函数可以接受的已接受参数（包括打开间隔）的计数
  * Defines the count of accepted arguments (including open intervals) that a function can take.
  */
 @PublicEvolving

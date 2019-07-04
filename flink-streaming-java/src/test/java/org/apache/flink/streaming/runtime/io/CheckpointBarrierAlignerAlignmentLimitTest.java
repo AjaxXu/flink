@@ -77,8 +77,8 @@ public class CheckpointBarrierAlignerAlignmentLimitTest {
 	}
 
 	@AfterClass
-	public static void shutdownIOManager() {
-		ioManager.shutdown();
+	public static void shutdownIOManager() throws Exception {
+		ioManager.close();
 	}
 
 	// ------------------------------------------------------------------------

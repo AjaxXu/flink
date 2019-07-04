@@ -24,6 +24,7 @@ import org.apache.flink.table.functions.FunctionDefinition;
 import java.util.Optional;
 
 /**
+ * 提供有关执行类型推断的函数调用的详细信息
  * Provides details about the function call for which type inference is performed.
  */
 @PublicEvolving
@@ -35,6 +36,7 @@ public interface CallContextBase {
 	FunctionDefinition getFunctionDefinition();
 
 	/**
+	 * 返回给定位置的参数是否为值文字
 	 * Returns whether the argument at the given position is a value literal.
 	 */
 	boolean isArgumentLiteral(int pos);

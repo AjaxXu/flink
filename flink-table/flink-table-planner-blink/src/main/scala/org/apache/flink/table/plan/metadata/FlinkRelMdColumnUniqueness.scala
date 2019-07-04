@@ -20,9 +20,10 @@ package org.apache.flink.table.plan.metadata
 
 import org.apache.flink.table.JBoolean
 import org.apache.flink.table.api.TableException
-import org.apache.flink.table.calcite.FlinkRelBuilder.NamedWindowProperty
+import org.apache.flink.table.calcite.FlinkRelBuilder.PlannerNamedWindowProperty
 import org.apache.flink.table.plan.nodes.FlinkRelNode
 import org.apache.flink.table.plan.nodes.calcite.{Expand, Rank, WindowAggregate}
+import org.apache.flink.table.plan.nodes.common.CommonLookupJoin
 import org.apache.flink.table.plan.nodes.logical._
 import org.apache.flink.table.plan.nodes.physical.batch._
 import org.apache.flink.table.plan.nodes.physical.stream._
@@ -401,7 +402,7 @@ class FlinkRelMdColumnUniqueness private extends MetadataHandler[BuiltInMetadata
 
   private def areColumnsUniqueOnWindowAggregate(
       grouping: Array[Int],
-      namedProperties: Seq[NamedWindowProperty],
+      namedProperties: Seq[PlannerNamedWindowProperty],
       outputFieldCount: Int,
       mq: RelMetadataQuery,
       columns: ImmutableBitSet,
@@ -495,6 +496,21 @@ class FlinkRelMdColumnUniqueness private extends MetadataHandler[BuiltInMetadata
       (rightSet: ImmutableBitSet) => mq.areColumnsUnique(rel.getRight, rightSet, ignoreNulls),
       mq,
       columns
+    )
+  }
+
+  def areColumnsUnique(
+      join: CommonLookupJoin,
+      mq: RelMetadataQuery,
+      columns: ImmutableBitSet,
+      ignoreNulls: Boolean): JBoolean = {
+    val left = join.getInput
+    areColumnsUniqueOfJoin(
+      join.joinInfo, join.joinType, left.getRowType,
+      (leftSet: ImmutableBitSet) => mq.areColumnsUnique(left, leftSet, ignoreNulls),
+      // TODO get uniqueKeys from TableSchema of TableSource
+      (_: ImmutableBitSet) => null,
+      mq, columns
     )
   }
 
@@ -597,8 +613,6 @@ class FlinkRelMdColumnUniqueness private extends MetadataHandler[BuiltInMetadata
       mq: RelMetadataQuery,
       columns: ImmutableBitSet,
       ignoreNulls: Boolean): JBoolean = null
-
-  // TODO supports temporal table join
 
   def areColumnsUnique(
       rel: SetOp,

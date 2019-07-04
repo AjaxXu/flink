@@ -24,6 +24,7 @@ import org.apache.flink.table.types.DataType;
 import java.util.Optional;
 
 /**
+ * 推断函数调用的数据类型的策略。推断类型可以描述函数的最终结果或中间结果(累积类型)
  * Strategy for inferring the data type of a function call. The inferred type might describe the
  * final result or an intermediate result (accumulation type) of a function.
  *
@@ -33,6 +34,7 @@ import java.util.Optional;
 public interface TypeStrategy {
 
 	/**
+	 * 推断给定函数调用的类型
 	 * Infers a type from the given function call.
 	 */
 	Optional<DataType> inferType(CallContext callContext);

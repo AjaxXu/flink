@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * 用于执行类型推断的实用程序
  * Utility for performing type inference.
  */
 @Internal
@@ -99,9 +100,11 @@ public final class TypeInferenceUtil {
 	// --------------------------------------------------------------------------------------------
 
 	private static Result runTypeInferenceInternal(TypeInference typeInference, CallContext callContext) {
+		// 函数调用的参数类型
 		final List<DataType> argumentTypes = callContext.getArgumentDataTypes();
 
 		try {
+			// 验证参数数量
 			validateArgumentCount(
 				typeInference.getInputTypeValidator().getArgumentCount(),
 				argumentTypes.size());
@@ -109,14 +112,17 @@ public final class TypeInferenceUtil {
 			throw getInvalidInputException(typeInference.getInputTypeValidator(), callContext);
 		}
 
+		// 根据类型推断期待的参数类型
 		final List<DataType> expectedTypes = typeInference.getArgumentTypes()
 			.orElse(argumentTypes);
 
+		// 调整参数
 		final AdaptedCallContext adaptedCallContext = adaptArguments(
 			callContext,
 			expectedTypes);
 
 		try {
+			// 验证输入字段的类型
 			validateInputTypes(
 				typeInference.getInputTypeValidator(),
 				adaptedCallContext);
@@ -134,6 +140,7 @@ public final class TypeInferenceUtil {
 			InputTypeValidator validator,
 			CallContext callContext) {
 
+		// 一个函数可能有多个签名(重载)
 		final String expectedSignatures = validator.getExpectedSignatures(callContext.getFunctionDefinition())
 			.stream()
 			.map(s -> formatSignature(callContext.getName(), s))
@@ -222,6 +229,7 @@ public final class TypeInferenceUtil {
 		return new AdaptedCallContext(callContext, expectedTypes);
 	}
 
+	// 判断是否支持隐式转换
 	private static boolean canCast(DataType sourceDataType, DataType targetDataType) {
 		return LogicalTypeCasts.supportsImplicitCast(
 			sourceDataType.getLogicalType(),
@@ -260,6 +268,7 @@ public final class TypeInferenceUtil {
 	}
 
 	/**
+	 * 处理适应的参数帮助上下文
 	 * Helper context that deals with adapted arguments.
 	 *
 	 * <p>For example, if an argument needs to be casted to a target type, an expression that was a
@@ -287,6 +296,7 @@ public final class TypeInferenceUtil {
 
 		@Override
 		public boolean isArgumentLiteral(int pos) {
+			// 是否是隐式转换的
 			if (isCasted(pos)) {
 				return false;
 			}

@@ -180,9 +180,9 @@ public class DeweyNumber implements Serializable {
 	public static DeweyNumber fromString(final String deweyNumberString) {
 		String[] splits = deweyNumberString.split("\\.");
 
-		if (splits.length == 0) {
+		if (splits.length == 1) {
 			return new DeweyNumber(Integer.parseInt(deweyNumberString));
-		} else {
+		} else if (splits.length > 0) {
 			int[] deweyNumber = new int[splits.length];
 
 			for (int i = 0; i < splits.length; i++) {
@@ -190,6 +190,8 @@ public class DeweyNumber implements Serializable {
 			}
 
 			return new DeweyNumber(deweyNumber);
+		} else {
+			throw new IllegalArgumentException("Failed to parse " + deweyNumberString + " as a Dewey number");
 		}
 	}
 

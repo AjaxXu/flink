@@ -25,6 +25,7 @@ import org.apache.flink.table.functions.FunctionDefinition;
 import java.util.List;
 
 /**
+ * 验证器，用于检查函数调用的输入数据类型
  * Validator for checking the input data types of a function call.
  *
  * @see InputTypeValidators

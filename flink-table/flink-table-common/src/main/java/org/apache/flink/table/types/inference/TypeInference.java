@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * 为函数调用的类型推断提供逻辑
  * Provides logic for the type inference of function calls. It includes:
  * <ul>
  *     <li>explicit input specification for (possibly named) arguments</li>
