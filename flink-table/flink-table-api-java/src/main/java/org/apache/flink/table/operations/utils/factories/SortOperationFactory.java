@@ -35,6 +35,7 @@ import static org.apache.flink.table.functions.BuiltInFunctionDefinitions.ORDER_
 
 
 /**
+ * 用于创建有效{@link SortQueryOperation}操作的实用程序类
  * Utility class for creating a valid {@link SortQueryOperation} operation.
  */
 @Internal

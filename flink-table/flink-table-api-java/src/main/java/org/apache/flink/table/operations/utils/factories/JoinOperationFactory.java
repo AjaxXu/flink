@@ -41,6 +41,7 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 
 /**
+ * 用于创建有效{@link JoinQueryOperation}操作的实用程序类
  * Utility class for creating a valid {@link JoinQueryOperation} operation.
  */
 @Internal
@@ -72,6 +73,7 @@ public class JoinOperationFactory {
 			JoinType joinType,
 			ResolvedExpression condition,
 			boolean correlated) {
+		// 验证condition返回boolean值
 		verifyConditionType(condition);
 		validateNamesAmbiguity(left, right);
 		validateCondition(right, joinType, condition, correlated);
@@ -79,6 +81,7 @@ public class JoinOperationFactory {
 	}
 
 	private void validateCondition(QueryOperation right, JoinType joinType, ResolvedExpression condition, boolean correlated) {
+		// 如果condition只是Boolean值，则总是true
 		boolean alwaysTrue = ExpressionUtils.extractValue(condition, Boolean.class).orElse(false);
 
 		if (alwaysTrue) {
@@ -108,12 +111,14 @@ public class JoinOperationFactory {
 	private void validateNamesAmbiguity(QueryOperation left, QueryOperation right) {
 		Set<String> leftNames = new HashSet<>(asList(left.getTableSchema().getFieldNames()));
 		Set<String> rightNames = new HashSet<>(asList(right.getTableSchema().getFieldNames()));
-		leftNames.retainAll(rightNames);
+		leftNames.retainAll(rightNames); // left 和 right的交集
 		if (!leftNames.isEmpty()) {
+			// 说明有歧义的字段，就是2边有字段同名
 			throw new ValidationException(String.format("join relations with ambiguous names: %s", leftNames));
 		}
 	}
 
+	// 检测equal是不是存在
 	private class EquiJoinExistsChecker extends ResolvedExpressionDefaultVisitor<Boolean> {
 
 		@Override

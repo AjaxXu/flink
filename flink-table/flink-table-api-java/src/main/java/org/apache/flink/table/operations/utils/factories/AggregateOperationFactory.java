@@ -84,6 +84,7 @@ import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.isRow
 import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.isTimeAttribute;
 
 /**
+ * 用于创建有效{@link AggregateQueryOperation}或{@link WindowAggregateQueryOperation}的实用程序类
  * Utility class for creating a valid {@link AggregateQueryOperation} or {@link WindowAggregateQueryOperation}.
  */
 @Internal
@@ -177,6 +178,7 @@ public final class AggregateOperationFactory {
 	}
 
 	/**
+	 * 提取聚合或表聚合表达式的结果类型
 	 * Extract result types for the aggregate or the table aggregate expression. For a table aggregate,
 	 * it may return multi result types when the composite return type is flattened.
 	 */
@@ -370,6 +372,7 @@ public final class AggregateOperationFactory {
 	}
 
 	private void validateWindowIntervalType(LogicalType timeFieldType, LogicalType intervalType) {
+		// TODO: intervalType only have one root type
 		if (hasRoot(intervalType, TIMESTAMP_WITHOUT_TIME_ZONE) && isRowtimeAttribute(timeFieldType) &&
 				hasRoot(intervalType, BIGINT)) {
 			// unsupported row intervals on event-time
@@ -418,8 +421,10 @@ public final class AggregateOperationFactory {
 			FunctionDefinition functionDefinition = call.getFunctionDefinition();
 			if (isFunctionOfKind(call, AGGREGATE) || isFunctionOfKind(call, TABLE_AGGREGATE)) {
 				if (functionDefinition == BuiltInFunctionDefinitions.DISTINCT) {
+					// 判断子表达式是聚合函数但不是distinct
 					call.getChildren().forEach(expr -> expr.accept(validateDistinct));
 				} else {
+					// 如果是over，则抛出异常
 					if (requiresOver(functionDefinition)) {
 						throw new ValidationException(format(
 							"OVER clause is necessary for window functions: [%s].", call));
@@ -453,6 +458,7 @@ public final class AggregateOperationFactory {
 		}
 	}
 
+	//验证不能为distinct且调用函数必须为聚合函数
 	private class ValidateDistinct extends ResolvedExpressionDefaultVisitor<Void> {
 
 		@Override
@@ -474,6 +480,7 @@ public final class AggregateOperationFactory {
 		}
 	}
 
+	// 判断没有内嵌的聚合函数
 	private class NoNestedAggregates extends ResolvedExpressionDefaultVisitor<Void> {
 
 		@Override
@@ -492,6 +499,7 @@ public final class AggregateOperationFactory {
 		}
 	}
 
+	// 检查是否可以作为key
 	private static class IsKeyTypeChecker extends LogicalTypeDefaultVisitor<Boolean> {
 
 		@Override
@@ -515,6 +523,7 @@ public final class AggregateOperationFactory {
 	}
 
 	/**
+	 * 提取表聚合表达式及其别名
 	 * Extract a table aggregate Expression and it's aliases.
 	 */
 	public Tuple2<ResolvedExpression, List<String>> extractTableAggFunctionAndAliases(Expression callExpr) {
@@ -542,6 +551,7 @@ public final class AggregateOperationFactory {
 			}
 		}
 
+		// 解封装，返回的是as函数中需要被命名的部分
 		private ResolvedExpression unwrapFromAlias(CallExpression call) {
 			List<ResolvedExpression> children = call.getResolvedChildren();
 			List<String> aliases = children.subList(1, children.size())

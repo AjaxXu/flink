@@ -233,6 +233,7 @@ public class OperationExpressionsUtils {
 		return expression.accept(extractNameVisitor);
 	}
 
+	// 抽取名字
 	private static class ExtractNameVisitor extends ApiExpressionDefaultVisitor<Optional<String>> {
 
 		@Override

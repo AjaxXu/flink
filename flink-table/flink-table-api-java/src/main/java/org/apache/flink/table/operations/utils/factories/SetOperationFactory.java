@@ -32,6 +32,7 @@ import static java.lang.String.format;
 import static org.apache.flink.table.operations.SetQueryOperation.SetQueryOperationType.UNION;
 
 /**
+ * 用于创建有效{@link SetQueryOperation}的实用程序类
  * Utility class for creating a valid {@link SetQueryOperation}.
  */
 @Internal
@@ -44,12 +45,13 @@ public class SetOperationFactory {
 	}
 
 	/**
+	 * 创建一个有效的代数operation
 	 * Creates a valid algebraic operation.
 	 *
 	 * @param type type of operation to create
 	 * @param left first relational operation of the operation
 	 * @param right second relational operation of the operation
-	 * @param all flag defining how duplicates should be handled
+	 * @param all flag defining how duplicates should be handled 标志定义应如何处理重复项
 	 * @return creates a valid algebraic operation
 	 */
 	public QueryOperation create(

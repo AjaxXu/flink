@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 描述通过应用{@link TableFunction}创建的关系操作
+ * 描述通过应用{@link TableFunction}创建的关联操作。Lateral操作
+ * 1. 关联操作是指2个表join的时候，需要指定关联条件
  * Describes a relational operation that was created from applying a {@link TableFunction}.
  */
 @Internal

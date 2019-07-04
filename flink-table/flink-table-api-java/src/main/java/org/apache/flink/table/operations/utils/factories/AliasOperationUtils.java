@@ -38,6 +38,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.valueLiteral;
 
 /**
+ * 用于创建有效别名表达式(以后可用作投影)的实用程序类
  * Utility class for creating valid alias expressions that can be later used as a projection.
  */
 @Internal

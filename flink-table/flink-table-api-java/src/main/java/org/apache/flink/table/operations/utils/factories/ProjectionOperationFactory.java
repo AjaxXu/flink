@@ -54,6 +54,7 @@ import static org.apache.flink.table.types.logical.LogicalTypeRoot.INTEGER;
 import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
 
 /**
+ * 用于创建有效{@link ProjectQueryOperation}操作的实用程序类
  * Utility class for creating valid {@link ProjectQueryOperation} operation.
  */
 @Internal
@@ -139,6 +140,7 @@ public final class ProjectionOperationFactory {
 			this.postResolverFactory = postResolverFactory;
 		}
 
+		// 在call外面封装一层AS函数
 		@Override
 		public ResolvedExpression visit(CallExpression call) {
 			FunctionDefinition functionDefinition = call.getFunctionDefinition();
@@ -179,6 +181,7 @@ public final class ProjectionOperationFactory {
 		}
 	}
 
+	// 去掉别名
 	private class StripAliases extends ResolvedExpressionDefaultVisitor<ResolvedExpression> {
 
 		@Override

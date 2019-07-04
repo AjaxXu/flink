@@ -43,6 +43,7 @@ import static org.apache.flink.table.functions.BuiltInFunctionDefinitions.AS;
 import static org.apache.flink.table.functions.FunctionKind.TABLE;
 
 /**
+ * 用于创建有效{@link CalculatedQueryOperation}的实用程序类
  * Utility class for creating a valid {@link CalculatedQueryOperation} operation.
  */
 @Internal
@@ -82,14 +83,17 @@ public class CalculatedTableFactory {
 			}
 		}
 
+		// like as(table(), a, b, c, d)
 		private CalculatedQueryOperation<?> unwrapFromAlias(CallExpression call) {
 			List<Expression> children = call.getChildren();
+			// list[a,b,c,d]
 			List<String> aliases = children.subList(1, children.size())
 				.stream()
 				.map(alias -> ExpressionUtils.extractValue(alias, String.class)
 					.orElseThrow(() -> new ValidationException("Unexpected alias: " + alias)))
 				.collect(toList());
 
+			// 必须是table 函数
 			if (!isFunctionOfKind(children.get(0), TABLE)) {
 				throw fail();
 			}
@@ -100,6 +104,7 @@ public class CalculatedTableFactory {
 			return createFunctionCall(tableFunctionDefinition, aliases, tableCall.getResolvedChildren());
 		}
 
+		// 根据table函数返回lateral计算操作
 		private CalculatedQueryOperation<?> createFunctionCall(
 				TableFunctionDefinition tableFunctionDefinition,
 				List<String> aliases,
@@ -113,6 +118,7 @@ public class CalculatedTableFactory {
 			if (aliasesSize == 0) {
 				fieldNames = FieldInfoUtils.getFieldNames(resultType, Arrays.asList(leftTableFieldNames));
 			} else if (aliasesSize != callArity) {
+				// 别名和函数的返回的列数不一样则抛出异常
 				throw new ValidationException(String.format(
 					"List of column aliases must have same degree as table; " +
 						"the returned table of function '%s' has " +
@@ -129,7 +135,7 @@ public class CalculatedTableFactory {
 			return new CalculatedQueryOperation(
 				tableFunctionDefinition.getTableFunction(),
 				parameters,
-				tableFunctionDefinition.getResultType(),
+				resultType,
 				new TableSchema(fieldNames, fieldTypes));
 		}
 

@@ -38,6 +38,7 @@ import static org.apache.flink.table.functions.BuiltInFunctionDefinitions.AS;
 import static org.apache.flink.table.operations.utils.OperationExpressionsUtils.extractName;
 
 /**
+ * 用于从列操作，创建投影表达式的实用程序类
  * Utility class for creating projection expressions from column operation.
  */
 @Internal
@@ -47,12 +48,13 @@ public final class ColumnOperationUtils {
 	private static final RenameColumnExtractor renameColumnExtractor = new RenameColumnExtractor();
 
 	/**
+	 * 创建一个投影列表，将现有列重命名为新名称
 	 * Creates a projection list that renames existing columns to new names.
 	 *
 	 * <p><b>NOTE:</b> Resulting expression are still unresolved.
 	 *
 	 * @param inputFields names of current columns
-	 * @param newAliases new aliases for current columns
+	 * @param newAliases new aliases for current columns;as表达式，举例a as a1, b as b1
 	 * @return projection expressions
 	 */
 	public static List<Expression> renameColumns(List<String> inputFields, List<Expression> newAliases) {
@@ -68,6 +70,7 @@ public final class ColumnOperationUtils {
 	}
 
 	/**
+	 * 创建一个投影列表，新增或者替换已有的列
 	 * Creates a projection list that adds new or replaces existing (if a column with corresponding name already exists)
 	 * columns.
 	 *
@@ -90,6 +93,7 @@ public final class ColumnOperationUtils {
 	}
 
 	/**
+	 * 创建一个投影列表，去除给定的列
 	 * Creates a projection list that removes given columns.
 	 *
 	 * <p><b>NOTE:</b> Resulting expression are still unresolved.

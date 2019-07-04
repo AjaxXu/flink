@@ -79,6 +79,7 @@ import static org.apache.flink.table.operations.SetQueryOperation.SetQueryOperat
 import static org.apache.flink.table.operations.SetQueryOperation.SetQueryOperationType.UNION;
 
 /**
+ * 用于构建经过验证的{@link QueryOperation}的构建器
  * A builder for constructing validated {@link QueryOperation}s.
  */
 @Internal
@@ -375,14 +376,18 @@ public final class OperationTreeBuilder {
 			throw new ValidationException("Only a table function can be used in the flatMap operator.");
 		}
 
+		// table 函数的返回类型
 		TypeInformation<?> resultType = ((TableFunctionDefinition) ((UnresolvedCallExpression) resolvedTableFunction)
 			.getFunctionDefinition())
 			.getResultType();
+		// table 函数返回类型中field 名称
 		List<String> originFieldNames = Arrays.asList(FieldInfoUtils.getFieldNames(resultType));
 
+		// 子表达式中字段名称
 		List<String> childFields = Arrays.asList(child.getTableSchema().getFieldNames());
 		Set<String> usedFieldNames = new HashSet<>(childFields);
 
+		// 目的是把返回类型中的字段变为unique后加入所有字段中(子表达式+返回类型定义)
 		List<Expression> args = new ArrayList<>();
 		for (String originFieldName : originFieldNames) {
 			String resultName = getUniqueName(originFieldName, usedFieldNames);
@@ -390,14 +395,19 @@ public final class OperationTreeBuilder {
 			args.add(valueLiteral(resultName));
 		}
 
+		// 在坐标0处加入table函数，则args就是table函数，返回字段1，返回字段2...
 		args.add(0, resolvedTableFunction);
+		// 定义一个as行数
 		Expression renamedTableFunction = unresolvedCall(
 			BuiltInFunctionDefinitions.AS,
 			args.toArray(new Expression[0]));
+
 		QueryOperation joinNode = joinLateral(child, renamedTableFunction, JoinType.INNER, Optional.empty());
+		// 去掉子表达式中的字段名，只留下table函数返回的字段名
 		QueryOperation rightNode = dropColumns(
 			childFields.stream().map(UnresolvedReferenceExpression::new).collect(Collectors.toList()),
 			joinNode);
+		// 封装一层别名
 		return alias(
 			originFieldNames.stream().map(UnresolvedReferenceExpression::new).collect(Collectors.toList()),
 			rightNode);
@@ -447,6 +457,7 @@ public final class OperationTreeBuilder {
 		}
 	}
 
+	// count(a) as a1这种
 	private static class ExtractAliasAndAggregate extends ApiExpressionDefaultVisitor<AggregateWithAlias> {
 		@Override
 		public AggregateWithAlias visit(UnresolvedCallExpression unresolvedCall) {
@@ -481,6 +492,7 @@ public final class OperationTreeBuilder {
 			if (ApiExpressionUtils.isFunctionOfKind(unresolvedCall, FunctionKind.AGGREGATE)) {
 				final List<String> fieldNames;
 				if (aliases.isEmpty()) {
+					// aliases为空，则用返回类型中的字段代替
 					if (functionDefinition instanceof AggregateFunctionDefinition) {
 						TypeInformation<?> resultTypeInfo = ((AggregateFunctionDefinition) functionDefinition)
 							.getResultTypeInfo();
@@ -605,7 +617,7 @@ public final class OperationTreeBuilder {
 
 	/**
 	 * Add a default name to the call in the grouping expressions, e.g., groupBy(a % 5) to
-	 * groupBy(a % 5 as TMP_0).
+	 * groupBy(a % 5) as TMP_0.
 	 */
 	private List<Expression> addAliasToTheCallInGroupings(
 		List<String> inputFieldNames,
@@ -650,6 +662,7 @@ public final class OperationTreeBuilder {
 		return ExpressionResolver.resolverFor(tableReferenceLookup, functionCatalog, child).build();
 	}
 
+	// 表达式里没有window属性
 	private static class NoWindowPropertyChecker extends ApiExpressionDefaultVisitor<Void> {
 		private final String exceptionMessage;
 
@@ -673,6 +686,7 @@ public final class OperationTreeBuilder {
 		}
 	}
 
+	// 表达式里没有聚合函数
 	private static class NoAggregateChecker extends ApiExpressionDefaultVisitor<Void> {
 		private final String exceptionMessage;
 
