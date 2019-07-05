@@ -57,8 +57,6 @@ public interface WindowGroupedTable {
 	Table select(Expression... fields);
 
 	/**
-	 * 在窗口分组表上执行flatAggregate操作。 FlatAggregate接受一个返回多行的TableAggregateFunction。
-	 * 在flatAggregate之后使用select操作。
 	 * Performs a flatAggregate operation on a window grouped table. FlatAggregate takes a
 	 * TableAggregateFunction which returns multiple rows. Use a selection after flatAggregate.
 	 *
@@ -66,7 +64,7 @@ public interface WindowGroupedTable {
 	 *
 	 * <pre>
 	 * {@code
-	 *   TableAggregateFunction tableAggFunc = new MyTableAggregateFunction
+	 *   TableAggregateFunction tableAggFunc = new MyTableAggregateFunction();
 	 *   tableEnv.registerFunction("tableAggFunc", tableAggFunc);
 	 *   windowGroupedTable
 	 *     .flatAggregate("tableAggFunc(a, b) as (x, y, z)")

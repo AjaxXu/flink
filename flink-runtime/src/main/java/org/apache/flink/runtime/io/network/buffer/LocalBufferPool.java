@@ -174,11 +174,6 @@ class LocalBufferPool implements BufferPool {
 	}
 
 	@Override
-	public int getMemorySegmentSize() {
-		return networkBufferPool.getMemorySegmentSize();
-	}
-
-	@Override
 	public int getNumberOfRequiredMemorySegments() {
 		return numberOfRequiredMemorySegments;
 	}
