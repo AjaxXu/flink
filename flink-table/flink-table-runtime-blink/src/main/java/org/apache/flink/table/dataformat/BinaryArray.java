@@ -30,8 +30,8 @@ import static org.apache.flink.core.memory.MemoryUtils.UNSAFE;
  * For fields that hold fixed-length primitive types, such as long, double, or int, we store the
  * value directly in the field, just like the original java array.
  *
- * header长度：元素数量(int类型，4字节)+null元素标志(4byte的整数倍，每一位是对应元素是否为null的标志)
  * <p>[numElements(int)] + [null bits(4-byte word boundaries)] + [values or offset&length] + [variable length part].
+ * header长度：元素数量(int类型，4字节)+null元素标志(4byte的整数倍，每一位是对应元素是否为null的标志)
  *
  * <p>{@code BinaryArray} are influenced by Apache Spark UnsafeArrayData.
  */

@@ -43,11 +43,11 @@ import java.util.Set;
  *     <li>resetAccumulator</li>
  * </ul>
  *
- * 所有方法定义为publicly, not static，并且名字必须和上面的一样
  * <p>All these methods must be declared publicly, not static, and named exactly as the names
  * mentioned above. The method {@link #createAccumulator()} is defined in the
  * {@link UserDefinedAggregateFunction} function, and method {@link #getValue} is defined in
  * the {@link AggregateFunction} while other methods are explained below.
+ * 所有方法定义为publicly, not static，并且名字必须和上面的一样
  *
  * <pre>
  * {@code

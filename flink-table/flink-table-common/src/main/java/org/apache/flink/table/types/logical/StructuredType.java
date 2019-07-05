@@ -283,7 +283,7 @@ public final class StructuredType extends UserDefinedType {
 	}
 
 	/**
-	 * clazz能不能转化为该StructuredType，比如父类不能转化为子类，但子类可以转化为父类
+	 * clazz能不能转化为该StructuredType，比如父类不能转化为子类，但子类可以转化为父类.
 	 * @param clazz input class to be converted into this logical type
 	 */
 	@Override
@@ -293,7 +293,7 @@ public final class StructuredType extends UserDefinedType {
 	}
 
 	/**
-	 * 该StructuredType能不能转化为clazz
+	 * 该StructuredType能不能转化为clazz.
 	 * @param clazz output class to be converted from this logical type
 	 */
 	@Override

@@ -32,9 +32,9 @@ import java.sql.Timestamp;
  * It takes one single argument, the {@code timeAttribute}, for which it returns matching version of
  * the {@code underlyingHistoryTable}, from which this {@link TemporalTableFunction} was created.
  *
- * 该函数不能执行。 相反，调用它应该由优化器重写为其他运算符（如Temporal Table Join）
  * <p>This function shouldn't be evaluated. Instead calls to it should be rewritten by the optimiser
  * into other operators (like Temporal Table Join).
+ * 该函数不能执行。相反，调用它应该由优化器重写为其他运算符(如Temporal Table Join)
  */
 @Internal
 public final class TemporalTableFunctionImpl extends TemporalTableFunction {

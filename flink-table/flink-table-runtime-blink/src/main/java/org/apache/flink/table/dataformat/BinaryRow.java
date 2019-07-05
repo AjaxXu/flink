@@ -35,21 +35,21 @@ import static org.apache.flink.util.Preconditions.checkArgument;
  *
  * <p>A Row has two part: Fixed-length part and variable-length part.
  *
- * 固定长度部分：1byte的头，null字段(用于null检测，8byte对齐)，字段值(固定长度的字段直接用8字节表示，比如byte、int等，
- * 如果是变长字段则前4byte为offset，后4byte为length)
  * <p>Fixed-length part contains 1 byte header and null bit set and field values. Null bit set is
  * used for null tracking and is aligned to 8-byte word boundaries. `Field values` holds
  * fixed-length primitive types and variable-length values which can be stored in 8 bytes inside.
  * If it do not fit the variable-length field, then store the length and offset of variable-length
  * part.
+ * 固定长度部分：1byte的头，null字段(用于null检测，8byte对齐)，字段值(固定长度的字段直接用8字节表示，比如byte、int等，
+ * 如果是变长字段则前4byte为offset，后4byte为length)
  *
- * 固定长度的部分肯定会落入一个MemorySegment，这将加速字段的读写。 在写入阶段，如果目标内存段的空间小于固定长度的部件大小，
- * 我们将跳过该空间。 所以单行中的字段数不能超过单个MemorySegment的容量，如果字段太多，我们建议用户设置更大的MemorySegment的大小。
  * <p>Fixed-length part will certainly fall into a MemorySegment, which will speed up the read
  * and write of field. During the write phase, if the target memory segment has less space than
  * fixed length part size, we will skip the space. So the number of fields in a single Row cannot
  * exceed the capacity of a single MemorySegment, if there are too many fields, we suggest that
  * user set a bigger pageSize of MemorySegment.
+ * 固定长度的部分肯定会落入一个MemorySegment，这将加速字段的读写。 在写入阶段，如果目标内存段的空间小于固定长度的部件大小，
+ * 我们将跳过该空间。 所以单行中的字段数不能超过单个MemorySegment的容量，如果字段太多，我们建议用户设置更大的MemorySegment的大小。
  *
  * <p>Variable-length part may fall into multiple MemorySegments.
  *
@@ -348,10 +348,7 @@ public final class BinaryRow extends BinaryFormat implements BaseRow {
 	public boolean anyNull() {
 		// Skip the header.
 		// 跳过header，只比较其他
-		long aLong = segments[0].getLong(0);
-//		System.out.println(Long.toBinaryString(aLong));
-		aLong = aLong & FIRST_BYTE_ZERO;
-		if ( aLong != 0) {
+		if ((segments[0].getLong(0) & FIRST_BYTE_ZERO) != 0) {
 			return true;
 		}
 		for (int i = 8; i < nullBitsSizeInBytes; i += 8) {

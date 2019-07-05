@@ -32,9 +32,9 @@ public interface GroupWindowedTable {
 	 * Groups the elements by a mandatory window and one or more optional grouping attributes.
 	 * The window is specified by referring to its alias.
 	 *
-	 * 如果没有指明额外的分组属性且输入是流table，则聚合将在一个task中执行
 	 * <p>If no additional grouping attribute is specified and if the input is a streaming table,
 	 * the aggregation will be performed by a single task, i.e., with parallelism 1.
+	 * 如果没有指明额外的分组属性且输入是流table，则聚合将在一个task中执行
 	 *
 	 * <p>Aggregations are performed per group and defined by a subsequent {@code select(...)}
 	 * clause similar to SQL SELECT-GROUP-BY query.

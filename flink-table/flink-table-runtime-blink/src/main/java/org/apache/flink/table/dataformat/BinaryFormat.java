@@ -21,7 +21,7 @@ import org.apache.flink.core.memory.MemorySegment;
 import org.apache.flink.table.util.SegmentsUtil;
 
 /**
- * {@link MemorySegment} 中的二进制格式
+ * {@link MemorySegment} 中的二进制格式.
  * Binary format that in {@link MemorySegment}s.
  */
 public abstract class BinaryFormat {
@@ -29,14 +29,15 @@ public abstract class BinaryFormat {
 	/**
 	 * It decides whether to put data in FixLenPart or VarLenPart. See more in {@link BinaryRow}.
 	 *
-	 * 一个long字段：
-	 *
+	 * <p>一个long字段：
 	 * 如果长度小于8，二进制格式为：1bit标志，7bit长度，7bytes数据。数据存储在定长部分
+	 *
 	 * <p>If len is less than 8, its binary format is:
 	 * 1-bit mark(1) = 1, 7-bits len, and 7-bytes data.
 	 * Data is stored in fix-length part.
 	 *
-	 * 如果长度大于等于8，二进制格式为：1bit标志，31bit的到data的offset，4byte的数据的长度，数据存储在变长部分
+	 * <p>如果长度大于等于8，二进制格式为：1bit标志，31bit的到data的offset，4byte的数据的长度，数据存储在变长部分
+	 *
 	 * <p>If len is greater or equal to 8, its binary format is:
 	 * 1-bit mark(1) = 0, 31-bits offset to the data, and 4-bytes length of data.
 	 * Data is stored in variable-length part.

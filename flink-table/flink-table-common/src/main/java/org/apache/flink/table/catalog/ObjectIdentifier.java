@@ -31,9 +31,8 @@ import static org.apache.flink.table.utils.EncodingUtils.escapeIdentifier;
  * or types in a catalog. An identifier must be fully qualified. It is the responsibility of the
  * catalog manager to resolve an identifier to an object.
  *
- * 虽然{@link ObjectPath}在同一目录中使用，但此类的实例可以跨目录使用。
  * <p>While {@link ObjectPath} is used within the same catalog, instances of this class can be used
- * across catalogs.
+ * across catalogs.虽然{@link ObjectPath}在同一目录中使用，但此类的实例可以跨目录使用。
  *
  * <p>Two objects are considered equal if they share the same type identifier in a stable session context.
  */

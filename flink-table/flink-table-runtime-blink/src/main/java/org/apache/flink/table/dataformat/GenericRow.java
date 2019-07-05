@@ -25,9 +25,9 @@ package org.apache.flink.table.dataformat;
  * <p>The fields in the Row can be accessed by position (zero-based) {@link #getInt}.
  * And can update fields by {@link #setField(int, Object)}.
  *
- * GenericRow原则上是可序列化的，但有可能包含非序列化的字段，这种情况下序列化将失败(底层是对象数组)
  * <p>GenericRow is in principle serializable. However, it may contain non-serializable fields,
  * in which case serialization will fail.
+ * GenericRow原则上是可序列化的，但有可能包含非序列化的字段，这种情况下序列化将失败(底层是对象数组)
  */
 public final class GenericRow extends ObjectArrayRow {
 

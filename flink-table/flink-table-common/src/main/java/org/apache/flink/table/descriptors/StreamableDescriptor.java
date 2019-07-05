@@ -30,6 +30,7 @@ public interface StreamableDescriptor<D extends StreamableDescriptor<D>> extends
 	/**
 	 * Declares how to perform the conversion between a dynamic table and an external connector.
 	 * 只交换INSERT信息
+	 *
 	 * <p>In append mode, a dynamic table and an external connector only exchange INSERT messages.
 	 *
 	 * @see #inRetractMode()
@@ -42,6 +43,7 @@ public interface StreamableDescriptor<D extends StreamableDescriptor<D>> extends
 	 *
 	 * <p>In retract mode, a dynamic table and an external connector exchange ADD and RETRACT messages.
 	 * 撤回模式，INSERT使用ADD信息，DELETE使用RETRACT信息，UPDATE使用RETRACT和ADD 2种信息
+	 *
 	 * <p>An INSERT change is encoded as an ADD message, a DELETE change as a RETRACT message, and an
 	 * UPDATE change as a RETRACT message for the updated (previous) row and an ADD message for
 	 * the updating (new) row.
@@ -64,9 +66,8 @@ public interface StreamableDescriptor<D extends StreamableDescriptor<D>> extends
 	 * correctly. INSERT and UPDATE changes are encoded as UPSERT messages. DELETE changes as
 	 * DELETE messages.
 	 *
-	 * 和retract模式主要不同是UPDATE只是用一种信息，会更高效
 	 * <p>The main difference to a retract stream is that UPDATE changes are encoded with a single
-	 * message and are therefore more efficient.
+	 * message and are therefore more efficient.和retract模式主要不同是UPDATE只是用一种信息，会更高效.
 	 *
 	 * @see #inAppendMode()
 	 * @see #inRetractMode()
