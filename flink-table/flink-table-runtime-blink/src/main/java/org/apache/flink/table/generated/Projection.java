@@ -21,7 +21,7 @@ package org.apache.flink.table.generated;
 import org.apache.flink.table.dataformat.BaseRow;
 
 /**
- * Interface for code generated projection, which will map a BaseRow to another one.
+ * Interface for code generated projection, which will map a BaseRow to another one.投影.
  */
 public interface Projection<IN extends BaseRow, OUT extends BaseRow> {
 

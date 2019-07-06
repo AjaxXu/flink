@@ -21,7 +21,7 @@ package org.apache.flink.table.generated;
 import org.apache.flink.streaming.api.operators.StreamOperator;
 
 /**
- * Describes a generated {@link StreamOperator}.
+ * Describes a generated {@link StreamOperator}.描述生成的{@link StreamOperator}.
  *
  * @param <C> type of StreamOperator
  */

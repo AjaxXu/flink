@@ -29,7 +29,7 @@ import org.apache.flink.table.util.SegmentsUtil;
 import java.io.IOException;
 
 /**
- * Serializer for {@link BinaryArray}.
+ * Serializer for {@link BinaryArray}.{@link BinaryArray}的序列化器
  */
 public class BinaryArraySerializer extends TypeSerializerSingleton<BinaryArray> {
 

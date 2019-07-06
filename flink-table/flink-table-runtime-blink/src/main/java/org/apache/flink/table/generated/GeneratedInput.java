@@ -21,7 +21,7 @@ package org.apache.flink.table.generated;
 import org.apache.flink.api.common.io.InputFormat;
 
 /**
- * Describes a generated {@link InputFormat}.
+ * Describes a generated {@link InputFormat}.描述生成的{@link InputFormat}.
  *
  * @param <F> type of Function
  */

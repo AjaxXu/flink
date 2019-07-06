@@ -25,6 +25,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * A wrapper for generated class, defines a {@link #newInstance(ClassLoader)} method
  * to get an instance by reference objects easily.
+ * 生成的类的包装器，定义了一个{@link #newInstance(ClassLoader)}方法，以便通过引用对象轻松获取实例.
  */
 public abstract class GeneratedClass<T> implements Serializable {
 

@@ -44,6 +44,7 @@ import static org.apache.flink.table.types.PlannerTypeUtils.isPrimitive;
 
 /**
  * Get internal(sql engine execution data formats) and default external class for {@link LogicalType}.
+ * 获取{@link LogicalType}的内部(SQL引擎执行数据格式)和默认外部类。
  */
 public class ClassLogicalTypeConverter {
 

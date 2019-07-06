@@ -23,7 +23,7 @@ import org.apache.flink.table.dataformat.BaseRow;
 import org.apache.flink.table.dataview.StateDataViewStore;
 
 /**
- * The base class for handling aggregate functions.
+ * The base class for handling aggregate functions.用于处理聚合函数的基类.
  *
  * <p>The differences between {@link NamespaceAggsHandleFunction} and {@link AggsHandleFunction}
  * is that the {@link NamespaceAggsHandleFunction} has namespace.

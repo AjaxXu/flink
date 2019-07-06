@@ -33,7 +33,7 @@ import java.util.Objects;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * Type information for arrays boxed primitive types.
+ * Type information for arrays boxed primitive types.数组装箱基本类型的类型信息.
  *
  * @param <T> The type (class) of the array itself.
  * @param <C> The type (class) of the array component.

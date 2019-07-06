@@ -30,12 +30,13 @@ import org.apache.flink.table.types.logical.RowType;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.stream.IntStream;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * Base row type info.
+ * Base row type info.BaseRow的类型信息.
  */
 public class BaseRowTypeInfo extends TupleTypeInfoBase<BaseRow> {
 
@@ -62,11 +63,7 @@ public class BaseRowTypeInfo extends TupleTypeInfoBase<BaseRow> {
 	}
 
 	public static String[] generateDefaultFieldNames(int length) {
-		String[] fieldNames = new String[length];
-		for (int i = 0; i < length; i++) {
-			fieldNames[i] = "f" + i;
-		}
-		return fieldNames;
+		return IntStream.range(0, length).mapToObj(i -> "f" + i).toArray(String[]::new);
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import org.apache.flink.table.typeutils.BigDecimalTypeInfo;
 import static org.apache.flink.table.types.LogicalTypeDataTypeConverter.fromLogicalTypeToDataType;
 
 /**
- * Converter between {@link TypeInformation} and {@link LogicalType}.
+ * Converter between {@link TypeInformation} and {@link LogicalType}.{@link TypeInformation}和{@link LogicalType}之间的转换器.
  *
  * <p>This class is for:
  * 1.Source, Sink.

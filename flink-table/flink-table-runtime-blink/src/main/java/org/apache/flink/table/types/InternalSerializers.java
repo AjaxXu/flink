@@ -41,6 +41,7 @@ import org.apache.flink.table.typeutils.DecimalSerializer;
 
 /**
  * {@link TypeSerializer} of {@link LogicalType} for internal sql engine execution data formats.
+ * {@link LogicalType}的{@link TypeSerializer},用于内部sql引擎执行数据格式.
  */
 public class InternalSerializers {
 

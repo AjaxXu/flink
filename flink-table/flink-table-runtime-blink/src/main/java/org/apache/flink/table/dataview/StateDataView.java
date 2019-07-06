@@ -21,7 +21,7 @@ package org.apache.flink.table.dataview;
 import org.apache.flink.table.api.dataview.DataView;
 
 /**
- * A {@link DataView} which is implemented using state backend.
+ * A {@link DataView} which is implemented using state backend.使用状态后端实现的{@link DataView}.
  */
 public interface StateDataView<N> extends DataView {
 

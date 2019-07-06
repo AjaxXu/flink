@@ -29,7 +29,7 @@ import org.apache.flink.table.util.SegmentsUtil;
 import java.io.IOException;
 
 /**
- * Serializer for {@link BinaryMap}.
+ * Serializer for {@link BinaryMap}.{@link BinaryMap}的序列化器.
  */
 public class BinaryMapSerializer extends TypeSerializerSingleton<BinaryMap> {
 

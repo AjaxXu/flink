@@ -19,7 +19,7 @@
 package org.apache.flink.table.generated;
 
 /**
- * Describes a generated {@link NormalizedKeyComputer}.
+ * Describes a generated {@link NormalizedKeyComputer}.描述生成的{@link NormalizedKeyComputer}.
  */
 public class GeneratedNormalizedKeyComputer extends GeneratedClass<NormalizedKeyComputer> {
 

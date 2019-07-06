@@ -41,7 +41,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
- * TypeInformation for {@link Row}
+ * TypeInformation for {@link Row}.Row的类型信息
  */
 @PublicEvolving
 public class RowTypeInfo extends TupleTypeInfoBase<Row> {

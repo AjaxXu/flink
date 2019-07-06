@@ -24,6 +24,7 @@ import org.apache.flink.table.typeutils.MapViewTypeInfo;
 
 /**
  * This interface contains methods for registering {@link StateDataView} with a managed store.
+ * 此接口包含向托管存储注册{@link StateDataView}的方法。
  */
 public interface StateDataViewStore {
 

@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * MapView which is implemented using state backends.
+ * MapView which is implemented using state backends.使用状态后端实现的MapView.
  *
  * @param <N> the type of namespace
  * @param <MK> the type of MapView key

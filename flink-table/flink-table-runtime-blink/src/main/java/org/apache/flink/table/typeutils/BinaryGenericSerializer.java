@@ -35,7 +35,7 @@ import org.apache.flink.util.InstantiationUtil;
 import java.io.IOException;
 
 /**
- * Serializer for {@link BinaryGeneric}.
+ * Serializer for {@link BinaryGeneric}.{@link BinaryGeneric}的序列化器.
  */
 @Internal
 public final class BinaryGenericSerializer<T> extends TypeSerializer<BinaryGeneric<T>> {

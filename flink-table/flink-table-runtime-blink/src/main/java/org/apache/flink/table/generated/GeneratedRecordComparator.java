@@ -19,7 +19,7 @@
 package org.apache.flink.table.generated;
 
 /**
- * Describes a generated {@link RecordComparator}.
+ * Describes a generated {@link RecordComparator}.描述生成的{@link RecordComparator}.
  */
 public class GeneratedRecordComparator extends GeneratedClass<RecordComparator> {
 

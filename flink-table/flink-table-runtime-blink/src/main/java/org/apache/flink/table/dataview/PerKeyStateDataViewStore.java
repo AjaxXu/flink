@@ -31,6 +31,7 @@ import org.apache.flink.table.typeutils.MapViewTypeInfo;
 /**
  * Default implementation of StateDataViewStore that currently forwards state registration
  * to a {@link RuntimeContext}.
+ * 当前将状态注册转发到{@link RuntimeContext}的StateDataViewStore的实现
  */
 public class PerKeyStateDataViewStore implements StateDataViewStore {
 	private static final String NULL_STATE_POSTFIX = "_null_state";

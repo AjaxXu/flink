@@ -29,6 +29,9 @@ import java.util.Optional;
  * Utils for get {@link DataType} from a Class. It must return a DataType.
  * Convert known types by {@link TypeConversions#fromClassToDataType}.
  * Convert unknown types by {@link LegacyTypeInformationType}.
+ * 类中get{@link DataType}的实用程序。它必须返回DataType
+ * 通过{@link TypeConversions#fromClassToDataType}转换已知类型。
+ * 通过{@link LegacyTypeInformationType}转换未知类型。
  */
 public class ClassDataTypeConverter {
 

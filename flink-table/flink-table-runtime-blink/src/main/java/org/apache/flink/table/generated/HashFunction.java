@@ -23,6 +23,7 @@ import org.apache.flink.table.dataformat.BaseRow;
 /**
  * Interface for code generated hash code of {@link BaseRow}, which will select some
  * fields to hash.
+ * 根据{@link BaseRow}选择几行来产生hash值
  */
 public interface HashFunction {
 

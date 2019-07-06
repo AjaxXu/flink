@@ -19,7 +19,7 @@
 package org.apache.flink.table.generated;
 
 /**
- * Describes a generated {@link HashFunction}.
+ * Describes a generated {@link HashFunction}.描述生成的{@link HashFunction}.
  */
 public class GeneratedHashFunction extends GeneratedClass<HashFunction> {
 

@@ -19,7 +19,7 @@
 package org.apache.flink.table.generated;
 
 /**
- * Describes a generated {@link Projection}.
+ * Describes a generated {@link Projection}.描述生成的{@link Projection}.
  */
 public class GeneratedProjection extends GeneratedClass<Projection> {
 

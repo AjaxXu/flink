@@ -27,7 +27,7 @@ import java.util.Comparator;
 /**
  * Record comparator for {@link BinaryInMemorySortBuffer}.
  * For performance, subclasses are usually implemented through CodeGenerator.
- * A new interface for helping JVM inline.
+ * A new interface for helping JVM inline.记录比较器.
  */
 public interface RecordComparator extends Comparator<BaseRow>, Serializable {
 

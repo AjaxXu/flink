@@ -28,7 +28,7 @@ import static org.apache.flink.table.types.logical.LogicalTypeFamily.BINARY_STRI
 import static org.apache.flink.table.types.logical.LogicalTypeFamily.CHARACTER_STRING;
 
 /**
- * Utilities for {@link LogicalType} and {@link DataType}..
+ * Utilities for {@link LogicalType} and {@link DataType}.{@link LogicalType}和{@link DataType}的实用工具.
  */
 public class PlannerTypeUtils {
 

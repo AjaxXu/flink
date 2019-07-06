@@ -28,7 +28,7 @@ import org.apache.flink.core.memory.DataInputView;
 import org.apache.flink.core.memory.DataOutputView;
 
 /**
- * A serializer for byte arrays.
+ * A serializer for byte arrays.byte数组的序列化器.
  */
 @Internal
 public final class BytePrimitiveArraySerializer extends TypeSerializerSingleton<byte[]>{

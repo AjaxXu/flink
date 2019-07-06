@@ -30,7 +30,7 @@ import java.util.Arrays;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * A serializer for arrays of objects.
+ * A serializer for arrays of objects.对象数组的序列化程序.
  * 
  * @param <C> The component type.
  */

@@ -26,6 +26,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * A {@link TypeInformation} for the Multiset types of the Java API.
+ * Multiset的类型信息.
  *
  * @param <T> The type of the elements in the Multiset.
  */

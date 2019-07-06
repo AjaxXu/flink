@@ -21,7 +21,7 @@ package org.apache.flink.table.generated;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 
 /**
- * Describes a generated {@link ResultFuture}.
+ * Describes a generated {@link ResultFuture}.描述生成的{@link ResultFuture}.
  *
  * @param <T> type of ResultFuture
  */

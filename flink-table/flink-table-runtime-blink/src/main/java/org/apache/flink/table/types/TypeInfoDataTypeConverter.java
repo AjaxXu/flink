@@ -44,14 +44,14 @@ import org.apache.flink.types.Row;
 import static org.apache.flink.table.types.LogicalTypeDataTypeConverter.fromDataTypeToLogicalType;
 
 /**
- * Converter between {@link TypeInformation} and {@link DataType}.
+ * Converter between {@link TypeInformation} and {@link DataType}.{@link TypeInformation}和{@link DataType}之间的转换器.
  *
  * <p>Don't override {@link TypeConversions#fromLegacyInfoToDataType}. It is a user interface.
  *
  * <p>The different with {@link TypeConversions#fromDataTypeToLegacyInfo}:
- * 1.Deal with VARCHAR and VARBINARY with precision.
- * 2.Deal with BaseRow.
- * 3.Deal with Decimal.
+ * 1.Deal with VARCHAR and VARBINARY with precision.支持VARCHAR和VARBINARY
+ * 2.Deal with BaseRow.支持BaseRow
+ * 3.Deal with Decimal.支持Decimal
  *
  * <p>This class is for:
  * 1.See {@link TableFunctionDefinition#getResultType()}.

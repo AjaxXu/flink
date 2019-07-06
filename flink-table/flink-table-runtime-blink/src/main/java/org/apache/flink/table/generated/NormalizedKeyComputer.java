@@ -23,13 +23,14 @@ import org.apache.flink.table.dataformat.BaseRow;
 import org.apache.flink.table.runtime.sort.BinaryInMemorySortBuffer;
 
 /**
- * Normalized key computer for {@link BinaryInMemorySortBuffer}.
- * For performance, subclasses are usually implemented through CodeGenerator.
+ * Normalized key computer for {@link BinaryInMemorySortBuffer}.规范化键计算.
+ * For performance, subclasses are usually implemented through CodeGenerator.为了提高性能，子类通常是通过代码生成器实现的
  */
 public interface NormalizedKeyComputer {
 
 	/**
 	 * Writes a normalized key for the given record into the target {@link MemorySegment}.
+	 * 规范化的key就是row的第一列
 	 */
 	void putKey(BaseRow record, MemorySegment target, int offset);
 

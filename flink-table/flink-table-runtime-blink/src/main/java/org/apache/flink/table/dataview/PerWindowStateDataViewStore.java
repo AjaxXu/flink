@@ -37,6 +37,8 @@ import org.apache.flink.table.typeutils.MapViewTypeInfo;
  * An implementation of StateDataViewStore for window aggregates which forward the state
  * registration to underlying {@link KeyedStateBackend}. The created state by this store
  * has the ability to switch window namespace.
+ * 窗口聚合的StateDataViewStore的一种实现，它将状态注册转发到底层的{@link KeyedStateBackend}。
+ * 此存储创建的状态可以切换窗口命名空间。
  */
 public class PerWindowStateDataViewStore implements StateDataViewStore {
 	private static final String NULL_STATE_POSTFIX = "_null_state";

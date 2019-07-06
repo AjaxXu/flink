@@ -23,6 +23,7 @@ import org.apache.flink.table.dataformat.BaseRow;
 
 /**
  * Interface for code generated condition function for [[org.apache.calcite.rel.core.Join]].
+ * Join条件函数，判断row能否join
  */
 public interface JoinCondition extends RichFunction {
 

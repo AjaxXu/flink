@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 import static org.apache.flink.table.types.TypeInfoLogicalTypeConverter.fromTypeInfoToLogicalType;
 
 /**
- * Converter between {@link DataType} and {@link LogicalType}.
+ * Converter between {@link DataType} and {@link LogicalType}.{@link DataType}和{@link LogicalType}之间的转换器.
  * TODO change TimestampType default conversion class to {@link LocalDateTime} from {@link Timestamp}.
  *
  * <p>This class is for:
@@ -165,7 +165,7 @@ public class LogicalTypeDataTypeConverter {
 					rowType.getFields().stream().map(field ->
 							new RowType.RowField(
 									field.getName(),
-									field.getType().accept(LegacyTypeToPlannerTypeConverter.this)))
+									field.getType().accept(this)))
 							.collect(Collectors.toList()));
 		}
 	}

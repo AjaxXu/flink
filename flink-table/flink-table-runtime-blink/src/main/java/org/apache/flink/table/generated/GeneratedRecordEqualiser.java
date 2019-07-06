@@ -19,7 +19,7 @@
 package org.apache.flink.table.generated;
 
 /**
- * Describes a generated {@link RecordEqualiser}.
+ * Describes a generated {@link RecordEqualiser}.描述生成的{@link RecordEqualiser}.
  */
 public class GeneratedRecordEqualiser extends GeneratedClass<RecordEqualiser> {
 

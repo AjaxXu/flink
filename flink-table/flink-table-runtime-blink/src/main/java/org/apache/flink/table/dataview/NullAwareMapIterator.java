@@ -24,6 +24,7 @@ import java.util.NoSuchElementException;
 
 /**
  * An {@link Iterator} implementation that iterate on a map iterator and a null entry.
+ * 一种{@link Iterator}实现，在map iterator和null entry上进行迭代.
  */
 public class NullAwareMapIterator<K, V> implements Iterator<Map.Entry<K, V>> {
 

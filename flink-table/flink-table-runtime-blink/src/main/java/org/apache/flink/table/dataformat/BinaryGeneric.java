@@ -27,7 +27,7 @@ import org.apache.flink.util.InstantiationUtil;
 import java.io.IOException;
 
 /**
- * 通用的 内部格式
+ * 通用的内部格式
  * Internal format to generic.
  */
 public final class BinaryGeneric<T> extends LazyBinaryFormat<T> {

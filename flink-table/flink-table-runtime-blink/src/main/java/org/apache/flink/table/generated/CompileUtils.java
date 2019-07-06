@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * Utilities to compile a generated code to a Class.
+ * Utilities to compile a generated code to a Class.将生成的代码编译为类的实用程序.
  */
 public final class CompileUtils {
 
@@ -71,13 +71,13 @@ public final class CompileUtils {
 
 	private static <T> Class<T> doCompile(ClassLoader cl, String name, String code) {
 		checkNotNull(cl, "Classloader must not be null.");
-		CODE_LOG.debug("Compiling: %s \n\n Code:\n%s", name, code);
+		CODE_LOG.debug("Compiling: {} \n\n Code:\n{}", name, code);
 		SimpleCompiler compiler = new SimpleCompiler();
 		compiler.setParentClassLoader(cl);
 		try {
 			compiler.cook(code);
 		} catch (Throwable t) {
-			System.out.println(addLineNumber(code));
+			CODE_LOG.debug(addLineNumber(code));
 			throw new InvalidProgramException(
 				"Table program cannot be compiled. This is a bug. Please file an issue.", t);
 		}

@@ -27,6 +27,7 @@ import java.util.List;
 
 /**
  * {@link StateListView} is a {@link ListView} which implemented using state backend.
+ * {@link StateListView}是使用状态后端实现的{@link ListView}
  *
  * @param <T> the type of element
  */

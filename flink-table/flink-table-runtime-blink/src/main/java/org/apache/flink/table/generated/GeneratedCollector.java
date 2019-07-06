@@ -21,7 +21,7 @@ package org.apache.flink.table.generated;
 import org.apache.flink.util.Collector;
 
 /**
- * Describes a generated {@link Collector}.
+ * Describes a generated {@link Collector}.描述生成的{@link Collector}.
  *
  * @param <C> type of collector
  */

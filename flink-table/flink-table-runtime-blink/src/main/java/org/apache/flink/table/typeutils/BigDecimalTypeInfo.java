@@ -31,6 +31,7 @@ import java.util.Arrays;
  *
  * <p>It differs from {@link BasicTypeInfo#BIG_DEC_TYPE_INFO} in that:
  * This type includes `precision` and `scale`, similar to SQL DECIMAL.
+ * 和{@link BasicTypeInfo#BIG_DEC_TYPE_INFO}不同在于:本类型包含`precision`和`scale`
  */
 public class BigDecimalTypeInfo extends BasicTypeInfo<BigDecimal> {
 

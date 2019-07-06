@@ -30,6 +30,9 @@ import org.apache.flink.api.common.typeutils.base.GenericArraySerializer;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
+/**
+ * 对象数组类型信息.
+ */
 @Public
 public class ObjectArrayTypeInfo<T, C> extends TypeInformation<T> {
 

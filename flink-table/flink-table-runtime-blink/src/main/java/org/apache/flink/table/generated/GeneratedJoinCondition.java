@@ -19,7 +19,7 @@
 package org.apache.flink.table.generated;
 
 /**
- * Describes a generated {@link JoinCondition}.
+ * Describes a generated {@link JoinCondition}.描述生成的{@link JoinCondition}.
  */
 public class GeneratedJoinCondition extends GeneratedClass<JoinCondition> {
 

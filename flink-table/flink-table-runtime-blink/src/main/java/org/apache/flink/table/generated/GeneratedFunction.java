@@ -21,7 +21,7 @@ package org.apache.flink.table.generated;
 import org.apache.flink.api.common.functions.Function;
 
 /**
- * Describes a generated {@link Function}.
+ * Describes a generated {@link Function}.描述生成的{@link Function}.
  *
  * @param <F> type of Function
  */
