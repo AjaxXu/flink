@@ -118,12 +118,12 @@ public final class UpdatableRow implements BaseRow {
 	}
 
 	@Override
-	public BinaryArray getArray(int ordinal) {
-		return updated[ordinal] ? (BinaryArray) fields[ordinal] : row.getArray(ordinal);
+	public BaseArray getArray(int ordinal) {
+		return updated[ordinal] ? (BaseArray) fields[ordinal] : row.getArray(ordinal);
 	}
 
 	@Override
-	public BinaryMap getMap(int ordinal) {
+	public BaseMap getMap(int ordinal) {
 		return updated[ordinal] ? (BinaryMap) fields[ordinal] : row.getMap(ordinal);
 	}
 

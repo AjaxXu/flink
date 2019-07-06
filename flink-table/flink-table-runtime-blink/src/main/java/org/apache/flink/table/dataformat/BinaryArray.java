@@ -23,6 +23,8 @@ import org.apache.flink.core.memory.MemorySegmentFactory;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.util.SegmentsUtil;
 
+import java.lang.reflect.Array;
+
 import static org.apache.flink.core.memory.MemoryUtils.UNSAFE;
 
 /**
@@ -35,7 +37,7 @@ import static org.apache.flink.core.memory.MemoryUtils.UNSAFE;
  *
  * <p>{@code BinaryArray} are influenced by Apache Spark UnsafeArrayData.
  */
-public final class BinaryArray extends BinaryFormat implements TypeGetterSetters {
+public final class BinaryArray extends BinaryFormat implements BaseArray {
 
 	/**
 	 * Offset for Arrays.
@@ -93,6 +95,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		return elementOffset + ordinal * elementSize;
 	}
 
+	@Override
 	public int numElements() {
 		return numElements;
 	}
@@ -122,6 +125,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		SegmentsUtil.bitSet(segments, offset + 4, pos);
 	}
 
+	@Override
 	public void setNotNullAt(int pos) {
 		assertIndexIsValid(pos);
 		SegmentsUtil.bitUnSet(segments, offset + 4, pos);
@@ -140,6 +144,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		SegmentsUtil.setLong(segments, getElementOffset(pos, 8), value);
 	}
 
+	@Override
 	public void setNullLong(int pos) {
 		assertIndexIsValid(pos);
 		SegmentsUtil.bitSet(segments, offset + 4, pos);
@@ -159,6 +164,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		SegmentsUtil.setInt(segments, getElementOffset(pos, 4), value);
 	}
 
+	@Override
 	public void setNullInt(int pos) {
 		assertIndexIsValid(pos);
 		SegmentsUtil.bitSet(segments, offset + 4, pos);
@@ -206,13 +212,13 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 	}
 
 	@Override
-	public BinaryArray getArray(int pos) {
+	public BaseArray getArray(int pos) {
 		assertIndexIsValid(pos);
 		return BinaryArray.readBinaryArrayFieldFromSegments(segments, offset, getLong(pos));
 	}
 
 	@Override
-	public BinaryMap getMap(int pos) {
+	public BaseMap getMap(int pos) {
 		assertIndexIsValid(pos);
 		return BinaryMap.readBinaryMapFieldFromSegments(segments, offset, getLong(pos));
 	}
@@ -239,6 +245,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		SegmentsUtil.setBoolean(segments, getElementOffset(pos, 1), value);
 	}
 
+	@Override
 	public void setNullBoolean(int pos) {
 		assertIndexIsValid(pos);
 		SegmentsUtil.bitSet(segments, offset + 4, pos);
@@ -258,6 +265,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		SegmentsUtil.setByte(segments, getElementOffset(pos, 1), value);
 	}
 
+	@Override
 	public void setNullByte(int pos) {
 		assertIndexIsValid(pos);
 		SegmentsUtil.bitSet(segments, offset + 4, pos);
@@ -277,6 +285,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		SegmentsUtil.setShort(segments, getElementOffset(pos, 2), value);
 	}
 
+	@Override
 	public void setNullShort(int pos) {
 		assertIndexIsValid(pos);
 		SegmentsUtil.bitSet(segments, offset + 4, pos);
@@ -296,6 +305,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		SegmentsUtil.setFloat(segments, getElementOffset(pos, 4), value);
 	}
 
+	@Override
 	public void setNullFloat(int pos) {
 		assertIndexIsValid(pos);
 		SegmentsUtil.bitSet(segments, offset + 4, pos);
@@ -315,6 +325,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		SegmentsUtil.setDouble(segments, getElementOffset(pos, 8), value);
 	}
 
+	@Override
 	public void setNullDouble(int pos) {
 		assertIndexIsValid(pos);
 		SegmentsUtil.bitSet(segments, offset + 4, pos);
@@ -367,6 +378,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		}
 	}
 
+	@Override
 	public boolean[] toBooleanArray() {
 		checkNoNull();
 		boolean[] values = new boolean[numElements];
@@ -375,6 +387,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		return values;
 	}
 
+	@Override
 	public byte[] toByteArray() {
 		checkNoNull();
 		byte[] values = new byte[numElements];
@@ -383,6 +396,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		return values;
 	}
 
+	@Override
 	public short[] toShortArray() {
 		checkNoNull();
 		short[] values = new short[numElements];
@@ -391,6 +405,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		return values;
 	}
 
+	@Override
 	public int[] toIntArray() {
 		checkNoNull();
 		int[] values = new int[numElements];
@@ -399,6 +414,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		return values;
 	}
 
+	@Override
 	public long[] toLongArray() {
 		checkNoNull();
 		long[] values = new long[numElements];
@@ -407,6 +423,7 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		return values;
 	}
 
+	@Override
 	public float[] toFloatArray() {
 		checkNoNull();
 		float[] values = new float[numElements];
@@ -415,11 +432,23 @@ public final class BinaryArray extends BinaryFormat implements TypeGetterSetters
 		return values;
 	}
 
+	@Override
 	public double[] toDoubleArray() {
 		checkNoNull();
 		double[] values = new double[numElements];
 		SegmentsUtil.copyToUnsafe(
 				segments, elementOffset, values, DOUBLE_ARRAY_OFFSET, numElements * 8);
+		return values;
+	}
+
+	public <T> T[] toClassArray(LogicalType elementType, Class<T> elementClass) {
+		int size = numElements();
+		T[] values = (T[]) Array.newInstance(elementClass, size);
+		for (int i = 0; i < size; i++) {
+			if (!isNullAt(i)) {
+				values[i] = (T) TypeGetterSetters.get(this, i, elementType);
+			}
+		}
 		return values;
 	}
 

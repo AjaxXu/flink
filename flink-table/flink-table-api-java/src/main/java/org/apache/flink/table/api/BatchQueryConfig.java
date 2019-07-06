@@ -23,7 +23,10 @@ import org.apache.flink.annotation.PublicEvolving;
 /**
  * batch 查询时的配置参数
  * The {@link BatchQueryConfig} holds parameters to configure the behavior of batch queries.
+ *
+ * @deprecated Set the configuration on {@link TableConfig}.
  */
+@Deprecated
 @PublicEvolving
 public class BatchQueryConfig implements QueryConfig {
 

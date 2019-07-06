@@ -25,8 +25,11 @@ import java.io.Serializable;
 /**
  * {@link QueryConfig}包含用于配置查询行为的参数
  * The {@link QueryConfig} holds parameters to configure the behavior of queries.
+ *
+ * @deprecated Set the configuration on {@link TableConfig}.
  */
 @PublicEvolving
+@Deprecated
 public interface QueryConfig extends Serializable {
 
 }

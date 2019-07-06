@@ -173,7 +173,7 @@ public final class JoinedRow implements BaseRow {
 	}
 
 	@Override
-	public BinaryArray getArray(int i) {
+	public BaseArray getArray(int i) {
 		if (i < row1.getArity()) {
 			return row1.getArray(i);
 		} else {
@@ -182,7 +182,7 @@ public final class JoinedRow implements BaseRow {
 	}
 
 	@Override
-	public BinaryMap getMap(int i) {
+	public BaseMap getMap(int i) {
 		if (i < row1.getArity()) {
 			return row1.getMap(i);
 		} else {
