@@ -30,7 +30,7 @@ import org.apache.flink.util.MathUtils;
 import java.util.Arrays;
 
 /**
- * Hash partitioner for {@link BinaryRow}.
+ * Hash partitioner for {@link BinaryRow}.{@link BinaryRow}的hash分区器.
  */
 public class BinaryHashPartitioner extends StreamPartitioner<BaseRow> {
 

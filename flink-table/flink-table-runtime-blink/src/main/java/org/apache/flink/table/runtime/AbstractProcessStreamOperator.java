@@ -29,6 +29,7 @@ import static org.apache.flink.util.Preconditions.checkState;
 
 /**
  * AbstractProcessStreamOperator is a base class for stream operators without key.
+ * Table算子的基类，没有key
  *
  * @param <OUT> The output type of the operator.
  */

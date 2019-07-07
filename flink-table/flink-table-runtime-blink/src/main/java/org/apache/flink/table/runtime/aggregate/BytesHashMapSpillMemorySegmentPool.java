@@ -30,8 +30,8 @@ import java.util.List;
 public class BytesHashMapSpillMemorySegmentPool implements MemorySegmentPool {
 
 	private final List<MemorySegment> segments;
-	private final int pageSize;
-	private int allocated;
+	private final int pageSize; // segment的大小
+	private int allocated; // 分配的segment数量
 
 	public BytesHashMapSpillMemorySegmentPool(List<MemorySegment> memorySegments) {
 		this.segments = memorySegments;
@@ -43,8 +43,10 @@ public class BytesHashMapSpillMemorySegmentPool implements MemorySegmentPool {
 	public MemorySegment nextSegment() {
 		allocated++;
 		if (allocated <= segments.size()) {
+			// 直接从segments中取
 			return segments.get(allocated - 1);
 		} else {
+			// 封装pageSize个bytes为segment
 			return MemorySegmentFactory.wrap(new byte[pageSize()]);
 		}
 	}

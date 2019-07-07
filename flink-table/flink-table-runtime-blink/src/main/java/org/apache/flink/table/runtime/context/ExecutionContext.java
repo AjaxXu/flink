@@ -24,6 +24,7 @@ import org.apache.flink.table.dataformat.BaseRow;
 /**
  * A ExecutionContext contains information about the context in which functions are executed and
  * the APIs to create state.
+ * ExecutionContext包含有关执行函数的上下文和创建状态的API的信息.
  */
 public interface ExecutionContext {
 

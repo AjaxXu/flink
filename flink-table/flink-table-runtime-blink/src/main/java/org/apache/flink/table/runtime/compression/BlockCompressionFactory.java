@@ -25,6 +25,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * Each compression codec has a implementation of {@link BlockCompressionFactory}
  * to create compressors and decompressors.
+ * 每个压缩编码都有一个BlockCompressionFactory的实现，用于创建压缩器和解压缩器.
  */
 public interface BlockCompressionFactory {
 
@@ -55,7 +56,7 @@ public interface BlockCompressionFactory {
 			compressionName = null;
 		}
 
-		BlockCompressionFactory blockCompressionFactory = null;
+		BlockCompressionFactory blockCompressionFactory;
 		if (compressionName != null) {
 			switch (compressionName) {
 				case LZ4:
@@ -65,6 +66,7 @@ public interface BlockCompressionFactory {
 					throw new IllegalStateException("Unknown CompressionMethod " + compressionName);
 			}
 		} else {
+			// user defined compression factory
 			Object factoryObj;
 			try {
 				factoryObj = Class.forName(compressionFactoryName).newInstance();

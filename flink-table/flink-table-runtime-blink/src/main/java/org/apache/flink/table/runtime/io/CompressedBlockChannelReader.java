@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Compressed block channel reader provides a scenario where MemorySegment must be maintained.
+ * 压缩块通道读取器提供了必须维护MemorySegment的场景。
  */
 public class CompressedBlockChannelReader
 		implements BlockChannelReader<MemorySegment>, RequestDoneCallback<Buffer>, BufferRecycler {
@@ -66,7 +67,7 @@ public class CompressedBlockChannelReader
 			int segmentSize) throws IOException {
 		this.reader = ioManager.createBufferFileReader(channel, this);
 		this.blockQueue = blockQueue;
-		copyCompress = preferBlockSize > segmentSize * 2;
+		copyCompress = preferBlockSize > segmentSize * 2; // reader要同时read到2个segment中
 		int blockSize = copyCompress ? preferBlockSize : segmentSize;
 		this.decompressor = codecFactory.getDecompressor();
 		cause = new AtomicReference<>();

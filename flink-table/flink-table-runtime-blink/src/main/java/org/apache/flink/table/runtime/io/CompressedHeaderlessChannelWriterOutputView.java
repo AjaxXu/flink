@@ -35,6 +35,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * A {@link org.apache.flink.core.memory.DataOutputView} that is backed by a {@link FileIOChannel},
  * making it effectively a data output stream. The view will compress its data before writing it
  * in blocks to the underlying channel.
+ * 视图将在将其以块的形式写入底层通道之前压缩其数据。
  */
 public final class CompressedHeaderlessChannelWriterOutputView
 		extends AbstractChannelWriterOutputView implements BufferRecycler {
@@ -45,10 +46,10 @@ public final class CompressedHeaderlessChannelWriterOutputView
 	private final BufferFileWriter writer;
 	private final int compressionBlockSize;
 
-	private int blockCount;
+	private int blockCount; // 写入的block数量，networkBuffer数量
 
-	private long numBytes;
-	private long numCompressedBytes;
+	private long numBytes; // 压缩前写入的字节数
+	private long numCompressedBytes; // 压缩后写入的字节数
 
 	public CompressedHeaderlessChannelWriterOutputView(
 			BufferFileWriter writer,
@@ -103,6 +104,7 @@ public final class CompressedHeaderlessChannelWriterOutputView
 		} catch (InterruptedException e) {
 			throw new IOException(e);
 		}
+		// 将current中的数据压缩到compressedBuffer中
 		int compressedLen = compressor.compress(current.getArray(), 0, size, compressedBuffer.getArray(), 0);
 		NetworkBuffer networkBuffer = new NetworkBuffer(compressedBuffer, this);
 		networkBuffer.setSize(compressedLen);

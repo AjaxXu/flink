@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 /**
  * The {@link RecordCounter} is used to count the number of input records under the current key.
+ * {@link RecordCounter}用于计算当前key下的输入记录数。
  */
 public abstract class RecordCounter implements Serializable {
 
@@ -38,6 +39,7 @@ public abstract class RecordCounter implements Serializable {
 	abstract boolean recordCountIsZero(BaseRow acc);
 
 	/**
+	 * 根据是否包含count(*)来返回对应的RecordCounter
 	 * Creates a {@link RecordCounter} depends on the index of count(*).
 	 * If index is less than zero, returns {@link AccumulationRecordCounter},
 	 * otherwise, {@link RetractionRecordCounter}.
@@ -55,8 +57,9 @@ public abstract class RecordCounter implements Serializable {
 
 
 	/**
-	 * {@link RecordCounters.AccumulationRecordCounter} is a {@link RecordCounter} whose input stream
+	 * {@link RecordCounter.AccumulationRecordCounter} is a {@link RecordCounter} whose input stream
 	 * is append only.
+	 * 它对应的输入流是只能append
 	 */
 	private static final class AccumulationRecordCounter extends RecordCounter {
 
@@ -70,8 +73,9 @@ public abstract class RecordCounter implements Serializable {
 	}
 
 	/**
-	 * {@link RecordCounters.RetractionRecordCounter} is a {@link RecordCounter} whose input stream
+	 * {@link RecordCounter.RetractionRecordCounter} is a {@link RecordCounter} whose input stream
 	 * contains retraction.
+	 * 输入流包含retraction
 	 */
 	private static final class RetractionRecordCounter extends RecordCounter {
 

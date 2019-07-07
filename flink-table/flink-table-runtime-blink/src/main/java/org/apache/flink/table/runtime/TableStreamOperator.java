@@ -23,6 +23,7 @@ import org.apache.flink.streaming.api.operators.ChainingStrategy;
 
 /**
  * Table operator to invoke close always.
+ * Table算子
  */
 public class TableStreamOperator<OUT> extends AbstractStreamOperator<OUT> {
 

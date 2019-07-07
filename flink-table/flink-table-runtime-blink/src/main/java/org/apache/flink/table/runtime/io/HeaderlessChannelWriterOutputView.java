@@ -32,6 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * A {@link org.apache.flink.core.memory.DataOutputView} that is backed by a
  * {@link BlockChannelWriter}, making it effectively a data output stream. The view writes its
  * data in blocks to the underlying channel, but does not expect header for each block.
+ * 将数据写入底下的通道中，不经过压缩
  */
 public final class HeaderlessChannelWriterOutputView extends AbstractChannelWriterOutputView {
 
@@ -114,6 +115,7 @@ public final class HeaderlessChannelWriterOutputView extends AbstractChannelWrit
 	@Override
 	public MemorySegment nextSegment(MemorySegment current, int posInSegment) throws IOException {
 		if (current != null) {
+			// 直接由writer写入
 			writer.writeBlock(current);
 		}
 
