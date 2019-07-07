@@ -20,6 +20,7 @@ package org.apache.flink.table.runtime.compression;
 
 /**
  * Implementation of {@link BlockCompressionFactory} for Lz4 codec.
+ * Lz4编码的BlockCompressionFactory的实现.
  */
 public class Lz4BlockCompressionFactory implements BlockCompressionFactory {
 

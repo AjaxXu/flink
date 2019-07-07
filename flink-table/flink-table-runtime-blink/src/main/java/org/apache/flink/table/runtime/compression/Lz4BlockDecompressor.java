@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 import static org.apache.flink.table.runtime.compression.Lz4BlockCompressionFactory.HEADER_LENGTH;
 
 /**
- * Decode data written with {@link Lz4BlockCompressor}.
+ * Decode data written with {@link Lz4BlockCompressor}.Lz4解压缩器.
  * It reads from and writes to byte arrays provided from the outside, thus reducing copy time.
  *
  * <p>This class is copied and modified from {@link net.jpountz.lz4.LZ4BlockInputStream}.

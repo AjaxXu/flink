@@ -23,6 +23,8 @@ import java.nio.ByteBuffer;
 /**
  * A compressor which compresses a whole byte array each time.
  * It will read from and write to byte arrays given from the outside, reducing copy time.
+ * 压缩器，每次压缩整个字节数组。
+ * 它将读取和写入外部给出的字节数组，从而减少复制时间。
  */
 public interface BlockCompressor {
 

@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Compressed block channel writer provides a scenario where MemorySegment must be maintained.
+ * 压缩块通道写入器提供了必须维护MemorySegment的场景。
  */
 public class CompressedBlockChannelWriter
 		implements BlockChannelWriter<MemorySegment>, BufferRecycler {
@@ -109,11 +110,14 @@ public class CompressedBlockChannelWriter
 		} catch (InterruptedException e) {
 			throw new IOException(e);
 		}
+		// 把buffer中的数据压缩到compressedBuffer中
 		int compressedLen = compressor.compress(
 				buffer, 0, len,
 				compressedBuffer.wrap(0, compressedBuffer.size()), 0);
+		// 将compressedBuffer封装成NeiworkBuffer
 		NetworkBuffer networkBuffer = new NetworkBuffer(compressedBuffer, this);
 		networkBuffer.setSize(compressedLen);
+		// 由writer写入
 		writer.writeBlock(networkBuffer);
 	}
 

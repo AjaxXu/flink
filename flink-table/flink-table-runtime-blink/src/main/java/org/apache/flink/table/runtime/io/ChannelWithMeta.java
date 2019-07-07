@@ -22,6 +22,7 @@ import org.apache.flink.runtime.io.disk.iomanager.FileIOChannel;
 
 /**
  * Channel with block count and numBytesInLastBlock of file.
+ * 文件的channel以及块数量、最后一块的字节数
  */
 public class ChannelWithMeta {
 

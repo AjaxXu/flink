@@ -29,6 +29,7 @@ import org.apache.flink.table.generated.GeneratedClass;
 
 /**
  * Stream operator factory for code gen operator.
+ * 代码生成算子的工厂
  */
 public class CodeGenOperatorFactory<OUT> implements StreamOperatorFactory<OUT> {
 

@@ -25,7 +25,7 @@ import org.apache.flink.util.Preconditions;
 
 
 /**
- * Implementation of ExecutionContext.
+ * Implementation of ExecutionContext.ExecutionContext的实现.
  */
 public final class ExecutionContextImpl implements ExecutionContext {
 

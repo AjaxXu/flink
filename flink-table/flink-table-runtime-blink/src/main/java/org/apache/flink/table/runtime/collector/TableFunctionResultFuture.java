@@ -23,6 +23,7 @@ import org.apache.flink.streaming.api.functions.async.ResultFuture;
 
 /**
  * The basic implementation of collector for {@link ResultFuture} in table joining.
+ * 表连接中{@link ResultFuture}的收集器的基本实现.
  */
 public abstract class TableFunctionResultFuture<T> extends AbstractRichFunction implements ResultFuture<T> {
 

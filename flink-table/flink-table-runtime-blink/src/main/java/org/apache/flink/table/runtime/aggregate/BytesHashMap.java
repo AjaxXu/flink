@@ -43,7 +43,7 @@ import java.util.List;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
- * Bytes based hash map.
+ * Bytes based hash map.基于byte的hash map.
  * It can be used for performing aggregations where the aggregated values are fixed-width, because
  * the data is stored in continuous memory, AggBuffer of variable length cannot be applied to this
  * HashMap.

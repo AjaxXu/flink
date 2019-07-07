@@ -43,12 +43,14 @@ public interface CleanupState {
 		if (curCleanupTime == null || (currentTime + minRetentionTime) > curCleanupTime) {
 			// we need to register a new (later) timer
 			long cleanupTime = currentTime + maxRetentionTime;
-			// register timer and remember clean-up time
+			// register timer
 			timerService.registerProcessingTimeTimer(cleanupTime);
 			// delete expired timer
+			// 删除过去timer
 			if (curCleanupTime != null) {
 				timerService.deleteProcessingTimeTimer(curCleanupTime);
 			}
+			// remember clean-up time
 			cleanupTimeState.update(cleanupTime);
 		}
 	}
