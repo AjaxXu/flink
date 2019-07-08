@@ -38,8 +38,8 @@ import static org.apache.flink.table.dataformat.util.BaseRowUtil.RETRACT_MSG;
 import static org.apache.flink.table.dataformat.util.BaseRowUtil.isAccumulateMsg;
 
 /**
- * Aggregate Function used for the groupby (without window) aggregate.
- * groupby聚合函数
+ * Aggregate Function used for the groupBy (without window) aggregate.
+ * groupBy聚合函数
  */
 public class GroupAggFunction extends KeyedProcessFunctionWithCleanupState<BaseRow, BaseRow, BaseRow> {
 
@@ -149,11 +149,14 @@ public class GroupAggFunction extends KeyedProcessFunctionWithCleanupState<BaseR
 		}
 
 		// set accumulators to handler first
+		// 先设置累加值
 		function.setAccumulators(accumulators);
 		// get previous aggregate result
+		// 获得之前聚合结果
 		BaseRow prevAggValue = function.getValue();
 
 		// update aggregate result and set to the newRow
+		// 根据input header信息执行累加或撤回
 		if (isAccumulateMsg(input)) {
 			// accumulate input
 			function.accumulate(input);
@@ -162,42 +165,56 @@ public class GroupAggFunction extends KeyedProcessFunctionWithCleanupState<BaseR
 			function.retract(input);
 		}
 		// get current aggregate result
+		// 得到新的聚合结果
 		BaseRow newAggValue = function.getValue();
 
 		// get accumulator
 		accumulators = function.getAccumulators();
 
+		// 记录数不为0，即 >=1
 		if (!recordCounter.recordCountIsZero(accumulators)) {
 			// we aggregated at least one record for this key
 
 			// update the state
+			// 更新累加状态
 			accState.update(accumulators);
 
 			// if this was not the first row and we have to emit retractions
+			// 如果不是第一行，要发出一个撤回消息.意思是撤回旧值，发送新值
 			if (!firstRow) {
 				if (!stateCleaningEnabled && equaliser.equalsWithoutHeader(prevAggValue, newAggValue)) {
 					// newRow is the same as before and state cleaning is not enabled.
 					// We do not emit retraction and acc message.
 					// If state cleaning is enabled, we have to emit messages to prevent too early
 					// state eviction of downstream operators.
+					// newRow与之前相同，且未启用状态清除。我们不会发出撤消和acc消息。
+					// 如果启用了状态清除，我们必须发出消息以防止下游算子过早的状态驱逐
 					return;
 				} else {
 					// retract previous result
+					// 支持撤回之前的结果
 					if (generateRetraction) {
 						// prepare retraction message for previous row
+						// 发出撤回消息
 						resultRow.replace(currentKey, prevAggValue).setHeader(RETRACT_MSG);
 						out.collect(resultRow);
 					}
 				}
 			}
 			// emit the new result
+			// 这里有3个条件:
+			// 1、是第一行
+			// 2、累加值和之前不同，前面已经根据是否支持发出撤回消息
+			// 3、累加值和之前相同，但启用状态清除，所以还是要发出一个消息，防止下游算子过早的清除状态
 			resultRow.replace(currentKey, newAggValue).setHeader(ACCUMULATE_MSG);
 			out.collect(resultRow);
 
 		} else {
+			// 记录数量为0.这种情况为收到的是撤回消息，导致count(*)为0，需要向下继续发生撤回消息
 			// we retracted the last record for this key
 			// sent out a delete message
 			if (!firstRow) {
+				// 不是第一行，向下继续发生撤回消息
 				// prepare delete message for previous row
 				resultRow.replace(currentKey, prevAggValue).setHeader(RETRACT_MSG);
 				out.collect(resultRow);

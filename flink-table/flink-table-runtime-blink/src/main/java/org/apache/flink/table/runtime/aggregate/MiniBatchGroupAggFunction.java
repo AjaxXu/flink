@@ -48,6 +48,7 @@ import static org.apache.flink.table.dataformat.util.BaseRowUtil.isAccumulateMsg
 
 /**
  * Aggregate Function used for the groupby (without window) aggregate in miniBatch mode.
+ * miniBatch模式下grouby聚合函数
  *
  * <p>This function buffers input row in heap HashMap, and aggregates them when minibatch invoked.
  */

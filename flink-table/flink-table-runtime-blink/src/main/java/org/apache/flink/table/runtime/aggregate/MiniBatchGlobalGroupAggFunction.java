@@ -42,6 +42,7 @@ import static org.apache.flink.table.dataformat.util.BaseRowUtil.RETRACT_MSG;
 
 /**
  * Aggregate Function used for the global groupby (without window) aggregate in miniBatch mode.
+ * miniBatch模式下全局grouby聚合函数
  */
 public class MiniBatchGlobalGroupAggFunction extends MapBundleFunction<BaseRow, BaseRow, BaseRow, BaseRow> {
 
@@ -150,6 +151,7 @@ public class MiniBatchGlobalGroupAggFunction extends MapBundleFunction<BaseRow, 
 	public BaseRow addInput(@Nullable BaseRow previousAcc, BaseRow input) throws Exception {
 		BaseRow currentAcc;
 		if (previousAcc == null) {
+			// 之前的累加值为null，创建新的累加值
 			currentAcc = localAgg.createAccumulators();
 		} else {
 			currentAcc = previousAcc;
@@ -163,8 +165,8 @@ public class MiniBatchGlobalGroupAggFunction extends MapBundleFunction<BaseRow, 
 	@Override
 	public void finishBundle(Map<BaseRow, BaseRow> buffer, Collector<BaseRow> out) throws Exception {
 		for (Map.Entry<BaseRow, BaseRow> entry : buffer.entrySet()) {
-			BaseRow currentKey = entry.getKey();
-			BaseRow bufferAcc = entry.getValue();
+			BaseRow currentKey = entry.getKey(); // 当前key
+			BaseRow bufferAcc = entry.getValue(); // 缓存的累加值
 
 			boolean firstRow = false;
 
@@ -172,7 +174,7 @@ public class MiniBatchGlobalGroupAggFunction extends MapBundleFunction<BaseRow, 
 			ctx.setCurrentKey(currentKey);
 			BaseRow stateAcc = accState.value();
 			if (stateAcc == null) {
-				stateAcc = globalAgg.createAccumulators();
+				stateAcc = globalAgg.createAccumulators(); // 全局累加函数创建累加值
 				firstRow = true;
 			}
 			// set accumulator first
@@ -207,7 +209,9 @@ public class MiniBatchGlobalGroupAggFunction extends MapBundleFunction<BaseRow, 
 						out.collect(resultRow);
 					}
 					// new row is same with prev row, no need to output
+					// 新行和之前行一样，不用发出去
 				} else {
+					// 这是第一行，发出新结果
 					// this is the first, output new result
 					// prepare accumulation message for new row
 					resultRow.replace(currentKey, newAggValue).setHeader(ACCUMULATE_MSG);
