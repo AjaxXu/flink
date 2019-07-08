@@ -30,6 +30,7 @@ import static org.apache.flink.table.runtime.deduplicate.DeduplicateFunctionHelp
 
 /**
  * This function is used to deduplicate on keys and keeps only first row.
+ * 此函数用于键去重并仅保留第一行。
  */
 public class DeduplicateKeepFirstRowFunction
 		extends KeyedProcessFunctionWithCleanupState<BaseRow, BaseRow, BaseRow> {
@@ -37,6 +38,7 @@ public class DeduplicateKeepFirstRowFunction
 	private static final long serialVersionUID = 5865777137707602549L;
 
 	// state stores a boolean flag to indicate whether key appears before.
+	// 知识key之前是否出现过
 	private ValueState<Boolean> state;
 
 	public DeduplicateKeepFirstRowFunction(long minRetentionTime, long maxRetentionTime) {

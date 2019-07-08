@@ -24,6 +24,7 @@ import org.apache.flink.table.runtime.bundle.trigger.BundleTrigger;
 /**
  * The {@link MapBundleOperator} uses a {@link KeySelector} to extract bundle key, thus can be
  * used with non-keyed-stream.
+ * {@link MapBundleOperator}使用{@link KeySelector}来获得bundle键，被用在non-keyed-stream中
  */
 public class MapBundleOperator<K, V, IN, OUT> extends AbstractMapBundleOperator<K, V, IN, OUT> {
 

@@ -47,6 +47,7 @@ import java.util.regex.Pattern;
 
 /**
  * Built-in scalar runtime functions.
+ * 内置的数值函数
  *
  * <p>NOTE: Before you add functions here, check if Calcite provides it in
  * {@code org.apache.calcite.runtime.SqlFunctions}. Furthermore, make sure
@@ -438,7 +439,7 @@ public class SqlFunctionUtils {
 			}
 			String[] values = StringUtils.split(str, pairSeparator);
 			for (String value : values) {
-				if (!StringUtils.isEmpty(value)) {
+				if (StringUtils.isNotEmpty(value)) {
 					String[] kv = StringUtils.split(kvSeparator);
 					if (kv != null && kv.length == 2 && kv[0].equals(keyName)) {
 						return kv[1];
@@ -578,11 +579,11 @@ public class SqlFunctionUtils {
 
 	public static String subString(String str, long start, long len) {
 		if (len < 0) {
-			LOG.error("len of 'substring(str, start, len)' must be >= 0 and Int type, but len = {0}", len);
+			LOG.error("len of 'substring(str, start, len)' must be >= 0 and Int type, but len = {}", len);
 			return null;
 		}
 		if (len > Integer.MAX_VALUE || start > Integer.MAX_VALUE) {
-			LOG.error("len or start of 'substring(str, start, len)' must be Int type, but len = {0}, start = {0}", len, start);
+			LOG.error("len or start of 'substring(str, start, len)' must be Int type, but len = {}, start = {}", len, start);
 			return null;
 		}
 		int length = (int) len;
@@ -595,7 +596,7 @@ public class SqlFunctionUtils {
 		int endPos;
 
 		if (pos > 0) {
-			startPos = pos - 1;
+			startPos = pos - 1; // start从1开始计数，需要减去1
 			if (startPos >= str.length()) {
 				return "";
 			}
@@ -630,6 +631,7 @@ public class SqlFunctionUtils {
 		}
 	}
 
+	// start从1开始
 	public static String overlay(String s, String r, long start, long length) {
 		if (start <= 0 || start > s.length()) {
 			return s;
@@ -650,6 +652,7 @@ public class SqlFunctionUtils {
 		return overlay(s, r, start, r.length());
 	}
 
+	// s中seek的位置
 	public static int position(BinaryString seek, BinaryString s) {
 		return position(seek, s, 1);
 	}

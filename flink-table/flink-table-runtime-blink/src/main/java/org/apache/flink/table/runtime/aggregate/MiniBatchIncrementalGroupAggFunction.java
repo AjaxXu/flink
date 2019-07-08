@@ -35,6 +35,7 @@ import java.util.Map;
 
 /**
  * Aggregate Function used for the incremental groupby (without window) aggregate in miniBatch mode.
+ * miniBatch模式下增量grouby聚合函数
  */
 public class MiniBatchIncrementalGroupAggFunction extends MapBundleFunction<BaseRow, BaseRow, BaseRow, BaseRow> {
 
@@ -105,12 +106,13 @@ public class MiniBatchIncrementalGroupAggFunction extends MapBundleFunction<Base
 	@Override
 	public void finishBundle(Map<BaseRow, BaseRow> buffer, Collector<BaseRow> out) throws Exception {
 		// pre-aggregate for final aggregate result
+		// 对最终聚合结果预先聚合
 
 		// buffer schema: [finalKey, [partialKey, partialAcc]]
 		Map<BaseRow, Map<BaseRow, BaseRow>> finalAggBuffer = new HashMap<>();
 		for (Map.Entry<BaseRow, BaseRow> entry : buffer.entrySet()) {
 			BaseRow partialKey = entry.getKey();
-			BaseRow finalKey = finalKeySelector.getKey(partialKey);
+			BaseRow finalKey = finalKeySelector.getKey(partialKey); // 根据局部key选择最终的key
 			BaseRow partialAcc = entry.getValue();
 			// use compute to avoid additional put
 			Map<BaseRow, BaseRow> accMap = finalAggBuffer.computeIfAbsent(finalKey, r -> new HashMap<>());
@@ -121,6 +123,7 @@ public class MiniBatchIncrementalGroupAggFunction extends MapBundleFunction<Base
 			BaseRow finalKey = entry.getKey();
 			Map<BaseRow, BaseRow> accMap = entry.getValue();
 			// set accumulators to initial value
+			// 对每个finalKey重置累计值
 			finalAgg.resetAccumulators();
 			for (Map.Entry<BaseRow, BaseRow> accEntry : accMap.entrySet()) {
 				BaseRow partialKey = accEntry.getKey();

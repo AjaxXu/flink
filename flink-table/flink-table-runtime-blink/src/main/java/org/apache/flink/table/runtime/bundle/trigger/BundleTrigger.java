@@ -25,6 +25,7 @@ import java.io.Serializable;
 /**
  * A {@link BundleTrigger} determines when a bundle of input elements should be evaluated and
  * trigger the callback which registered previously.
+ * {@link BundleTrigger}确定何时应执行一组输入元素并触发先前注册的回调。
  *
  * @param <T> The input element type.
  */
@@ -37,6 +38,7 @@ public interface BundleTrigger<T> extends Serializable {
 	void registerCallback(BundleTriggerCallback callback);
 
 	/**
+	 * 每个被加入到bundle中的元素将调用
 	 * Called for every element that gets added to the bundle. If the trigger decides to start
 	 * evaluate the input, {@link BundleTriggerCallback#finishBundle()} should be invoked.
 	 *

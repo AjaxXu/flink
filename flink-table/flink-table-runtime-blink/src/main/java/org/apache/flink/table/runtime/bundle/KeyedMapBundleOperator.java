@@ -23,6 +23,7 @@ import org.apache.flink.table.runtime.bundle.trigger.BundleTrigger;
 /**
  * The {@link KeyedMapBundleOperator} uses framework's key as bundle map key, thus can only be
  * used on {@link org.apache.flink.streaming.api.datastream.KeyedStream}.
+ * 使用框架的键作为bundle的键，因此被用在KeyedStream中
  */
 public class KeyedMapBundleOperator<K, V, IN, OUT> extends AbstractMapBundleOperator<K, V, IN, OUT> {
 

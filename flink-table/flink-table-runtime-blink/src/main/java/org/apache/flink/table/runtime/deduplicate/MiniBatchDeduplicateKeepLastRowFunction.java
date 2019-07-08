@@ -35,6 +35,7 @@ import static org.apache.flink.table.runtime.deduplicate.DeduplicateFunctionHelp
 
 /**
  * This function is used to get the last row for every key partition in miniBatch mode.
+ * miniBatch模式下的key上去重，保留最后一行
  */
 public class MiniBatchDeduplicateKeepLastRowFunction
 		extends MapBundleFunction<BaseRow, BaseRow, BaseRow, BaseRow> {
@@ -77,5 +78,6 @@ public class MiniBatchDeduplicateKeepLastRowFunction
 			ctx.setCurrentKey(currentKey);
 			processLastRow(currentRow, generateRetraction, state, out);
 		}
+		System.out.println("======");
 	}
 }

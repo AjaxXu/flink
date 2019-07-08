@@ -25,6 +25,7 @@ import java.io.Serializable;
 /**
  * A {@link CoBundleTrigger} is similar with {@link BundleTrigger}, and the only differences is
  * {@link CoBundleTrigger} can handle two inputs.
+ * {@link CoBundleTrigger}和{@link BundleTrigger}类似，但能处理2个输入
  *
  * @param <IN1> The first input element type.
  * @param <IN2> The second input element type.

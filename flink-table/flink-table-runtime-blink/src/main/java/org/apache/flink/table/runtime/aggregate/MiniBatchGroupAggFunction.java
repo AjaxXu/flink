@@ -152,6 +152,7 @@ public class MiniBatchGroupAggFunction extends MapBundleFunction<BaseRow, List<B
 
 	@Override
 	public List<BaseRow> addInput(@Nullable List<BaseRow> value, BaseRow input) throws Exception {
+		// 本地不进行聚合，只缓存input，在finishBundle中整体发送
 		List<BaseRow> bufferedRows = value;
 		if (value == null) {
 			bufferedRows = new ArrayList<>();

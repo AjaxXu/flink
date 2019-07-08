@@ -30,6 +30,7 @@ import static org.apache.flink.table.runtime.deduplicate.DeduplicateFunctionHelp
 
 /**
  * This function is used to deduplicate on keys and keeps only last row.
+ * key上去重，保留最后一行
  */
 public class DeduplicateKeepLastRowFunction
 		extends KeyedProcessFunctionWithCleanupState<BaseRow, BaseRow, BaseRow> {
@@ -39,6 +40,7 @@ public class DeduplicateKeepLastRowFunction
 	private final boolean generateRetraction;
 
 	// state stores complete row.
+	// 去重时以最后一行作为key上的行，则在状态中保持完整的之前的行，以便于撤回
 	private ValueState<BaseRow> state;
 
 	public DeduplicateKeepLastRowFunction(

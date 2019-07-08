@@ -22,6 +22,7 @@ import org.apache.flink.util.Preconditions;
 
 /**
  * A {@link BundleTrigger} that fires once the count of elements in a bundle reaches the given count.
+ * 达到给定数量时触发{@link BundleTriggerCallback}回调
  */
 public class CountBundleTrigger<T> implements BundleTrigger<T> {
 

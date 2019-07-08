@@ -25,6 +25,7 @@ import org.apache.flink.util.Collector;
 
 /**
  * Wrapper around an {@link Output} for wrap {@code T} to {@link StreamRecord}.
+ * 将{@code T}封装为{@link StreamRecord}的收集器
  *
  * @param <T> The type of the elements that can be emitted.
  */

@@ -65,8 +65,8 @@ public class BinaryRowKeySelector implements BaseRowKeySelector {
 				BinaryWriter.write(
 						writer,
 						i,
-						TypeGetterSetters.get(value, keyFields[i], inputFieldTypes[keyFields[i]]),
-						inputFieldTypes[keyFields[i]],
+						TypeGetterSetters.get(value, keyFields[i], keyFieldTypes[i]),
+						keyFieldTypes[i],
 						keySers[i]);
 			}
 		}

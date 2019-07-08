@@ -22,6 +22,7 @@ import org.apache.flink.annotation.Internal;
 
 /**
  * Interface for bundle trigger callbacks that can be registered to a {@link BundleTrigger}.
+ * 注册在{@link BundleTrigger}中的回调
  */
 @Internal
 public interface BundleTriggerCallback {

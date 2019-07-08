@@ -193,6 +193,7 @@ public class SqlDateTimeUtils {
 
 	/** Converts the Java type used for UDF parameters of SQL TIME type
 	 * ({@link java.sql.Time}) to internal representation (int).
+	 * Time到毫秒数,只保留hour、minute、second、ms部分
 	 *
 	 * <p>Converse of {@link #internalToTime(int)}. */
 	public static int timeToInternal(java.sql.Time time, TimeZone tz) {

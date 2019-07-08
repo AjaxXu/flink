@@ -35,6 +35,7 @@ import static org.apache.flink.table.runtime.deduplicate.DeduplicateFunctionHelp
 
 /**
  * This function is used to get the first row for every key partition in miniBatch mode.
+ * 此函数用于键去重并仅保留第一行，在miniBatch模式下。
  */
 public class MiniBatchDeduplicateKeepFirstRowFunction
 		extends MapBundleFunction<BaseRow, BaseRow, BaseRow, BaseRow> {
@@ -61,9 +62,11 @@ public class MiniBatchDeduplicateKeepFirstRowFunction
 	public BaseRow addInput(@Nullable BaseRow value, BaseRow input) {
 		if (value == null) {
 			// put the input into buffer
+			// input有可能被reuse，需要deep copy
 			return typeSerializer.copy(input);
 		} else {
 			// the input is not first row, ignore it
+			// input 不是第一行直接忽略
 			return value;
 		}
 	}
@@ -74,7 +77,7 @@ public class MiniBatchDeduplicateKeepFirstRowFunction
 		for (Map.Entry<BaseRow, BaseRow> entry : buffer.entrySet()) {
 			BaseRow currentKey = entry.getKey();
 			BaseRow currentRow = entry.getValue();
-			ctx.setCurrentKey(currentKey);
+			ctx.setCurrentKey(currentKey); // 有什么用？
 			processFirstRow(currentRow, state, out);
 		}
 	}

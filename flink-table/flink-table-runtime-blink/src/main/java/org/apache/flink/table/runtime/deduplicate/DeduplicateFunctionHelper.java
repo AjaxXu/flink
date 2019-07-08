@@ -26,12 +26,14 @@ import org.apache.flink.util.Preconditions;
 
 /**
  * Utility for deduplicate function.
+ * 去重函数的帮助类
  */
 class DeduplicateFunctionHelper {
 
 	/**
 	 * Processes element to deduplicate on keys, sends current element as last row, retracts previous element if
 	 * needed.
+	 * key上去重：已最后一行作为要发送的元素，撤回之前的行(如果需要的话)
 	 *
 	 * @param currentRow latest row received by deduplicate function
 	 * @param generateRetraction whether need to send retract message to downstream
@@ -45,9 +47,11 @@ class DeduplicateFunctionHelper {
 		Preconditions.checkArgument(BaseRowUtil.isAccumulateMsg(currentRow));
 		if (generateRetraction) {
 			// state stores complete row if generateRetraction is true
+			// 支持撤回时，状态保存完整的row
 			BaseRow preRow = state.value();
 			state.update(currentRow);
 			if (preRow != null) {
+				// 发出撤回消息
 				preRow.setHeader(BaseRowUtil.RETRACT_MSG);
 				out.collect(preRow);
 			}
@@ -57,6 +61,7 @@ class DeduplicateFunctionHelper {
 
 	/**
 	 * Processes element to deduplicate on keys, sends current element if it is first row.
+	 * key上去重，当是第一行时发送，后续相同的key忽略
 	 *
 	 * @param currentRow latest row received by deduplicate function
 	 * @param state state of function
@@ -68,6 +73,7 @@ class DeduplicateFunctionHelper {
 		// Check message should be accumulate
 		Preconditions.checkArgument(BaseRowUtil.isAccumulateMsg(currentRow));
 		// ignore record with timestamp bigger than preRow
+		// state中的值不为null,直接返回。忽略相同key的后续element
 		if (state.value() != null) {
 			return;
 		}

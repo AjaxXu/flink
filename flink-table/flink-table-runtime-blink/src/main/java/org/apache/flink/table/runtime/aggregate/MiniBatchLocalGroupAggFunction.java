@@ -35,6 +35,7 @@ import static org.apache.flink.table.dataformat.util.BaseRowUtil.isAccumulateMsg
 
 /**
  * Aggregate Function used for the local groupby (without window) aggregate in miniBatch mode.
+ * miniBatch模式下本地grouby聚合函数
  */
 public class MiniBatchLocalGroupAggFunction extends MapBundleFunction<BaseRow, BaseRow, BaseRow, BaseRow> {
 
@@ -69,6 +70,7 @@ public class MiniBatchLocalGroupAggFunction extends MapBundleFunction<BaseRow, B
 
 	@Override
 	public BaseRow addInput(@Nullable BaseRow previousAcc, BaseRow input) throws Exception {
+		// 本地直接根据input header的信息，做增加或撤回操作
 		BaseRow currentAcc;
 		if (previousAcc == null) {
 			currentAcc = function.createAccumulators();

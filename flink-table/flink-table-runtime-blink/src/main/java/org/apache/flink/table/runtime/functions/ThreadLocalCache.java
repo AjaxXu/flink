@@ -24,6 +24,7 @@ import java.util.Map;
 /**
  * Provides a ThreadLocal cache with a maximum cache size per thread.
  * Values must not be null.
+ * 为每个线程提供一个ThreadLocal缓存，有最大的缓存大小。达到最大后，要新加入必须去掉最老的那个。value不能为null
  */
 public abstract class ThreadLocalCache<K, V> {
 
@@ -47,7 +48,7 @@ public abstract class ThreadLocalCache<K, V> {
 			cache.set(map);
 		}
 		V value = map.get(key);
-		if (value == null) {
+		if (value == null) { // key不存在cache中，获取一个新的实例
 			value = getNewInstance(key);
 			map.put(key, value);
 		}

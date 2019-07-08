@@ -41,6 +41,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * in key-value form. The map key is typically the same with the state key, so we can do some
  * optimizations before accessing states, like pre aggregate values for each key. And we will
  * only need to access state every key we have, but not every element we processed.
+ * {@link AbstractMapBundleOperator}简单实用Map存储输入的elements.Map键通常与状态键相同，因此我们可以
+ * 在访问状态之前进行一些优化，例如每个键的预聚合值。我们只需要访问我们拥有的每个键的状态，但不是处理每个元素。
  *
  * <p>NOTES: if all elements we processed have different keys, such operator will only increase
  * memory footprint, and will not have any performance improvement.
@@ -93,6 +95,7 @@ public abstract class AbstractMapBundleOperator<K, V, IN, OUT>
 		LOG.info("BundleOperator's trigger info: " + bundleTrigger.explain());
 
 		// counter metric to get the size of bundle
+		// 计数监控
 		getRuntimeContext().getMetricGroup().gauge("bundleSize", (Gauge<Integer>) () -> numOfElements);
 		getRuntimeContext().getMetricGroup().gauge("bundleRatio", (Gauge<Double>) () -> {
 			int numOfKeys = bundle.size();
@@ -109,7 +112,7 @@ public abstract class AbstractMapBundleOperator<K, V, IN, OUT>
 		// get the key and value for the map bundle
 		final IN input = element.getValue();
 		final K bundleKey = getKey(input);
-		final V bundleValue = bundle.get(bundleKey);
+		final V bundleValue = bundle.get(bundleKey); // 从map中获取值
 
 		// get a new value after adding this element to bundle
 		final V newBundleValue = function.addInput(bundleValue, input);
@@ -118,11 +121,12 @@ public abstract class AbstractMapBundleOperator<K, V, IN, OUT>
 		bundle.put(bundleKey, newBundleValue);
 
 		numOfElements++;
-		bundleTrigger.onElement(input);
+		bundleTrigger.onElement(input); // bundle触发器处理element，现有实现就是count+1,达到指定值执行回调
 	}
 
 	/**
 	 * Get the key for current processing element, which will be used as the map bundle's key.
+	 * 根据输入的element获得key
 	 */
 	protected abstract K getKey(final IN input) throws Exception;
 
@@ -138,12 +142,14 @@ public abstract class AbstractMapBundleOperator<K, V, IN, OUT>
 
 	@Override
 	public void processWatermark(Watermark mark) throws Exception {
+		// 先把存在bundle中的元素发送出去
 		finishBundle();
 		super.processWatermark(mark);
 	}
 
 	@Override
 	public void prepareSnapshotPreBarrier(long checkpointId) throws Exception {
+		// 准备checkpoint时先把存在bundle中的元素发送出去
 		finishBundle();
 	}
 
