@@ -25,6 +25,7 @@ import org.apache.flink.util.MathUtils;
 
 /**
  * Build iterator from bucket to match probe row.
+ * 从bucket查找row的迭代器
  */
 public class LookupBucketIterator implements RowIterator<BinaryRow> {
 

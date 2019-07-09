@@ -26,6 +26,7 @@ import java.io.IOException;
 
 /**
  * Probe iterator from probe or spilled partition.
+ * 探测迭代器
  */
 public final class ProbeIterator {
 

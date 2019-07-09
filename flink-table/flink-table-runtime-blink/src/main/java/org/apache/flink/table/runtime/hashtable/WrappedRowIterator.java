@@ -26,6 +26,7 @@ import java.io.IOException;
 
 /**
  * Wrap {@link MutableObjectIterator} to java {@link RowIterator}.
+ * 将{@link MutableObjectIterator}封装成{@link RowIterator}
  */
 public class WrappedRowIterator<T extends BaseRow> implements RowIterator<T> {
 

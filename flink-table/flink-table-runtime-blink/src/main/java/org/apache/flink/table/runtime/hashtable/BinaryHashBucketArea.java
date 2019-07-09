@@ -250,6 +250,7 @@ public class BinaryHashBucketArea {
 		reHash(oldBuckets, oldNumBuckets, oldOverflowSegments);
 	}
 
+	// 重新hash
 	private void reHash(
 			MemorySegment[] oldBuckets,
 			int oldNumBuckets,
@@ -267,6 +268,7 @@ public class BinaryHashBucketArea {
 			int bucketInSegOffset = (scanCount & table.bucketsPerSegmentMask) << BUCKET_SIZE_BITS;
 			MemorySegment bucketSeg = oldBuckets[bucketArrayPos];
 
+			// 第scanCount个bucket中entry的数量
 			int countInBucket = bucketSeg.getShort(bucketInSegOffset + HEADER_COUNT_OFFSET);
 			int numInBucket = 0;
 			while (countInBucket != 0) {
@@ -276,22 +278,28 @@ public class BinaryHashBucketArea {
 					int hashCode = bucketSeg.getInt(hashCodeOffset);
 					int pointer = bucketSeg.getInt(pointerOffset);
 					if (!insertToBucket(hashCode, pointer, true, false)) {
+						// 没有插入成功，唯一一种情况就是partition溢出时和当前设置的partition一致
 						buildBloomFilterAndFree(oldBuckets, oldNumBuckets, oldOverflowSegments);
 						return;
 					}
+					// 插入到新segment成功
 					numInBucket++;
 					hashCodeOffset += HASH_CODE_LEN;
 					pointerOffset += POINTER_LEN;
 				}
 
 				// this segment is done. check if there is another chained bucket
+				// 检查是否有overflow bucket
 				int forwardPointer = bucketSeg.getInt(bucketInSegOffset + HEADER_FORWARD_OFFSET);
 				if (forwardPointer == BUCKET_FORWARD_POINTER_NOT_SET) {
 					break;
 				}
 
+				// overflow bucket所在的segment的index
 				final int overflowSegIndex = forwardPointer >>> table.segmentSizeBits;
+				// 所在的segment
 				bucketSeg = oldOverflowSegments[overflowSegIndex];
+				// 所在segment中bucket的offset
 				bucketInSegOffset = forwardPointer & table.segmentSizeMask;
 				countInBucket = bucketSeg.getShort(bucketInSegOffset + HEADER_COUNT_OFFSET);
 				numInBucket = 0;
@@ -493,6 +501,7 @@ public class BinaryHashBucketArea {
 		if (!table.tryDistinctBuildRow ||
 				!partition.isInMemory() ||
 				!findFirstSameBuildRow(bucket, hashCode, bucketInSegmentPos, record)) {
+			// 插入row，返回指针，并写入bucket中
 			int pointer = partition.insertIntoBuildBuffer(record);
 			if (pointer != -1) {
 				// record was inserted into an in-memory partition. a pointer must be inserted into the buckets
@@ -503,6 +512,7 @@ public class BinaryHashBucketArea {
 			}
 		} else {
 			// distinct build rows in memory.
+			// 满足1.支持distinct 2.partition在内存中 3.找到相同的row
 			return true;
 		}
 	}
@@ -525,6 +535,7 @@ public class BinaryHashBucketArea {
 				final int thisCode = bucket.getInt(posInSegment);
 				posInSegment += HASH_CODE_LEN;
 
+				// bucket中的hashCode和待查找的一致
 				if (thisCode == searchHashCode) {
 					final int pointer = bucket.getInt(bucketInSegmentOffset +
 							BUCKET_POINTER_START_OFFSET + (numInBucket * POINTER_LEN));
@@ -532,6 +543,7 @@ public class BinaryHashBucketArea {
 					try {
 						view.setReadPosition(pointer);
 						BinaryRow row = table.binaryBuildSideSerializer.mapFromPages(table.reuseBuildRow, view);
+						// 找到的row和要对比的row一致，直接返回true
 						if (buildRowToInsert.equals(row)) {
 							return true;
 						}
