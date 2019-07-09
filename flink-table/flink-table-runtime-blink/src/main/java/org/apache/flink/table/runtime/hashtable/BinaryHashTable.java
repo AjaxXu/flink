@@ -83,7 +83,7 @@ public class BinaryHashTable extends BaseHybridHashTable {
 	 */
 	private final Projection<BaseRow, BinaryRow> probeSideProjection;
 
-	final int bucketsPerSegment;
+	final int bucketsPerSegment; // 每个segment中bucket数量
 
 	/**
 	 * The number of hash table buckets in a single memory segment - 1.
@@ -91,12 +91,14 @@ public class BinaryHashTable extends BaseHybridHashTable {
 	 * segment.
 	 * This variable is a mask that is 1 in the lower bits that define the number of a bucket
 	 * in a segment.
+	 * 掩码，举例:每个segment中可以放16个bucket，那么掩码就是1111
 	 */
 	final int bucketsPerSegmentMask;
 
 	/**
 	 * The number of bits that describe the position of a bucket in a memory segment. Computed as
 	 * log2(bucketsPerSegment).
+	 * 每个segment中bucket数量的bit数.举例：每个segment中可以放16个bucket，那么bits就是4
 	 */
 	final int bucketsPerSegmentBits;
 

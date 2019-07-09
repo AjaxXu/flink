@@ -38,6 +38,7 @@ import org.apache.flink.table.runtime.util.RowIterator;
 import org.apache.flink.table.runtime.util.UniformBinaryRowGenerator;
 import org.apache.flink.table.typeutils.BinaryRowSerializer;
 import org.apache.flink.types.IntValue;
+import org.apache.flink.util.MathUtils;
 import org.apache.flink.util.MutableObjectIterator;
 
 import org.junit.After;
@@ -54,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.flink.table.runtime.hashtable.BinaryHashBucketArea.NUM_ENTRIES_PER_BUCKET;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -119,6 +121,21 @@ public class BinaryHashTableTest {
 		assertEquals(5, BinaryHashTable.getNumWriteBehindBuffers(32767));
 		assertEquals(6, BinaryHashTable.getNumWriteBehindBuffers(32768));
 		assertEquals(6, BinaryHashTable.getNumWriteBehindBuffers(Integer.MAX_VALUE));
+	}
+
+	@Test
+	public void test1() {
+		for (int i = 1; i < 1000; i++) {
+			int estimatedRowCount = i;
+			// 最少bucket数量
+			int minNumBuckets = (int) Math.ceil((estimatedRowCount / 0.75 / NUM_ENTRIES_PER_BUCKET));
+			// 用于存放bucket的segment数量
+			int bucketNumSegs = MathUtils.roundUpToPowerOfTwo(Math.max(1, Math.min(33, (minNumBuckets >>> 3) +
+				((minNumBuckets & 7) == 0 ? 0 : 1))));
+			// bucket数量
+			int numBuckets = MathUtils.roundDownToPowerOf2(bucketNumSegs << 3);
+			System.out.println(String.format("最少：%d, segment: %d, bucket数量：%d\n", minNumBuckets, bucketNumSegs, numBuckets));
+		}
 	}
 
 	@Test

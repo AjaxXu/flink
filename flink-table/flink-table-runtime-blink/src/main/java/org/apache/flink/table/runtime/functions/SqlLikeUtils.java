@@ -20,6 +20,7 @@ package org.apache.flink.table.runtime.functions;
 /**
  * Utilities for converting SQL {@code LIKE} and {@code SIMILAR} operators
  * to regular expressions.
+ * 转换SQL的{@code LIKE}和{@code SIMILAR}算子到正则表达式
  *
  * <p>Note: THIS IS COPIED FROM CALCITE to EXPOSE SOME PRIVATE METHOD
  */

@@ -49,6 +49,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
  * Base table for {@link LongHybridHashTable} and {@link BinaryHashTable}.
+ * {@link LongHybridHashTable}和{@link BinaryHashTable}基类
  */
 public abstract class BaseHybridHashTable implements MemorySegmentPool {
 
@@ -56,70 +57,78 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 
 	/**
 	 * The maximum number of recursive partitionings that the join does before giving up.
+	 * 最大递归深度
 	 */
 	protected static final int MAX_RECURSION_DEPTH = 3;
 
 	/**
 	 * The maximum number of partitions, which defines the spilling granularity. Each recursion,
 	 * the data is divided maximally into that many partitions, which are processed in one chuck.
+	 * 最大分区数，定义了溢出的粒度.每次递归，数据被分散到许多分区中，在一个块中处理
 	 */
 	protected static final int MAX_NUM_PARTITIONS = Byte.MAX_VALUE;
 
 	/**
 	 * The minimum number of memory segments the hash join needs to be supplied with in order to
 	 * work.
+	 * 最小的segment数量
 	 */
 	private static final int MIN_NUM_MEMORY_SEGMENTS = 33;
-	protected final int initPartitionFanOut;
+	protected final int initPartitionFanOut; // 扇出的初始分区
 
 	/**
 	 * The owner to associate with the memory segment.
 	 */
 	private Object owner;
-	private final int avgRecordLen;
-	protected final long buildRowCount;
+	private final int avgRecordLen; // 每行平均长度
+	protected final long buildRowCount; // 行数
 
 	/**
 	 * The total reserved number of memory segments available to the hash join.
 	 */
-	protected final int reservedNumBuffers;
+	protected final int reservedNumBuffers; // 保留的buffer数
 	/**
 	 * The total max number of memory segments available to the hash join.
 	 */
-	private final int maxNumBuffers;
+	private final int maxNumBuffers; // 最大buffer数
 
 	/**
 	 * record number of the allocated segments from the floating pool.
+	 * 从浮动池中申请的segment数量
 	 */
 	protected int allocatedFloatingNum;
-	private final int perRequestNumBuffers;
+	private final int perRequestNumBuffers; // 每次请求的buffer数
 	private final MemoryManager memManager;
 
 	/**
 	 * The free memory segments currently available to the hash join.
+	 * 当前可用的MemorySegment
 	 */
 	public final ArrayList<MemorySegment> availableMemory;
 
 	/**
 	 * The I/O manager used to instantiate writers for the spilled partitions.
+	 * I/O管理，用于实例化reader和writer
 	 */
 	protected final IOManager ioManager;
 
 	/**
 	 * The size of the segments used by the hash join buckets. All segments must be of equal size to
 	 * ease offset computations.
+	 * segment大小
 	 */
 	protected final int segmentSize;
 
 	/**
 	 * The queue of buffers that can be used for write-behind. Any buffer that is written
 	 * asynchronously to disk is returned through this queue. hence
+	 * 异步写入磁盘的buffer通过该队列返回
 	 */
 	protected final LinkedBlockingQueue<MemorySegment> buildSpillReturnBuffers;
 
-	public final int segmentSizeBits;
+	public final int segmentSizeBits; // segmentSize的bite数
 
-	public final int segmentSizeMask;
+	public final int segmentSizeMask; // segmentSize的掩码
 
 	/**
 	 * Flag indicating that the closing logic has been invoked.
@@ -128,6 +137,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 
 	/**
 	 * Try to make the buildSide rows distinct.
+	 * 指示row保持唯一性
 	 */
 	public final boolean tryDistinctBuildRow;
 
@@ -135,6 +145,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 	 * The recursion depth of the partition that is currently processed. The initial table
 	 * has a recursion depth of 0. Partitions spilled from a table that is built for a partition
 	 * with recursion depth <i>n</i> have a recursion depth of <i>n+1</i>.
+	 * 当前递归深度
 	 */
 	protected int currentRecursionDepth;
 
@@ -142,6 +153,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 	 * The number of buffers in the build spill return buffer queue that are actually not write behind buffers,
 	 * but regular buffers that only have not yet returned. This is part of an optimization that the
 	 * spilling code needs not wait until the partition is completely spilled before proceeding.
+	 * 后台异步写入的缓冲区数量
 	 */
 	protected int buildSpillRetBufferNumbers;
 
@@ -164,8 +176,8 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 	protected final BlockCompressionFactory compressionCodecFactory;
 	protected final int compressionBlockSize;
 
-	protected transient long numSpillFiles;
-	protected transient long spillInBytes;
+	protected transient long numSpillFiles; // 溢出的文件数
+	protected transient long spillInBytes; // 溢出的字节数
 
 	public BaseHybridHashTable(
 			Configuration conf,
@@ -239,11 +251,13 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 	 * can be used because two Buffers are needed to read the data.
 	 */
 	protected int maxNumPartition() {
+		// 所有分配的MemorySegment的一半
 		return (availableMemory.size() + buildSpillRetBufferNumbers) / 2;
 	}
 
 	/**
 	 * Gets the number of partitions to be used for an initial hash-table.
+	 * 初始化的hash表的partition数
 	 */
 	private int getPartitioningFanOutNoEstimates() {
 		return Math.max(11, findSmallerPrime((int) Math.min(buildRowCount * avgRecordLen / (10 * segmentSize),
@@ -252,6 +266,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 
 	/**
 	 * Let prime number be the numBuckets, to avoid partition hash and bucket hash congruences.
+	 * 获得比num小的素数
 	 */
 	private static int findSmallerPrime(int num) {
 		for (; num > 1; num--) {
@@ -278,6 +293,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 	}
 
 	/**
+	 * 获得下一个可用的buffer，用于在内存中的partition或者table桶。如果没有可用的，返回null.可以通过溢出partiton释放buffer
 	 * Gets the next buffer to be used with the hash-table, either for an in-memory partition, or
 	 * for the table buckets. This method returns <tt>null</tt>, if no more buffer is available.
 	 * Spilling a partition may free new buffers then.
@@ -286,12 +302,14 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 	 */
 	public MemorySegment getNextBuffer() {
 		// check if the list directly offers memory
+		// 检查列表中是否有可用的buffer
 		int s = this.availableMemory.size();
 		if (s > 0) {
 			return this.availableMemory.remove(s - 1);
 		}
 
 		// check if there are write behind buffers that actually are to be used for the hash table
+		// 检查是否存在的后台异步写入的缓冲区
 		if (this.buildSpillRetBufferNumbers > 0) {
 			// grab at least one, no matter what
 			MemorySegment toReturn;
@@ -303,6 +321,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 			this.buildSpillRetBufferNumbers--;
 
 			// grab as many more buffers as are available directly
+			// 如果后台溢出后返回的buffer还有，加入到可用列表中
 			MemorySegment currBuff;
 			while (this.buildSpillRetBufferNumbers > 0 && (currBuff = this.buildSpillReturnBuffers.poll()) != null) {
 				this.availableMemory.add(currBuff);
@@ -310,10 +329,12 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 			}
 			return toReturn;
 		} else {
+			// 如果可用列表+后台异步写入都没有，先判断是否已经达到最大buffer数量
 			if (reservedNumBuffers + allocatedFloatingNum >= maxNumBuffers) {
 				//no more memory.
 				return null;
 			} else {
+				// 没有达到，向memoryManager申请
 				int requestNum = Math.min(perRequestNumBuffers, maxNumBuffers - reservedNumBuffers -
 						allocatedFloatingNum);
 				//apply for much more memory.
@@ -365,6 +386,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 	/**
 	 * This is the method called by the partitions to request memory to serialize records.
 	 * It automatically spills partitions, if memory runs out.
+	 * partition调用该方法申请内存用于序列化记录。如果内存用完，它能自动溢出。
 	 *
 	 * @return The next available memory segment.
 	 */
@@ -375,6 +397,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 			return seg;
 		} else {
 			try {
+				// 溢出parition
 				spillPartition();
 			} catch (IOException ioex) {
 				throw new RuntimeException("Error spilling Hash Join Partition" + (ioex.getMessage() == null ?
@@ -408,12 +431,11 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 
 	/**
 	 * This method makes sure that at least a certain number of memory segments is in the list of
-	 * free segments.
-	 * Free memory can be in the list of free segments, or in the return-queue where segments used
-	 * to write behind are
-	 * put. The number of segments that are in that return-queue, but are actually reclaimable is
-	 * tracked. This method
-	 * makes sure at least a certain number of buffers is reclaimed.
+	 * free segments. Free memory can be in the list of free segments, or in the return-queue where
+	 * segments used to write behind are put. The number of segments that are in that return-queue,
+	 * but are actually reclaimable is tracked. This method makes sure at least a certain number of
+	 * buffers is reclaimed.
+	 * 确保至少minRequiredAvailable个MemorySegment在空闲列表中
 	 *
 	 * @param minRequiredAvailable The minimum number of buffers that needs to be reclaimed.
 	 */
@@ -457,6 +479,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 		clearPartitions();
 
 		// return the write-behind buffers
+		// 返回后台写入的buffer
 		for (int i = 0; i < this.buildSpillRetBufferNumbers; i++) {
 			try {
 				this.availableMemory.add(this.buildSpillReturnBuffers.take());
@@ -469,6 +492,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 
 	protected abstract void clearPartitions();
 
+	// 调用顺序应该是close->free
 	public void free() {
 		if (this.closed.get()) {
 			memManager.release(availableMemory);
@@ -480,6 +504,7 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 
 	/**
 	 * Free the memory not used.
+	 * 释放当前未使用的memory
 	 */
 	public void freeCurrent() {
 		int beforeReleaseNum = availableMemory.size();
@@ -515,11 +540,13 @@ public abstract class BaseHybridHashTable implements MemorySegmentPool {
 
 	/**
 	 * Give up to one-sixth of the memory of the bucket area.
+	 * Bucket区域最大初始化buffer数量
 	 */
 	public int maxInitBufferOfBucketArea(int partitions) {
 		return Math.max(1, ((reservedNumBuffers - 2) / 6) / partitions);
 	}
 
+	// 读取blockCount个buffer
 	protected List<MemorySegment> readAllBuffers(FileIOChannel.ID id, int blockCount) throws IOException {
 		// we are guaranteed to stay in memory
 		ensureNumBuffersReturned(blockCount);

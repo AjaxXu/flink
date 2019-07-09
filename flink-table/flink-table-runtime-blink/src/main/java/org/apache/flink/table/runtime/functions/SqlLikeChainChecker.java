@@ -32,6 +32,7 @@ import static org.apache.flink.table.dataformat.BinaryString.fromString;
 /**
  * String Like util:
  * Matches a chained sequence of checkers.
+ * 有多个%的模式检测
  *
  * <p>This has 4 chain scenarios cases in it (has no escaping or single char wildcards)
  * 1) anchored left "abc%def%"

@@ -35,6 +35,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
  * Bucket area for hash table.
+ * Hash Table的bucket区域
  *
  * <p>The layout of the buckets inside a memory segment is as follows:</p>
  * <pre>
@@ -84,6 +85,7 @@ public class BinaryHashBucketArea {
 
 	/**
 	 * Offset of the field in the bucket header indicating the bucket's element count.
+	 * 指示bucket元素数量在bucket头中的offset
 	 */
 	static final int HEADER_COUNT_OFFSET = 0;
 
@@ -105,6 +107,7 @@ public class BinaryHashBucketArea {
 
 	/**
 	 * The maximum number of elements that can be loaded in a bucket.
+	 * 15
 	 */
 	static final int NUM_ENTRIES_PER_BUCKET = (BUCKET_SIZE - BUCKET_HEADER_LENGTH) / RECORD_BYTES;
 
@@ -115,6 +118,7 @@ public class BinaryHashBucketArea {
 
 	/**
 	 * Constant for the forward pointer, indicating that the pointer is not set.
+	 * 指示下一个bucket的指针还没设置
 	 */
 	static final int BUCKET_FORWARD_POINTER_NOT_SET = 0xFFFFFFFF;
 
@@ -163,11 +167,15 @@ public class BinaryHashBucketArea {
 		this.loadFactor = loadFactor;
 		this.size = 0;
 
+		// 最少bucket数量
 		int minNumBuckets = (int) Math.ceil((estimatedRowCount / loadFactor / NUM_ENTRIES_PER_BUCKET));
+		// 用于存放bucket的segment数量
 		int bucketNumSegs = Math.max(1, Math.min(maxSegs, (minNumBuckets >>> table.bucketsPerSegmentBits) +
 				((minNumBuckets & table.bucketsPerSegmentMask) == 0 ? 0 : 1)));
+		// bucket数量
 		int numBuckets = MathUtils.roundDownToPowerOf2(bucketNumSegs << table.bucketsPerSegmentBits);
 
+		// entry的阈值: numBuckets * 15 * 0.75
 		int threshold = (int) (numBuckets * NUM_ENTRIES_PER_BUCKET * loadFactor);
 
 		MemorySegment[] buckets = new MemorySegment[bucketNumSegs];
@@ -175,7 +183,9 @@ public class BinaryHashBucketArea {
 
 		// go over all segments that are part of the table
 		for (int i = 0; i < bucketNumSegs; i++) {
+			// 从table中获取segment
 			final MemorySegment seg = table.getNextBuffer();
+			// 初始化segment：遍历每个bucket，初始化bucket header
 			initMemorySegment(seg);
 			buckets[i] = seg;
 		}
@@ -188,7 +198,7 @@ public class BinaryHashBucketArea {
 		checkArgument(MathUtils.isPowerOf2(numBuckets));
 		this.numBuckets = numBuckets;
 		this.numBucketsMask = numBuckets - 1;
-		this.overflowSegments = new MemorySegment[2];
+		this.overflowSegments = new MemorySegment[2]; // 存放溢出的bucket的segment
 		this.numOverflowSegments = 0;
 		this.nextOverflowBucket = 0;
 		this.threshold = threshold;
@@ -310,47 +320,61 @@ public class BinaryHashBucketArea {
 			final int bucketOffset = k * BUCKET_SIZE;
 
 			// init count and probeFlag and forward pointer together.
+			// 初始化bucket header
 			seg.putLong(bucketOffset + HEADER_COUNT_OFFSET, BUCKET_HEADER_INIT);
 		}
 	}
 
 	private boolean insertToBucket(
-			MemorySegment bucket, int bucketInSegmentPos,
+			MemorySegment bucketSeg, int bucketInSegmentPos,
 			int hashCode, int pointer, boolean spillingAllowed, boolean sizeAddAndCheckResize) throws IOException {
-		final int count = bucket.getShort(bucketInSegmentPos + HEADER_COUNT_OFFSET);
-		if (count < NUM_ENTRIES_PER_BUCKET) {
+		// count为bucket中entry数量
+		final int count = bucketSeg.getShort(bucketInSegmentPos + HEADER_COUNT_OFFSET);
+		if (count < NUM_ENTRIES_PER_BUCKET) { // count < 15
 			// we are good in our current bucket, put the values
-			bucket.putShort(bucketInSegmentPos + HEADER_COUNT_OFFSET, (short) (count + 1)); // update count
-			bucket.putInt(bucketInSegmentPos + BUCKET_HEADER_LENGTH + (count * HASH_CODE_LEN), hashCode);    // hash code
-			bucket.putInt(bucketInSegmentPos + BUCKET_POINTER_START_OFFSET + (count * POINTER_LEN), pointer); // pointer
+			// 更新count
+			bucketSeg.putShort(bucketInSegmentPos + HEADER_COUNT_OFFSET, (short) (count + 1)); // update count
+			// 设置这次插入entry的hashCode
+			bucketSeg.putInt(bucketInSegmentPos + BUCKET_HEADER_LENGTH + (count * HASH_CODE_LEN), hashCode);    // hash code
+			// 设置这次插入entry的pointer
+			bucketSeg.putInt(bucketInSegmentPos + BUCKET_POINTER_START_OFFSET + (count * POINTER_LEN), pointer); // pointer
 		} else {
+			// count >= 15, 该bucket放不下
 			// we need to go to the overflow buckets
-			final int originalForwardPointer = bucket.getInt(bucketInSegmentPos + HEADER_FORWARD_OFFSET);
+			// 找到溢出的下一个bucket
+			final int originalForwardPointer = bucketSeg.getInt(bucketInSegmentPos + HEADER_FORWARD_OFFSET);
 			final int forwardForNewBucket;
 
 			if (originalForwardPointer != BUCKET_FORWARD_POINTER_NOT_SET) {
+				// 下一个bucket已经设置
 
 				// forward pointer set
 				final int overflowSegIndex = originalForwardPointer >>> table.segmentSizeBits;
 				final int segOffset = originalForwardPointer & table.segmentSizeMask;
 				final MemorySegment seg = overflowSegments[overflowSegIndex];
 
+				// overflow中对应bucket的entry数量
 				final short obCount = seg.getShort(segOffset + HEADER_COUNT_OFFSET);
 
 				// check if there is space in this overflow bucket
 				if (obCount < NUM_ENTRIES_PER_BUCKET) {
+					// 如果该overflow bucket中还有空间
 					// space in this bucket and we are done
 					seg.putShort(segOffset + HEADER_COUNT_OFFSET, (short) (obCount + 1)); // update count
 					seg.putInt(segOffset + BUCKET_HEADER_LENGTH + (obCount * HASH_CODE_LEN), hashCode);    // hash code
 					seg.putInt(segOffset + BUCKET_POINTER_START_OFFSET + (obCount * POINTER_LEN), pointer); // pointer
+					// 返回插入成功
 					return true;
 				} else {
 					// no space here, we need a new bucket. this current overflow bucket will be the
 					// target of the new overflow bucket
+					// 没有空间，则当前overflow bucket将是新的overflow bucket的目标.
+					// (头插法，这样在未溢出bucket那里，一跳就能跳到新的overflow bucket)
 					forwardForNewBucket = originalForwardPointer;
 				}
 			} else {
 				// no overflow bucket yet, so we need a first one
+				// 还没设置，需要先设置一个
 				forwardForNewBucket = BUCKET_FORWARD_POINTER_NOT_SET;
 			}
 
@@ -360,22 +384,28 @@ public class BinaryHashBucketArea {
 			final int overflowBucketOffset;
 
 			// first, see if there is space for an overflow bucket remaining in the last overflow segment
+			// 先检查上一个overflow segment中是否还有空间
 			if (nextOverflowBucket == 0) {
 				// no space left in last bucket, or no bucket yet, so create an overflow segment
+				// 没有空间，则创建一个overflow segment
 				overflowSeg = table.getNextBuffer();
 				if (overflowSeg == null) {
+					// 没有可用的segment，需要溢出partition
 					// no memory available to create overflow bucket. we need to spill a partition
 					if (!spillingAllowed) {
+						// 不允许溢出，直接抛出异常
 						throw new IOException("Hashtable memory ran out in a non-spillable situation. " +
 								"This is probably related to wrong size calculations.");
 					}
 					final int spilledPart = table.spillPartition();
+					// 如果溢出的partition正好和当前partition一样，说明该bucket不在内存中，返回插入失败
 					if (spilledPart == partition.partitionNumber) {
 						// this bucket is no longer in-memory
 						return false;
 					}
 					overflowSeg = table.getNextBuffer();
 					if (overflowSeg == null) {
+						// 如果溢出一个partition仍然没有可用的segment，抛出一个bug
 						throw new RuntimeException("Bug in HybridHashJoin: No memory became available after spilling a partition.");
 					}
 				}
@@ -383,7 +413,9 @@ public class BinaryHashBucketArea {
 				overflowBucketNum = numOverflowSegments;
 
 				// add the new overflow segment
+				// 把得到的segment加入到overflowSegment数组中
 				if (overflowSegments.length <= numOverflowSegments) {
+					// 数组装满了，扩容为原来的2倍
 					MemorySegment[] newSegsArray = new MemorySegment[overflowSegments.length * 2];
 					System.arraycopy(overflowSegments, 0, newSegsArray, 0, overflowSegments.length);
 					overflowSegments = newSegsArray;
@@ -392,21 +424,24 @@ public class BinaryHashBucketArea {
 				numOverflowSegments++;
 			} else {
 				// there is space in the last overflow bucket
-				overflowBucketNum = numOverflowSegments - 1;
+				// 最后一个overflow segment还有空间
+				overflowBucketNum = numOverflowSegments - 1; // 可用的segment在数组中的index
 				overflowSeg = overflowSegments[overflowBucketNum];
 				overflowBucketOffset = nextOverflowBucket << BUCKET_SIZE_BITS;
 			}
 
 			// next overflow bucket is one ahead. if the segment is full, the next will be at the beginning
 			// of a new segment
+			// 下一个overflow bucket +1，如果segment满了，则设为0(新segment的第一个bucket)
 			nextOverflowBucket = (nextOverflowBucket == table.bucketsPerSegmentMask ? 0 : nextOverflowBucket + 1);
 
 			// insert the new overflow bucket in the chain of buckets
 			// 1) set the old forward pointer
 			// 2) let the bucket in the main table point to this one
+			// 将新overflow bucket加入bucket链：1.在这个bucket设置旧的bucket 前进指针 2.主table中的bucket指向这个
 			overflowSeg.putInt(overflowBucketOffset + HEADER_FORWARD_OFFSET, forwardForNewBucket);
 			final int pointerToNewBucket = (overflowBucketNum << table.segmentSizeBits) + overflowBucketOffset;
-			bucket.putInt(bucketInSegmentPos + HEADER_FORWARD_OFFSET, pointerToNewBucket);
+			bucketSeg.putInt(bucketInSegmentPos + HEADER_FORWARD_OFFSET, pointerToNewBucket);
 
 			// finally, insert the values into the overflow buckets
 			overflowSeg.putInt(overflowBucketOffset + BUCKET_HEADER_LENGTH, hashCode);    // hash code
@@ -419,6 +454,7 @@ public class BinaryHashBucketArea {
 			overflowSeg.putShort(overflowBucketOffset + PROBED_FLAG_OFFSET, (short) 0);
 		}
 
+		// 判断是否需要扩容
 		if (sizeAddAndCheckResize && ++size > threshold) {
 			resize(spillingAllowed);
 		}
@@ -436,7 +472,9 @@ public class BinaryHashBucketArea {
 	boolean insertToBucket(int hashCode, int pointer, boolean spillingAllowed, boolean sizeAddAndCheckResize) throws IOException {
 		final int posHashCode = findBucket(hashCode);
 		// get the bucket for the given hash code
+		// bucket所在的segment在segment数组中的index
 		final int bucketArrayPos = posHashCode >> table.bucketsPerSegmentBits;
+		// bucket在segment中的位置
 		final int bucketInSegmentPos = (posHashCode & table.bucketsPerSegmentMask) << BUCKET_SIZE_BITS;
 		final MemorySegment bucket = this.buckets[bucketArrayPos];
 		return insertToBucket(bucket, bucketInSegmentPos, hashCode, pointer, spillingAllowed, sizeAddAndCheckResize);
