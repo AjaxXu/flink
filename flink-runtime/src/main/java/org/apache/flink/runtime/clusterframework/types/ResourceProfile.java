@@ -52,7 +52,7 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 	public static final ResourceProfile UNKNOWN = new ResourceProfile(-1.0, -1);
 
 	/** ResourceProfile which matches any other ResourceProfile. */
-	public static final ResourceProfile ANY = new ResourceProfile(Double.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Collections.emptyMap());
+	public static final ResourceProfile ANY = new ResourceProfile(Double.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Collections.emptyMap());
 
 	// ------------------------------------------------------------------------
 
@@ -71,8 +71,10 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 	/** Memory used for the task in the slot to communicate with its upstreams. Set by job master. */
 	private final int networkMemoryInMB;
 
-	/** 来自{@link ResourceSpec}的用户指定资源的可扩展字段。
-	 * A extensible field for user specified resources from {@link ResourceSpec}. */
+	/** The required amount of managed memory (in MB). */
+	private final int managedMemoryInMB;
+
+	/** A extensible field for user specified resources from {@link ResourceSpec}. */
 	private final Map<String, Resource> extendedResources = new HashMap<>(1);
 
 	// ------------------------------------------------------------------------
@@ -85,6 +87,7 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 	 * @param directMemoryInMB The size of the direct memory, in megabytes.
 	 * @param nativeMemoryInMB The size of the native memory, in megabytes.
 	 * @param networkMemoryInMB The size of the memory for input and output, in megabytes.
+	 * @param managedMemoryInMB The size of managed memory, in megabytes.
 	 * @param extendedResources The extended resources such as GPU and FPGA
 	 */
 	public ResourceProfile(
@@ -93,12 +96,14 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 			int directMemoryInMB,
 			int nativeMemoryInMB,
 			int networkMemoryInMB,
+			int managedMemoryInMB,
 			Map<String, Resource> extendedResources) {
 		this.cpuCores = cpuCores;
 		this.heapMemoryInMB = heapMemoryInMB;
 		this.directMemoryInMB = directMemoryInMB;
 		this.nativeMemoryInMB = nativeMemoryInMB;
 		this.networkMemoryInMB = networkMemoryInMB;
+		this.managedMemoryInMB = managedMemoryInMB;
 		if (extendedResources != null) {
 			this.extendedResources.putAll(extendedResources);
 		}
@@ -111,7 +116,7 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 	 * @param heapMemoryInMB The size of the heap memory, in megabytes.
 	 */
 	public ResourceProfile(double cpuCores, int heapMemoryInMB) {
-		this(cpuCores, heapMemoryInMB, 0, 0, 0, Collections.emptyMap());
+		this(cpuCores, heapMemoryInMB, 0, 0, 0, 0, Collections.emptyMap());
 	}
 
 	/**
@@ -125,6 +130,7 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 				other.directMemoryInMB,
 				other.nativeMemoryInMB,
 				other.networkMemoryInMB,
+				other.managedMemoryInMB,
 				other.extendedResources);
 	}
 
@@ -175,12 +181,20 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 	}
 
 	/**
+	 * Get the managed memory needed in MB.
+	 * @return The managed memory in MB.
+	 */
+	public int getManagedMemoryInMB() {
+		return managedMemoryInMB;
+	}
+
+	/**
 	 * Get the total memory needed in MB.
 	 *
 	 * @return The total memory in MB
 	 */
 	public int getMemoryInMB() {
-		return heapMemoryInMB + directMemoryInMB + nativeMemoryInMB + networkMemoryInMB;
+		return heapMemoryInMB + directMemoryInMB + nativeMemoryInMB + networkMemoryInMB + managedMemoryInMB;
 	}
 
 	/**
@@ -189,7 +203,7 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 	 * @return The operator memory in MB
 	 */
 	public int getOperatorsMemoryInMB() {
-		return heapMemoryInMB + directMemoryInMB + nativeMemoryInMB;
+		return heapMemoryInMB + directMemoryInMB + nativeMemoryInMB + managedMemoryInMB;
 	}
 
 	/**
@@ -217,7 +231,8 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 				heapMemoryInMB >= required.getHeapMemoryInMB() &&
 				directMemoryInMB >= required.getDirectMemoryInMB() &&
 				nativeMemoryInMB >= required.getNativeMemoryInMB() &&
-				networkMemoryInMB >= required.getNetworkMemoryInMB()) {
+				networkMemoryInMB >= required.getNetworkMemoryInMB() &&
+				managedMemoryInMB >= required.getManagedMemoryInMB()) {
 			for (Map.Entry<String, Resource> resource : required.extendedResources.entrySet()) {
 				if (!extendedResources.containsKey(resource.getKey()) ||
 						!extendedResources.get(resource.getKey()).getResourceAggregateType().equals(resource.getValue().getResourceAggregateType()) ||
@@ -273,6 +288,7 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 		result = 31 * result + directMemoryInMB;
 		result = 31 * result + nativeMemoryInMB;
 		result = 31 * result + networkMemoryInMB;
+		result = 31 * result + managedMemoryInMB;
 		result = 31 * result + extendedResources.hashCode();
 		return result;
 	}
@@ -287,7 +303,9 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 			return this.cpuCores == that.cpuCores &&
 					this.heapMemoryInMB == that.heapMemoryInMB &&
 					this.directMemoryInMB == that.directMemoryInMB &&
+					this.nativeMemoryInMB == that.nativeMemoryInMB &&
 					this.networkMemoryInMB == that.networkMemoryInMB &&
+					this.managedMemoryInMB == that.managedMemoryInMB &&
 					Objects.equals(extendedResources, that.extendedResources);
 		}
 		return false;
@@ -304,7 +322,8 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 			", heapMemoryInMB=" + heapMemoryInMB +
 			", directMemoryInMB=" + directMemoryInMB +
 			", nativeMemoryInMB=" + nativeMemoryInMB +
-			", networkMemoryInMB=" + networkMemoryInMB + resources +
+			", networkMemoryInMB=" + networkMemoryInMB +
+			", managedMemoryInMB=" + managedMemoryInMB + resources +
 			'}';
 	}
 
@@ -317,6 +336,7 @@ public class ResourceProfile implements Serializable, Comparable<ResourceProfile
 				resourceSpec.getDirectMemory(),
 				resourceSpec.getNativeMemory(),
 				networkMemory,
+				resourceSpec.getManagedMemory(),
 				copiedExtendedResources);
 	}
 }

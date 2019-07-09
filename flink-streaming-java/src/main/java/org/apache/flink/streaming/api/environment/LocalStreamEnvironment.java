@@ -79,17 +79,10 @@ public class LocalStreamEnvironment extends StreamExecutionEnvironment {
 	 * Executes the JobGraph of the on a mini cluster of ClusterUtil with a user
 	 * specified name.
 	 *
-	 * @param jobName
-	 *            name of the job
 	 * @return The result of the job execution, containing elapsed time and accumulators.
 	 */
 	@Override
-	public JobExecutionResult execute(String jobName) throws Exception {
-		// transform the streaming program into a JobGraph
-		// 生成StreamGraph。代表程序的拓扑结构，是从用户代码直接生成的图
-		StreamGraph streamGraph = getStreamGraph(jobName);
-
-		// 生成JobGraph。这个图是要交给flink去生成task的图
+	public JobExecutionResult execute(StreamGraph streamGraph) throws Exception {
 		JobGraph jobGraph = streamGraph.getJobGraph();
 		jobGraph.setAllowQueuedScheduling(true);
 
