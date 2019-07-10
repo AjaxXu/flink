@@ -118,6 +118,7 @@ public class BinaryHashTable extends BaseHybridHashTable {
 
 	/**
 	 * The partitions that have been spilled previously and are pending to be processed.
+	 * 被溢出的partition,放在这里等待处理
 	 */
 	private final ArrayList<BinaryHashPartition> partitionsPending;
 
@@ -127,16 +128,19 @@ public class BinaryHashTable extends BaseHybridHashTable {
 
 	/**
 	 * Should filter null keys.
+	 * 需要过滤null的key的index
 	 */
 	private final int[] nullFilterKeys;
 
 	/**
 	 * No keys need to filter null.
+	 * 是否没有key需要过滤null
 	 */
 	private final boolean nullSafe;
 
 	/**
 	 * Filter null to all keys.
+	 * 所有的key都要过滤null
 	 */
 	private final boolean filterAllNulls;
 
@@ -272,6 +276,7 @@ public class BinaryHashTable extends BaseHybridHashTable {
 	 * Find matched build side rows for a probe row.
 	 * @return return false if the target partition has spilled, we will spill this probe row too.
 	 *         The row will be re-match in rebuild phase.
+	 *         如果目标分区已溢出，则返回false，我们也将溢出此探测行。该行将在重建阶段重新匹配。
 	 */
 	public boolean tryProbe(BaseRow record) throws IOException {
 		if (!this.probeIterator.hasSource()) {
@@ -553,6 +558,7 @@ public class BinaryHashTable extends BaseHybridHashTable {
 		BinaryHashPartition p = partitionsBeingBuilt.get(hashCode % partitionsBeingBuilt.size());
 		if (p.isInMemory()) {
 			if (!p.bucketArea.appendRecordAndInsert(record, hashCode)) {
+				// p 不在内存中，增加bloom 过滤器
 				p.addHashBloomFilter(hashCode);
 			}
 		} else {
@@ -569,7 +575,7 @@ public class BinaryHashTable extends BaseHybridHashTable {
 
 		this.partitionsBeingBuilt.clear();
 		double numRecordPerPartition = (double) buildRowCount / numPartitions;
-		int maxBuffer = maxInitBufferOfBucketArea(numPartitions);
+		int maxBuffer = maxInitBufferOfBucketArea(numPartitions); // 最大为1
 		for (int i = 0; i < numPartitions; i++) {
 			BinaryHashBucketArea area = new BinaryHashBucketArea(this, numRecordPerPartition, maxBuffer);
 			BinaryHashPartition p = new BinaryHashPartition(area, this.binaryBuildSideSerializer,

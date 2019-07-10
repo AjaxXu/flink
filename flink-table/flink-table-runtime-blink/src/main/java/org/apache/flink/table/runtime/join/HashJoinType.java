@@ -20,6 +20,7 @@ package org.apache.flink.table.runtime.join;
 
 /**
  * Join type for hash table.
+ * Hash table的join类型
  */
 public enum HashJoinType {
 

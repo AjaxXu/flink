@@ -503,6 +503,7 @@ public class BinaryHashBucketArea {
 				!findFirstSameBuildRow(bucket, hashCode, bucketInSegmentPos, record)) {
 			// 插入row，返回指针，并写入bucket中
 			int pointer = partition.insertIntoBuildBuffer(record);
+			// 返回-1代表partition不在内存中
 			if (pointer != -1) {
 				// record was inserted into an in-memory partition. a pointer must be inserted into the buckets
 				insertToBucket(bucket, bucketInSegmentPos, hashCode, pointer, true, true);

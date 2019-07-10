@@ -49,6 +49,7 @@ import static org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoT
 
 /**
  * The async join runner to lookup the dimension table.
+ * 用于查找维度表的异步联接运行器。
  */
 public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 	private static final long serialVersionUID = -6664660022391632480L;
@@ -57,7 +58,7 @@ public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 	private final GeneratedResultFuture<TableFunctionResultFuture<BaseRow>> generatedResultFuture;
 	private final boolean isLeftOuterJoin;
 	private final int asyncBufferCapacity;
-	private final TypeInformation<?> fetcherReturnType;
+	private final TypeInformation<?> fetcherReturnType; // 异步函数fetcher的返回类型
 	private final BaseRowTypeInfo rightRowTypeInfo;
 
 	private transient AsyncFunction<BaseRow, Object> fetcher;
@@ -133,7 +134,7 @@ public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 	public void asyncInvoke(BaseRow input, ResultFuture<BaseRow> resultFuture) throws Exception {
 		JoinedRowResultFuture outResultFuture = resultFutureBuffer.take();
 		// the input row is copied when object reuse in AsyncWaitOperator
-		outResultFuture.reset(input, resultFuture);
+		outResultFuture.reset(input, resultFuture); // resultFuture中的data为JoinedRow
 
 		// fetcher has copied the input field when object reuse is enabled
 		fetcher.asyncInvoke(input, outResultFuture);
@@ -161,6 +162,7 @@ public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 	/**
 	 * The {@link JoinedRowResultFuture} is used to combine left {@link BaseRow} and
 	 * right {@link BaseRow} into {@link JoinedRow}.
+	 * 用于联合左边{@link BaseRow}和右边{@link BaseRow}成{@link JoinedRow}.
 	 *
 	 * <p>There are 3 phases in this collector.
 	 *
@@ -183,10 +185,10 @@ public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 		private final boolean isLeftOuterJoin;
 
 		private final DelegateResultFuture delegate;
-		private final GenericRow nullRow;
+		private final GenericRow nullRow; // 右边的null行, 用于左外连接时右边行没有的情况
 
-		private BaseRow leftRow;
-		private ResultFuture<BaseRow> realOutput;
+		private BaseRow leftRow; // 左边的行
+		private ResultFuture<BaseRow> realOutput; // 真正的输出
 
 		private JoinedRowResultFuture(
 				BlockingQueue<JoinedRowResultFuture> resultFutureBuffer,
@@ -206,6 +208,7 @@ public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 			this.realOutput = realOutput;
 			this.leftRow = row;
 			joinConditionResultFuture.setInput(row);
+			// 设置代理到resultFuture，之后complete处理后的数据会被导入代理中
 			joinConditionResultFuture.setResultFuture(delegate);
 			delegate.reset();
 		}
@@ -227,6 +230,7 @@ public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 
 			// call condition collector first,
 			// the filtered result will be routed to the delegateCollector
+			// 先调用条件收集器，过滤的结果将被导入代理收集器
 			try {
 				joinConditionResultFuture.complete(baseRows);
 			} catch (Throwable t) {
@@ -235,6 +239,7 @@ public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 				return;
 			}
 
+			// 从代理收集器中获得右边的行
 			Collection<BaseRow> rightRows = delegate.collection;
 			if (rightRows == null || rightRows.isEmpty()) {
 				if (isLeftOuterJoin) {
@@ -271,6 +276,7 @@ public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 			joinConditionResultFuture.close();
 		}
 
+		// 就是ResultFuture的简单实现
 		private final class DelegateResultFuture implements ResultFuture<BaseRow> {
 
 			private Collection<BaseRow> collection;

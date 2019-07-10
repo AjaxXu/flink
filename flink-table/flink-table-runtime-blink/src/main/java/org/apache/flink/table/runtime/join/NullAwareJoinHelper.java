@@ -29,6 +29,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * Helper for null aware join.
+ * null 感知连接的帮助类
  */
 public class NullAwareJoinHelper {
 

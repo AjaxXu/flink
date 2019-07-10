@@ -29,8 +29,8 @@ public abstract class TableFunctionResultFuture<T> extends AbstractRichFunction 
 
 	private static final long serialVersionUID = 1L;
 
-	private Object input;
-	private ResultFuture<?> resultFuture;
+	private Object input; // 连接中左边的行
+	private ResultFuture<?> resultFuture; // 当前收集器，用于发出最终行
 
 	/**
 	 * Sets the input row from left table,

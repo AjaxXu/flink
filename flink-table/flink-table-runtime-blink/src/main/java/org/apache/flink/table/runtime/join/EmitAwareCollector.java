@@ -24,6 +24,7 @@ import org.apache.flink.util.Collector;
 /**
  * Collector to wrap a [[org.apache.flink.table.dataformat.BaseRow]] and to track whether a row has been
  * emitted by the inner collector.
+ * 检查row是否被内部collector发出去
  */
 class EmitAwareCollector implements Collector<BaseRow> {
 
