@@ -45,7 +45,7 @@ public class BufferDataOverWindowOperator extends TableStreamOperator<BaseRow>
 	private GeneratedRecordComparator genComparator;
 	private final boolean isRowAllInFixedPart;
 
-	private RecordComparator partitionComparator;
+	private RecordComparator partitionComparator; // 这里叫keyComparator更合适
 	private BaseRow lastInput;
 	private JoinedRow[] joinedRows;
 	private StreamRecordCollector<BaseRow> collector;
@@ -79,7 +79,7 @@ public class BufferDataOverWindowOperator extends TableStreamOperator<BaseRow>
 
 		MemoryManager memManager = getContainingTask().getEnvironment().getMemoryManager();
 		this.currentData = new ResettableExternalBuffer(
-				getContainingTask().getEnvironment().getMemoryManager(),
+				memManager,
 				getContainingTask().getEnvironment().getIOManager(),
 				memManager.allocatePages(this, (int) (memorySize / memManager.getPageSize())),
 				serializer, isRowAllInFixedPart);
@@ -96,6 +96,7 @@ public class BufferDataOverWindowOperator extends TableStreamOperator<BaseRow>
 	public void processElement(StreamRecord<BaseRow> element) throws Exception {
 		BaseRow input = element.getValue();
 		if (lastInput != null && partitionComparator.compare(lastInput, input) != 0) {
+			// 说明key已经发生了变化(或者说的partition发生了变化),先处理之前cache的数据
 			processCurrentData();
 		}
 		lastInput = serializer.copy(input);

@@ -46,7 +46,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * A basic implementation to support unbounded event-time over-window.
+ * A basic implementation to support unbounded event-time over-window.\
+ * 支持无限流event-time over window的基本实现
  */
 public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProcessFunctionWithCleanupState<K, BaseRow, BaseRow> {
 	private static final long serialVersionUID = 1L;
@@ -54,27 +55,27 @@ public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProc
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractRowTimeUnboundedPrecedingOver.class);
 
 	private final GeneratedAggsHandleFunction genAggsHandler;
-	private final LogicalType[] accTypes;
-	private final LogicalType[] inputFieldTypes;
-	private final int rowTimeIdx;
+	private final LogicalType[] accTypes; // 累计值的类型
+	private final LogicalType[] inputFieldTypes; // 输入值的类型
+	private final int rowTimeIdx; // rowTime 索引
 
 	protected transient JoinedRow output;
 	// state to hold the accumulators of the aggregations
 	private transient ValueState<BaseRow> accState;
 	// state to hold rows until the next watermark arrives
-	private transient MapState<Long, List<BaseRow>> inputState;
+	private transient MapState<Long, List<BaseRow>> inputState; // timestamp -> List<BaseRow>
 	// list to sort timestamps to access rows in timestamp order
 	private transient LinkedList<Long> sortedTimestamps;
 
 	protected transient AggsHandleFunction function;
 
 	public AbstractRowTimeUnboundedPrecedingOver(
-			long minRetentionTime,
-			long maxRetentionTime,
-			GeneratedAggsHandleFunction genAggsHandler,
-			LogicalType[] accTypes,
-			LogicalType[] inputFieldTypes,
-			int rowTimeIdx) {
+		long minRetentionTime,
+		long maxRetentionTime,
+		GeneratedAggsHandleFunction genAggsHandler,
+		LogicalType[] accTypes,
+		LogicalType[] inputFieldTypes,
+		int rowTimeIdx) {
 		super(minRetentionTime, maxRetentionTime);
 		this.genAggsHandler = genAggsHandler;
 		this.accTypes = accTypes;
@@ -89,7 +90,7 @@ public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProc
 
 		output = new JoinedRow();
 
-		sortedTimestamps = new LinkedList<Long>();
+		sortedTimestamps = new LinkedList<>();
 
 		// initialize accumulator state
 		BaseRowTypeInfo accTypeInfo = new BaseRowTypeInfo(accTypes);
@@ -122,18 +123,20 @@ public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProc
 	 */
 	@Override
 	public void processElement(
-			BaseRow input,
-			KeyedProcessFunction<K, BaseRow, BaseRow>.Context ctx,
-			Collector<BaseRow> out) throws Exception {
+		BaseRow input,
+		KeyedProcessFunction<K, BaseRow, BaseRow>.Context ctx,
+		Collector<BaseRow> out) throws Exception {
 		// register state-cleanup timer
 		registerProcessingCleanupTimer(ctx, ctx.timerService().currentProcessingTime());
 
 		long timestamp = input.getLong(rowTimeIdx);
-		long curWatermark = ctx.timerService().currentWatermark();
+		long curWatermark = ctx.timerService().currentWatermark(); // 当前watermark
 
 		// discard late record
+		// 丢弃迟到的记录
 		if (timestamp > curWatermark) {
 			// ensure every key just registers one timer
+			// 每个键注册一个timer
 			// default watermark is Long.Min, avoid overflow we use zero when watermark < 0
 			long triggerTs = curWatermark < 0 ? 0 : curWatermark + 1;
 			ctx.timerService().registerEventTimeTimer(triggerTs);
@@ -150,9 +153,9 @@ public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProc
 
 	@Override
 	public void onTimer(
-			long timestamp,
-			KeyedProcessFunction<K, BaseRow, BaseRow>.OnTimerContext ctx,
-			Collector<BaseRow> out) throws Exception {
+		long timestamp,
+		KeyedProcessFunction<K, BaseRow, BaseRow>.OnTimerContext ctx,
+		Collector<BaseRow> out) throws Exception {
 		if (isProcessingTimeTimer(ctx)) {
 			if (stateCleaningEnabled) {
 
@@ -160,18 +163,21 @@ public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProc
 				boolean noRecordsToProcess = !inputState.keys().iterator().hasNext();
 				if (noRecordsToProcess) {
 					// we clean the state
+					// 没有record需要被处理，清除状态
 					cleanupState(inputState, accState);
 					function.cleanup();
 				} else {
 					// There are records left to process because a watermark has not been received yet.
 					// This would only happen if the input stream has stopped. So we don't need to clean up.
 					// We leave the state as it is and schedule a new cleanup timer
+					// 还有record，注册一个新的timer
 					registerProcessingCleanupTimer(ctx, ctx.timerService().currentProcessingTime());
 				}
 			}
 			return;
 		}
 
+		// 下面是rowTime触发
 		Iterator<Long> keyIterator = inputState.keys().iterator();
 		if (keyIterator.hasNext()) {
 			Long curWatermark = ctx.timerService().currentWatermark();
@@ -182,8 +188,10 @@ public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProc
 				Long recordTime = keyIterator.next();
 				// only take timestamps smaller/equal to the watermark
 				if (recordTime <= curWatermark) {
+					// 将小于当前watermark的timestamp加入排序列表中
 					insertToSortedList(recordTime);
 				} else {
+					// 大于当前watermark的record timestamp
 					existEarlyRecord = true;
 				}
 			} while (keyIterator.hasNext());
@@ -203,6 +211,7 @@ public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProc
 				List<BaseRow> curRowList = inputState.get(curTimestamp);
 				if (curRowList != null) {
 					// process the same timestamp datas, the mechanism is different according ROWS or RANGE
+					// 处理相同timestamp的数据，ROWS和RANGE的处理机制不同
 					processElementsWithSameTimestamp(curRowList, out);
 				} else {
 					// Ignore the same timestamp datas if the state is cleared already.
@@ -231,6 +240,7 @@ public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProc
 	 * Inserts timestamps in order into a linked list.
 	 * If timestamps arrive in order (as in case of using the RocksDB state backend) this is just
 	 * an append with O(1).
+	 * 将timestamp插入排序列表中
 	 */
 	private void insertToSortedList(Long recordTimestamp) {
 		ListIterator<Long> listIterator = sortedTimestamps.listIterator(sortedTimestamps.size());

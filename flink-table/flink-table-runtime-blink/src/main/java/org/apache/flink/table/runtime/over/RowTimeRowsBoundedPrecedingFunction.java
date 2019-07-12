@@ -46,6 +46,7 @@ import java.util.List;
 
 /**
  * Process Function for ROWS clause event-time bounded OVER window.
+ * event-time有限流OVER window的rows语法
  *
  * <p>E.g.:
  * SELECT rowtime, b, c,
@@ -93,7 +94,7 @@ public class RowTimeRowsBoundedPrecedingFunction<K> extends KeyedProcessFunction
 			GeneratedAggsHandleFunction genAggsHandler,
 			LogicalType[] accTypes,
 			LogicalType[] inputFieldTypes,
-			long precedingOffset,
+			Long precedingOffset,
 			int rowTimeIdx) {
 		super(minRetentionTime, maxRetentionTime);
 		Preconditions.checkNotNull(precedingOffset);
@@ -146,6 +147,7 @@ public class RowTimeRowsBoundedPrecedingFunction<K> extends KeyedProcessFunction
 		registerProcessingCleanupTimer(ctx, ctx.timerService().currentProcessingTime());
 
 		// triggering timestamp for trigger calculation
+		// input行中的rowTime
 		long triggeringTs = input.getLong(rowTimeIdx);
 
 		Long lastTriggeringTs = lastTriggeringTsState.value();
@@ -154,6 +156,7 @@ public class RowTimeRowsBoundedPrecedingFunction<K> extends KeyedProcessFunction
 		}
 
 		// check if the data is expired, if not, save the data and register event time timer
+		// 行中的rowTime>上次触发时间，保持数据，并且注册timer
 		if (triggeringTs > lastTriggeringTs) {
 			List<BaseRow> data = inputState.get(triggeringTs);
 			if (null != data) {
@@ -184,6 +187,7 @@ public class RowTimeRowsBoundedPrecedingFunction<K> extends KeyedProcessFunction
 				}
 
 				// is data left which has not been processed yet?
+				// 判断是否还有未处理的数据
 				boolean noRecordsToProcess = true;
 				while (keysIt.hasNext() && noRecordsToProcess) {
 					if (keysIt.next() > lastProcessedTime) {
@@ -222,17 +226,17 @@ public class RowTimeRowsBoundedPrecedingFunction<K> extends KeyedProcessFunction
 			// set accumulators in context first
 			function.setAccumulators(accumulators);
 
-			List<BaseRow> retractList = null;
-			long retractTs = Long.MAX_VALUE;
+			List<BaseRow> retractList = null; // 最小的timestamp对应的BaseRow列表
+			long retractTs = Long.MAX_VALUE; // 存储最小的timestamp
 			int retractCnt = 0;
-			int i = 0;
 
-			while (i < inputs.size()) {
-				BaseRow input = inputs.get(i);
+			for (BaseRow input: inputs) {
 				BaseRow retractRow = null;
 				if (dataCount >= precedingOffset) {
+					// 列表不为null，说明列表里还有数据，先从列表中取最老的行撤回
 					if (null == retractList) {
 						// find the smallest timestamp
+						// 找到最小的timestamp
 						retractTs = Long.MAX_VALUE;
 						for (Long dataTs : inputState.keys()) {
 							if (dataTs < retractTs) {
@@ -244,6 +248,7 @@ public class RowTimeRowsBoundedPrecedingFunction<K> extends KeyedProcessFunction
 					}
 
 					if (retractList != null) {
+						// 得到最老的行
 						retractRow = retractList.get(retractCnt);
 						retractCnt += 1;
 
@@ -259,6 +264,7 @@ public class RowTimeRowsBoundedPrecedingFunction<K> extends KeyedProcessFunction
 				}
 
 				// retract old row from accumulators
+				// 从累加函数中撤回最老的行
 				if (null != retractRow) {
 					function.retract(retractRow);
 				}
@@ -269,11 +275,10 @@ public class RowTimeRowsBoundedPrecedingFunction<K> extends KeyedProcessFunction
 				// prepare output row
 				output.replace(input, function.getValue());
 				out.collect(output);
-
-				i += 1;
 			}
 
 			// update all states
+			// 最小timestamp对应的数据列表还有数据，更新到状态中
 			if (inputState.contains(retractTs)) {
 				if (retractCnt > 0) {
 					retractList.subList(0, retractCnt).clear();

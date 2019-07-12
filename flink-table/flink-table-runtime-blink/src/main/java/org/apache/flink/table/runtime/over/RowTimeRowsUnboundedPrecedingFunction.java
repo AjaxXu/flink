@@ -27,6 +27,7 @@ import java.util.List;
 
 /**
  * A ProcessFunction to support unbounded ROWS window.
+ * 支持无限流ROWS window的ProcessFunction
  * The ROWS clause defines on a physical level how many rows are included in a window frame.
  *
  * <p>E.g.:
@@ -56,16 +57,13 @@ public class RowTimeRowsUnboundedPrecedingFunction<K> extends AbstractRowTimeUnb
 	public void processElementsWithSameTimestamp(
 			List<BaseRow> curRowList,
 			Collector<BaseRow> out) throws Exception {
-		int i = 0;
-		while (i < curRowList.size()) {
-			BaseRow curRow = curRowList.get(i);
+		for (BaseRow curRow: curRowList) {
 			// accumulate current row
 			function.accumulate(curRow);
 			// prepare output row
 			output.replace(curRow, function.getValue());
 			// emit output row
 			out.collect(output);
-			i += 1;
 		}
 	}
 }

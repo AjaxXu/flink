@@ -46,6 +46,7 @@ import java.util.List;
 
 /**
  * Process Function used for the aggregate in bounded proc-time OVER window.
+ * proc-time 有限流OVER window的range语法
  *
  * <p>E.g.:
  * SELECT currtime, b, c,
@@ -125,7 +126,7 @@ public class ProcTimeRangeBoundedPrecedingFunction<K> extends KeyedProcessFuncti
 		List<BaseRow> rowList = inputState.get(currentTime);
 		// null value means that this si the first event received for this timestamp
 		if (rowList == null) {
-			rowList = new ArrayList<BaseRow>();
+			rowList = new ArrayList<>();
 			// register timer to process event once the current millisecond passed
 			ctx.timerService().registerProcessingTimeTimer(currentTime + 1);
 		}
@@ -150,7 +151,6 @@ public class ProcTimeRangeBoundedPrecedingFunction<K> extends KeyedProcessFuncti
 
 		// we consider the original timestamp of events
 		// that have registered this time trigger 1 ms ago
-
 		long currentTime = timestamp - 1;
 
 		// get the list of elements of current proctime
@@ -164,7 +164,6 @@ public class ProcTimeRangeBoundedPrecedingFunction<K> extends KeyedProcessFuncti
 
 		// initialize the accumulators
 		BaseRow accumulators = accState.value();
-
 		if (null == accumulators) {
 			accumulators = function.createAccumulators();
 		}
@@ -187,11 +186,8 @@ public class ProcTimeRangeBoundedPrecedingFunction<K> extends KeyedProcessFuncti
 				// element key outside of window. Retract values
 				List<BaseRow> elementsRemove = inputState.get(elementKey);
 				if (elementsRemove != null) {
-					int iRemove = 0;
-					while (iRemove < elementsRemove.size()) {
-						BaseRow retractRow = elementsRemove.get(iRemove);
+					for (BaseRow retractRow: elementsRemove) {
 						function.retract(retractRow);
-						iRemove += 1;
 					}
 				} else {
 					// Does not retract values which are outside of window if the state is cleared already.
@@ -206,30 +202,22 @@ public class ProcTimeRangeBoundedPrecedingFunction<K> extends KeyedProcessFuncti
 		}
 
 		// need to remove in 2 steps not to have concurrent access errors via iterator to the MapState
-		int i = 0;
-		while (i < markToRemove.size()) {
-			inputState.remove(markToRemove.get(i));
-			i += 1;
+		for (Long removeTs: markToRemove) {
+			inputState.remove(removeTs);
 		}
 
 		// add current elements to aggregator. Multiple elements might
 		// have arrived in the same proctime
 		// the same accumulator value will be computed for all elements
-		int iElemenets = 0;
-		while (iElemenets < currentElements.size()) {
-			BaseRow input = currentElements.get(iElemenets);
+		for (BaseRow input: currentElements) {
 			function.accumulate(input);
-			iElemenets += 1;
 		}
 
 		// we need to build the output and emit for every event received at this proctime
-		iElemenets = 0;
 		BaseRow aggValue = function.getValue();
-		while (iElemenets < currentElements.size()) {
-			BaseRow input = currentElements.get(iElemenets);
-			output.replace(input, aggValue);
+		for (BaseRow curRow: currentElements) {
+			output.replace(curRow, aggValue);
 			out.collect(output);
-			iElemenets += 1;
 		}
 
 		// update the value of accumulators for future incremental computation

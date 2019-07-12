@@ -34,6 +34,7 @@ import org.apache.flink.table.typeutils.AbstractRowSerializer;
 /**
  * The operator for OVER window don't need cache data.
  * Then this operator can calculate the accumulator by the current row.
+ * OVER窗口的算子不需要缓存数据。 然后该运算符可以通过当前行计算累加器。
  *
  * <p>Some over windows do not need to buffer data, such as {@code rows between unbounded preceding and 0},
  * rank, etc. We introduce {@link NonBufferOverWindowOperator} to reduce the overhead of data copy in buffer.
@@ -89,6 +90,7 @@ public class NonBufferOverWindowOperator extends TableStreamOperator<BaseRow>
 		BaseRow input = element.getValue();
 		boolean changePartition = lastInput == null || partitionComparator.compare(lastInput, input) != 0;
 
+		// 多个聚合函数的结果放在原来行的最后，统一发送出去
 		//calculate the ACC
 		BaseRow output = input;
 		for (int i = 0; i < processors.length; i++) {

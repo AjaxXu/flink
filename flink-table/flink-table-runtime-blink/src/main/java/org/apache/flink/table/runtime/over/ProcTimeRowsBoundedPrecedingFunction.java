@@ -47,6 +47,7 @@ import java.util.List;
 
 /**
  * Process Function for ROW clause processing-time bounded OVER window.
+ * proc-time 有限流OVER window的rows语法
  *
  * <p>E.g.:
  * SELECT currtime, b, c,
@@ -194,14 +195,11 @@ public class ProcTimeRowsBoundedPrecedingFunction<K> extends KeyedProcessFunctio
 
 		// update map state, counter and timestamp
 		List<BaseRow> currentTimeState = inputState.get(currentTime);
-		if (currentTimeState != null) {
-			currentTimeState.add(input);
-			inputState.put(currentTime, currentTimeState);
-		} else { // add new input
-			List<BaseRow> newList = new ArrayList<BaseRow>();
-			newList.add(input);
-			inputState.put(currentTime, newList);
+		if (currentTimeState == null) {
+			currentTimeState = new ArrayList<>();
 		}
+		currentTimeState.add(input);
+		inputState.put(currentTime, currentTimeState);
 
 		// accumulate current row
 		function.accumulate(input);

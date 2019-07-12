@@ -34,6 +34,7 @@ import org.apache.flink.util.Collector;
 
 /**
  * Process Function for processing-time unbounded OVER window.
+ * processing-time 无限流OVER window的处理函数，rows和range是一样的
  *
  * <p>E.g.:
  * SELECT currtime, b, c,
@@ -91,6 +92,7 @@ public class ProcTimeUnboundedPrecedingFunction<K> extends KeyedProcessFunctionW
 			accumulators = function.createAccumulators();
 		}
 		// set accumulators in context first
+		// 先在function中设置累加值
 		function.setAccumulators(accumulators);
 
 		// accumulate input row

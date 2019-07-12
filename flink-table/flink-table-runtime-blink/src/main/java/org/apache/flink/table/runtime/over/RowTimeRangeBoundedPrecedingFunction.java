@@ -46,6 +46,7 @@ import java.util.List;
 
 /**
  * Process Function for RANGE clause event-time bounded OVER window.
+ * event-time 有限流OVER window的range语法
  *
  * <p>E.g.:
  * SELECT rowtime, b, c,
@@ -166,8 +167,6 @@ public class RowTimeRangeBoundedPrecedingFunction<K> extends KeyedProcessFunctio
 			long timestamp,
 			KeyedProcessFunction<K, BaseRow, BaseRow>.OnTimerContext ctx,
 			Collector<BaseRow> out) throws Exception {
-		// register state-cleanup timer
-		registerProcessingCleanupTimer(ctx, ctx.timerService().currentProcessingTime());
 
 		if (isProcessingTimeTimer(ctx)) {
 			if (stateCleaningEnabled) {
@@ -205,7 +204,6 @@ public class RowTimeRangeBoundedPrecedingFunction<K> extends KeyedProcessFunctio
 
 		if (null != inputs) {
 
-			int dataListIndex = 0;
 			BaseRow accumulators = accState.value();
 
 			// initialize when first run or failover recovery per key
@@ -222,15 +220,12 @@ public class RowTimeRangeBoundedPrecedingFunction<K> extends KeyedProcessFunctio
 			Iterator<Long> dataTimestampIt = inputState.keys().iterator();
 			while (dataTimestampIt.hasNext()) {
 				Long dataTs = dataTimestampIt.next();
-				Long offset = timestamp - dataTs;
+				long offset = timestamp - dataTs;
 				if (offset > precedingOffset) {
 					List<BaseRow> retractDataList = inputState.get(dataTs);
 					if (retractDataList != null) {
-						dataListIndex = 0;
-						while (dataListIndex < retractDataList.size()) {
-							BaseRow retractRow = retractDataList.get(dataListIndex);
+						for (BaseRow retractRow: retractDataList) {
 							function.retract(retractRow);
-							dataListIndex += 1;
 						}
 						retractTsList.add(dataTs);
 					} else {
@@ -243,31 +238,23 @@ public class RowTimeRangeBoundedPrecedingFunction<K> extends KeyedProcessFunctio
 			}
 
 			// do accumulation
-			dataListIndex = 0;
-			while (dataListIndex < inputs.size()) {
-				BaseRow curRow = inputs.get(dataListIndex);
+			for (BaseRow curRow: inputs) {
 				// accumulate current row
 				function.accumulate(curRow);
-				dataListIndex += 1;
 			}
 
 			// get aggregate result
 			BaseRow aggValue = function.getValue();
 
 			// copy forwarded fields to output row and emit output row
-			dataListIndex = 0;
-			while (dataListIndex < inputs.size()) {
-				BaseRow curRow = inputs.get(dataListIndex);
+			for (BaseRow curRow: inputs) {
 				output.replace(curRow, aggValue);
 				out.collect(output);
-				dataListIndex += 1;
 			}
 
 			// remove the data that has been retracted
-			dataListIndex = 0;
-			while (dataListIndex < retractTsList.size()) {
-				inputState.remove(retractTsList.get(dataListIndex));
-				dataListIndex += 1;
+			for (Long retractTs: retractTsList) {
+				inputState.remove(retractTs);
 			}
 
 			// update the value of accumulators for future incremental computation

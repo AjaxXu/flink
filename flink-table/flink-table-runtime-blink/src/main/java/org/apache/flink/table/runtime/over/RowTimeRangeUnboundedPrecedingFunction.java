@@ -27,8 +27,10 @@ import java.util.List;
 
 /**
  * A ProcessFunction to support unbounded RANGE window.
+ * 支持无限RANGE window的ProcessFunction。
  * The RANGE option includes all the rows within the window frame
  * that have the same ORDER BY values as the current row.
+ * 值<=当前行，没有following(因为order by rowtime)
  *
  * <p>E.g.:
  * SELECT rowtime, b, c,
@@ -57,23 +59,18 @@ public class RowTimeRangeUnboundedPrecedingFunction<K> extends AbstractRowTimeUn
 	public void processElementsWithSameTimestamp(
 			List<BaseRow> curRowList,
 			Collector<BaseRow> out) throws Exception {
-		int i = 0;
 		// all same timestamp data should have same aggregation value.
-		while (i < curRowList.size()) {
-			BaseRow curRow = curRowList.get(i);
+		// 所有相同的时间戳数据应具有相同的聚合值
+		for (BaseRow curRow: curRowList) {
 			function.accumulate(curRow);
-			i += 1;
 		}
 
 		// emit output row
-		i = 0;
 		BaseRow aggValue = function.getValue();
-		while (i < curRowList.size()) {
-			BaseRow curRow = curRowList.get(i);
+		for (BaseRow curRow: curRowList) {
 			// prepare output row
 			output.replace(curRow, aggValue);
 			out.collect(output);
-			i += 1;
 		}
 	}
 }
