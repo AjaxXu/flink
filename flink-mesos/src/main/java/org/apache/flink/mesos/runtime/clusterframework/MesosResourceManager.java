@@ -201,6 +201,7 @@ public class MesosResourceManager extends ResourceManager<RegisteredMesosWorkerN
 		final ContaineredTaskManagerParameters containeredTaskManagerParameters = taskManagerParameters.containeredParameters();
 		this.slotsPerWorker = updateTaskManagerConfigAndCreateWorkerSlotProfiles(
 			flinkConfig, containeredTaskManagerParameters.taskManagerTotalMemoryMB(), containeredTaskManagerParameters.numSlots());
+		setFailUnfulfillableRequest(true);
 	}
 
 	protected ActorRef createSelfActor() {
@@ -437,6 +438,9 @@ public class MesosResourceManager extends ResourceManager<RegisteredMesosWorkerN
 
 	@Override
 	public Collection<ResourceProfile> startNewWorker(ResourceProfile resourceProfile) {
+		if (!slotsPerWorker.iterator().next().isMatching(resourceProfile)) {
+			return Collections.emptyList();
+		}
 		LOG.info("Starting a new worker.");
 		try {
 			// generate new workers into persistent state and launch associated actors

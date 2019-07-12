@@ -19,11 +19,12 @@ package org.apache.flink.table.util
 
 import org.apache.flink.api.common.JobExecutionResult
 import org.apache.flink.api.common.typeinfo.{AtomicType, TypeInformation}
-import org.apache.flink.api.java.typeutils.{RowTypeInfo, TupleTypeInfo}
+import org.apache.flink.api.java.typeutils.{PojoTypeInfo, RowTypeInfo, TupleTypeInfo}
 import org.apache.flink.api.scala.typeutils.CaseClassTypeInfo
 import org.apache.flink.streaming.api.datastream.DataStream
 import org.apache.flink.streaming.api.environment.{LocalStreamEnvironment, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment => ScalaStreamExecEnv}
+import org.apache.flink.streaming.api.transformations.ShuffleMode
 import org.apache.flink.streaming.api.{TimeCharacteristic, environment}
 import org.apache.flink.table.api._
 import org.apache.flink.table.api.internal.{TableEnvironmentImpl, TableImpl}
@@ -41,17 +42,17 @@ import org.apache.flink.table.functions.{AggregateFunction, ScalarFunction, Tabl
 import org.apache.flink.table.operations.{CatalogSinkModifyOperation, DataStreamQueryOperation, ModifyOperation, PlannerQueryOperation, QueryOperation, RichTableSourceQueryOperation}
 import org.apache.flink.table.plan.nodes.calcite.LogicalWatermarkAssigner
 import org.apache.flink.table.plan.nodes.exec.ExecNode
-import org.apache.flink.table.plan.optimize.program.{FlinkBatchProgram, FlinkStreamProgram}
+import org.apache.flink.table.plan.optimize.program.{BatchOptimizeContext, FlinkBatchProgram, FlinkChainedProgram, FlinkStreamProgram, StreamOptimizeContext}
 import org.apache.flink.table.plan.stats.FlinkStatistic
 import org.apache.flink.table.plan.util.{ExecNodePlanDumper, FlinkRelOptUtil}
 import org.apache.flink.table.planner.PlannerBase
 import org.apache.flink.table.runtime.utils.{TestingAppendTableSink, TestingRetractTableSink, TestingUpsertTableSink}
 import org.apache.flink.table.sinks._
 import org.apache.flink.table.sources.{StreamTableSource, TableSource}
-import org.apache.flink.table.types.TypeInfoLogicalTypeConverter
 import org.apache.flink.table.types.TypeInfoLogicalTypeConverter.fromLogicalTypeToTypeInfo
 import org.apache.flink.table.types.logical.LogicalType
-import org.apache.flink.table.typeutils.BaseRowTypeInfo
+import org.apache.flink.table.types.utils.TypeConversions
+import org.apache.flink.table.typeutils.FieldInfoUtils
 import org.apache.flink.types.Row
 
 import org.apache.calcite.rel.RelNode
@@ -173,15 +174,23 @@ abstract class TableTestUtilBase(test: TableTestBase, isBatch: Boolean) {
     */
   def addTableSource[T: TypeInformation](name: String, fields: Expression*): Table = {
     val typeInfo: TypeInformation[T] = implicitly[TypeInformation[T]]
-    val fieldTypes: Array[TypeInformation[_]] = typeInfo match {
-      case tt: TupleTypeInfo[_] => (0 until tt.getArity).map(tt.getTypeAt).toArray
-      case ct: CaseClassTypeInfo[_] => (0 until ct.getArity).map(ct.getTypeAt).toArray
-      case at: AtomicType[_] => Array[TypeInformation[_]](at)
-      case _ => throw new TableException(s"Unsupported type info: $typeInfo")
+
+    val tableSchema = if (fields.isEmpty) {
+      val fieldTypes: Array[TypeInformation[_]] = typeInfo match {
+        case tt: TupleTypeInfo[_] => (0 until tt.getArity).map(tt.getTypeAt).toArray
+        case ct: CaseClassTypeInfo[_] => (0 until ct.getArity).map(ct.getTypeAt).toArray
+        case at: AtomicType[_] => Array[TypeInformation[_]](at)
+        case pojo: PojoTypeInfo[_] => (0 until pojo.getArity).map(pojo.getTypeAt).toArray
+        case _ => throw new TableException(s"Unsupported type info: $typeInfo")
+      }
+      val types = fieldTypes.map(TypeConversions.fromLegacyInfoToDataType)
+      val names = FieldInfoUtils.getFieldNames(typeInfo)
+      TableSchema.builder().fields(names, types).build()
+    } else {
+      FieldInfoUtils.getFieldsInfo(typeInfo, fields.toArray).toTableSchema
     }
-    val fieldsInfo = org.apache.flink.table.typeutils.FieldInfoUtils.getFieldsInfo(
-      typeInfo, fields.toArray)
-    addTableSource(name, new TestTableSource(isBatch, fieldsInfo.toTableSchema))
+
+    addTableSource(name, new TestTableSource(isBatch, tableSchema))
   }
 
   /**
@@ -475,11 +484,15 @@ abstract class TableTestUtil(
   protected val testingTableEnv: TestingTableEnvironment =
     TestingTableEnvironment.create(setting, catalogManager)
   val tableEnv: TableEnvironment = testingTableEnv
+  tableEnv.getConfig.getConfiguration.setString(
+    ExecutionConfigOptions.SQL_EXEC_SHUFFLE_MODE, ShuffleMode.PIPELINED.toString)
 
   private val env: StreamExecutionEnvironment = getPlanner.getExecEnv
   env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
   override def getTableEnv: TableEnvironment = tableEnv
+
+  def getStreamEnv: StreamExecutionEnvironment = env
 
   /**
     * Create a [[TestTableSource]] with the given schema, table stats and unique keys,
@@ -698,7 +711,7 @@ case class StreamTableTestUtil(
   }
 
   def buildStreamProgram(firstProgramNameToRemove: String): Unit = {
-    val program = FlinkStreamProgram.buildProgram(tableEnv.getConfig.getConf)
+    val program = FlinkStreamProgram.buildProgram(tableEnv.getConfig.getConfiguration)
     var startRemove = false
     program.getProgramNames.foreach {
       name =>
@@ -709,17 +722,29 @@ case class StreamTableTestUtil(
           program.remove(name)
         }
     }
-    val calciteConfig = CalciteConfig.createBuilder(tableEnv.getConfig.getCalciteConfig)
+    replaceStreamProgram(program)
+  }
+
+  def replaceStreamProgram(program: FlinkChainedProgram[StreamOptimizeContext]): Unit = {
+    var calciteConfig = TableConfigUtils.getCalciteConfig(tableEnv.getConfig)
+    calciteConfig = CalciteConfig.createBuilder(calciteConfig)
       .replaceStreamProgram(program).build()
-    tableEnv.getConfig.setCalciteConfig(calciteConfig)
+    tableEnv.getConfig.setPlannerConfig(calciteConfig)
+  }
+
+  def getStreamProgram(): FlinkChainedProgram[StreamOptimizeContext] = {
+    val tableConfig = tableEnv.getConfig
+    val calciteConfig = TableConfigUtils.getCalciteConfig(tableConfig)
+    calciteConfig.getStreamProgram.getOrElse(FlinkStreamProgram.buildProgram(
+      tableConfig.getConfiguration))
   }
 
   def enableMiniBatch(): Unit = {
-    tableEnv.getConfig.getConf.setBoolean(
+    tableEnv.getConfig.getConfiguration.setBoolean(
       ExecutionConfigOptions.SQL_EXEC_MINIBATCH_ENABLED, true)
-    tableEnv.getConfig.getConf.setString(
+    tableEnv.getConfig.getConfiguration.setString(
       ExecutionConfigOptions.SQL_EXEC_MINIBATCH_ALLOW_LATENCY, "1 s")
-    tableEnv.getConfig.getConf.setLong(ExecutionConfigOptions.SQL_EXEC_MINIBATCH_SIZE, 3L)
+    tableEnv.getConfig.getConfiguration.setLong(ExecutionConfigOptions.SQL_EXEC_MINIBATCH_SIZE, 3L)
   }
 
   def createAppendTableSink(
@@ -770,7 +795,7 @@ case class BatchTableTestUtil(
   extends TableTestUtil(test, true, catalogManager) {
 
   def buildBatchProgram(firstProgramNameToRemove: String): Unit = {
-    val program = FlinkBatchProgram.buildProgram(tableEnv.getConfig.getConf)
+    val program = FlinkBatchProgram.buildProgram(tableEnv.getConfig.getConfiguration)
     var startRemove = false
     program.getProgramNames.foreach {
       name =>
@@ -781,9 +806,21 @@ case class BatchTableTestUtil(
           program.remove(name)
         }
     }
-    val calciteConfig = CalciteConfig.createBuilder(tableEnv.getConfig.getCalciteConfig)
+    replaceBatchProgram(program)
+  }
+
+  def replaceBatchProgram(program: FlinkChainedProgram[BatchOptimizeContext]): Unit = {
+    var calciteConfig = TableConfigUtils.getCalciteConfig(tableEnv.getConfig)
+    calciteConfig = CalciteConfig.createBuilder(calciteConfig)
       .replaceBatchProgram(program).build()
-    tableEnv.getConfig.setCalciteConfig(calciteConfig)
+    tableEnv.getConfig.setPlannerConfig(calciteConfig)
+  }
+
+  def getBatchProgram(): FlinkChainedProgram[BatchOptimizeContext] = {
+    val tableConfig = tableEnv.getConfig
+    val calciteConfig = TableConfigUtils.getCalciteConfig(tableConfig)
+    calciteConfig.getBatchProgram.getOrElse(FlinkBatchProgram.buildProgram(
+      tableConfig.getConfiguration))
   }
 
   def createCollectTableSink(
@@ -995,7 +1032,7 @@ object TableTestUtil {
     val streamType = dataStream.getType
     // get field names and types for all non-replaced fields
     val typeInfoSchema = fields.map((f: Array[Expression]) => {
-      val fieldsInfo = org.apache.flink.table.typeutils.FieldInfoUtils.getFieldsInfo(streamType, f)
+      val fieldsInfo = FieldInfoUtils.getFieldsInfo(streamType, f)
       // check if event-time is enabled
       if (fieldsInfo.isRowtimeDefined &&
         (execEnv.getStreamTimeCharacteristic ne TimeCharacteristic.EventTime)) {
@@ -1005,7 +1042,7 @@ object TableTestUtil {
           execEnv.getStreamTimeCharacteristic))
       }
       fieldsInfo
-    }).getOrElse(org.apache.flink.table.typeutils.FieldInfoUtils.getFieldsInfo(streamType))
+    }).getOrElse(FieldInfoUtils.getFieldsInfo(streamType))
 
     val fieldCnt = typeInfoSchema.getFieldTypes.length
     val dataStreamQueryOperation = new DataStreamQueryOperation(

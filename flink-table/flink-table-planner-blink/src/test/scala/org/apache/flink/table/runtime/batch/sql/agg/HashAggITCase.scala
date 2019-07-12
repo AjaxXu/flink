@@ -28,7 +28,7 @@ class HashAggITCase
     extends AggregateITCaseBase("HashAggregate") {
 
   override def prepareAggOp(): Unit = {
-    tEnv.getConfig.getConf.setString(
+    tEnv.getConfig.getConfiguration.setString(
       ExecutionConfigOptions.SQL_EXEC_DISABLED_OPERATORS, "SortAgg")
   }
 }

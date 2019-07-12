@@ -77,8 +77,8 @@ class LookupJoinTest extends TableTestBase with Serializable {
     expectExceptionThrown(
       "SELECT * FROM MyTable AS T RIGHT JOIN temporalTest " +
         "FOR SYSTEM_TIME AS OF T.proctime AS D ON T.a = D.id",
-      "Unsupported join type for semi-join RIGHT",
-      classOf[IllegalArgumentException]
+      "Correlate has invalid join type RIGHT",
+      classOf[AssertionError]
     )
 
     // only support join on raw key of right table
@@ -312,6 +312,19 @@ class LookupJoinTest extends TableTestBase with Serializable {
          |SELECT b, count(a), sum(c), sum(d)
          |FROM ($sql2) AS T
          |GROUP BY b
+      """.stripMargin
+
+    streamUtil.verifyPlan(sql)
+  }
+
+  @Test
+  def testJoinTemporalTableWithTrueCondition(): Unit = {
+    val sql =
+      """
+        |SELECT * FROM MyTable AS T
+        |JOIN temporalTest FOR SYSTEM_TIME AS OF T.proctime AS D
+        |ON true
+        |WHERE T.c > 1000
       """.stripMargin
 
     streamUtil.verifyPlan(sql)

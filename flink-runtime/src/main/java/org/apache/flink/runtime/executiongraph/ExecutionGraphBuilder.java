@@ -100,13 +100,52 @@ public class ExecutionGraphBuilder {
 			ShuffleMaster<?> shuffleMaster,
 			PartitionTracker partitionTracker) throws JobExecutionException, JobException {
 
+		final FailoverStrategy.Factory failoverStrategy =
+			FailoverStrategyLoader.loadFailoverStrategy(jobManagerConfig, log);
+
+		return buildGraph(
+			prior,
+			jobGraph,
+			jobManagerConfig,
+			futureExecutor,
+			ioExecutor,
+			slotProvider,
+			classLoader,
+			recoveryFactory,
+			rpcTimeout,
+			restartStrategy,
+			metrics,
+			blobWriter,
+			allocationTimeout,
+			log,
+			shuffleMaster,
+			partitionTracker,
+			failoverStrategy);
+	}
+
+	public static ExecutionGraph buildGraph(
+		@Nullable ExecutionGraph prior,
+		JobGraph jobGraph,
+		Configuration jobManagerConfig,
+		ScheduledExecutorService futureExecutor,
+		Executor ioExecutor,
+		SlotProvider slotProvider,
+		ClassLoader classLoader,
+		CheckpointRecoveryFactory recoveryFactory,
+		Time rpcTimeout,
+		RestartStrategy restartStrategy,
+		MetricGroup metrics,
+		BlobWriter blobWriter,
+		Time allocationTimeout,
+		Logger log,
+		ShuffleMaster<?> shuffleMaster,
+		PartitionTracker partitionTracker,
+		FailoverStrategy.Factory failoverStrategyFactory) throws JobExecutionException, JobException {
+
 		checkNotNull(jobGraph, "job graph cannot be null");
 
 		final String jobName = jobGraph.getName();
 		final JobID jobId = jobGraph.getJobID();
-
-		final FailoverStrategy.Factory failoverStrategy =
-				FailoverStrategyLoader.loadFailoverStrategy(jobManagerConfig, log);
 
 		final JobInformation jobInformation = new JobInformation(
 			jobId,
@@ -136,7 +175,7 @@ public class ExecutionGraphBuilder {
 					rpcTimeout,
 					restartStrategy,
 					maxPriorAttemptsHistoryLength,
-					failoverStrategy,
+					failoverStrategyFactory,
 					slotProvider,
 					classLoader,
 					blobWriter,
@@ -144,16 +183,14 @@ public class ExecutionGraphBuilder {
 					partitionReleaseStrategyFactory,
 					shuffleMaster,
 					forcePartitionReleaseOnConsumption,
-					partitionTracker);
+					partitionTracker,
+					jobGraph.getScheduleMode(),
+					jobGraph.getAllowQueuedScheduling());
 		} catch (IOException e) {
 			throw new JobException("Could not create the ExecutionGraph.", e);
 		}
 
 		// set the basic properties
-
-		// 流式作业中，schedule mode固定是EAGER的(立即调度所有task)
-		executionGraph.setScheduleMode(jobGraph.getScheduleMode());
-		executionGraph.setQueuedSchedulingAllowed(jobGraph.getAllowQueuedScheduling());
 
 		try {
 			// 设置json plan

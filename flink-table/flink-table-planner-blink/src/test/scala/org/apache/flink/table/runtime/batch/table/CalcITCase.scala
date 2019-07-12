@@ -279,9 +279,9 @@ class CalcITCase extends BatchTestBase {
     TestBaseUtils.compareResultAsText(results.asJava, expected)
   }
 
-  @Test
   // TODO
-  @Ignore("remove ignore while https://github.com/apache/flink/pull/9006 is merged")
+  @Ignore("Implicit type converter")
+  @Test
   def testAdvancedDataTypes(): Unit = {
 
     val bd1 = BigDecimal("78.454654654654654").bigDecimal
@@ -305,8 +305,6 @@ class CalcITCase extends BatchTestBase {
     TestBaseUtils.compareResultAsText(results.asJava, expected)
   }
 
-  // TODO
-  @Ignore("Type question, should be fixed later.")
   @Test
   def testUserDefinedScalarFunction() {
     registerFunction("hashCode", HashCode)
@@ -317,9 +315,9 @@ class CalcITCase extends BatchTestBase {
     TestBaseUtils.compareResultAsText(results.asJava, expected)
   }
 
-  @Test
   // TODO
-  @Ignore("remove ignore while https://github.com/apache/flink/pull/9006 is merged")
+  @Ignore("Implicit type converter")
+  @Test
   def testNumericAutocastInArithmetic() {
     val table = BatchTableEnvUtil.fromElements(tEnv,
       (1.toByte, 1.toShort, 1, 1L, 1.0f, 1.0d, 1L, 1001.1))

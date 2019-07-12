@@ -27,16 +27,14 @@ import org.apache.flink.types.Row
 
 import org.junit.{Before, Test}
 
-import java.util.TimeZone
-
 class TableSourceTest extends TableTestBase {
 
   private val util = streamTestUtil()
 
   @Before
   def setup(): Unit = {
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
     util.tableEnv.registerTableSource("FilterableTable", TestFilterableTableSource(false))
+    util.tableEnv.registerTableSource("PartitionableTable", new TestPartitionableTableSource(false))
   }
 
   @Test
@@ -317,6 +315,17 @@ class TableSourceTest extends TableTestBase {
   def testFilterPushDownWithUdf(): Unit = {
     util.addFunction("myUdf", Func1)
     util.verifyPlan("SELECT * FROM FilterableTable WHERE amount > 2 AND myUdf(amount) < 32")
+  }
+
+  @Test
+  def testPartitionTableSource(): Unit = {
+    util.verifyPlan("SELECT * FROM PartitionableTable WHERE part2 > 1 and id > 2 AND part1 = 'A' ")
+  }
+
+  @Test
+  def testPartitionTableSourceWithUdf(): Unit = {
+    util.addFunction("MyUdf", Func1)
+    util.verifyPlan("SELECT * FROM PartitionableTable WHERE id > 2 AND MyUdf(part2) < 3")
   }
 
   @Test

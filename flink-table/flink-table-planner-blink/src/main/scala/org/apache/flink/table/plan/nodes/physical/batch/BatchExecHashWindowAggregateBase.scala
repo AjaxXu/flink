@@ -30,7 +30,7 @@ import org.apache.flink.table.functions.UserDefinedFunction
 import org.apache.flink.table.plan.cost.{FlinkCost, FlinkCostFactory}
 import org.apache.flink.table.plan.logical.LogicalWindow
 import org.apache.flink.table.plan.nodes.exec.{BatchExecNode, ExecNode}
-import org.apache.flink.table.plan.nodes.resource.NodeResourceConfig
+import org.apache.flink.table.plan.nodes.resource.NodeResourceUtil
 import org.apache.flink.table.plan.util.AggregateUtil.transformToBatchAggregateInfoList
 import org.apache.flink.table.plan.util.FlinkRelMdUtil
 import org.apache.flink.table.planner.BatchPlanner
@@ -130,26 +130,30 @@ abstract class BatchExecHashWindowAggregateBase(
     val aggInfos = transformToBatchAggregateInfoList(
       aggCallToAggFunction.map(_._1), aggInputRowType)
 
-    val groupBufferLimitSize = config.getConf.getInteger(
+    val groupBufferLimitSize = config.getConfiguration.getInteger(
       ExecutionConfigOptions.SQL_EXEC_WINDOW_AGG_BUFFER_SIZE_LIMIT)
 
     val (windowSize: Long, slideSize: Long) = WindowCodeGenerator.getWindowDef(window)
 
-    val reservedManagedMem = config.getConf.getInteger(
-      ExecutionConfigOptions.SQL_RESOURCE_HASH_AGG_TABLE_MEM) * NodeResourceConfig.SIZE_IN_MB
+    val managedMemoryInMB = config.getConfiguration.getInteger(
+      ExecutionConfigOptions.SQL_RESOURCE_HASH_AGG_TABLE_MEM)
+    val managedMemory = managedMemoryInMB * NodeResourceUtil.SIZE_IN_MB
 
     val generatedOperator = new HashWindowCodeGenerator(
       ctx, relBuilder, window, inputTimeFieldIndex,
       inputTimeIsDate, namedProperties,
       aggInfos, inputRowType, grouping, auxGrouping, enableAssignPane, isMerge, isFinal).gen(
-      inputType, outputType, groupBufferLimitSize, reservedManagedMem, 0,
+      inputType, outputType, groupBufferLimitSize, managedMemory, 0,
       windowSize, slideSize)
     val operator = new CodeGenOperatorFactory[BaseRow](generatedOperator)
-    new OneInputTransformation(
+    val ret = new OneInputTransformation(
       input,
       getOperatorName,
       operator,
       BaseRowTypeInfo.of(outputType),
       getResource.getParallelism)
+    val resource = NodeResourceUtil.fromManagedMem(managedMemoryInMB)
+    ret.setResources(resource, resource)
+    ret
   }
 }

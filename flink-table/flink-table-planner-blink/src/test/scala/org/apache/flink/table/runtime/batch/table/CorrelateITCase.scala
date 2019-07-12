@@ -35,8 +35,6 @@ import java.sql.{Date, Timestamp}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-// TODO Enable after TypedFlinkTableFunction take fieldNames into consideration
-@Ignore
 class CorrelateITCase extends BatchTestBase {
 
   @Test
@@ -291,6 +289,8 @@ class CorrelateITCase extends BatchTestBase {
     TestBaseUtils.compareResultAsText(results.asJava, expected)
   }
 
+  // TODO
+  @Ignore("Add a rule to translate a Correlate without correlateSets to Join!")
   @Test
   def testTableFunctionWithVariableArguments(): Unit = {
     val varArgsFunc0 = new VarArgsFunc0
@@ -350,21 +350,6 @@ class CorrelateITCase extends BatchTestBase {
     val expected = "4"
     TestBaseUtils.compareResultAsText(results.asJava, expected)
   }
-
-//  @Test
-//  def testCorrelateAfterConcatAggWithConstantParam(): Unit = {
-//    val in = testData.as('a, 'b, 'c)
-//    val in2 = testData.as('a, 'b, 'c)
-//    val func0 = new TableFunc0
-//    val left = in.select('c.concat_agg("#") as 'd)
-//    val result = in2.join(left).as('a, 'b, 'c, 'd)
-//      .joinLateral(func0('c) as ('name, 'age))
-//      .select('a, 'c, 'name, 'age)
-//
-//    val results = executeQuery(result)
-//    val expected = "1,Jack#22,Jack,22\n2,John#19,John,19\n3,Anna#44,Anna,44"
-//    TestBaseUtils.compareResultAsText(results.asJava, expected)
-//  }
 
   @Test
   def testTableFunctionCollectorOpenClose(): Unit = {

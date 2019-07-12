@@ -84,7 +84,7 @@ public class StreamEdge implements Serializable {
 				selectedNames,
 				outputPartitioner,
 				outputTag,
-				ShuffleMode.PIPELINED);
+				ShuffleMode.UNDEFINED);
 	}
 
 	public StreamEdge(StreamNode sourceVertex, StreamNode targetVertex, int typeNumber,

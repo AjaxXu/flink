@@ -29,13 +29,13 @@ import org.apache.flink.table.plan.nodes.exec.{ExecNode, StreamExecNode}
 import org.apache.flink.table.planner.StreamPlanner
 import org.apache.flink.table.runtime.watermarkassigner.{MiniBatchAssignerOperator, MiniBatchedWatermarkAssignerOperator, WatermarkAssignerOperator}
 import org.apache.flink.table.typeutils.BaseRowTypeInfo
+import org.apache.flink.table.util.TableConfigUtils.getMillisecondFromConfigDuration
 import org.apache.flink.util.Preconditions
 
 import org.apache.calcite.plan.{RelOptCluster, RelTraitSet}
 import org.apache.calcite.rel.{RelNode, RelWriter}
 
 import java.util
-import java.util.Calendar
 
 import scala.collection.JavaConversions._
 
@@ -82,7 +82,7 @@ class StreamExecWatermarkAssigner(
       "None"
     } else if (miniBatchInterval.mode == MiniBatchMode.ProcTime) {
       val tableConfig = cluster.getPlanner.getContext.asInstanceOf[FlinkContext].getTableConfig
-      val miniBatchLatency = tableConfig.getMillisecondFromConfigDuration(
+      val miniBatchLatency = getMillisecondFromConfigDuration(tableConfig,
         ExecutionConfigOptions.SQL_EXEC_MINIBATCH_ALLOW_LATENCY)
       Preconditions.checkArgument(miniBatchLatency > 0,
         "MiniBatch latency must be greater that 0 ms.", null)
@@ -115,7 +115,7 @@ class StreamExecWatermarkAssigner(
     val config = planner.getTableConfig
     val inferredInterval = getTraitSet.getTrait(
       MiniBatchIntervalTraitDef.INSTANCE).getMiniBatchInterval
-    val idleTimeout = config.getMillisecondFromConfigDuration(
+    val idleTimeout = getMillisecondFromConfigDuration(config,
       ExecutionConfigOptions.SQL_EXEC_SOURCE_IDLE_TIMEOUT)
 
     val (operator, opName) = if (inferredInterval.mode == MiniBatchMode.None ||
@@ -136,12 +136,10 @@ class StreamExecWatermarkAssigner(
     } else {
       require(rowtimeFieldIndex.isDefined, "rowtimeFieldIndex should not be None")
       require(watermarkDelay.isDefined, "watermarkDelay should not be None")
-      // get the timezone offset.
-      val tzOffset = config.getTimeZone.getOffset(Calendar.ZONE_OFFSET)
       val op = new MiniBatchedWatermarkAssignerOperator(
         rowtimeFieldIndex.get,
         watermarkDelay.get,
-        tzOffset,
+        0,
         idleTimeout,
         inferredInterval.interval)
       val opName = s"MiniBatchedWatermarkAssigner(rowtime: ${rowtimeFieldIndex.get}," +

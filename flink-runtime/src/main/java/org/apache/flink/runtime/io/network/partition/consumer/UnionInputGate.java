@@ -87,9 +87,6 @@ public class UnionInputGate extends InputGate {
 	 */
 	private final Map<InputGate, Integer> inputGateToIndexOffsetMap;
 
-	/** Flag indicating whether partitions have been requested. */
-	private boolean requestedPartitionsFlag;
-
 	public UnionInputGate(InputGate... inputGates) {
 		this.inputGates = checkNotNull(inputGates);
 		checkArgument(inputGates.length > 1, "Union input gate should union at least two input gates.");
@@ -143,17 +140,6 @@ public class UnionInputGate extends InputGate {
 	}
 
 	@Override
-	public void requestPartitions() throws IOException, InterruptedException {
-		if (!requestedPartitionsFlag) {
-			for (InputGate inputGate : inputGates) {
-				inputGate.requestPartitions();
-			}
-
-			requestedPartitionsFlag = true;
-		}
-	}
-
-	@Override
 	public Optional<BufferOrEvent> getNext() throws IOException, InterruptedException {
 		return getNextBufferOrEvent(true);
 	}
@@ -167,10 +153,6 @@ public class UnionInputGate extends InputGate {
 		if (inputGatesWithRemainingData.isEmpty()) {
 			return Optional.empty();
 		}
-
-		// Make sure to request the partitions, if they have not been requested before.
-		//遍历每个InputGate，依次调用其requestPartitions方法
-		requestPartitions();
 
 		Optional<InputWithData<InputGate, BufferOrEvent>> next = waitAndGetNextData(blocking);
 		if (!next.isPresent()) {
