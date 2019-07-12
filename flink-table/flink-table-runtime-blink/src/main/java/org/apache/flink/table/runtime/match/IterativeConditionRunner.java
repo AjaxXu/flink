@@ -27,6 +27,7 @@ import org.apache.flink.table.generated.GeneratedFunction;
 /**
  * A {@link RichIterativeCondition} wrapper to delegate invocation to the code generated
  * {@link RichIterativeCondition}.
+ * 一个{@link RichIterativeCondition}包装器，用于将调用委托给生成的代码{@link RichIterativeCondition}。
  */
 public class IterativeConditionRunner extends RichIterativeCondition<BaseRow> {
 	private static final long serialVersionUID = 1L;

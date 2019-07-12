@@ -45,6 +45,7 @@ import java.util.Map;
 
 /**
  * A CoProcessFunction to execute time-bounded stream inner-join.
+ * CoProcessFunction执行时间有限流inner join.
  * Two kinds of time criteria:
  * "L.time between R.time + X and R.time + Y" or "R.time between L.time - Y and L.time - X"
  * X and Y might be negative or positive and X <= Y.
@@ -69,13 +70,17 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 	private transient FlatJoinFunction<BaseRow, BaseRow, BaseRow> joinFunction;
 
 	// cache to store rows form the left stream
+	// 存储左边流的row的caoche
 	private transient MapState<Long, List<Tuple2<BaseRow, Boolean>>> leftCache;
 	// cache to store rows from the right stream
+	// 存储右边流的row的caoche
 	private transient MapState<Long, List<Tuple2<BaseRow, Boolean>>> rightCache;
 
 	// state to record the timer on the left stream. 0 means no timer set
+	// 左边流的timer
 	private transient ValueState<Long> leftTimerState;
 	// state to record the timer on the right stream. 0 means no timer set
+	// 右边流的timer
 	private transient ValueState<Long> rightTimerState;
 
 	// Points in time until which the respective cache has been cleaned.
@@ -164,22 +169,26 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 		if (rightExpirationTime < rightQualifiedUpperBound) {
 			// Upper bound of current join window has not passed the cache expiration time yet.
 			// There might be qualifying rows in the cache that the current row needs to be joined with.
+			// 更新右边过期时间
 			rightExpirationTime = calExpirationTime(leftOperatorTime, rightRelativeSize);
 			// Join the leftRow with rows from the right cache.
+			// leftRow 和right cache中的行连接
 			Iterator<Map.Entry<Long, List<Tuple2<BaseRow, Boolean>>>> rightIterator = rightCache.iterator();
 			while (rightIterator.hasNext()) {
 				Map.Entry<Long, List<Tuple2<BaseRow, Boolean>>> rightEntry = rightIterator.next();
 				Long rightTime = rightEntry.getKey();
 				if (rightTime >= rightQualifiedLowerBound && rightTime <= rightQualifiedUpperBound) {
+					// R.time between L.time - Y and L.time - X
 					List<Tuple2<BaseRow, Boolean>> rightRows = rightEntry.getValue();
 					boolean entryUpdated = false;
 					for (Tuple2<BaseRow, Boolean> tuple : rightRows) {
 						joinCollector.reset();
 						joinFunction.join(leftRow, tuple.f0, joinCollector);
 						emitted = emitted || joinCollector.isEmitted();
-						if (joinType.isRightOuter()) {
+						if (joinType.isRightOuter()) { // join is full or right outer
 							if (!tuple.f1 && joinCollector.isEmitted()) {
 								// Mark the right row as being successfully joined and emitted.
+								// 标记right row被成功join和发出去
 								tuple.f1 = true;
 								entryUpdated = true;
 							}
@@ -191,12 +200,14 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 					}
 				}
 				// Clean up the expired right cache row, clean the cache while join
+				// 清除right cache中过期的row
 				if (rightTime <= rightExpirationTime) {
 					if (joinType.isRightOuter()) {
 						List<Tuple2<BaseRow, Boolean>> rightRows = rightEntry.getValue();
 						rightRows.forEach((Tuple2<BaseRow, Boolean> tuple) -> {
 							if (!tuple.f1) {
 								// Emit a null padding result if the right row has never been successfully joined.
+								// 发送null 填充的结果，如果右边没被成功join过
 								joinCollector.collect(paddingUtil.padRight(tuple.f0));
 							}
 						});
@@ -211,6 +222,7 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 			// Operator time of right stream has not exceeded the upper window bound of the current
 			// row. Put it into the left cache, since later coming records from the right stream are
 			// expected to be joined with it.
+			// 右流的operator时间未超过当前行的窗口上限。将它放入左侧缓存中，因为后来来自右侧流的记录将与其连接。
 			List<Tuple2<BaseRow, Boolean>> leftRowList = leftCache.get(timeForLeftRow);
 			if (leftRowList == null) {
 				leftRowList = new ArrayList<>(1);
@@ -219,9 +231,10 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 			leftCache.put(timeForLeftRow, leftRowList);
 			if (rightTimerState.value() == null) {
 				// Register a timer on the RIGHT stream to remove rows.
+				// 注册一个timer，清除右边流上的行
 				registerCleanUpTimer(ctx, timeForLeftRow, true);
 			}
-		} else if (!emitted && joinType.isLeftOuter()) {
+		} else if (!emitted && joinType.isLeftOuter()) { // operator time of right stream had exceeded the upper window
 			// Emit a null padding result if the left row is not cached and successfully joined.
 			joinCollector.collect(paddingUtil.padLeft(leftRow));
 		}
@@ -241,6 +254,7 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 		// We use leftExpirationTime as an approximation of the leftMinimumTime here,
 		// since leftExpirationTime <= leftMinimumTime is always true.
 		if (leftExpirationTime < leftQualifiedUpperBound) {
+			// 更新左边过期时间
 			leftExpirationTime = calExpirationTime(rightOperatorTime, leftRelativeSize);
 			// Join the rightRow with rows from the left cache.
 			Iterator<Map.Entry<Long, List<Tuple2<BaseRow, Boolean>>>> leftIterator = leftCache.iterator();
@@ -340,6 +354,7 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 
 	/**
 	 * Calculate the expiration time with the given operator time and relative window size.
+	 * 计算过期时间
 	 *
 	 * @param operatorTime the operator time
 	 * @param relativeSize the relative window size
@@ -400,7 +415,7 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 		while (iterator.hasNext()) {
 			Map.Entry<Long, List<Tuple2<BaseRow, Boolean>>> entry = iterator.next();
 			Long rowTime = entry.getKey();
-			if (rowTime <= expirationTime) {
+			if (rowTime <= expirationTime) { // expired
 				if (removeLeft && joinType.isLeftOuter()) {
 					List<Tuple2<BaseRow, Boolean>> rows = entry.getValue();
 					rows.forEach((Tuple2<BaseRow, Boolean> tuple) -> {
@@ -421,6 +436,7 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 				iterator.remove();
 			} else {
 				// We find the earliest timestamp that is still valid.
+				// 找到有效的row中最早的timestamp
 				if (rowTime < earliestTimestamp || earliestTimestamp < 0) {
 					earliestTimestamp = rowTime;
 				}
@@ -432,6 +448,7 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 			registerCleanUpTimer(ctx, earliestTimestamp, removeLeft);
 		} else {
 			// No rows left in the cache. Clear the states and the timerState will be 0.
+			// cache中没有rows
 			timerState.clear();
 			rowCache.clear();
 		}
@@ -441,6 +458,9 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 	/**
 	 * Update the operator time of the two streams.
 	 * Must be the first call in all processing methods (i.e., processElement(), onTimer()).
+	 * 在处理方法中，该方法必须被优先调用。
+	 * 对于processing time: leftOperatorTime = rightOperatorTime = currentProcessingTime()
+	 * 对于event time: leftOperatorTime = rightOperatorTime = currentWatermark()
 	 *
 	 * @param ctx the context to acquire watermarks
 	 */
@@ -448,11 +468,11 @@ abstract class TimeBoundedStreamJoin extends CoProcessFunction<BaseRow, BaseRow,
 
 	/**
 	 * Return the time for the target row from the left stream.
-	 * Requires that [[updateOperatorTime()]] has been called before.
+	 * Requires that {@link #updateOperatorTime(Context)} has been called before.
 	 *
 	 * @param ctx the runtime context
 	 * @param row the target row
-	 * @return time for the target row
+	 * @return time for the target row。返回左边流目标行的time
 	 */
 	abstract long getTimeForLeftStream(Context ctx, BaseRow row);
 

@@ -32,6 +32,7 @@ import org.apache.flink.util.Collector;
 
 /**
  * The join runner to lookup the dimension table.
+ * 用于查找维度表的同步联接运行器。
  */
 public class LookupJoinRunner extends ProcessFunction<BaseRow, BaseRow> {
 	private static final long serialVersionUID = -4521543015709964733L;
@@ -39,7 +40,7 @@ public class LookupJoinRunner extends ProcessFunction<BaseRow, BaseRow> {
 	private final GeneratedFunction<FlatMapFunction<BaseRow, BaseRow>> generatedFetcher;
 	private final GeneratedCollector<TableFunctionCollector<BaseRow>> generatedCollector;
 	private final boolean isLeftOuterJoin;
-	private final int tableFieldsCount;
+	private final int rightRowFieldsCount;
 
 	private transient FlatMapFunction<BaseRow, BaseRow> fetcher;
 	protected transient TableFunctionCollector<BaseRow> collector;
@@ -50,11 +51,11 @@ public class LookupJoinRunner extends ProcessFunction<BaseRow, BaseRow> {
 			GeneratedFunction<FlatMapFunction<BaseRow, BaseRow>> generatedFetcher,
 			GeneratedCollector<TableFunctionCollector<BaseRow>> generatedCollector,
 			boolean isLeftOuterJoin,
-			int tableFieldsCount) {
+			int rightRowFieldsCount) {
 		this.generatedFetcher = generatedFetcher;
 		this.generatedCollector = generatedCollector;
 		this.isLeftOuterJoin = isLeftOuterJoin;
-		this.tableFieldsCount = tableFieldsCount;
+		this.rightRowFieldsCount = rightRowFieldsCount;
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class LookupJoinRunner extends ProcessFunction<BaseRow, BaseRow> {
 		FunctionUtils.openFunction(fetcher, parameters);
 		FunctionUtils.openFunction(collector, parameters);
 
-		this.nullRow = new GenericRow(tableFieldsCount);
+		this.nullRow = new GenericRow(rightRowFieldsCount);
 		this.outRow = new JoinedRow();
 	}
 

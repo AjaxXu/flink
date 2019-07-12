@@ -26,6 +26,7 @@ import org.apache.flink.table.typeutils.BaseRowTypeInfo;
 
 /**
  * A KeySelector which will extract key from BaseRow. The key type is BinaryRow.
+ * 一个KeySelector，它将从BaseRow中提取key。key类型是BinaryRow。
  */
 public class BinaryRowKeySelector implements BaseRowKeySelector {
 

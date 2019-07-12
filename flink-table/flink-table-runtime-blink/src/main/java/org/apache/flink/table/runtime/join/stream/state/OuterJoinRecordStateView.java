@@ -30,6 +30,8 @@ import org.apache.flink.table.dataformat.BaseRow;
  * which is the number of records associated this record with other side. This is an
  * important information when to send/retract a null padding row, to avoid recompute the
  * associated numbers every time.
+ * 我们应该与记录一起存储的附加信息是关联数，它是与join另一边相关的记录数。这是发送/撤回空填充行的重要信息，
+ * 以避免每次重新计算关联的数字。
  *
  * @see JoinRecordStateView
  */

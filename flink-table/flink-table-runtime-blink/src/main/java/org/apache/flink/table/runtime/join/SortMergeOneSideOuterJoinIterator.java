@@ -29,6 +29,7 @@ import java.io.IOException;
 
 /**
  * Gets probeRow and match rows for left/right join.
+ * 对left/right join获得probeRow和match rows
  */
 public class SortMergeOneSideOuterJoinIterator extends SortMergeJoinIterator {
 

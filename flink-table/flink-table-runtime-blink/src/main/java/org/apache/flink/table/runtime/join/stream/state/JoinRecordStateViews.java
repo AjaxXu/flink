@@ -41,6 +41,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * Utility to create a {@link JoinRecordStateView} depends on {@link JoinInputSideSpec}.
+ * 根据{@link JoinInputSideSpec}创建{@link JoinRecordStateView}的实用程序。
  */
 public final class JoinRecordStateViews {
 
@@ -101,6 +102,7 @@ public final class JoinRecordStateViews {
 				stateName,
 				recordType);
 			if (!ttlConfig.equals(StateTtlConfig.DISABLED)) {
+				// 允许超时配置时，设置它
 				recordStateDesc.enableTimeToLive(ttlConfig);
 			}
 			this.recordState = ctx.getState(recordStateDesc);
@@ -110,6 +112,7 @@ public final class JoinRecordStateViews {
 
 		@Override
 		public void addRecord(BaseRow record) throws Exception {
+			// 添加到状态中
 			recordState.update(record);
 		}
 
@@ -132,6 +135,7 @@ public final class JoinRecordStateViews {
 	private static final class InputSideHasUniqueKey implements JoinRecordStateView {
 
 		// stores record in the mapping <UK, Record>
+		// record中的唯一键到record的映射
 		private final MapState<BaseRow, BaseRow> recordState;
 		private final KeySelector<BaseRow, BaseRow> uniqueKeySelector;
 
@@ -175,6 +179,7 @@ public final class JoinRecordStateViews {
 
 	private static final class InputSideHasNoUniqueKey implements JoinRecordStateView {
 
+		// record 到数量的映射
 		private final MapState<BaseRow, Integer> recordState;
 
 		private InputSideHasNoUniqueKey(

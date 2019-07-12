@@ -30,6 +30,7 @@ import org.apache.flink.table.typeutils.BaseRowSerializer;
 
 /**
  * The UnboundedFollowing window frame.
+ * UnboundedFollowing窗口frame
  * See {@link RowUnboundedFollowingOverFrame} and {@link RangeUnboundedFollowingOverFrame}.
  */
 public abstract class UnboundedFollowingOverFrame implements OverWindowFrame {
@@ -76,6 +77,7 @@ public abstract class UnboundedFollowingOverFrame implements OverWindowFrame {
 		inputIndex = 0;
 	}
 
+	// 计算从firstRow开始后所有行的累计值
 	BaseRow accumulateIterator(
 			boolean bufferUpdated,
 			BinaryRow firstRow,

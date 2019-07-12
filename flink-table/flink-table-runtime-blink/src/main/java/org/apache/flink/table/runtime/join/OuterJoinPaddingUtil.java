@@ -28,6 +28,7 @@ import java.io.Serializable;
 
 /**
  * An utility to generate reusable padding results for outer joins.
+ * 用于为外连接生成可重用填充结果的实用程序。
  */
 public class OuterJoinPaddingUtil implements Serializable {
 
@@ -63,6 +64,7 @@ public class OuterJoinPaddingUtil implements Serializable {
 
 	/**
 	 * Returns a padding result with the given right row.
+	 * 填充右边
 	 *
 	 * @param rightRow the right row to pad
 	 * @return the reusable null padding result
@@ -73,6 +75,7 @@ public class OuterJoinPaddingUtil implements Serializable {
 
 	/**
 	 * Returns a padding result with the given left row.
+	 * 填充左边
 	 *
 	 * @param leftRow the left row to pad
 	 * @return the reusable null padding result

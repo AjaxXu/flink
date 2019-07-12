@@ -67,6 +67,7 @@ public interface ResettableRowBuffer extends Closeable {
 
 		/**
 		 * Re-initialize the iterator, start from begin row.
+		 * 重新初始化iterator
 		 */
 		void reset() throws IOException;
 	}

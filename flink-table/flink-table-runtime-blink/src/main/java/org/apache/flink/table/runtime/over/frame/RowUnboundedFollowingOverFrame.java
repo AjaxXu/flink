@@ -33,7 +33,7 @@ import org.apache.flink.table.types.logical.RowType;
  */
 public class RowUnboundedFollowingOverFrame extends UnboundedFollowingOverFrame {
 
-	private long leftBound;
+	private long leftBound; // 按代码实现来看，应该是个负数
 
 	public RowUnboundedFollowingOverFrame(
 			RowType valueType,

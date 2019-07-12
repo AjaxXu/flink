@@ -34,7 +34,7 @@ import org.apache.flink.table.runtime.context.ExecutionContext;
 public class RangeUnboundedPrecedingOverFrame extends UnboundedPrecedingOverFrame {
 
 	private GeneratedRecordComparator boundComparator;
-	private RecordComparator rbound;
+	private RecordComparator rbound; // rang中following相关的比较已经写在比较器里面了
 
 	public RangeUnboundedPrecedingOverFrame(
 			GeneratedAggsHandleFunction aggsHandleFunction,

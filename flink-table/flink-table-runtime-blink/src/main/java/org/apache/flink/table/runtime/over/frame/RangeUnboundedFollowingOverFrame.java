@@ -37,7 +37,7 @@ import org.apache.flink.table.types.logical.RowType;
 public class RangeUnboundedFollowingOverFrame extends UnboundedFollowingOverFrame {
 
 	private GeneratedRecordComparator boundComparator;
-	private RecordComparator lbound;
+	private RecordComparator lbound; // rang中PRECEDING相关的比较已经写在比较器里面了
 
 	public RangeUnboundedFollowingOverFrame(
 			RowType valueType,

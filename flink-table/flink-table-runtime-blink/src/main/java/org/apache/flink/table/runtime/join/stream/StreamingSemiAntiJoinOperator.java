@@ -31,6 +31,7 @@ import org.apache.flink.table.typeutils.BaseRowTypeInfo;
 
 /**
  * Streaming unbounded Join operator which supports SEMI/ANTI JOIN.
+ * 无限流上支持SEMI/ANTI JOIN的算子
  */
 public class StreamingSemiAntiJoinOperator extends AbstractStreamingJoinOperator {
 

@@ -114,6 +114,7 @@ public class AsyncLookupJoinWithCalcRunner extends AsyncLookupJoinRunner {
 			if (result == null || result.size() == 0) {
 				joinConditionResultFuture.complete(result);
 			} else {
+				// 如果不为null，则使用calc函数计算。计算后的内容放入calcCollector
 				for (BaseRow row : result) {
 					try {
 						calc.flatMap(row, calcCollector);

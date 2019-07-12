@@ -84,14 +84,14 @@ public abstract class HashJoinOperator extends TableStreamOperator<BaseRow>
 	public void open() throws Exception {
 		super.open();
 
-		ClassLoader cl = getContainingTask().getUserCodeClassLoader();
+		ClassLoader cl = getRuntimeContext().getUserCodeClassLoader();
 
 		final AbstractRowSerializer buildSerializer = (AbstractRowSerializer) getOperatorConfig()
-			.getTypeSerializerIn1(getUserCodeClassloader());
+			.getTypeSerializerIn1(cl);
 		final AbstractRowSerializer probeSerializer = (AbstractRowSerializer) getOperatorConfig()
-			.getTypeSerializerIn2(getUserCodeClassloader());
+			.getTypeSerializerIn2(cl);
 
-		boolean hashJoinUseBitMaps = getContainingTask().getEnvironment().getTaskConfiguration()
+		boolean useBloomFilters = getContainingTask().getEnvironment().getTaskConfiguration()
 				.getBoolean(AlgorithmOptions.HASH_JOIN_BLOOM_FILTERS);
 
 		int parallel = getRuntimeContext().getNumberOfParallelSubtasks();
@@ -103,7 +103,8 @@ public abstract class HashJoinOperator extends TableStreamOperator<BaseRow>
 		this.table = new BinaryHashTable(
 				getContainingTask().getJobConfiguration(),
 				getContainingTask(),
-				buildSerializer, probeSerializer,
+				buildSerializer,
+				probeSerializer,
 				parameter.buildProjectionCode.newInstance(cl),
 				parameter.probeProjectionCode.newInstance(cl),
 				getContainingTask().getEnvironment().getMemoryManager(),
@@ -113,7 +114,7 @@ public abstract class HashJoinOperator extends TableStreamOperator<BaseRow>
 				getContainingTask().getEnvironment().getIOManager(),
 				parameter.buildRowSize,
 				parameter.buildRowCount / parallel,
-				hashJoinUseBitMaps,
+				useBloomFilters,
 				type,
 				condition,
 				reverseJoinFunction,
@@ -216,9 +217,9 @@ public abstract class HashJoinOperator extends TableStreamOperator<BaseRow>
 	}
 
 	public static HashJoinOperator newHashJoinOperator(
-			long minMemorySize,
+			long reservedMemorySize,
 			long maxMemorySize,
-			long eachRequestMemorySize,
+			long perRequestMemorySize,
 			HashJoinType type,
 			GeneratedJoinCondition condFuncCode,
 			boolean reverseJoinFunction,
@@ -230,7 +231,7 @@ public abstract class HashJoinOperator extends TableStreamOperator<BaseRow>
 			long buildRowCount,
 			long probeRowCount,
 			RowType keyType) {
-		HashJoinParameter parameter = new HashJoinParameter(minMemorySize, maxMemorySize, eachRequestMemorySize,
+		HashJoinParameter parameter = new HashJoinParameter(reservedMemorySize, maxMemorySize, perRequestMemorySize,
 				type, condFuncCode, reverseJoinFunction, filterNullKeys, buildProjectionCode, probeProjectionCode,
 				tryDistinctBuildRow, buildRowSize, buildRowCount, probeRowCount, keyType);
 		switch (type) {

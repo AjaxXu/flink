@@ -33,7 +33,7 @@ import org.apache.flink.table.types.logical.RowType;
  */
 public class RowSlidingOverFrame extends SlidingOverFrame {
 
-	private final long leftBound;
+	private final long leftBound; // 按代码实现来看，应该是个负数
 	private final long rightBound;
 
 	/**
@@ -69,6 +69,7 @@ public class RowSlidingOverFrame extends SlidingOverFrame {
 		boolean bufferUpdated = index == 0;
 
 		// Drop all rows from the buffer util left bound.
+		// 丢弃buffer中的行知道left bound
 		while (!buffer.isEmpty() && inputLeftIndex < index + leftBound) {
 			buffer.remove();
 			inputLeftIndex += 1;
@@ -76,6 +77,7 @@ public class RowSlidingOverFrame extends SlidingOverFrame {
 		}
 
 		// Add all rows to the buffer util right bound.
+		// 将所有行加入到buffer中知道right bound
 		while (nextRow != null && inputRightIndex <= index + rightBound) {
 			if (inputLeftIndex < index + leftBound) {
 				inputLeftIndex += 1;

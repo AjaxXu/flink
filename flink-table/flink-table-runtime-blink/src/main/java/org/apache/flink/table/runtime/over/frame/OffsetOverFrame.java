@@ -29,6 +29,7 @@ import java.io.Serializable;
 
 /**
  * The offset window frame calculates frames containing LEAD/LAG statements.
+ * 偏移窗口框架计算包含LEAD/LAG语句的帧。
  *
  * <p>See {@code LeadLagAggFunction}.
  */
@@ -42,7 +43,7 @@ public class OffsetOverFrame implements OverWindowFrame {
 
 	//inputIterator and inputIndex are need when calcOffsetFunc is null.
 	private ResettableExternalBuffer.BufferIterator inputIterator;
-	private long inputIndex = 0L;
+	private long inputIndex = 0L; // 对应的beginRow
 
 	//externalBuffer is need when calcOffsetFunc is not null.
 	private ResettableExternalBuffer externalBuffer;
@@ -77,6 +78,7 @@ public class OffsetOverFrame implements OverWindowFrame {
 		processor.setAccumulators(processor.createAccumulators());
 		currentBufferLength = rows.size();
 		if (calcOffsetFunc == null) {
+			// 如果offset计算函数为null，inputIndex就设置为构造函数传入的offset
 			inputIndex = offset;
 			if (inputIterator != null) {
 				inputIterator.close();
@@ -87,6 +89,7 @@ public class OffsetOverFrame implements OverWindowFrame {
 				inputIterator = rows.newIterator();
 			}
 		} else {
+			// offset 根据row计算
 			externalBuffer = rows;
 		}
 	}
@@ -95,9 +98,11 @@ public class OffsetOverFrame implements OverWindowFrame {
 	public BaseRow process(int index, BaseRow current) throws Exception {
 		if (calcOffsetFunc != null) {
 			//poor performance here
+			// lag/lead函数计算offset
 			long realIndex = calcOffsetFunc.calc(current) + index;
 			if (realIndex >= 0 && realIndex < currentBufferLength) {
 				ResettableExternalBuffer.BufferIterator tempIterator = externalBuffer.newIterator((int) realIndex);
+				// 累加
 				processor.accumulate(OverWindowFrame.getNextOrNull(tempIterator));
 				tempIterator.close();
 			} else {
@@ -120,6 +125,7 @@ public class OffsetOverFrame implements OverWindowFrame {
 
 	/**
 	 * Calc offset from base row.
+	 * 从BaseRow计算offset
 	 */
 	public interface CalcOffsetFunc extends Serializable {
 

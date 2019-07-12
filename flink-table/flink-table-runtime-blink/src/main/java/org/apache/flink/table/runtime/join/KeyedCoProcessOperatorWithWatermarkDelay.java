@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 
 /**
  * A {@link KeyedCoProcessOperator} that supports holding back watermarks with a static delay.
+ * 支持保持一个固定延迟的watermark
  */
 public class KeyedCoProcessOperatorWithWatermarkDelay<K, IN1, IN2, OUT>
 		extends LegacyKeyedCoProcessOperator<K, IN1, IN2, OUT> {
@@ -42,6 +43,7 @@ public class KeyedCoProcessOperatorWithWatermarkDelay<K, IN1, IN2, OUT>
 		Preconditions.checkArgument(watermarkDelay >= 0, "The watermark delay should be non-negative.");
 		if (watermarkDelay == 0) {
 			// emits watermark without delay
+			// 直接发送watermark
 			emitter = (Consumer<Watermark> & Serializable) (Watermark mark) -> output.emitWatermark(mark);
 		} else {
 			// emits watermark with delay

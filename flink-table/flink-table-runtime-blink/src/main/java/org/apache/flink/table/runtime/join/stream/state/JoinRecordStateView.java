@@ -24,6 +24,7 @@ import org.apache.flink.table.dataformat.BaseRow;
  * A {@link JoinRecordStateView} is a view to the join state. It encapsulates the join state and
  * provides some APIs facing the input records. The join state is used to store
  * input records. The structure of the join state is vary depending on the {@link JoinInputSideSpec}.
+ * {@link JoinRecordStateView}是连接状态的视图
  *
  * <p>For example: when the {@link JoinInputSideSpec} is JoinKeyContainsUniqueKey, we will use
  * {@link org.apache.flink.api.common.state.ValueState} to store records which has better performance.

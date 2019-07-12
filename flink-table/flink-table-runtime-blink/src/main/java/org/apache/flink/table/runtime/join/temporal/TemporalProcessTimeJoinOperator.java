@@ -36,6 +36,7 @@ import org.apache.flink.table.typeutils.BaseRowTypeInfo;
 
 /**
  * The operator to temporal join a stream on processing time.
+ * 在processing time上临时join流的算子
  */
 public class TemporalProcessTimeJoinOperator
 	extends BaseTwoInputStreamOperatorWithStateRetention {
@@ -72,6 +73,7 @@ public class TemporalProcessTimeJoinOperator
 		this.collector = new TimestampedCollector<>(output);
 		this.outRow = new JoinedRow();
 		// consider watermark from left stream only.
+		// 只考虑左边流中的watermark
 		super.processWatermark2(Watermark.MAX_WATERMARK);
 	}
 
@@ -84,19 +86,23 @@ public class TemporalProcessTimeJoinOperator
 
 		BaseRow leftSideRow = element.getValue();
 		if (joinCondition.apply(leftSideRow, rightSideRow)) {
+			// join成功
 			outRow.setHeader(leftSideRow.getHeader());
 			outRow.replace(leftSideRow, rightSideRow);
 			collector.collect(outRow);
 		}
+		// 重新注册超时清除timer
 		registerProcessingCleanupTimer();
 	}
 
 	@Override
 	public void processElement2(StreamRecord<BaseRow> element) throws Exception {
 		if (BaseRowUtil.isAccumulateMsg(element.getValue())) {
+			// 累加信息，更新
 			rightState.update(element.getValue());
 			registerProcessingCleanupTimer();
 		} else {
+			// 撤回信息，清除
 			rightState.clear();
 			cleanupLastTimer();
 		}

@@ -33,6 +33,7 @@ import java.util.ArrayDeque;
 
 /**
  * The sliding window frame.
+ * 滑动窗口frame
  * See {@link RowSlidingOverFrame} and {@link RangeSlidingOverFrame}.
  */
 public abstract class SlidingOverFrame implements OverWindowFrame {
@@ -94,6 +95,7 @@ public abstract class SlidingOverFrame implements OverWindowFrame {
 		if (bufferUpdated) {
 			//cleanup the retired accumulators value
 			processor.setAccumulators(processor.createAccumulators());
+			// buffer中所有行做累加
 			for (BaseRow row : buffer) {
 				processor.accumulate(row);
 			}

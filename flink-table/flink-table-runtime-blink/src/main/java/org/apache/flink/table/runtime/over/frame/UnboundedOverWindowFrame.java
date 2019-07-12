@@ -32,6 +32,7 @@ import org.apache.flink.table.typeutils.BaseRowSerializer;
  * The unbounded window frame calculates frames with the following SQL forms:
  * ... (No Frame Definition)
  * ... BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+ * 无限流frame
  */
 public class UnboundedOverWindowFrame implements OverWindowFrame {
 
@@ -39,7 +40,7 @@ public class UnboundedOverWindowFrame implements OverWindowFrame {
 	private final RowType valueType;
 
 	private AggsHandleFunction processor;
-	private BaseRow accValue;
+	private BaseRow accValue; // 累计值
 
 	private BaseRowSerializer valueSer;
 
@@ -75,6 +76,7 @@ public class UnboundedOverWindowFrame implements OverWindowFrame {
 
 	@Override
 	public BaseRow process(int index, BaseRow current) throws Exception {
+		// 对于无线流上(UNBOUNDED PRECEDING 和 UNBOUNDED FOLLOWING)计算结果是一样的
 		return accValue;
 	}
 }

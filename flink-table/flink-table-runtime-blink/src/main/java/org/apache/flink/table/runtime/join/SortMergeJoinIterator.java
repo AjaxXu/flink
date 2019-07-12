@@ -30,6 +30,7 @@ import java.io.IOException;
 
 /**
  * Gets probeRow and match rows for inner/left/right join.
+ * 对inner/left/right join获得probeRow和match rows
  */
 public abstract class SortMergeJoinIterator implements Closeable {
 
@@ -76,11 +77,13 @@ public abstract class SortMergeJoinIterator implements Closeable {
 		advanceNextSuitableBufferedRow(); // advance first buffered row to compare with probe key.
 	}
 
+	// 获得下一个合适的ProbeRow，非空+不被过滤
 	protected boolean advanceNextSuitableProbeRow() throws IOException {
 		while (nextProbe() && shouldFilter(probeKey)) {}
 		return probeRow != null;
 	}
 
+	// 获得下一个合适的BufferedRow，非空+不被过滤
 	protected boolean advanceNextSuitableBufferedRow() throws IOException {
 		while (nextBuffered() && shouldFilter(bufferedKey)) {}
 		return bufferedRow != null;

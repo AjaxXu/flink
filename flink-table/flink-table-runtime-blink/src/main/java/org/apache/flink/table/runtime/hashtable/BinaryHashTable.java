@@ -298,6 +298,7 @@ public class BinaryHashTable extends BaseHybridHashTable {
 		} else {
 			if (p.testHashBloomFilter(hash)) {
 				BinaryRow row = originProbeSideSerializer.toBinaryRow(record);
+				// 将探测row也溢出
 				p.insertIntoProbeBuffer(row);
 			}
 			return false;

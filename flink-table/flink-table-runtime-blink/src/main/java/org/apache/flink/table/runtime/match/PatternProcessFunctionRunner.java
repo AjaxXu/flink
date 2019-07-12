@@ -31,6 +31,7 @@ import java.util.Map;
 /**
  * A {@link PatternProcessFunction} wrapper to delegate invocation to the code generated
  * {@link PatternProcessFunction}.
+ * 一个{@link PatternProcessFunction}包装器，用于将调用委托给生成的代码{@link PatternProcessFunction}。
  */
 public class PatternProcessFunctionRunner extends PatternProcessFunction<BaseRow, BaseRow> {
 	private static final long serialVersionUID = 1L;

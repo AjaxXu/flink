@@ -25,6 +25,7 @@ import org.apache.flink.table.generated.RecordComparator;
 
 /**
  * An implementation of {@link EventComparator} based on a generated {@link RecordComparator}.
+ * 基于生成的{@link RecordComparator}实现{@link EventComparator}。
  */
 public class BaseRowEventComparator implements EventComparator<BaseRow> {
 	private static final long serialVersionUID = 1L;

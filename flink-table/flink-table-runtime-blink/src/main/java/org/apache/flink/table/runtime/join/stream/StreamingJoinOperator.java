@@ -33,6 +33,7 @@ import org.apache.flink.table.typeutils.BaseRowTypeInfo;
 
 /**
  * Streaming unbounded Join operator which supports INNER/LEFT/RIGHT/FULL JOIN.
+ * 无限流上支持INNER/LEFT/RIGHT/FULL JOIN的算子
  */
 public class StreamingJoinOperator extends AbstractStreamingJoinOperator {
 
@@ -76,10 +77,11 @@ public class StreamingJoinOperator extends AbstractStreamingJoinOperator {
 		this.rightNullRow = new GenericRow(rightType.getArity());
 
 		// initialize states
+		// 初始化状态
 		if (leftIsOuter) {
 			this.leftRecordStateView = OuterJoinRecordStateViews.create(
 				getRuntimeContext(),
-				"left-records",
+				LEFT_RECORDS_STATE_NAME,
 				leftInputSideSpec,
 				leftType,
 				minRetentionTime,
@@ -87,7 +89,7 @@ public class StreamingJoinOperator extends AbstractStreamingJoinOperator {
 		} else {
 			this.leftRecordStateView = JoinRecordStateViews.create(
 				getRuntimeContext(),
-				"left-records",
+				LEFT_RECORDS_STATE_NAME,
 				leftInputSideSpec,
 				leftType,
 				minRetentionTime,
@@ -97,7 +99,7 @@ public class StreamingJoinOperator extends AbstractStreamingJoinOperator {
 		if (rightIsOuter) {
 			this.rightRecordStateView = OuterJoinRecordStateViews.create(
 				getRuntimeContext(),
-				"right-records",
+				RIGHT_RECORDS_STATE_NAME,
 				rightInputSideSpec,
 				rightType,
 				minRetentionTime,
@@ -105,7 +107,7 @@ public class StreamingJoinOperator extends AbstractStreamingJoinOperator {
 		} else {
 			this.rightRecordStateView = JoinRecordStateViews.create(
 				getRuntimeContext(),
-				"right-records",
+				RIGHT_RECORDS_STATE_NAME,
 				rightInputSideSpec,
 				rightType,
 				minRetentionTime,

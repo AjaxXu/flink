@@ -25,6 +25,7 @@ import org.apache.flink.table.typeutils.BaseRowTypeInfo;
 
 /**
  * The function to execute row(event) time bounded stream inner-join.
+ * row(event) time有限流 join
  */
 public final class RowTimeBoundedStreamJoin extends TimeBoundedStreamJoin {
 

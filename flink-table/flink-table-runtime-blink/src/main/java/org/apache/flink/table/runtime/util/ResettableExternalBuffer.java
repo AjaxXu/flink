@@ -58,6 +58,7 @@ import static org.apache.flink.util.Preconditions.checkState;
  * when memory is not enough. When the spill is completed, the records are written to memory again.
  * The returned iterator reads the data in write order (read spilled records first). It supports
  * infinite length. It can open multiple Iterators. It support new iterator with beginRow.
+ * 一个可重置的外部buffer，对BinaryRow.
  *
  * <p>NOTE: Not supports reading while writing. In the face of concurrent modification, the
  * iterator fails quickly and cleanly, rather than risking arbitrary, non-deterministic behavior
@@ -85,7 +86,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 	// If each row is of fixed length
 	private boolean isRowAllInFixedPart;
 
-	private final List<ChannelWithMeta> spilledChannelIDs;
+	private final List<ChannelWithMeta> spilledChannelIDs; // 溢出channel IDs
 	private final List<Integer> spilledChannelRowOffsets;
 	private int numRows;
 
@@ -93,6 +94,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 	private int iterOpenedCount;
 
 	// Times of reset() called. Used to check validity of iterators.
+	// reset的调用次数
 	private int externalBufferVersion;
 
 	private boolean addCompleted;
@@ -143,9 +145,11 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 		checkState(!addCompleted, "This buffer has add completed.");
 		if (!inMemoryBuffer.write(row)) {
 			// Check if record is too big.
+			// 只有调用了reset才会等于0
 			if (inMemoryBuffer.getCurrentDataBufferOffset() == 0) {
 				throwTooBigException(row);
 			}
+			// 溢出
 			spill();
 			if (!inMemoryBuffer.write(row)) {
 				throwTooBigException(row);
@@ -193,6 +197,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 		FileIOChannel.ID channel = ioManager.createChannel();
 
 		final BlockChannelWriter<MemorySegment> writer = this.ioManager.createBlockChannelWriter(channel);
+		// inMemoryBuffer使用的segment数
 		int numRecordBuffers = inMemoryBuffer.getNumRecordBuffers();
 		ArrayList<MemorySegment> segments = inMemoryBuffer.getRecordBufferSegments();
 		try {
@@ -258,6 +263,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 		MutableObjectIterator<BinaryRow> currentIterator;
 
 		// memory for file reader to store read result
+		// 用于file reader存储读取结果的内存
 		List<MemorySegment> freeMemory = null;
 		BlockChannelReader<MemorySegment> fileReader;
 		int currentChannelID = -1;
@@ -359,6 +365,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 		private boolean nextIterator() throws IOException {
 			if (currentChannelID == -1) {
 				// First call to next iterator. Fetch iterator according to beginRow.
+				// 第一次调用nextIterator
 				if (isRowAllInFixedPart) {
 					gotoAllInFixedPartRow(beginRow);
 				} else {
@@ -366,6 +373,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 				}
 			} else if (currentChannelID == Integer.MAX_VALUE) {
 				// The last one is in memory, so the end.
+				// 最后一个已经在内存中，且已经读过了
 				return false;
 			} else if (currentChannelID < spilledChannelIDs.size() - 1) {
 				// Next spilled iterator.
@@ -379,11 +387,13 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 
 		private boolean iteratorNeedsUpdate() {
 			int size = spilledChannelRowOffsets.size();
+			// 1.有溢出行，2.当前iterator是in memory iterator，3.nextRow是溢出的行
 			return size > 0
-				&& currentChannelID == Integer.MAX_VALUE
+				&& currentChannelID == Integer.MAX_VALUE // newMemoryIterator()中设置,说明在内存中
 				&& nextRow <= spilledChannelRowOffsets.get(size - 1);
 		}
 
+		// 在调用advanceNext()的过程中，发生了异常。而刚好要读取的数据在溢出的channel中，所以就需要更新
 		private void updateIteratorIfNeeded() throws IOException {
 			if (iteratorNeedsUpdate()) {
 				reuse.clear();
@@ -411,8 +421,10 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 
 		private void gotoAllInFixedPartRow(int beginRow) throws IOException {
 			// Find which channel contains the row.
+			// 找到哪个channel包含该行
 			int beginChannel = upperBound(beginRow, spilledChannelRowOffsets);
 			// Find the row number in its own channel (0-indexed).
+			// 在channel中找到行数
 			int beginRowInChannel = getBeginIndexInChannel(beginRow, beginChannel);
 			if (beginRow == numRows) {
 				// Row number out of range! Should return an "empty" iterator.
@@ -446,6 +458,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 				return;
 			}
 
+			// offset从0开始
 			if (beginChannel < spilledChannelRowOffsets.size()) {
 				// Data on disk
 				newSpilledIterator(beginChannel);
@@ -454,6 +467,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 				newMemoryIterator();
 			}
 
+			// 由于是变长，且iterator从0开始，需要先跳过beginRowInChannel个row
 			nextRow -= beginRowInChannel;
 			for (int i = 0; i < beginRowInChannel; i++) {
 				advanceNext();
@@ -528,6 +542,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 		}
 
 		// Find the index of the first element which is strictly greater than `goal` in `list`.
+		// 找到list中第一个element严格大于goal的索引
 		// `list` must be sorted.
 		// If every element in `list` is not larger than `goal`, return `list.size()`.
 		private int upperBound(int goal, List<Integer> list) {
@@ -561,6 +576,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 
 	/**
 	 * In memory buffer that stores records to memorySegments, returns a iterator that map from memory.
+	 * 将记录存储到memorySegments的内存缓冲区，返回从内存映射的迭代器。
 	 */
 	private class InMemoryBuffer implements Closeable {
 
@@ -671,6 +687,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 			public BinaryRow next(BinaryRow reuse) throws IOException {
 				try {
 					if (expectedRecordCount != recordCount) {
+						// fast failing check
 						throw new ConcurrentModificationException();
 					}
 					if (nextRow >= recordCount) {

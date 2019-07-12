@@ -28,6 +28,7 @@ import org.apache.flink.table.runtime.util.ResettableExternalBuffer;
 
 /**
  * The UnboundedPreceding window frame.
+ * UnboundedPreceding窗口frame
  * See {@link RowUnboundedPrecedingOverFrame} and {@link RangeUnboundedPrecedingOverFrame}.
  */
 public abstract class UnboundedPrecedingOverFrame implements OverWindowFrame {

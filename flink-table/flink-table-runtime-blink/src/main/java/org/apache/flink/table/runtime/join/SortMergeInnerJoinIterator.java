@@ -29,6 +29,7 @@ import java.io.IOException;
 
 /**
  * Gets probeRow and match rows for inner join.
+ * 对inner join获得probeRow和match rows
  */
 public class SortMergeInnerJoinIterator extends SortMergeJoinIterator {
 
@@ -62,14 +63,17 @@ public class SortMergeInnerJoinIterator extends SortMergeJoinIterator {
 			while (true) {
 				int cmp = keyComparator.compare(probeKey, bufferedKey);
 				if (cmp > 0) {
+					// bufferedKey小
 					if (!advanceNextSuitableBufferedRow()) {
 						return false;
 					}
 				} else if (cmp < 0) {
+					// probeKey小
 					if (!advanceNextSuitableProbeRow()) {
 						return false;
 					}
 				} else {
+					// key 匹配
 					bufferMatchingRows();
 					return true;
 				}

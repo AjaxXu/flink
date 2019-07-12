@@ -24,6 +24,7 @@ import org.apache.flink.table.typeutils.BaseRowTypeInfo;
 
 /**
  * A utility class which key is always empty no matter what the input row is.
+ * 一个实用程序类，无论输入行是什么，该键始终为空。
  */
 public class NullBinaryRowKeySelector implements BaseRowKeySelector {
 

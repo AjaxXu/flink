@@ -39,6 +39,7 @@ import java.util.Optional;
  * An abstract {@link TwoInputStreamOperator} that allows its subclasses to clean
  * up their state based on a TTL. This TTL should be specified in the provided
  * {@code minRetentionTime} and {@code maxRetentionTime}.
+ * 允许子类根据TTL清楚状态
  *
  * <p>For each known key, this operator registers a timer (in processing time) to
  * fire after the TTL expires. When the timer fires, the subclass can decide which
@@ -80,9 +81,11 @@ public abstract class BaseTwoInputStreamOperatorWithStateRetention
 
 	@Override
 	public void open() throws Exception {
+		// 初始化时间服务
 		initializeTimerService();
 
 		if (stateCleaningEnabled) {
+			// 允许状态清楚，获取最后注册清楚时间的state
 			ValueStateDescriptor<Long> cleanupStateDescriptor =
 				new ValueStateDescriptor<>(CLEANUP_TIMESTAMP, Types.LONG);
 			latestRegisteredCleanupTimer = getRuntimeContext().getState(cleanupStateDescriptor);
@@ -146,6 +149,7 @@ public abstract class BaseTwoInputStreamOperatorWithStateRetention
 			Long cleanupTime = latestRegisteredCleanupTimer.value();
 
 			if (cleanupTime != null && cleanupTime == timerTime) {
+				// state中的timestamp和触发的timestamp相同，则清楚状态
 				cleanupState(cleanupTime);
 				latestRegisteredCleanupTimer.clear();
 			}

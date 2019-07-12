@@ -31,7 +31,7 @@ import org.apache.flink.table.runtime.util.ResettableExternalBuffer;
  */
 public class RowUnboundedPrecedingOverFrame extends UnboundedPrecedingOverFrame {
 
-	private long rightBound;
+	private long rightBound; // following的行数
 
 	/**
 	 * Index of the right bound input row.
@@ -50,9 +50,14 @@ public class RowUnboundedPrecedingOverFrame extends UnboundedPrecedingOverFrame 
 		inputRightIndex = 0;
 	}
 
+	/**
+	 * 计算当前行之前+rightBound行的累计值。有可能数据没到当前行之后rightBound行就结束了，所以有个bufferUpdated做判断
+	 * @param index 当前行的index
+	 * @param current 当前行
+	 */
 	@Override
 	public BaseRow process(int index, BaseRow current) throws Exception {
-		boolean bufferUpdated = index == 0;
+		boolean bufferUpdated = index == 0; // processor中的值有没有更新
 
 		// Add all rows to the aggregates util right bound.
 		while (nextRow != null && inputRightIndex <= index + rightBound) {

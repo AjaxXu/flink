@@ -42,6 +42,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * Utility to create a {@link OuterJoinRecordStateViews} depends on {@link JoinInputSideSpec}.
+ * 根据{@link JoinInputSideSpec}创建{@link OuterJoinRecordStateViews}的实用程序。
  */
 public final class OuterJoinRecordStateViews {
 
@@ -287,7 +288,7 @@ public final class OuterJoinRecordStateViews {
 						return tuple;
 					} else {
 						Map.Entry<BaseRow, Tuple2<Integer, Integer>> entry = backingIterable.next();
-						tuple = Tuple2.of(entry.getKey(), entry.getValue().f1);
+						tuple = Tuple2.of(entry.getKey(), entry.getValue().f1); // row -> association
 						remainingTimes = entry.getValue().f0 - 1;
 						return tuple;
 					}

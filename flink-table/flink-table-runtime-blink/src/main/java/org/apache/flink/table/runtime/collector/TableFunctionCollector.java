@@ -23,7 +23,8 @@ import org.apache.flink.table.functions.TableFunction;
 import org.apache.flink.util.Collector;
 
 /**
- * The basic implementation of collector for {@link TableFunction}.{@link TableFunction}收集器的基本实现.
+ * The basic implementation of collector for {@link TableFunction}.
+ * {@link TableFunction}收集器的基本实现.
  */
 public abstract class TableFunctionCollector<T> extends AbstractRichFunction implements Collector<T> {
 

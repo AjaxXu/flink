@@ -40,7 +40,7 @@ public interface RowIterator<T extends BaseRow> {
 
 	/**
 	 * Retrieve the row from this iterator. This method is idempotent. It is illegal to call this
-	 * method after [[advanceNext()]] has returned `false`.
+	 * method after {@link #advanceNext()} has returned `false`.
 	 */
 	T getRow();
 }

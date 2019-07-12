@@ -28,6 +28,8 @@ import org.apache.flink.util.Collector;
 /**
  * ProcessFunction to copy a timestamp from a {@link BaseRow} field into the
  * {@link org.apache.flink.streaming.runtime.streamrecord.StreamRecord}.
+ * ProcessFunction将时间戳从{@link BaseRow}字段复制到
+ * {@link org.apache.flink.streaming.runtime.streamrecord.StreamRecord}。
  */
 public class RowtimeProcessFunction
 	extends ProcessFunction<BaseRow, BaseRow> implements ResultTypeQueryable<BaseRow> {

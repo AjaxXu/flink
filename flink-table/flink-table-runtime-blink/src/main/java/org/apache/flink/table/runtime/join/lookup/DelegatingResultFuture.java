@@ -28,6 +28,7 @@ import java.util.function.BiConsumer;
  * Delegates actions of {@link java.util.concurrent.CompletableFuture} to {@link ResultFuture}.
  * This is used as a bridge between {@link org.apache.flink.table.functions.AsyncTableFunction} and
  * {@link org.apache.flink.streaming.api.functions.async.AsyncFunction}.
+ * {@link java.util.concurrent.CompletableFuture}和{@link ResultFuture}之间转换的代理.
  */
 public class DelegatingResultFuture<OUT> implements BiConsumer<Collection<OUT>, Throwable> {
 
@@ -37,7 +38,7 @@ public class DelegatingResultFuture<OUT> implements BiConsumer<Collection<OUT>, 
 	public DelegatingResultFuture(ResultFuture<OUT> delegatedResultFuture) {
 		this.delegatedResultFuture = delegatedResultFuture;
 		this.completableFuture = new CompletableFuture<>();
-		this.completableFuture.whenComplete(this);
+		this.completableFuture.whenComplete(this); //completableFuture完成时调用this.accept函数
 	}
 
 	@Override

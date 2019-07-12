@@ -44,6 +44,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * Abstract implementation for streaming unbounded Join operator which defines some member fields
  * can be shared between different implementations.
+ * 无限流join操作的抽象实现类
  */
 public abstract class AbstractStreamingJoinOperator extends AbstractStreamOperator<BaseRow>
 	implements TwoInputStreamOperator<BaseRow, BaseRow, BaseRow> {
@@ -67,11 +68,13 @@ public abstract class AbstractStreamingJoinOperator extends AbstractStreamOperat
 
 	/**
 	 * No keys need to filter null.
+	 * 没有key需要过滤null
 	 */
 	private final boolean nullSafe;
 
 	/**
 	 * Filter null to all keys.
+	 * 所有key都要过滤null值
 	 */
 	private final boolean filterAllNulls;
 
@@ -87,7 +90,7 @@ public abstract class AbstractStreamingJoinOperator extends AbstractStreamOperat
 			GeneratedJoinCondition generatedJoinCondition,
 			JoinInputSideSpec leftInputSideSpec,
 			JoinInputSideSpec rightInputSideSpec,
-			boolean[] filterNullKeys,
+			boolean[] filterNullKeys, // join key的每个字段是否要过滤null值
 			long minRetentionTime) {
 		this.leftType = leftType;
 		this.rightType = rightType;
@@ -118,7 +121,7 @@ public abstract class AbstractStreamingJoinOperator extends AbstractStreamOperat
 	public void close() throws Exception {
 		super.close();
 		if (joinCondition != null) {
-			joinCondition.backingJoinCondition.close();
+			joinCondition.close();
 		}
 	}
 
@@ -128,7 +131,7 @@ public abstract class AbstractStreamingJoinOperator extends AbstractStreamOperat
 
 	private class JoinConditionWithNullFilters extends AbstractRichFunction implements JoinCondition {
 
-		final JoinCondition backingJoinCondition;
+		final JoinCondition backingJoinCondition; // 内置的实际的joinCondition
 
 		private JoinConditionWithNullFilters(JoinCondition backingJoinCondition) {
 			this.backingJoinCondition = backingJoinCondition;
@@ -136,16 +139,18 @@ public abstract class AbstractStreamingJoinOperator extends AbstractStreamOperat
 
 		@Override
 		public boolean apply(BaseRow left, BaseRow right) {
-			if (!nullSafe) { // is not null safe, return false if any null exists
-				// key is always BinaryRow
-				BinaryRow joinKey = (BinaryRow) getCurrentKey();
-				if (filterAllNulls ? joinKey.anyNull() : joinKey.anyNull(nullFilterKeys)) {
-					// find null present, return false directly
-					return false;
-				}
+			BinaryRow joinKey = (BinaryRow) getCurrentKey();
+			if (NullAwareJoinHelper.shouldFilter(nullSafe, filterAllNulls, nullFilterKeys, joinKey)) {
+				return false;
 			}
 			// test condition
 			return backingJoinCondition.apply(left, right);
+		}
+
+		@Override
+		public void close() throws Exception {
+			super.close();
+			backingJoinCondition.close();
 		}
 	}
 
@@ -191,21 +196,25 @@ public abstract class AbstractStreamingJoinOperator extends AbstractStreamOperat
 		 * input row.
 		 */
 		public static AssociatedRecords of(
-			BaseRow input,
+			BaseRow input, // table A
 			boolean inputIsLeft,
-			JoinRecordStateView otherSideStateView,
+			JoinRecordStateView otherSideStateView, // table B
 			JoinCondition condition) throws Exception {
 			List<OuterRecord> associations = new ArrayList<>();
 			if (otherSideStateView instanceof OuterJoinRecordStateView) {
+				// B是outer侧。这个时候假设B在右边，则可能是full join或者right outer join
 				OuterJoinRecordStateView outerStateView = (OuterJoinRecordStateView) otherSideStateView;
+				// 获得outer侧的record-association的迭代器
 				Iterable<Tuple2<BaseRow, Integer>> records = outerStateView.getRecordsAndNumOfAssociations();
 				for (Tuple2<BaseRow, Integer> record : records) {
 					boolean matched = inputIsLeft ? condition.apply(input, record.f0) : condition.apply(record.f0, input);
 					if (matched) {
+						// join成功
 						associations.add(new OuterRecord(record.f0, record.f1));
 					}
 				}
 			} else {
+				// B 不是outer侧
 				Iterable<BaseRow> records = otherSideStateView.getRecords();
 				for (BaseRow record : records) {
 					boolean matched = inputIsLeft ? condition.apply(input, record) : condition.apply(record, input);
@@ -259,6 +268,7 @@ public abstract class AbstractStreamingJoinOperator extends AbstractStreamOperat
 	 *
 	 * <p>When the record is from inner side (e.g. right side in LEFT OUTER JOIN), the
 	 * {@code numOfAssociations} will always be {@code -1}.
+	 * 当record是内侧的话，{@code numOfAssociations}将一直是-1
 	 */
 	protected static final class OuterRecord {
 		public final BaseRow record;

@@ -33,6 +33,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  */
 public class NullAwareJoinHelper {
 
+	// 返回需要过滤null的字段的index数组
 	public static int[] getNullFilterKeys(boolean[] filterNulls) {
 		checkNotNull(filterNulls);
 		List<Integer> nullFilterKeyList = new ArrayList<>();
@@ -44,9 +45,12 @@ public class NullAwareJoinHelper {
 		return ArrayUtils.toPrimitive(nullFilterKeyList.toArray(new Integer[0]));
 	}
 
+	// 是否需要过滤掉
 	public static boolean shouldFilter(
 			boolean nullSafe, boolean filterAllNulls,
 			int[] nullFilterKeys, BinaryRow key) {
+		// is not null safe, return false if any null exists.
+		// 如果任何null key存在，返回false
 		return !nullSafe && (filterAllNulls ? key.anyNull() : key.anyNull(nullFilterKeys));
 	}
 }

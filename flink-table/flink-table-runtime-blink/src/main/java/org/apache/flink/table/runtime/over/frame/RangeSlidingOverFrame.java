@@ -73,6 +73,7 @@ public class RangeSlidingOverFrame extends SlidingOverFrame {
 
 		// Drop all rows from the buffer for which the input row value is smaller than
 		// the output row lower bound.
+		// 从缓冲区中删除输入行值小于输出行下限的所有行
 		while (!buffer.isEmpty() && lbound.compare(buffer.peek(), current) < 0) {
 			buffer.remove();
 			bufferUpdated = true;
@@ -80,8 +81,8 @@ public class RangeSlidingOverFrame extends SlidingOverFrame {
 
 		// Add all rows to the buffer for which the input row value is equal to or less than
 		// the output row upper bound.
-		while (nextRow != null && rbound.compare(nextRow, current) <= 0) {
-			if (lbound.compare(nextRow, current) >= 0) {
+		while (nextRow != null && rbound.compare(nextRow, current) <= 0) { // 小于等于上限
+			if (lbound.compare(nextRow, current) >= 0) { // 大于等于下限
 				buffer.add(inputSer.copy(nextRow));
 				bufferUpdated = true;
 			}

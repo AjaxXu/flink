@@ -32,6 +32,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * The {@link JoinInputSideSpec} is ap specification which describes input side information of
  * a Join.
+ * 描述输入侧的信息
  */
 public class JoinInputSideSpec implements Serializable {
 	private static final long serialVersionUID = 3178408082297179959L;
