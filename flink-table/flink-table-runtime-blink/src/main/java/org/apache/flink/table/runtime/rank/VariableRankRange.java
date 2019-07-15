@@ -22,6 +22,7 @@ import java.util.List;
 
 /**
  * changing rank limit depends on input.
+ * 根据输入改变rank限制。
  */
 public class VariableRankRange implements RankRange {
 

@@ -20,7 +20,10 @@ package org.apache.flink.table.runtime.rank;
 
 import java.util.List;
 
-/** rankStart and rankEnd are inclusive, rankStart always start from one. */
+/**
+ * rankStart and rankEnd are inclusive, rankStart always start from one.
+ * rankStart和rankEnd是包含的，rankStart总是从一开始。
+ */
 public class ConstantRankRange implements RankRange {
 
 	private static final long serialVersionUID = 9062345289888078376L;

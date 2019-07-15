@@ -52,6 +52,7 @@ import java.util.TreeMap;
 /**
  * The function could handle update input stream. It is a fast version of {@link RetractableTopNFunction} which only hold
  * top n data in state, and keep sorted map in heap.
+ * 该函数可以处理更新输入流。 它是{@link RetractableTopNFunction}的快速版本，它只保存状态中的前n个数据，并在堆中保留有序映射。
  * However, the function only works in some special scenarios:
  * 1. sort field collation is ascending and its mono is decreasing, or sort field collation is descending and its mono
  * is increasing
@@ -70,6 +71,7 @@ public class UpdatableTopNFunction extends AbstractTopNFunction implements Check
 	// a map state stores mapping from row key to record which is in topN
 	// in tuple2, f0 is the record row, f1 is the index in the list of the same sort_key
 	// the f1 is used to preserve the record order in the same sort_key
+	// f0是record，f1是相同key中的index
 	private transient MapState<BaseRow, Tuple2<BaseRow, Integer>> dataState;
 
 	// a buffer stores mapping from sort key to rowKey list

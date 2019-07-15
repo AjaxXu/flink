@@ -144,6 +144,7 @@ public class RetractableTopNFunction extends AbstractTopNFunction {
 			dataState.put(sortKey, inputs);
 		} else {
 			// emit updates first
+			// 如果是撤回消息，先发送更新消息
 			retractRecordWithRowNumber(sortedMap, sortKey, input, out);
 
 			// and then update sortedMap
@@ -162,8 +163,8 @@ public class RetractableTopNFunction extends AbstractTopNFunction {
 						throw new RuntimeException(STATE_CLEARED_WARN_MSG);
 					}
 				} else {
-					throw new RuntimeException("Can not retract a non-existent record: ${inputBaseRow.toString}. " +
-							"This should never happen.");
+					throw new RuntimeException(String.format("Can not retract a non-existent record: %s. " +
+							"This should never happen.", input.toString()));
 				}
 			}
 
@@ -238,10 +239,12 @@ public class RetractableTopNFunction extends AbstractTopNFunction {
 			Map.Entry<BaseRow, Long> entry = iterator.next();
 			BaseRow key = entry.getKey();
 			if (!findsSortKey && key.equals(sortKey)) {
+				// 找到和sortKey相同的key，发送出去
 				curRank += entry.getValue();
 				collect(out, inputRow, curRank);
 				findsSortKey = true;
 			} else if (findsSortKey) {
+				// 已经找到了key，需要将后续的rank加1，再重新发送出去
 				List<BaseRow> inputs = dataState.get(key);
 				if (inputs == null) {
 					// Skip the data if it's state is cleared because of state ttl.
@@ -271,6 +274,9 @@ public class RetractableTopNFunction extends AbstractTopNFunction {
 	 * snapshot, We introduce ComparatorWrapper class to wrap the GeneratedRecordComparator, a ComparatorWrapper
 	 * instance is serializable, and a RecordComparator instance could be restored based on the deserialized
 	 * ComparatorWrapper instance.
+	 * 因为无法从快照恢复GeneratedRecordComparator生成的RecordComparator实例，所以我们引入ComparatorWrapper类
+	 * 来包装GeneratedRecordComparator，ComparatorWrapper实例是可序列化的，并且可以基于反序列化的ComparatorWrapper
+	 * 实例恢复RecordComparator实例。
 	 */
 	private static class ComparatorWrapper implements Comparator<BaseRow>, Serializable {
 

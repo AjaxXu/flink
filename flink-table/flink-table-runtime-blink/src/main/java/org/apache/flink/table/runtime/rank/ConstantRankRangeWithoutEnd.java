@@ -20,7 +20,10 @@ package org.apache.flink.table.runtime.rank;
 
 import java.util.List;
 
-/** ConstantRankRangeWithoutEnd is a RankRange which not specify RankEnd. */
+/**
+ * ConstantRankRangeWithoutEnd is a RankRange which not specify RankEnd.
+ * 没有RankEnd的RankRange
+ */
 public class ConstantRankRangeWithoutEnd implements RankRange {
 
 	private static final long serialVersionUID = -1944057111062598696L;

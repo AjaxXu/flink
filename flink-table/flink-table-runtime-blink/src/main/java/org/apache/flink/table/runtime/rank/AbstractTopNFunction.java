@@ -200,6 +200,7 @@ public abstract class AbstractTopNFunction extends KeyedProcessFunctionWithClean
 				rankEndState.update(rankEnd);
 				return rankEnd;
 			} else {
+				// 状态中已经有值了，和当前row中的rankEnd比较。不相同则无效counter加1
 				rankEnd = rankEndValue;
 				if (rankEnd != curRankEnd) {
 					// increment the invalid counter when the current rank end not equal to previous rank end

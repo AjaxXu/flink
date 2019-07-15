@@ -42,6 +42,7 @@ import java.util.Map;
 
 /**
  * The function could and only could handle append input stream.
+ * 该函数可以并且只能处理追加输入流。
  */
 public class AppendOnlyTopNFunction extends AbstractTopNFunction {
 
@@ -166,10 +167,12 @@ public class AppendOnlyTopNFunction extends AbstractTopNFunction {
 			Collection<BaseRow> records = entry.getValue();
 			// meet its own sort key
 			if (!findsSortKey && entry.getKey().equals(sortKey)) {
+				// 找到自己对应的key，将自己发送出去
 				curRank += records.size();
 				collect(out, input, curRank);
 				findsSortKey = true;
 			} else if (findsSortKey) {
+				// 已经找到了key，需要将后续的rank加1，再重新发送出去
 				Iterator<BaseRow> recordsIter = records.iterator();
 				while (recordsIter.hasNext() && isInRankEnd(curRank)) {
 					curRank += 1;

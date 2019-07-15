@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 /**
  * TopNBuffer stores mapping from sort key to records list, sortKey is BaseRow type, each record is BaseRow type.
  * TopNBuffer could also track rank number of each record.
+ * TopNBuffer保持sort key到record列表的映射，同时追踪每个record的rank number.
  */
 class TopNBuffer implements Serializable {
 
