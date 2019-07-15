@@ -16,21 +16,49 @@
  * limitations under the License.
  */
 
-package org.apache.flink.streaming.runtime.tasks.mailbox;
+package org.apache.flink.streaming.runtime.tasks.mailbox.execution;
 
 import javax.annotation.Nonnull;
 
-/**
- * Producer-facing side of the {@link Mailbox} interface. This is used to enqueue letters. Multiple producers threads
- * can put to the same mailbox.
- */
-public interface MailboxSender {
+import java.util.concurrent.RejectedExecutionException;
 
-	/**
-	 * Enqueues the given letter to the mailbox and blocks until there is capacity for a successful put.
-	 *
-	 * @param letter the letter to enqueue.
-	 * @throws MailboxStateException if the mailbox is quiesced or closed.
-	 */
-	void putMail(@Nonnull Runnable letter) throws  MailboxStateException;
+/**
+ * Dummy implementation of {@link MailboxExecutor} for testing.
+ */
+public class TestMailboxExecutor implements MailboxExecutor {
+
+	private final Object lock;
+
+	public TestMailboxExecutor(Object lock) {
+		this.lock = lock;
+	}
+
+	public TestMailboxExecutor() {
+		this(new Object());
+	}
+
+	@Override
+	public void execute(@Nonnull Runnable command) throws RejectedExecutionException {
+		synchronized (lock) {
+			command.run();
+			lock.notifyAll();
+		}
+	}
+
+	@Override
+	public void yield() throws InterruptedException {
+		synchronized (lock) {
+			lock.wait(1);
+		}
+	}
+
+	@Override
+	public boolean tryYield() {
+		return false;
+	}
+
+	@Override
+	public boolean isMailboxThread() {
+		return true;
+	}
 }

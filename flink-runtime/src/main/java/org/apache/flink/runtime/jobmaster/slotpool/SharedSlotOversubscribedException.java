@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,21 +16,25 @@
  * limitations under the License.
  */
 
-package org.apache.flink.streaming.runtime.tasks.mailbox;
-
-import javax.annotation.Nonnull;
+package org.apache.flink.runtime.jobmaster.slotpool;
 
 /**
- * Producer-facing side of the {@link Mailbox} interface. This is used to enqueue letters. Multiple producers threads
- * can put to the same mailbox.
+ * If a shared slot is over-allocated before it has been resolved,
+ * some requests will be rejected with this exception to ensure the
+ * total resource requested do not exceed the total resources. The
+ * released requests can be retried if couldRetry is marked.
  */
-public interface MailboxSender {
+class SharedSlotOversubscribedException extends Exception {
 
-	/**
-	 * Enqueues the given letter to the mailbox and blocks until there is capacity for a successful put.
-	 *
-	 * @param letter the letter to enqueue.
-	 * @throws MailboxStateException if the mailbox is quiesced or closed.
-	 */
-	void putMail(@Nonnull Runnable letter) throws  MailboxStateException;
+	/** Whether the requester can retry the request. */
+	private final boolean canRetry;
+
+	SharedSlotOversubscribedException(String message, boolean canRetry) {
+		super(message);
+		this.canRetry = canRetry;
+	}
+
+	boolean canRetry() {
+		return canRetry;
+	}
 }

@@ -16,21 +16,22 @@
  * limitations under the License.
  */
 
-package org.apache.flink.streaming.runtime.tasks.mailbox;
+package org.apache.flink.streaming.runtime.tasks.mailbox.execution;
 
-import javax.annotation.Nonnull;
+import org.apache.flink.annotation.Internal;
 
 /**
- * Producer-facing side of the {@link Mailbox} interface. This is used to enqueue letters. Multiple producers threads
- * can put to the same mailbox.
+ * Interface for the default action that is repeatedly invoked in the mailbox-loop.
  */
-public interface MailboxSender {
+@Internal
+public interface MailboxDefaultAction {
 
 	/**
-	 * Enqueues the given letter to the mailbox and blocks until there is capacity for a successful put.
+	 * This method implements the default action of the mailbox loop (e.g. processing one event from the input).
+	 * Implementations should (in general) be non-blocking.
 	 *
-	 * @param letter the letter to enqueue.
-	 * @throws MailboxStateException if the mailbox is quiesced or closed.
+	 * @param context context object for collaborative interaction between the default action and the mailbox loop.
+	 * @throws Exception on any problems in the action.
 	 */
-	void putMail(@Nonnull Runnable letter) throws  MailboxStateException;
+	void runDefaultAction(DefaultActionContext context) throws Exception;
 }

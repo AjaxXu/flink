@@ -18,19 +18,24 @@
 
 package org.apache.flink.streaming.runtime.tasks.mailbox;
 
-import javax.annotation.Nonnull;
-
 /**
- * Producer-facing side of the {@link Mailbox} interface. This is used to enqueue letters. Multiple producers threads
- * can put to the same mailbox.
+ * This exception signals that a method of the mailbox was invoked in a state that does not support the invocation,
+ * e.g. on the attempt to put a letter into a closed mailbox.
  */
-public interface MailboxSender {
+public class MailboxStateException extends Exception {
 
-	/**
-	 * Enqueues the given letter to the mailbox and blocks until there is capacity for a successful put.
-	 *
-	 * @param letter the letter to enqueue.
-	 * @throws MailboxStateException if the mailbox is quiesced or closed.
-	 */
-	void putMail(@Nonnull Runnable letter) throws  MailboxStateException;
+	MailboxStateException() {
+	}
+
+	MailboxStateException(String message) {
+		super(message);
+	}
+
+	MailboxStateException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	MailboxStateException(Throwable cause) {
+		super(cause);
+	}
 }

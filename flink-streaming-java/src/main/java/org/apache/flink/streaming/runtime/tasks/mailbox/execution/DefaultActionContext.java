@@ -16,21 +16,23 @@
  * limitations under the License.
  */
 
-package org.apache.flink.streaming.runtime.tasks.mailbox;
-
-import javax.annotation.Nonnull;
+package org.apache.flink.streaming.runtime.tasks.mailbox.execution;
 
 /**
- * Producer-facing side of the {@link Mailbox} interface. This is used to enqueue letters. Multiple producers threads
- * can put to the same mailbox.
+ * This context is a feedback interface for the default action to interact with the mailbox execution. In particular
+ * it offers ways to signal that the execution of the default action should be finished or temporarily suspended.
  */
-public interface MailboxSender {
+public interface DefaultActionContext {
 
 	/**
-	 * Enqueues the given letter to the mailbox and blocks until there is capacity for a successful put.
-	 *
-	 * @param letter the letter to enqueue.
-	 * @throws MailboxStateException if the mailbox is quiesced or closed.
+	 * This method must be called to end the stream task when all actions for the tasks have been performed. This
+	 * method can be invoked from any thread.
 	 */
-	void putMail(@Nonnull Runnable letter) throws  MailboxStateException;
+	void allActionsCompleted();
+
+	/**
+	 * Calling this method signals that the mailbox-thread should (temporarily) stop invoking the default action,
+	 * e.g. because there is currently no input available. This method must be invoked from the mailbox-thread only!
+	 */
+	SuspendedMailboxDefaultAction suspendDefaultAction();
 }

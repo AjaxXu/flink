@@ -16,21 +16,14 @@
  * limitations under the License.
  */
 
-package org.apache.flink.streaming.runtime.tasks.mailbox;
+package org.apache.flink.streaming.runtime.tasks.mailbox.execution;
 
-import javax.annotation.Nonnull;
+import org.apache.flink.streaming.runtime.tasks.mailbox.Mailbox;
+
+import java.util.concurrent.ExecutorService;
 
 /**
- * Producer-facing side of the {@link Mailbox} interface. This is used to enqueue letters. Multiple producers threads
- * can put to the same mailbox.
+ * Interface for an {@link ExecutorService} build around a {@link Mailbox}-based execution model.
  */
-public interface MailboxSender {
-
-	/**
-	 * Enqueues the given letter to the mailbox and blocks until there is capacity for a successful put.
-	 *
-	 * @param letter the letter to enqueue.
-	 * @throws MailboxStateException if the mailbox is quiesced or closed.
-	 */
-	void putMail(@Nonnull Runnable letter) throws  MailboxStateException;
+public interface MailboxExecutorService extends MailboxExecutor, ExecutorService {
 }
