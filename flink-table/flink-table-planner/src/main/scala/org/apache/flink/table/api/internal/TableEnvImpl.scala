@@ -64,9 +64,10 @@ abstract class TableEnvImpl(
   protected val builtinDatabaseName: String = catalogManager.getCurrentDatabase
 
   // Table API/SQL function catalog
-  private[flink] val functionCatalog: FunctionCatalog = new FunctionCatalog(
-    builtinCatalogName,
-    builtinDatabaseName)
+  private[flink] val functionCatalog: FunctionCatalog = new FunctionCatalog(catalogManager)
+
+  // temporary utility until we don't use planner expressions anymore
+  functionCatalog.setPlannerTypeInferenceUtil(PlannerTypeInferenceUtilImpl.INSTANCE)
 
   // temporary bridge between API and planner
   private[flink] val expressionBridge: ExpressionBridge[PlannerExpression] =
@@ -550,7 +551,18 @@ abstract class TableEnvImpl(
       case Some(s) if JavaScalaConversionUtil.toScala(s.getCatalogTable)
         .exists(_.isInstanceOf[CatalogTable]) =>
 
-        val sinkProperties = s.getCatalogTable.get().asInstanceOf[CatalogTable].toProperties
+        val catalog = catalogManager.getCatalog(s.getTablePath.get(0))
+        val catalogTable = s.getCatalogTable.get().asInstanceOf[CatalogTable]
+        if (catalog.isPresent && catalog.get().getTableFactory.isPresent) {
+          val dbName = s.getTablePath.get(1)
+          val tableName = s.getTablePath.get(2)
+          val sink = TableFactoryUtil.createTableSinkForCatalogTable(
+            catalog.get(), catalogTable, new ObjectPath(dbName, tableName))
+          if (sink.isPresent) {
+            return Option(sink.get())
+          }
+        }
+        val sinkProperties = catalogTable.toProperties
         Option(TableFactoryService.find(classOf[TableSinkFactory[_]], sinkProperties)
           .createTableSink(sinkProperties))
 

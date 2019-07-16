@@ -24,9 +24,10 @@ import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.table.api.{TableConfig, TableEnvironment, TableException}
 import org.apache.flink.table.calcite.{FlinkPlannerImpl, FlinkRelBuilder, FlinkTypeFactory}
-import org.apache.flink.table.catalog.{CatalogManager, CatalogManagerCalciteSchema, CatalogTable, ConnectorCatalogTable, FunctionCatalog}
+import org.apache.flink.table.catalog.{CatalogManager, CatalogManagerCalciteSchema, CatalogTable, ConnectorCatalogTable, FunctionCatalog, ObjectPath}
 import org.apache.flink.table.delegation.{Executor, Planner}
 import org.apache.flink.table.executor.ExecutorBase
+import org.apache.flink.table.expressions.PlannerTypeInferenceUtilImpl
 import org.apache.flink.table.factories.{TableFactoryService, TableFactoryUtil, TableSinkFactory}
 import org.apache.flink.table.operations.OutputConversionModifyOperation.UpdateMode
 import org.apache.flink.table.operations.{CatalogSinkModifyOperation, ModifyOperation, Operation, OutputConversionModifyOperation, PlannerQueryOperation, UnregisteredSinkModifyOperation}
@@ -40,13 +41,11 @@ import org.apache.flink.table.sinks.{DataStreamTableSink, TableSink, TableSinkUt
 import org.apache.flink.table.sqlexec.SqlToOperationConverter
 import org.apache.flink.table.types.utils.LegacyTypeInfoDataTypeConverter
 import org.apache.flink.table.util.JavaScalaConversionUtil
-
 import org.apache.calcite.jdbc.CalciteSchemaBuilder.asRootSchema
 import org.apache.calcite.plan.{RelTrait, RelTraitDef}
 import org.apache.calcite.rel.RelNode
 import org.apache.calcite.sql.{SqlIdentifier, SqlInsert, SqlKind}
 import org.apache.calcite.tools.FrameworkConfig
-
 import _root_.java.util.{List => JList}
 import java.util
 
@@ -70,6 +69,9 @@ abstract class PlannerBase(
     val functionCatalog: FunctionCatalog,
     catalogManager: CatalogManager)
   extends Planner {
+
+  // temporary utility until we don't use planner expressions anymore
+  functionCatalog.setPlannerTypeInferenceUtil(PlannerTypeInferenceUtilImpl.INSTANCE)
 
   executor.asInstanceOf[ExecutorBase].setTableConfig(config)
 
@@ -246,7 +248,18 @@ abstract class PlannerBase(
       case Some(s) if JavaScalaConversionUtil.toScala(s.getCatalogTable)
         .exists(_.isInstanceOf[CatalogTable]) =>
 
-        val sinkProperties = s.getCatalogTable.get().asInstanceOf[CatalogTable].toProperties
+        val catalog = catalogManager.getCatalog(s.getTablePath.get(0))
+        val catalogTable = s.getCatalogTable.get().asInstanceOf[CatalogTable]
+        if (catalog.isPresent && catalog.get().getTableFactory.isPresent) {
+          val dbName = s.getTablePath.get(1)
+          val tableName = s.getTablePath.get(2)
+          val sink = TableFactoryUtil.createTableSinkForCatalogTable(
+            catalog.get(), catalogTable, new ObjectPath(dbName, tableName))
+          if (sink.isPresent) {
+            return Option(sink.get())
+          }
+        }
+        val sinkProperties = catalogTable.toProperties
         Option(TableFactoryService.find(classOf[TableSinkFactory[_]], sinkProperties)
           .createTableSink(sinkProperties))
 
