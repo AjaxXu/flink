@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Operator for stream sort.
@@ -66,6 +65,7 @@ public class StreamSortOperator extends TableStreamOperator<BaseRow> implements
 	private transient ListState<Tuple2<BaseRow, Long>> bufferState;
 
 	// inputBuffer buffers all input elements, key is BaseRow, value is appear times.
+	// BaseRow->出现时间
 	private transient HashMap<BaseRow, Long> inputBuffer;
 
 	public StreamSortOperator(BaseRowTypeInfo inputRowType, GeneratedRecordComparator gComparator) {
@@ -115,8 +115,7 @@ public class StreamSortOperator extends TableStreamOperator<BaseRow> implements
 	@Override
 	public void endInput() throws Exception {
 		if (!inputBuffer.isEmpty()) {
-			List<BaseRow> rowsSet = new ArrayList<>();
-			inputBuffer.keySet().forEach(rowsSet::add);
+			List<BaseRow> rowsSet = new ArrayList<>(inputBuffer.keySet());
 			// sort the rows
 			rowsSet.sort(comparator);
 
@@ -145,8 +144,7 @@ public class StreamSortOperator extends TableStreamOperator<BaseRow> implements
 		bufferState.clear();
 
 		List<Tuple2<BaseRow, Long>> dataToFlush = new ArrayList<>(inputBuffer.size());
-		inputBuffer.entrySet().forEach(
-				(Map.Entry<BaseRow, Long> entry) -> dataToFlush.add(Tuple2.of(entry.getKey(), entry.getValue())));
+		inputBuffer.forEach((row, count) -> dataToFlush.add(Tuple2.of(row, count)));
 
 		// batch put
 		bufferState.addAll(dataToFlush);

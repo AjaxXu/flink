@@ -33,6 +33,7 @@ import java.io.IOException;
 
 /**
  * Generated ValuesInputFormat.
+ * 封装代码生成的GenericInputFormat类。
  */
 public class ValuesInputFormat
 		extends GenericInputFormat<BaseRow>
@@ -50,7 +51,7 @@ public class ValuesInputFormat
 
 	@Override
 	public void open(GenericInputSplit split) {
-		LOG.debug("Compiling GenericInputFormat: $name \n\n Code:\n$code",
+		LOG.debug("Compiling GenericInputFormat: {} \n\n Code:\n{}",
 				generatedInput.getClassName(), generatedInput.getCode());
 		LOG.debug("Instantiating GenericInputFormat.");
 

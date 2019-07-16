@@ -41,6 +41,7 @@ import java.util.List;
 
 /**
  * Sort based on event-time and possibly additional secondary sort attributes.
+ * 基于事件时间和可能的其他辅助排序属性进行排序。
  */
 public class RowTimeSortOperator extends BaseTemporalSortOperator {
 
@@ -117,7 +118,6 @@ public class RowTimeSortOperator extends BaseTemporalSortOperator {
 				// register event time timer
 				timerService.registerEventTimeTimer(rowTime);
 			}
-
 		}
 	}
 

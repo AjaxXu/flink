@@ -44,7 +44,7 @@ public class RankOperator extends TableStreamOperator<BaseRow> implements OneInp
 	private transient RecordComparator orderByComp;
 	private transient long rowNum;
 	private transient long rank;
-	private transient GenericRow rankValueRow;
+	private transient GenericRow rankValueRow; // rank值行
 	private transient JoinedRow joinedRow;
 	private transient BaseRow lastInput;
 	private transient StreamRecordCollector<BaseRow> collector;
@@ -88,6 +88,7 @@ public class RankOperator extends TableStreamOperator<BaseRow> implements OneInp
 		rowNum += 1L;
 		if (lastInput == null || partitionByComp.compare(lastInput, input) != 0) {
 			// reset rank value and row number value for new group
+			// 重置新组的排名值和行号值
 			rank = 1L;
 			rowNum = 1L;
 		} else if (orderByComp.compare(lastInput, input) != 0) {

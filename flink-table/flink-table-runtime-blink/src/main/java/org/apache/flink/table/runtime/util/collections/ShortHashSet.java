@@ -21,6 +21,7 @@ import org.apache.flink.table.util.MurmurHashUtil;
 
 /**
  * Short hash set.
+ * Short类型hash set。
  */
 public class ShortHashSet extends OptimizableHashSet {
 

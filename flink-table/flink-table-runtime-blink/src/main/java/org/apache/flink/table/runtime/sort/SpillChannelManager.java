@@ -30,6 +30,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
  * Channel manager to manage the life cycle of spill channels.
+ * 负责管理溢出channel生命周期的管理者
  */
 public class SpillChannelManager implements Closeable {
 

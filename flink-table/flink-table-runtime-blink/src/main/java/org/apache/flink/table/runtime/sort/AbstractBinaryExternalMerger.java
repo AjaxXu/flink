@@ -40,6 +40,7 @@ import java.util.List;
 /**
  * Spilled files Merger of {@link BinaryExternalSorter}.
  * It merges {@link #maxFanIn} spilled files at most once.
+ * 合并最大扇进的溢出文件
  *
  * @param <Entry> Type of Entry to Merge sort.
  */

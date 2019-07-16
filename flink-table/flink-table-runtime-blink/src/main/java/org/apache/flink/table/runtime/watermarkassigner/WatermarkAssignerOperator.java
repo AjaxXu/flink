@@ -32,6 +32,7 @@ import org.apache.flink.table.dataformat.BaseRow;
 /**
  * A stream operator that extracts timestamps from stream elements and
  * generates periodic watermarks.
+ * 从流元素中提取时间戳并生成定期水印的算子。
  */
 public class WatermarkAssignerOperator
 	extends AbstractStreamOperator<BaseRow>
@@ -49,7 +50,7 @@ public class WatermarkAssignerOperator
 
 	private transient long currentWatermark;
 
-	private transient long currentMaxTimestamp;
+	private transient long currentMaxTimestamp; // 处理过的元素中最大的timestamp
 
 	private transient long lastRecordTime;
 

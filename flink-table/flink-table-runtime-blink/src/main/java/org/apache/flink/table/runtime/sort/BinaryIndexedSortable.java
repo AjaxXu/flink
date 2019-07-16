@@ -34,6 +34,7 @@ import java.util.ArrayList;
 
 /**
  * abstract sortable, provide basic compare and swap. Support writing of index and normalizedKey.
+ * 提供基本的对比和交换。
  */
 public abstract class BinaryIndexedSortable implements IndexedSortable {
 
@@ -50,9 +51,9 @@ public abstract class BinaryIndexedSortable implements IndexedSortable {
 	private final RandomAccessInputView recordBufferForComparison;
 
 	// segments
-	protected MemorySegment currentSortIndexSegment;
+	protected MemorySegment currentSortIndexSegment; // 当前排序索引的segment
 	protected final MemorySegmentPool memorySegmentPool;
-	protected final ArrayList<MemorySegment> sortIndex;
+	protected final ArrayList<MemorySegment> sortIndex; // 排序索引segment集合
 
 	// normalized key attributes
 	private final int numKeyBytes;
@@ -117,6 +118,7 @@ public abstract class BinaryIndexedSortable implements IndexedSortable {
 
 	/**
 	 * check if we need request next index memory.
+	 * 检查是否需要请求下一个索引segment。这里如果检测到需要，会直接申请，申请失败才返回false
 	 */
 	protected boolean checkNextIndexOffset() {
 		if (this.currentSortIndexOffset > this.lastIndexEntryOffset) {
@@ -133,7 +135,8 @@ public abstract class BinaryIndexedSortable implements IndexedSortable {
 	}
 
 	/**
-	 * Write of index and normalizedKey.
+	 * Write of offset and normalizedKey.
+	 * 写入offset和normalizedKey到当前segment
 	 */
 	protected void writeIndexAndNormalizedKey(BaseRow record, long currOffset) {
 		// add the pointer and the normalized key
@@ -170,7 +173,7 @@ public abstract class BinaryIndexedSortable implements IndexedSortable {
 			return this.useNormKeyUninverted ? val : -val;
 		}
 
-		final long pointerI = segI.getLong(segmentOffsetI);
+		final long pointerI = segI.getLong(segmentOffsetI); // 获得record所在buffer的offset
 		final long pointerJ = segJ.getLong(segmentOffsetJ);
 
 		return compareRecords(pointerI, pointerJ);
@@ -181,6 +184,7 @@ public abstract class BinaryIndexedSortable implements IndexedSortable {
 		this.recordBufferForComparison.setReadPosition(pointer2);
 
 		try {
+			// 比较record
 			return this.comparator.compare(
 					serializer1.mapFromPages(row1, recordBuffer),
 					serializer2.mapFromPages(row2, recordBufferForComparison));
@@ -231,6 +235,7 @@ public abstract class BinaryIndexedSortable implements IndexedSortable {
 
 	/**
 	 * Spill: Write all records to a {@link AbstractPagedOutputView}.
+	 * 溢出
 	 */
 	public void writeToOutput(AbstractPagedOutputView output) throws IOException {
 		final int numRecords = this.numRecords;

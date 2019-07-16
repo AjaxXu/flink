@@ -66,7 +66,7 @@ public class SortLimitOperator extends TableStreamOperator<BaseRow>
 		genComparator = null;
 
 		// reverse the comparision.
-		heap = new PriorityQueue<>((int) limitEnd, (o1, o2) -> comparator.compare(o2, o1));
+		heap = new PriorityQueue<>((int) limitEnd, (o1, o2) -> comparator.compare(o2, o1)); // 值大的优先
 		this.collector = new StreamRecordCollector<>(output);
 	}
 

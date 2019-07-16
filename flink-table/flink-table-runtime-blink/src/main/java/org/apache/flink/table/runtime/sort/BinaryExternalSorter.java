@@ -64,6 +64,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * The {@link BinaryExternalSorter} is a full fledged sorter for binary format.
  * It implements a multi-way merge sort.
+ * 实现多路合并排序.
  * Internally, it has three asynchronous threads (sort, spill, merger) which communicate through
  * a set of blocking circularQueues, forming a closed loop. Memory is allocated using the
  * {@link MemoryManager} interface. Thus the component will not exceed the provided memory limits.
@@ -109,6 +110,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 	/**
 	 * The memory segments used first for sorting and later for reading/pre-fetching
 	 * during the external merge.
+	 * 先用于排序，后用于外部合并的读取和预抓取
 	 */
 	private final List<List<MemorySegment>> sortReadMemory;
 
@@ -160,6 +162,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 
 	/**
 	 * Queue for the communication between the threads.
+	 * 环形队列
 	 */
 	private CircularQueues circularQueues;
 
@@ -238,11 +241,12 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 		final long sortMemory = ((long) sortMemPages) * memoryManager.getPageSize();
 
 		// decide how many sort buffers to use
+		// 决定使用多少个sort buffer
 		int numSortBuffers = 1;
 		if (reservedMemorySize > 100 * 1024 * 1024L) {
 			numSortBuffers = 2;
 		}
-		final int numSegmentsPerSortBuffer = sortMemPages / numSortBuffers;
+		final int numSegmentsPerSortBuffer = sortMemPages / numSortBuffers; // 每个sort buffer占用的segment数量
 		this.sortReadMemory = new ArrayList<>();
 		List<MemorySegment> readMemory;
 		try {
@@ -264,6 +268,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 				compressionEnable ? compressionCodecFactory.getClass() : null, compressionBlockSize);
 
 		this.sortBuffers = new ArrayList<>();
+		// 为每个sort buffer分配内存，生成实例
 		for (int i = 0; i < numSortBuffers; i++) {
 			// grab some memory
 			final List<MemorySegment> sortSegments = new ArrayList<>(numSegmentsPerSortBuffer);
@@ -294,7 +299,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 		this.exceptionHandler = exceptionHandler;
 		this.circularQueues = circularQueues;
 
-		bytesUntilSpilling = ((long) (startSpillingFraction * sortMemory));
+		bytesUntilSpilling = ((long) (startSpillingFraction * sortMemory)); // 到达溢出的bytes数
 
 		// check if we should directly spill
 		if (bytesUntilSpilling < 1) {
@@ -635,6 +640,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 
 	/**
 	 * Reports an exception to all threads that are waiting for the result iterator.
+	 * 报告给等待结果迭代器的所有线程的异常。
 	 *
 	 * @param ioex The exception to be reported to the threads that wait for the result iterator.
 	 */
@@ -807,6 +813,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 
 	/**
 	 * The thread that sorts filled buffers.
+	 * 将已经填充的buffer内的record排序的线程
 	 */
 	private static class SortingThread extends ThreadBase {
 
@@ -917,6 +924,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 
 			// ------------------- In-Memory Cache ------------------------
 			// fill cache
+			// 填充cache，直到遇到SPILLING_MARKER或EOF_MARKER
 			while (isRunning()) {
 				// take next currWriteBuffer from queue
 				try {
@@ -940,6 +948,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 			}
 
 			// ------------------- In-Memory Merge ------------------------
+			// 直接在内存合并
 			if (cacheOnly) {
 				List<MutableObjectIterator<BinaryRow>> iterators = new ArrayList<>(cache.size());
 
@@ -959,6 +968,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 				releaseEmptyBuffers();
 
 				// signal merging thread to exit (because there is nothing to merge externally)
+				// 通知合并线程退出
 				this.queues.merge.add(FINAL_MERGE_MARKER);
 
 				return;
@@ -992,6 +1002,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 					break;
 				}
 
+				// 将element buffer中的数据写入外部存储
 				if (element.buffer.getOccupancy() > 0) {
 					// open next channel
 					FileIOChannel.ID channel = enumerator.next();
@@ -1038,6 +1049,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 			// Spilling thread done.
 		}
 
+		// 释放empty的缓存
 		private void releaseEmptyBuffers() {
 			while (!this.queues.empty.isEmpty()) {
 				try {

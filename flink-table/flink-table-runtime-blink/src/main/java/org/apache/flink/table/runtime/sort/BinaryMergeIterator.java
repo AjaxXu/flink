@@ -32,6 +32,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 /**
  * Binary version of {@link MergeIterator}.
  * Use {@link RecordComparator} to compare record.
+ * {@link MergeIterator}的二进制版本.
  */
 public class BinaryMergeIterator<Entry> implements MutableObjectIterator<Entry> {
 

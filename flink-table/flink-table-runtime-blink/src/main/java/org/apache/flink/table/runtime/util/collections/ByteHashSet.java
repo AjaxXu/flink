@@ -19,6 +19,7 @@ package org.apache.flink.table.runtime.util.collections;
 
 /**
  * Byte hash set.
+ * Byte类型hash set。
  */
 public class ByteHashSet {
 

@@ -36,6 +36,7 @@ import java.util.List;
 
 /**
  * Sort on proc-time and additional secondary sort attributes.
+ * 对proc-time和其他辅助排序属性进行排序。
  */
 public class ProcTimeSortOperator extends BaseTemporalSortOperator {
 

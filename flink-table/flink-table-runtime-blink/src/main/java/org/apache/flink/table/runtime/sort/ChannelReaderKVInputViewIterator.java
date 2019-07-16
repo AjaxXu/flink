@@ -30,6 +30,7 @@ import java.util.List;
 
 /**
  * Key-Value style channel reader input view iterator.
+ * key-value类型通道读取view的迭代器.
  */
 public class ChannelReaderKVInputViewIterator<K, V> implements MutableObjectIterator<Tuple2<K, V>> {
 	private final AbstractChannelReaderInputView inView;

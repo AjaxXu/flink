@@ -35,6 +35,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
  * In memory KV sortable buffer for binary row, it already has records in memory.
+ * 用于binary row的内存K-V排序缓冲区，它已经在内存中有记录。
  */
 public class BinaryKVInMemorySortBuffer extends BinaryIndexedSortable {
 
@@ -62,6 +63,7 @@ public class BinaryKVInMemorySortBuffer extends BinaryIndexedSortable {
 			RecordComparator comparator,
 			ArrayList<MemorySegment> recordBufferSegments,
 			MemorySegmentPool memorySegmentPool) throws IOException {
+		// 对于k-v来说，对比record只需要对比key就行
 		super(normalizedKeyComputer, keySerializer, comparator, recordBufferSegments, memorySegmentPool);
 		this.valueSerializer = valueSerializer;
 	}
@@ -92,7 +94,7 @@ public class BinaryKVInMemorySortBuffer extends BinaryIndexedSortable {
 			long pointer = recordInputView.getReadPosition();
 			BinaryRow row = serializer1.mapFromPages(row1, recordInputView);
 			valueSerializer.checkSkipReadForFixLengthPart(recordInputView);
-			recordInputView.skipBytes(recordInputView.readInt());
+			recordInputView.skipBytes(recordInputView.readInt()); // 跳过value
 			boolean success = checkNextIndexOffset();
 			checkArgument(success);
 			writeIndexAndNormalizedKey(row, pointer);

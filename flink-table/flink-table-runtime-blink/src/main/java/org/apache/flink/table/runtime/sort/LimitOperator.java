@@ -26,7 +26,7 @@ import org.apache.flink.table.runtime.util.StreamRecordCollector;
 import org.apache.flink.util.Collector;
 
 /**
- * Operator for batch limit.
+ * Operator for batch limit.支持batch limit语法的算子.
  * TODO support stopEarly.
  */
 public class LimitOperator extends TableStreamOperator<BaseRow>

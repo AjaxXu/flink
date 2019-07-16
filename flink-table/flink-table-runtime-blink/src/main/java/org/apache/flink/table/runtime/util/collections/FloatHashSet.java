@@ -21,6 +21,7 @@ import org.apache.flink.table.util.MurmurHashUtil;
 
 /**
  * Float hash set.
+ * Float类型hash set。
  */
 public class FloatHashSet extends OptimizableHashSet {
 

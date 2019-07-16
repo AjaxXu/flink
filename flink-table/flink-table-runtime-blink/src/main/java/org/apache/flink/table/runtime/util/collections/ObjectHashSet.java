@@ -21,6 +21,7 @@ import java.util.HashSet;
 
 /**
  * Wrap {@link HashSet} with hashSet interface.
+ * {@link HashSet}的包装类.
  */
 public class ObjectHashSet<T> extends OptimizableHashSet {
 

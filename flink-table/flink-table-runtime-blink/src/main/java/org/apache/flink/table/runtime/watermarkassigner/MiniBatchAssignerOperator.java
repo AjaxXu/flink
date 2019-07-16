@@ -30,6 +30,7 @@ import org.apache.flink.table.dataformat.BaseRow;
 
 /**
  * A stream operator that emits mini-batch marker in a given period.
+ * 在给定时间段内发出小批量标记的算子。
  * NOTE: the mini-batch marker uses watermark instead
  */
 public class MiniBatchAssignerOperator extends AbstractStreamOperator<BaseRow>
@@ -62,10 +63,10 @@ public class MiniBatchAssignerOperator extends AbstractStreamOperator<BaseRow>
 	@Override
 	public void processElement(StreamRecord<BaseRow> element) throws Exception {
 		long now = getProcessingTimeService().getCurrentProcessingTime();
-		long currentBatch = now - now % intervalMs;
-		if (currentBatch > currentWatermark) {
+		long currentBatch = now - now % intervalMs; // 当前批次：now之前的intervalMs开始时间
+		if (currentBatch > currentWatermark) { // 当前批次是新的一批次
 			currentWatermark = currentBatch;
-			// emit
+			// 发送watermark，表明上一批次已经收集完了
 			output.emitWatermark(new Watermark(currentBatch));
 		}
 		output.collect(element);
@@ -87,11 +88,13 @@ public class MiniBatchAssignerOperator extends AbstractStreamOperator<BaseRow>
 	 * Override the base implementation to completely ignore watermarks propagated from
 	 * upstream (we rely only on the {@link AssignerWithPeriodicWatermarks} to emit
 	 * watermarks from here).
+	 * 重写处理watermark的方法，使之完全忽略上游传递下来的watermark。因为算子本身就是watermark的发射器。
 	 */
 	@Override
 	public void processWatermark(Watermark mark) throws Exception {
 		// if we receive a Long.MAX_VALUE watermark we forward it since it is used
 		// to signal the end of input and to not block watermark progress downstream
+		// 如果我们收到Long.MAX_VALUE水印，我们转发它，因为它用于表示输入的结束并且不阻止下游的水印进度
 		if (mark.getTimestamp() == Long.MAX_VALUE && currentWatermark != Long.MAX_VALUE) {
 			currentWatermark = Long.MAX_VALUE;
 			output.emitWatermark(mark);

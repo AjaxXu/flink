@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * MemorySegment pool to hold pages in memory.
+ * 在内存中保持page的MemorySegment池.
  */
 public interface MemorySegmentPool extends MemorySegmentSource {
 

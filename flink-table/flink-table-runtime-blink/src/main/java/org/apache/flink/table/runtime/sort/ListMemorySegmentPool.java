@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * MemorySegment pool of a MemorySegment list.
+ * 以一个list来作为MemorySegment池
  */
 public class ListMemorySegmentPool implements MemorySegmentPool {
 

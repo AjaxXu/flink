@@ -34,6 +34,7 @@ import java.util.List;
 
 /**
  * Key-Value style record merger for sort.
+ * key-value类型的record合并器
  */
 public class BinaryKVExternalMerger extends AbstractBinaryExternalMerger<Tuple2<BinaryRow, BinaryRow>> {
 

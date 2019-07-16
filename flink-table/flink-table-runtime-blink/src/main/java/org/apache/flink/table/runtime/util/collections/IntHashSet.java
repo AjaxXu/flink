@@ -21,6 +21,7 @@ import org.apache.flink.table.util.MurmurHashUtil;
 
 /**
  * Int hash set.
+ * Int类型hash set。
  */
 public class IntHashSet extends OptimizableHashSet {
 
@@ -58,7 +59,7 @@ public class IntHashSet extends OptimizableHashSet {
 					return false;
 				}
 
-				while ((curr = key[pos = pos + 1 & this.mask]) != 0) {
+				while ((curr = key[pos = pos + 1 & this.mask]) != 0) { // 向前探测
 					if (curr == k) {
 						return false;
 					}
@@ -134,6 +135,7 @@ public class IntHashSet extends OptimizableHashSet {
 	@Override
 	public void optimize() {
 		int range = max - min;
+		// 范围小于key长度或者小于密度阈值
 		if (range >= 0 && (range < key.length || range < OptimizableHashSet.DENSE_THRESHOLD)) {
 			this.used = new boolean[max - min + 1];
 			for (int v : key) {

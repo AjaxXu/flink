@@ -57,6 +57,10 @@ public class RandomAccessInputView extends AbstractPagedInputView implements See
 	}
 
 
+	/**
+	 * 定位读取位置
+	 * @param position The new read position.
+	 */
 	@Override
 	public void setReadPosition(long position) {
 		final int bufferNum = (int) (position >>> this.segmentSizeBits);

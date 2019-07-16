@@ -23,6 +23,7 @@ import java.util.Map;
 
 /**
  * An LRU cache, based on <code>LinkedHashMap</code>.
+ * 基于LinkedHashMap实现的LRU缓存.
  *
  * <p>This cache has a fixed maximum number of elements (<code>cacheSize</code>).
  * If the cache is full and another entry is added, the LRU (least recently

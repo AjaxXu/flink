@@ -32,6 +32,7 @@ import org.apache.flink.util.Preconditions;
 /**
  * A stream operator that extracts timestamps from stream elements and
  * generates watermarks with specified emit latency.
+ * 从流元素中提取时间戳并生成具有指定发射延迟的水印的算子.
  */
 public class MiniBatchedWatermarkAssignerOperator
 	extends AbstractStreamOperator<BaseRow>
@@ -102,7 +103,7 @@ public class MiniBatchedWatermarkAssignerOperator
 			throw new RuntimeException("RowTime field should not be null," +
 				" please convert it to a non-null long value.");
 		}
-		long wm = row.getLong(rowtimeFieldIndex) - watermarkDelay;
+		long wm = row.getLong(rowtimeFieldIndex) - watermarkDelay; // element中rowtime值减去一个固定的延迟
 		currentWatermark = Math.max(currentWatermark, wm);
 		// forward element
 		output.collect(element);
