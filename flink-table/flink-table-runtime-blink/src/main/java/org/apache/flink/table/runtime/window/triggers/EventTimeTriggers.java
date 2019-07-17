@@ -56,6 +56,7 @@ public class EventTimeTriggers {
 	/**
 	 * A {@link Trigger} that fires once the watermark passes the end of the window
 	 * to which a pane belongs.
+	 * 一个{@link Trigger}，一旦watermark通过窗格所属的窗口末端就会触发。
 	 *
 	 * @see org.apache.flink.streaming.api.watermark.Watermark
 	 */
@@ -171,6 +172,7 @@ public class EventTimeTriggers {
 			if (hasFired != null && hasFired) {
 				// this is to cover the case where we recover from a failure and the watermark
 				// is Long.MIN_VALUE but the window is already in the late phase.
+				// 覆盖了2个场景：1.从失败中恢复；2.watermark是Long.MIN_VALUE，但window已经是late
 				return lateTrigger != null && lateTrigger.onElement(element, timestamp, window);
 			} else {
 				if (window.maxTimestamp() <= ctx.getCurrentWatermark()) {

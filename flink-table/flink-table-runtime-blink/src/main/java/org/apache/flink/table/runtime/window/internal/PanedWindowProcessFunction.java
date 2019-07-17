@@ -30,6 +30,7 @@ import java.util.List;
 
 /**
  * The implementation of {@link InternalWindowProcessFunction} for {@link PanedWindowAssigner}.
+ * 支持{@link PanedWindowAssigner}的{@link InternalWindowProcessFunction}实现。
  * @param <W> The type of {@code Window} that assigner assigns.
  */
 public class PanedWindowProcessFunction<K, W extends Window>
@@ -102,6 +103,7 @@ public class PanedWindowProcessFunction<K, W extends Window>
 	/** checks whether the pane is late (e.g. can be / has been cleanup) */
 	private boolean isPaneLate(W pane) {
 		// whether the pane is late depends on the last window which the pane is belongs to is late
+		// 窗格是否延迟取决于窗格所属的最后一个窗口是否延迟
 		return windowAssigner.isEventTime() && isWindowLate(windowAssigner.getLastWindow(pane));
 	}
 }

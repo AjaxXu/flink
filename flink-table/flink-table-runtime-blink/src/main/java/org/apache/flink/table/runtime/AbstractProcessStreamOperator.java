@@ -54,6 +54,7 @@ public abstract class AbstractProcessStreamOperator<OUT> extends TableStreamOper
 
 	/**
 	 * Information available in an invocation of processElement.
+	 * 调用processElement时可用的信息.
 	 */
 	protected class ContextImpl implements TimerService {
 

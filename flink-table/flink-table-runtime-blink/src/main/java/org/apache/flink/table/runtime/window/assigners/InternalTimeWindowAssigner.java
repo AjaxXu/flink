@@ -20,6 +20,7 @@ package org.apache.flink.table.runtime.window.assigners;
 
 /**
  * The internal time window assigner which has some useful methods.
+ * 内部时间窗口分配器有一些有用的方法。
  */
 public interface InternalTimeWindowAssigner {
 

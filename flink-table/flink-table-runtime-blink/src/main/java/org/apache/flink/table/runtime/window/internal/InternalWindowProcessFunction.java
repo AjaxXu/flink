@@ -31,6 +31,7 @@ import java.util.Collection;
 
 /**
  * The internal interface for functions that process over grouped windows.
+ * 用于处理分组窗口的函数的内部接口。
  *
  * @param <W> type of window
  */
@@ -63,6 +64,7 @@ public abstract class InternalWindowProcessFunction<K, W extends Window> impleme
 	/**
 	 * Assigns the input element into the state namespace which the input element should be
 	 * accumulated/retracted into.
+	 * 将input元素分配到应该累积/撤回输入元素的状态命名空间。
 	 *
 	 * @param inputRow  the input element
 	 * @param timestamp the timestamp of the element or the processing time (depends on the type of
@@ -75,6 +77,7 @@ public abstract class InternalWindowProcessFunction<K, W extends Window> impleme
 	/**
 	 * Assigns the input element into the actual windows which the {@link Trigger} should trigger
 	 * on.
+	 * 将输入元素分配到{@link Trigger}应触发的实际窗口中。
 	 *
 	 * @param inputRow  the input element
 	 * @param timestamp the timestamp of the element or the processing time (depends on the type of
@@ -86,6 +89,7 @@ public abstract class InternalWindowProcessFunction<K, W extends Window> impleme
 
 	/**
 	 * Gets the aggregation result and window properties of the given window.
+	 * 获取给定窗口的聚合结果和窗口属性。
 	 *
 	 * @param window the window
 	 * @return the aggregation result and window properties
@@ -110,6 +114,7 @@ public abstract class InternalWindowProcessFunction<K, W extends Window> impleme
 
 	/**
 	 * Returns {@code true} if the given time is the cleanup time for the given window.
+	 * 如果给定时间是给定窗口的清理时间，则返回{@code true}。
 	 */
 	protected final boolean isCleanupTime(W window, long time) {
 		return time == cleanupTime(window);
@@ -127,8 +132,9 @@ public abstract class InternalWindowProcessFunction<K, W extends Window> impleme
 	 * Returns the cleanup time for a window, which is
 	 * {@code window.maxTimestamp + allowedLateness}. In
 	 * case this leads to a value greated than {@link Long#MAX_VALUE}
-	 * then a cleanup time of {@link Long#MAX_VALUE} is
-	 * returned.
+	 * then a cleanup time of {@link Long#MAX_VALUE} is returned.
+	 * 返回窗口的清理时间，即{@code window.maxTimestamp + allowedLateness}。如果这导致值大于{@link Long#MAX_VALUE}，
+	 * 则返回{@link Long#MAX_VALUE}的清理时间。
 	 *
 	 * @param window the window whose cleanup time we are computing.
 	 */
@@ -144,6 +150,7 @@ public abstract class InternalWindowProcessFunction<K, W extends Window> impleme
 
 	/**
 	 * Information available in an invocation of methods of {@link InternalWindowProcessFunction}.
+	 * 调用{@link InternalWindowProcessFunction}方法时可用的信息。
 	 * @param <W>
 	 */
 	public interface Context<K, W extends Window> {
@@ -173,6 +180,7 @@ public abstract class InternalWindowProcessFunction<K, W extends Window> impleme
 
 		/**
 		 * Gets the accumulators of the given window.
+		 * 获取给定窗口的累加值。
 		 */
 		BaseRow getWindowAccumulators(W window) throws Exception;
 

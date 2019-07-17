@@ -32,6 +32,7 @@ import java.util.List;
 
 /**
  * The implementation of {@link InternalWindowProcessFunction} for {@link MergingWindowAssigner}.
+ * {@link MergingWindowAssigner}的{@link InternalWindowProcessFunction}的实现。
  * @param <W> The type of {@code Window} that assigner assigns.
  */
 public class MergingWindowProcessFunction<K, W extends Window>

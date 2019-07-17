@@ -31,6 +31,7 @@ import java.io.IOException;
 
 /**
  * Assigning windows from the sorted input buffers.
+ * 从已排序的输入缓冲区分配窗口。
  *
  * <p>Assign windows and trigger aggregate calculation based on {@link WindowsGrouping}.
  * It can avoid data expansion in time sliding window case.
@@ -110,6 +111,7 @@ public abstract class WindowsGrouping implements Closeable {
 	/**
 	 * Advance the watermark to trigger all the possible windows.
 	 * It is designed to be idempotent.
+	 * 推进水印以触发所有可能的窗口。它被设计为幂等的。
 	 */
 	public void advanceWatermarkToTriggerAllWindows() {
 		skipEmptyWindow();
@@ -145,6 +147,7 @@ public abstract class WindowsGrouping implements Closeable {
 		nextWindow = TimeWindow.of(currentWindow.getStart() + slideSize,
 				currentWindow.getStart() + slideSize + windowSize);
 		// build trigger window elements' iterator
+		// 构建触发window中元素的迭代器
 		emptyWindowTriggered = true;
 		onBufferEvict(triggerWindowStartIndex);
 		return new WindowsElementsIterator(newBufferIterator(triggerWindowStartIndex));
@@ -168,6 +171,7 @@ public abstract class WindowsGrouping implements Closeable {
 		return false;
 	}
 
+	// 从window中去除element
 	private boolean evictForWindow(BinaryRow element, TimeWindow window) {
 		if (getTimeValue(element) < window.getStart()) {
 			triggerWindowStartIndex++;
@@ -189,7 +193,7 @@ public abstract class WindowsGrouping implements Closeable {
 	}
 
 	private TimeWindow advanceNextWindowByWatermark(long watermark) {
-		int maxOverlapping = (int) Math.ceil(windowSize * 1.0 / slideSize);
+		int maxOverlapping = (int) Math.ceil(windowSize * 1.0 / slideSize); // 重叠的window数量
 		long start = getWindowStartWithOffset(watermark, windowStartOffset, slideSize);
 		for (int i = 1; i < maxOverlapping; i++) {
 			long nextStart = start - slideSize;
@@ -199,6 +203,8 @@ public abstract class WindowsGrouping implements Closeable {
 				break;
 			}
 		}
+		// start是window end小于watermark的最大window的start
+
 		if (nextWindow == null || start > nextWindow.getStart()) {
 			// This check is used in the case of jumping window.
 			return TimeWindow.of(start, start + windowSize);

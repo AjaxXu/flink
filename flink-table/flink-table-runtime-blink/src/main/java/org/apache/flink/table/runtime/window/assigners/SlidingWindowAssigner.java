@@ -36,6 +36,7 @@ import java.util.List;
 /**
  * A {@link WindowAssigner} that windows elements into sliding windows based on the timestamp of the
  * elements. Windows can possibly overlap.
+ * 一个{@link WindowAssigner}，它根据元素的时间戳将元素窗口化为滑动窗口。Windows可能会重叠。
  */
 public class SlidingWindowAssigner extends PanedWindowAssigner<TimeWindow> implements InternalTimeWindowAssigner {
 
@@ -63,7 +64,7 @@ public class SlidingWindowAssigner extends PanedWindowAssigner<TimeWindow> imple
 		this.slide = slide;
 		this.offset = offset;
 		this.isEventTime = isEventTime;
-		this.paneSize = ArithmeticUtils.gcd(size, slide);
+		this.paneSize = ArithmeticUtils.gcd(size, slide); // 最大公约数
 		this.numPanesPerWindow = MathUtils.checkedDownCast(size / paneSize);
 	}
 

@@ -54,6 +54,7 @@ public class ProcessingTimeTriggers {
 
 	/**
 	 * Creates a trigger that fires when the processing time passes the end of the window.
+	 * 创建processing time超过窗口end时触发的触发器。
 	 */
 	public static <W extends Window> AfterEndOfWindow<W> afterEndOfWindow() {
 		return new AfterEndOfWindow<>();
@@ -61,6 +62,7 @@ public class ProcessingTimeTriggers {
 
 	/**
 	 * Creates a trigger that fires by a certain interval after reception of the first element.
+	 * 创建在接收到第一个元素后按一定间隔触发的触发器。
 	 * @param time the certain interval
 	 */
 	public static <W extends Window> AfterFirstElementPeriodic<W> every(Duration time) {
@@ -132,7 +134,7 @@ public class ProcessingTimeTriggers {
 
 		@Override
 		public void onMerge(W window, OnMergeContext mergeContext) throws Exception {
-			mergeContext.mergePartitionedState(nextFiringStateDesc);
+			mergeContext.mergePartitionedState(nextFiringStateDesc); // 合并state
 
 			// after merge, the merged state will be stored in current window
 			Long nextTimer = ctx.getPartitionedState(nextFiringStateDesc).get();
@@ -229,6 +231,7 @@ public class ProcessingTimeTriggers {
 
 	/**
 	 * A composite {@link Trigger} that consist of AfterEndOfWindow and a early trigger.
+	 * 由AfterEndOfWindow和早期触发器组成的复合{@link Trigger}。
 	 */
 	public static final class AfterEndOfWindowNoLate<W extends Window> extends Trigger<W> {
 

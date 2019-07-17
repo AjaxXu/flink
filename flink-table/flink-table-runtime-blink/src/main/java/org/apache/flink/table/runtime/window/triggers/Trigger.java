@@ -31,6 +31,7 @@ import java.io.Serializable;
 /**
  * A {@code Trigger} determines when a pane of a window should be evaluated to emit the
  * results for that part of the window.
+ * {@code Trigger}确定何时应计算窗口的窗格以发出窗口该部分的结果。
  *
  * <p>A pane is the bucket of elements that have the same key and same {@link Window}.
  * An element can be in multiple panes if it was assigned to multiple windows by the
@@ -55,6 +56,7 @@ public abstract class Trigger<W extends Window> implements Serializable {
 	/**
 	 * Called for every element that gets added to a pane. The result of this will determine
 	 * whether the pane is evaluated to emit results.
+	 * 为添加到窗格的每个元素调用。此结果将确定是否计算窗格以发出结果。
 	 *
 	 * @param element The element that arrived.
 	 * @param timestamp The timestamp of the element that arrived.
@@ -73,7 +75,7 @@ public abstract class Trigger<W extends Window> implements Serializable {
 	 *
 	 * @param time The timestamp at which the timer fired.
 	 * @param window The window for which the timer fired.
-	 * @return true for firing the window, false for no action
+	 * @return true for firing the window, false for no action.触发窗口时返回true，否则返回false
 	 */
 	public abstract boolean onProcessingTime(long time, W window) throws Exception;
 

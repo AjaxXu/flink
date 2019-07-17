@@ -33,6 +33,7 @@ import java.util.NavigableSet;
 /**
  * A {@link WindowAssigner} that windows elements into sessions based on the timestamp.
  * Windows cannot overlap.
+ * 一个{@link WindowAssigner}，它根据时间戳将元素窗口化为会话。Windows无法重叠。
  */
 public class SessionWindowAssigner extends MergingWindowAssigner<TimeWindow> implements InternalTimeWindowAssigner {
 
@@ -80,6 +81,7 @@ public class SessionWindowAssigner extends MergingWindowAssigner<TimeWindow> imp
 	 * if they are overlapped. Otherwise, returns the curWindow itself.  */
 	private TimeWindow mergeWindow(TimeWindow curWindow, TimeWindow other, Collection<TimeWindow> mergedWindow) {
 		if (curWindow.intersects(other)) {
+			// 重叠，返回覆盖curWindow和other的新window
 			mergedWindow.add(other);
 			return curWindow.cover(other);
 		} else {

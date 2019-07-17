@@ -27,6 +27,7 @@ import org.apache.flink.table.api.window.Window;
 /**
  * A {@link Trigger} that fires at some point after a specified number of
  * input elements have arrived.
+ * 在指定数量的输入元素到达后的某个时刻触发的{@link Trigger}。
  */
 public class ElementTriggers {
 

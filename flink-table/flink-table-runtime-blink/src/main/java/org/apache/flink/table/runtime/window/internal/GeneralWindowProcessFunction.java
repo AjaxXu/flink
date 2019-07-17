@@ -30,6 +30,8 @@ import java.util.List;
 /**
  * The general implementation of {@link InternalWindowProcessFunction}. The {@link WindowAssigner}
  * should be a regular assigner without implement {@code PanedWindowAssigner} or {@code MergingWindowAssigner}.
+ * {@link InternalWindowProcessFunction}的一般实现。
+ * {@link WindowAssigner}应该是没有实现{@code PanedWindowAssigner}或{@code MergingWindowAssigner}的常规分配者。
  * @param <W> The type of {@code Window} that assigner assigns.
  */
 public class GeneralWindowProcessFunction<K, W extends Window>

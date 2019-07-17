@@ -29,6 +29,8 @@ import java.util.LinkedList;
  * A jvm heap implementation of {@link WindowsGrouping}, which uses a linked list to buffer
  * all the inputs of a keyed group belonging to the same window.
  * It is designed to have a capacity limit to avoid JVM OOM and reduce GC pauses.
+ * {@link WindowsGrouping}的jvm堆实现，它使用链接列表来缓冲属于同一窗口的键控组的所有输入。
+ * 它被设计为具有容量限制以避免JVM OOM并减少GC暂停。
  */
 public class HeapWindowsGrouping extends WindowsGrouping {
 

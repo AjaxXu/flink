@@ -43,6 +43,8 @@ import java.util.TreeSet;
  * windows of merged windows must be merged into this one state window. We keep
  * a mapping from in-flight window to state window that can be queried using
  * {@link #getStateWindow(Window)}.
+ * 合并窗口时，我们将原始窗口之一保留为状态窗口，即用作存储窗口元素的命名空间的窗口。必须将合并窗口的状态窗口中的元素
+ * 合并到此一个状态窗口中。我们保持从in-flight窗口到状态窗口的映射，可以使用{@link #getStateWindow（Window）}查询。
  *
  * <p>A new window can be added to the set of in-flight windows using
  * {@link #addWindow(Window, MergeFunction)}. This might merge other windows and the caller

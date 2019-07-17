@@ -25,6 +25,7 @@ import java.util.NavigableSet;
 
 /**
  * A {@code WindowAssigner} that can merge windows.
+ * 一个可以合并窗口的{@code WindowAssigner}。
  *
  * @param <W> The type of {@code Window} that this assigner assigns.
  */
@@ -51,6 +52,7 @@ public abstract class MergingWindowAssigner<W extends Window> extends WindowAssi
 
 		/**
 		 * Specifies that the given windows should be merged into the result window.
+		 * 指定应将给定窗口合并到结果窗口中。
 		 *
 		 * @param toBeMerged The list of windows that should be merged into one window.
 		 * @param mergeResult The resulting merged window.

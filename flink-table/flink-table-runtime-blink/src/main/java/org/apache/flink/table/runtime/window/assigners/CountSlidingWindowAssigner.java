@@ -35,6 +35,7 @@ import java.util.List;
 /**
  * A {@link WindowAssigner} that windows elements into sliding windows based on the count number
  * of the elements. Windows can possibly overlap.
+ * 一个{@link WindowAssigner}，根据元素的计数，将元素窗口化为滑动窗口。Windows可能会重叠。
  */
 public class CountSlidingWindowAssigner extends WindowAssigner<CountWindow> {
 

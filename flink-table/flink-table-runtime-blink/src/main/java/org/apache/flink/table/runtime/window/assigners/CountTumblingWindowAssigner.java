@@ -34,6 +34,7 @@ import java.util.Collections;
 /**
  * A {@link WindowAssigner} that windows elements into fixed-size windows
  * based on the count number of the elements. Windows cannot overlap.
+ * 一个{@link WindowAssigner}，根据元素的计数，将元素窗口化为固定大小的窗口。 Windows无法重叠。
  */
 public class CountTumblingWindowAssigner extends WindowAssigner<CountWindow> {
 	private static final long serialVersionUID = -3857633557257357800L;

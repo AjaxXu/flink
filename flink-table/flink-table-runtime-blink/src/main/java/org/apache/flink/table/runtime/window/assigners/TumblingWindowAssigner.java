@@ -30,6 +30,7 @@ import java.util.Collections;
 /**
  * A {@link WindowAssigner} that windows elements into fixed-size windows
  * based on the timestamp of the elements. Windows cannot overlap.
+ * 一个{@link WindowAssigner}，它根据元素的时间戳将元素窗口化为固定大小的窗口。Windows无法重叠。
  */
 public class TumblingWindowAssigner extends WindowAssigner<TimeWindow> implements InternalTimeWindowAssigner {
 
@@ -83,7 +84,7 @@ public class TumblingWindowAssigner extends WindowAssigner<TimeWindow> implement
 	// ------------------------------------------------------------------------
 
 	/**
-	 * Creates a new {@code TumblingWindowAssigner} {@link WindowAssigner} that assigns
+	 * Creates a new {@link TumblingWindowAssigner} {@link WindowAssigner} that assigns
 	 * elements to time windows based on the element timestamp.
 	 *
 	 * @param size The size of the generated windows.

@@ -44,6 +44,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * The {@link WindowOperatorBuilder} is used to build {@link WindowOperator} fluently.
+ * {@link WindowOperatorBuilder}用于流畅地构建{@link WindowOperator}.
  *
  * <pre>
  * WindowOperatorBuilder

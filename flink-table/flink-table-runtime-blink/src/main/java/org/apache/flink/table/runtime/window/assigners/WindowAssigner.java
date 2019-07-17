@@ -32,6 +32,7 @@ import java.util.Collection;
 
 /**
  * A {@code WindowAssigner} assigns zero or more {@link Window Windows} to an element.
+ * {@code WindowAssigner}为元素分配零个或多个{@link Window Windows}。
  *
  * <p>In a window operation, elements are grouped by their key (if available) and by the windows to
  * which it was assigned. The set of elements with the same key and window is called a pane.
@@ -53,6 +54,7 @@ public abstract class WindowAssigner<W extends Window> implements Serializable {
 	/**
 	 * Given the timestamp and element, returns the set of windows into which it
 	 * should be placed.
+	 * 给定时间戳和元素，返回应放置的窗口集。
 	 *
 	 * @param element The element to which windows should be assigned.
 	 * @param timestamp The timestamp of the element when {@link #isEventTime()} returns true,
