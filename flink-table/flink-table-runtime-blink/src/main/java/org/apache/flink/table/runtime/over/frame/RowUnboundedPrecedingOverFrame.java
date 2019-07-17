@@ -51,7 +51,7 @@ public class RowUnboundedPrecedingOverFrame extends UnboundedPrecedingOverFrame 
 	}
 
 	/**
-	 * 计算当前行之前+rightBound行的累计值。有可能数据没到当前行之后rightBound行就结束了，所以有个bufferUpdated做判断
+	 * 计算当前行之前+rightBound行的累计值。有可能数据没到当前行之后rightBound行就结束了，所以有个bufferUpdated做判断.
 	 * @param index 当前行的index
 	 * @param current 当前行
 	 */

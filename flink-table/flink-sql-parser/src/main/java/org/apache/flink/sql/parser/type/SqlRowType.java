@@ -29,6 +29,7 @@ import java.util.List;
 
 /**
  * Parse column of Row type.
+ * 解析Row类型列。
  */
 public class SqlRowType extends SqlIdentifier implements ExtendedSqlType {
 

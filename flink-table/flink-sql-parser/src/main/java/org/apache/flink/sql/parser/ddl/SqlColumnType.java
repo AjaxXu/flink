@@ -20,6 +20,7 @@ package org.apache.flink.sql.parser.ddl;
 
 /**
  * All supported data types in DDL. Used for Create Table DDL validation.
+ * DDL中所有支持的数据类型。用于创建Table DDL语句的验证。
  */
 public enum SqlColumnType {
 	BOOLEAN,

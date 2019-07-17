@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * A basic implementation to support unbounded event-time over-window.\
+ * A basic implementation to support unbounded event-time over-window.
  * 支持无限流event-time over window的基本实现
  */
 public abstract class AbstractRowTimeUnboundedPrecedingOver<K> extends KeyedProcessFunctionWithCleanupState<K, BaseRow, BaseRow> {

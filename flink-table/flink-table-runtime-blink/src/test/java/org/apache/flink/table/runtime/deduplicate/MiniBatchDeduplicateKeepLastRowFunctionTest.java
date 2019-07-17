@@ -27,7 +27,6 @@ import org.apache.flink.table.dataformat.BaseRow;
 import org.apache.flink.table.runtime.bundle.KeyedMapBundleOperator;
 import org.apache.flink.table.runtime.bundle.trigger.CountBundleTrigger;
 
-import org.apache.flink.table.runtime.functions.SqlFunctionUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -113,17 +112,5 @@ public class MiniBatchDeduplicateKeepLastRowFunctionTest extends DeduplicateFunc
 		expectedOutput.add(record("book", 3L, 11));
 		testHarness.close();
 		assertor.assertOutputEqualsSorted("output wrong.", expectedOutput, testHarness.getOutput());
-	}
-
-	@Test
-	public void test1() {
-		System.out.println(SqlFunctionUtils.jsonValue("{\n" +
-			"\t\"body\":{\n" +
-			"\t\t\"batch\":{\n" +
-			"\t\t\t\"key\":\"value\",\n" +
-			"\t\t\t\"k1\":\"value1\"\n" +
-			"\t\t}\n" +
-			"\t}\n" +
-			"}", "$[body]"));
 	}
 }

@@ -46,6 +46,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * CREATE TABLE DDL sql call.
+ * CREATE TABLE的DDL 语法。
  */
 public class SqlCreateTable extends SqlCreate implements ExtendedSqlNode {
 

@@ -22,6 +22,7 @@ import org.apache.flink.sql.parser.error.SqlParseException;
 
 /** An remark interface which should be inherited by extended sql nodes which are not supported
  * by Calcite core parser.
+ * 一个注释接口，应由Calcite核心解析器不支持的扩展的sql节点继承。
  *
  * <p>We need this to customize our validation rules combined with the rules defined in
  * {@link org.apache.calcite.sql.validate.SqlValidatorImpl}.

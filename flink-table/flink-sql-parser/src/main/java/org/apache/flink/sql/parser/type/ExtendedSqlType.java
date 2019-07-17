@@ -23,6 +23,7 @@ import org.apache.calcite.sql.SqlWriter;
 
 /** An remark interface which should be inherited by supported sql types which are not supported
  * by Calcite default parser.
+ * 一个注释接口，应由Calcite核心解析器不支持的扩展的sql节点继承。
  *
  * <p>Caution that the subclass must override the method
  * {@link org.apache.calcite.sql.SqlNode#unparse(SqlWriter, int, int)}.

@@ -26,6 +26,7 @@ import org.apache.calcite.sql.type.SqlTypeName;
 
 /**
  * Parse column of Map type.
+ * 解析Map类型列。
  */
 public class SqlMapType extends SqlIdentifier implements ExtendedSqlType {
 

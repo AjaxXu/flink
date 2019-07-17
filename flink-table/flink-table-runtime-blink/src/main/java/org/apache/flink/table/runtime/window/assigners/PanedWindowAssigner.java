@@ -40,7 +40,7 @@ public abstract class PanedWindowAssigner<W extends Window> extends WindowAssign
 	public abstract W assignPane(Object element, long timestamp);
 
 	/**
-	 * Splits the given window into panes collection.将给定窗口拆分为窗格集合。
+	 * Splits the given window into panes collection.将给定窗口拆分为窗格集合.
 	 * @param window the window to be split.
 	 * @return the panes iterable
 	 */

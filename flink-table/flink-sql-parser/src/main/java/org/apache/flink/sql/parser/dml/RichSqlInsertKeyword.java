@@ -23,6 +23,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
  * Defines the keywords that can occur immediately after the "INSERT" keyword.
+ * 定义“INSERT”关键字后可能出现的关键字。
  *
  * <p>Standard SQL has no such keywords, but extension projects may define them.
  *

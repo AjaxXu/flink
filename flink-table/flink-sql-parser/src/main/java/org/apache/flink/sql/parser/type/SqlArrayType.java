@@ -26,6 +26,7 @@ import org.apache.calcite.sql.type.SqlTypeName;
 
 /**
  * Parse column of ArrayType.
+ * 解析ArrayType列。
  */
 public class SqlArrayType extends SqlIdentifier implements ExtendedSqlType {
 

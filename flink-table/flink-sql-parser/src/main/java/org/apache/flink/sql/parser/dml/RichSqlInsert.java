@@ -33,7 +33,10 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-/** A {@link SqlInsert} that have some extension functions like partition, overwrite. **/
+/**
+ * A {@link SqlInsert} that have some extension functions like partition, overwrite.
+ * 一个{@link SqlInsert}，它有一些扩展功能，如partition，overwrite。
+ */
 public class RichSqlInsert extends SqlInsert implements ExtendedSqlNode {
 	private final SqlNodeList staticPartitions;
 

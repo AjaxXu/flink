@@ -25,7 +25,7 @@ import org.apache.flink.util.MathUtils;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
- * Bloom filters for HashTable.HashTable的bloom过滤器
+ * Bloom filters for HashTable.HashTable的bloom过滤器.
  */
 class HashTableBloomFilter {
 
