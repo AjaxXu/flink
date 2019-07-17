@@ -25,7 +25,7 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 
 /**
- * sink operator，通常是流处理的最后一个operator。它接收SinkFunction的实例。在processElement中依次调用其invoke方法。
+ * sink operator，通常是流处理的最后一个operator.它接收SinkFunction的实例.在processElement中依次调用其invoke方法.
  * A {@link StreamOperator} for executing {@link SinkFunction SinkFunctions}.
  */
 @Internal
@@ -57,7 +57,7 @@ public class StreamSink<IN> extends AbstractUdfStreamOperator<Object, SinkFuncti
 		userFunction.invoke(element.getValue(), sinkContext);
 	}
 
-	// 用来计算延迟的，StreamSource会产生LateMarker，用于记录数据计算时间，就是在这里完成了计算。
+	// 用来计算延迟的，StreamSource会产生LateMarker，用于记录数据计算时间，就是在这里完成了计算.
 	// sink中只进行report不再进行forward
 	@Override
 	protected void reportOrForwardLatencyMarker(LatencyMarker marker) {

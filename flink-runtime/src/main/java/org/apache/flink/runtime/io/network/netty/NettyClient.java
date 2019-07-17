@@ -89,7 +89,7 @@ class NettyClient {
 
 			case EPOLL:
 				// Netty自版本4.0.16开始，对于Linux系统提供原生的套接字通信传输支持（也即，epoll机制，借助于JNI调用），
-				// 这种传输机制拥有更高的性能。只支持linux 2.6以上
+				// 这种传输机制拥有更高的性能.只支持linux 2.6以上
 				initEpollBootstrap();
 				break;
 

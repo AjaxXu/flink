@@ -22,7 +22,7 @@ import org.apache.flink.table.dataformat.vector.BytesColumnVector.Bytes;
 import org.apache.flink.table.dataformat.vector.VectorizedColumnBatch;
 
 /**
- * 用于支持向量访问列数据的列式行。它是{@link VectorizedColumnBatch}中的行视图。不能修改内容，只能get不能set
+ * 用于支持向量访问列数据的列式行.它是{@link VectorizedColumnBatch}中的行视图.不能修改内容，只能get不能set
  * Columnar row to support access to vector column data. It is a row view in {@link VectorizedColumnBatch}.
  */
 public final class ColumnarRow implements BaseRow {

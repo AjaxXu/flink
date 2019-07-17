@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 class PartitionRequestClientFactory {
 
-	// 每个PartitionRequestClientFactory实例都依赖一个NettyClient。
+	// 每个PartitionRequestClientFactory实例都依赖一个NettyClient.
 	// 也就是说所有PartitionRequestClient底层都共用一个NettyClient
 	private final NettyClient nettyClient;
 

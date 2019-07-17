@@ -26,7 +26,7 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
 /**
- * Collector的扩展，增加了发射WaterMark的功能。该接口主要供operator用于发射元素或者WaterMark
+ * Collector的扩展，增加了发射WaterMark的功能.该接口主要供operator用于发射元素或者WaterMark
  * A {@link org.apache.flink.streaming.api.operators.StreamOperator} is supplied with an object
  * of this interface that can be used to emit elements and other messages, such as barriers
  * and watermarks, from an operator.

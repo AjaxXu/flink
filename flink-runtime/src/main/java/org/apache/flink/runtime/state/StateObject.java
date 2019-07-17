@@ -25,8 +25,8 @@ import java.io.Serializable;
  * the (small) state directly, or contain a file path (state is in the file), or contain the
  * metadata to access the state stored in some external database.
  *
- * 以某种形式表示检查点状态的所有句柄的基础。
- * 对象可以直接保存（小）状态，或者包含文件路径（状态在文件中），或者包含存储在某些外部数据库中的元数据以访问状态。
+ * 以某种形式表示检查点状态的所有句柄的基础.
+ * 对象可以直接保存（小）状态，或者包含文件路径（状态在文件中），或者包含存储在某些外部数据库中的元数据以访问状态.
  *
  * <p>State objects define how to {@link #discardState() discard state} and how to access the
  * {@link #getStateSize() size of the state}.

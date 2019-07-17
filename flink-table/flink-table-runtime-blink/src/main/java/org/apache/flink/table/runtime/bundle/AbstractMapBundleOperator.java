@@ -42,7 +42,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * optimizations before accessing states, like pre aggregate values for each key. And we will
  * only need to access state every key we have, but not every element we processed.
  * {@link AbstractMapBundleOperator}简单实用Map存储输入的elements.Map键通常与状态键相同，因此我们可以
- * 在访问状态之前进行一些优化，例如每个键的预聚合值。我们只需要访问我们拥有的每个键的状态，但不是处理每个元素。
+ * 在访问状态之前进行一些优化，例如每个键的预聚合值.我们只需要访问我们拥有的每个键的状态，但不是处理每个元素.
  *
  * <p>NOTES: if all elements we processed have different keys, such operator will only increase
  * memory footprint, and will not have any performance improvement.

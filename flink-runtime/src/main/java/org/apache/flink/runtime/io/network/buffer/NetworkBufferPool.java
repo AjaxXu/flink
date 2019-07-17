@@ -48,14 +48,14 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * NetworkBufferPool缓存了固定数目的内存段，主要用于网络栈通信。NetworkBufferPool在每个TaskManager上只有一个，负责所有子task的内存管理
+ * NetworkBufferPool缓存了固定数目的内存段，主要用于网络栈通信.NetworkBufferPool在每个TaskManager上只有一个，负责所有子task的内存管理
  *
  * 为了方便管理NetworkBuffer，Flink提供了BufferPoolFactory，并且提供了唯一实现NetworkBufferPool，这是个工厂模式的应用
  *
  * The NetworkBufferPool is a fixed size pool of {@link MemorySegment} instances
  * for the network stack.
  *
- * 由于NetworkBufferPool只是个工厂，实际的内存池是LocalBufferPool。
+ * 由于NetworkBufferPool只是个工厂，实际的内存池是LocalBufferPool.
  * 每个TaskManager都只有一个NetworkBufferPool工厂，但是上面运行的每个task都要有一个和其他task隔离的LocalBufferPool池，这从逻辑上很好理解
  *
  * <p>The NetworkBufferPool creates {@link LocalBufferPool}s from which the individual tasks draw

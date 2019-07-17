@@ -68,9 +68,9 @@ import java.util.Optional;
  * we always keep only one single registered timer for any given key, registered for the minimal
  * value. Upon triggering it, we process all records with event times older then or equal to
  * currentWatermark.
- * 另一个技巧是如何发生结果和触发状态清除，通过在key上注册timer实现。我们可以为每个probe和build侧元素的eventTime注册timer。
- * 但是这有可能导致巨大的注册timer数量。举例：有以下累积的probe记录eventTime：{1, 2, 5, 8, 9}，如果收到watermark(10),
- * 它将在相同key上分别触发5次timer。为了避免这个问题，我们总是在每个key上保持一个注册的timer，注册最小的值。一旦被触发，将处理所有
+ * 另一个技巧是如何发生结果和触发状态清除，通过在key上注册timer实现.我们可以为每个probe和build侧元素的eventTime注册timer.
+ * 但是这有可能导致巨大的注册timer数量.举例：有以下累积的probe记录eventTime：{1, 2, 5, 8, 9}，如果收到watermark(10),
+ * 它将在相同key上分别触发5次timer.为了避免这个问题，我们总是在每个key上保持一个注册的timer，注册最小的值.一旦被触发，将处理所有
  * eventTime小于当前watermark的record.
  */
 public class TemporalRowTimeJoinOperator
@@ -302,7 +302,7 @@ public class TemporalRowTimeJoinOperator
 	/**
 	 * Binary search {@code rightRowsSorted} to find the latest right row to join with {@code leftTime}.
 	 * Latest means a right row with largest time that is still smaller or equal to {@code leftTime}.
-	 * Latest意味着具有最大时间的右行仍然小于或等于{@code leftTime}。
+	 * Latest意味着具有最大时间的右行仍然小于或等于{@code leftTime}.
 	 *
 	 * @return found element or {@code Optional.empty} If such row was not found (either {@code rightRowsSorted}
 	 *         is empty or all {@code rightRowsSorted} are are newer).

@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- * 一种编码器，以批量方式对数据进行编码，一次编码多个记录。
+ * 一种编码器，以批量方式对数据进行编码，一次编码多个记录.
  * An encoder that encodes data in a bulk fashion, encoding many records together at a time.
  *
  * <p>Examples for bulk encoding are most compressed formats, including formats like
@@ -53,7 +53,7 @@ public interface BulkWriter<T> {
 	void addElement(T element) throws IOException;
 
 	/**
-	 * 将所有中间缓冲数据刷新到输出流。 预计刷新经常会降低编码效率。
+	 * 将所有中间缓冲数据刷新到输出流. 预计刷新经常会降低编码效率.
 	 * Flushes all intermediate buffered data to the output stream.
 	 * It is expected that flushing often may reduce the efficiency of the encoding.
 	 *

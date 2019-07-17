@@ -46,7 +46,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * 一个CatalogManager，它封装了所有可用的catalogs。 它还实现了表路径解析的逻辑
+ * 一个CatalogManager，它封装了所有可用的catalogs. 它还实现了表路径解析的逻辑
  * A CatalogManager that encapsulates all available catalogs. It also implements the logic of
  * table path resolution. Supports both new API ({@link Catalog} as well as {@link ExternalCatalog}).
  */

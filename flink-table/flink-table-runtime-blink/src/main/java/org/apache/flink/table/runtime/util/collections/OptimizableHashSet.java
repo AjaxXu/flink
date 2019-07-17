@@ -21,7 +21,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
  * A type-specific hash set with with a fast, small-footprint implementation.
- * 特定类型的哈希集，快速，小占用的实现。
+ * 特定类型的哈希集，快速，小占用的实现.
  * Refer to the implementation of fastutil.
  *
  * <P>Instances of this class use a hash table to represent a set. The table is
@@ -53,7 +53,7 @@ public abstract class OptimizableHashSet {
 	/** The current table size. 当前table大小*/
 	protected int n;
 
-	/** Threshold after which we rehash. It must be the table size times {@link #f}. 最大填充数量。*/
+	/** Threshold after which we rehash. It must be the table size times {@link #f}. 最大填充数量.*/
 	protected int maxFill;
 
 	/** Is this set has a null key. */

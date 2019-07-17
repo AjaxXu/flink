@@ -298,7 +298,7 @@ public class FieldInfoUtils {
 	}
 
 	/**
-	 * 返回给定{@link TypeInformation}的字段名称。如果输入{@link TypeInformation}不是复合类型，
+	 * 返回给定{@link TypeInformation}的字段名称.如果输入{@link TypeInformation}不是复合类型，
 	 * 则结果字段名称不应存在于existingNames中
 	 * Returns field names for a given {@link TypeInformation}. If the input {@link TypeInformation}
 	 * is not a composite type, the result field name should not exist in the existingNames.

@@ -30,7 +30,7 @@ import java.io.IOException;
 
 /**
  * Gets two matched rows for full outer join.
- * 获取full outer join的两个匹配行。
+ * 获取full outer join的两个匹配行.
  */
 public class SortMergeFullOuterJoinIterator implements Closeable {
 

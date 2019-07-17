@@ -27,7 +27,7 @@ import org.apache.flink.metrics.MetricGroup;
 import java.io.File;
 
 /**
- * {@link FunctionContext}允许获取有关执行用户定义函数的上下文的全局运行时信息。
+ * {@link FunctionContext}允许获取有关执行用户定义函数的上下文的全局运行时信息.
  * A {@link FunctionContext} allows to obtain global runtime information about the context in which the
  * user-defined function is executed.
  *

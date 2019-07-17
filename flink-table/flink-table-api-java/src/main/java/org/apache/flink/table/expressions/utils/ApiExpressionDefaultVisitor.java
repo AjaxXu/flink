@@ -32,7 +32,7 @@ import org.apache.flink.table.expressions.UnresolvedReferenceExpression;
 import org.apache.flink.table.expressions.ValueLiteralExpression;
 
 /**
- * 默认情况下调用{@link #defaultMethod(Expression)}的实用程序{@link ApiExpressionVisitor}，除非显式覆盖其他方法。
+ * 默认情况下调用{@link #defaultMethod(Expression)}的实用程序{@link ApiExpressionVisitor}，除非显式覆盖其他方法.
  * A utility {@link ApiExpressionVisitor} that calls {@link #defaultMethod(Expression)} by default,
  * unless other methods are overridden explicitly.
  */

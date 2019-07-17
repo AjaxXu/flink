@@ -83,7 +83,7 @@ public interface LogicalSlot {
 	boolean isAlive();
 
 	/**
-	 * 赋予该slot一个payload。一次只能接收一个payload
+	 * 赋予该slot一个payload.一次只能接收一个payload
 	 * Tries to assign a payload to this slot. One can only assign a single
 	 * payload once.
 	 *

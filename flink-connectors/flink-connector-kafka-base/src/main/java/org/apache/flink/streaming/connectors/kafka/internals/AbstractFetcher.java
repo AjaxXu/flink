@@ -314,7 +314,7 @@ public abstract class AbstractFetcher<T, KPH> {
 	}
 
 	/**
-	 * 根据Flink中TopicPartition类生成Kafka版本相关的TopicPartition类。这里的泛型指{@link org.apache.kafka.common.TopicPartition}
+	 * 根据Flink中TopicPartition类生成Kafka版本相关的TopicPartition类.这里的泛型指{@link org.apache.kafka.common.TopicPartition}
 	 * Creates the Kafka version specific representation of the given
 	 * topic partition.
 	 *
@@ -685,7 +685,7 @@ public abstract class AbstractFetcher<T, KPH> {
  	// ------------------------------------------------------------------------
 
 	/**
-	 * 周期性watermark发射器。在给定的时间间隔内，检查所有的partition的当前event time watermark
+	 * 周期性watermark发射器.在给定的时间间隔内，检查所有的partition的当前event time watermark
 	 * The periodic watermark emitter. In its given interval, it checks all partitions for
 	 * the current event time watermark, and possibly emits the next watermark.
 	 */

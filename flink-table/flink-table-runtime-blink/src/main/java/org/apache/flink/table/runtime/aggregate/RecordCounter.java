@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 /**
  * The {@link RecordCounter} is used to count the number of input records under the current key.
- * {@link RecordCounter}用于计算当前key下的输入记录数。
+ * {@link RecordCounter}用于计算当前key下的输入记录数.
  */
 public abstract class RecordCounter implements Serializable {
 

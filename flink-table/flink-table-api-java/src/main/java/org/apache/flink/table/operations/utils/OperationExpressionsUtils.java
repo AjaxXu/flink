@@ -48,7 +48,7 @@ import static org.apache.flink.table.functions.BuiltInFunctionDefinitions.WINDOW
 import static org.apache.flink.table.functions.FunctionKind.AGGREGATE;
 
 /**
- * 转换{@link Expression}以在{@link QueryOperation}中使用它们的实用方法。
+ * 转换{@link Expression}以在{@link QueryOperation}中使用它们的实用方法.
  * Utility methods for transforming {@link Expression} to use them in {@link QueryOperation}s.
  *
  * <p>Note: Some of these utilities are intended to be used before expressions are fully resolved and
@@ -92,7 +92,7 @@ public class OperationExpressionsUtils {
 	}
 
 	/**
-	 * 从给定表达式中提取和去重的所有聚合和窗口属性表达式（零个，一个或多个）。
+	 * 从给定表达式中提取和去重的所有聚合和窗口属性表达式（零个，一个或多个）.
 	 * Extracts and deduplicates all aggregation and window property expressions (zero, one, or more)
 	 * from the given expressions.
 	 *

@@ -29,9 +29,9 @@ import java.util.Map;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
- * 对ResultPartition进行管理的部件是结果分区管理器（ResultPartitionManager）。
- * 一个NetworkEnvironment对应一个ResultPartitionManager。
- * ResultPartitionManager会对某个TaskManager中已生产和已被消费的ResultPartition进行跟踪。
+ * 对ResultPartition进行管理的部件是结果分区管理器（ResultPartitionManager）.
+ * 一个NetworkEnvironment对应一个ResultPartitionManager.
+ * ResultPartitionManager会对某个TaskManager中已生产和已被消费的ResultPartition进行跟踪.
  * The result partition manager keeps track of all currently produced/consumed partitions of a
  * task manager.
  */

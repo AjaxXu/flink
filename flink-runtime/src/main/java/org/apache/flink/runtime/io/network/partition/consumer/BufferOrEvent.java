@@ -26,7 +26,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * 一个既可以表示Buffer又可以表示Event的类。上层使用者只需调用isBuffer和isEvent方法即可判断当前收到的这条数据是Buffer还是Event。
+ * 一个既可以表示Buffer又可以表示Event的类.上层使用者只需调用isBuffer和isEvent方法即可判断当前收到的这条数据是Buffer还是Event.
  * Either type for {@link Buffer} or {@link AbstractEvent} instances tagged with the channel index,
  * from which they were received.
  */

@@ -49,7 +49,7 @@ import static org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoT
 
 /**
  * The async join runner to lookup the dimension table.
- * 用于查找维度表的异步联接运行器。
+ * 用于查找维度表的异步联接运行器.
  */
 public class AsyncLookupJoinRunner extends RichAsyncFunction<BaseRow, BaseRow> {
 	private static final long serialVersionUID = -6664660022391632480L;

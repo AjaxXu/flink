@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * in blocks from the underlying channel and decompress it before returning to caller. The view
  * can only read data that has been written by {@link CompressedHeaderlessChannelWriterOutputView},
  * due to block formatting.
- * 视图从底层通道以块为单位读取数据并在返回调用方之前将其解压缩。
+ * 视图从底层通道以块为单位读取数据并在返回调用方之前将其解压缩.
  */
 public class CompressedHeaderlessChannelReaderInputView
 		extends AbstractChannelReaderInputView

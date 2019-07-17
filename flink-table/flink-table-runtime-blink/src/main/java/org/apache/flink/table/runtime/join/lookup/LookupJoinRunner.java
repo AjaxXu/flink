@@ -32,7 +32,7 @@ import org.apache.flink.util.Collector;
 
 /**
  * The join runner to lookup the dimension table.
- * 用于查找维度表的同步联接运行器。
+ * 用于查找维度表的同步联接运行器.
  */
 public class LookupJoinRunner extends ProcessFunction<BaseRow, BaseRow> {
 	private static final long serialVersionUID = -4521543015709964733L;

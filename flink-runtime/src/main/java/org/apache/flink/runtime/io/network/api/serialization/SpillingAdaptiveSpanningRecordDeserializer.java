@@ -90,7 +90,7 @@ public class SpillingAdaptiveSpanningRecordDeserializer<T extends IOReadableWrit
 		return tmp;
 	}
 
-	// getNextRecord方法会传入目标记录的引用并在内部将数据填入目标记录。
+	// getNextRecord方法会传入目标记录的引用并在内部将数据填入目标记录.
 	@Override
 	public DeserializationResult getNextRecord(T target) throws IOException {
 		// always check the non-spanning wrapper first.

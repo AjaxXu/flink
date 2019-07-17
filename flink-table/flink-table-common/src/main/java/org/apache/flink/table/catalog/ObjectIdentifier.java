@@ -32,7 +32,7 @@ import static org.apache.flink.table.utils.EncodingUtils.escapeIdentifier;
  * catalog manager to resolve an identifier to an object.
  *
  * <p>While {@link ObjectPath} is used within the same catalog, instances of this class can be used
- * across catalogs.虽然{@link ObjectPath}在同一目录中使用，但此类的实例可以跨目录使用。
+ * across catalogs.虽然{@link ObjectPath}在同一目录中使用，但此类的实例可以跨目录使用.
  *
  * <p>Two objects are considered equal if they share the same type identifier in a stable session context.
  */

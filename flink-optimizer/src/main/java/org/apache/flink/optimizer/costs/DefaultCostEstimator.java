@@ -22,9 +22,9 @@ package org.apache.flink.optimizer.costs;
 import org.apache.flink.optimizer.dag.EstimateProvider;
 
 /**
- * DefaultCostEstimator继承自CostEstimator，作为默认的（也是唯一的）成本估算器。
- * 它实现了上面计算成本逻辑中调用的一系列增加成本的addXXX方法。这些方法中的绝大部分，
- * 又依赖于预算提供器（EstimateProvider）所提供的预算数据，然后根据不同的增加成本的算法逻辑，利用这些预算数据做计算。
+ * DefaultCostEstimator继承自CostEstimator，作为默认的（也是唯一的）成本估算器.
+ * 它实现了上面计算成本逻辑中调用的一系列增加成本的addXXX方法.这些方法中的绝大部分，
+ * 又依赖于预算提供器（EstimateProvider）所提供的预算数据，然后根据不同的增加成本的算法逻辑，利用这些预算数据做计算.
  * A default cost estimator that has access to basic size and cardinality estimates.
  * <p>
  * This estimator works with actual estimates (as far as they are available) and falls back to setting

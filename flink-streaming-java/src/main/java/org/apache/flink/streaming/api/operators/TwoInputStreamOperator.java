@@ -24,7 +24,7 @@ import org.apache.flink.streaming.runtime.streamrecord.LatencyMarker;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
- * 支持两个流作为输入的operator，同样继承自StreamOperator。
+ * 支持两个流作为输入的operator，同样继承自StreamOperator.
  * Interface for stream operators with two inputs. Use
  * {@link org.apache.flink.streaming.api.operators.AbstractStreamOperator} as a base class if
  * you want to implement a custom operator.

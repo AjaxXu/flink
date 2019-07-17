@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 描述函数的签名。它用于表示用于调试目的的信息
+ * 描述函数的签名.它用于表示用于调试目的的信息
  * Describes the signature of a function. It is meant for representing information for debugging
  * purposes.
  *

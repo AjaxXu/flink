@@ -25,7 +25,7 @@ import scala.concurrent.ExecutionContext;
 
 /**
  * Collection of {@link Executor}, {@link ExecutorService} and {@link ExecutionContext} implementations.
- * {@link Executor}, {@link ExecutorService} and {@link ExecutionContext}实现类的集合，类似多线程中的Executors。
+ * {@link Executor}, {@link ExecutorService} and {@link ExecutionContext}实现类的集合，类似多线程中的Executors.
  * 通过静态方法返回对应的执行类型
  */
 public class Executors {

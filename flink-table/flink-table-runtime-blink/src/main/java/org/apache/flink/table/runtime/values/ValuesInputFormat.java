@@ -33,7 +33,7 @@ import java.io.IOException;
 
 /**
  * Generated ValuesInputFormat.
- * 封装代码生成的GenericInputFormat类。
+ * 封装代码生成的GenericInputFormat类.
  */
 public class ValuesInputFormat
 		extends GenericInputFormat<BaseRow>

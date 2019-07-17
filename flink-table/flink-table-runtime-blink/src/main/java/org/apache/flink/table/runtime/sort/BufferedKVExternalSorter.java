@@ -52,9 +52,9 @@ import java.util.List;
  * When memory is not enough, we spill all the data in memory onto disk and degenerate it into
  * Sort Aggregation. So we need a BufferedKVExternalSorter to write the data that already in
  * memory to disk, and then carry out SortMerge.
- * 对于哈希聚合：我们以KeyValue格式将数据存储在MemorySegmentHashTable中。当内存不足时，我们将内存中的
- * 所有数据溢出到磁盘上并将其退化为Sort Aggregation。所以我们需要一个BufferedKVExternalSorter来将
- * 已经在内存中的数据写入磁盘，然后执行SortMerge。
+ * 对于哈希聚合：我们以KeyValue格式将数据存储在MemorySegmentHashTable中.当内存不足时，我们将内存中的
+ * 所有数据溢出到磁盘上并将其退化为Sort Aggregation.所以我们需要一个BufferedKVExternalSorter来将
+ * 已经在内存中的数据写入磁盘，然后执行SortMerge.
  */
 public class BufferedKVExternalSorter {
 

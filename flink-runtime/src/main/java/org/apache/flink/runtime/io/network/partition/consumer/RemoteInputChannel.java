@@ -56,7 +56,7 @@ import static org.apache.flink.util.Preconditions.checkState;
 /**
  * 用于请求远程生产者任务所生产的ResultSubpartitionView的输入通道
  * An input channel, which requests a remote partition queue.
- * RemoteInputChannel是我们重点关注的输入通道，因为它涉及到远程请求结果子分区。
+ * RemoteInputChannel是我们重点关注的输入通道，因为它涉及到远程请求结果子分区.
  * 远程数据交换的通信机制建立在Netty框架的基础之上，因此会有一个主交互对象PartitionRequestClient来衔接通信层跟输入通道
  */
 public class RemoteInputChannel extends InputChannel implements BufferRecycler, BufferListener {
@@ -74,7 +74,7 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 	 * The received buffers. Received buffers are enqueued by the network I/O thread and the queue
 	 * is consumed by the receiving task thread.
 	 * onBuffer方法的执行处于Netty的I/O线程上，但RemoteInputChannel中getNextBuffer却不会在Netty的I/O线程上被调用，
-	 * 所以必须有一个数据共享的容器，这个容器就是receivedBuffers队列。
+	 * 所以必须有一个数据共享的容器，这个容器就是receivedBuffers队列.
 	 * ---------------------
 	 */
 	private final ArrayDeque<Buffer> receivedBuffers = new ArrayDeque<>();
@@ -545,9 +545,9 @@ public class RemoteInputChannel extends InputChannel implements BufferRecycler, 
 					onError(new BufferReorderingException(expectedSequenceNumber, sequenceNumber));
 					return;
 				}
-				// 消费时首先会进行序列号比对，这可以看作是一种“校验”机制。
+				// 消费时首先会进行序列号比对，这可以看作是一种“校验”机制.
 				// 服务端每响应客户端一个Buffer都会将序列号加一并随响应数据一起发回给客户端，
-				// 而客户端则会在消费时也同时累加本地的序列号计数器。在消费的过程中，两个序列号必须一致才能保证消费的顺利进行，
+				// 而客户端则会在消费时也同时累加本地的序列号计数器.在消费的过程中，两个序列号必须一致才能保证消费的顺利进行，
 				// 否则InputChannel将会抛出BufferReorderingException异常
 
 				wasEmpty = receivedBuffers.isEmpty();

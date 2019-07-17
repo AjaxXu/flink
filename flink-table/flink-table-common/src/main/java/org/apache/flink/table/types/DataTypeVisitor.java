@@ -21,7 +21,7 @@ package org.apache.flink.table.types;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
- * {@link DataType}的访问者定义。 访问者将数据类型转换为{@code R}的实例
+ * {@link DataType}的访问者定义. 访问者将数据类型转换为{@code R}的实例
  * The visitor definition of {@link DataType}. The visitor transforms a data type into
  * instances of {@code R}.
  */

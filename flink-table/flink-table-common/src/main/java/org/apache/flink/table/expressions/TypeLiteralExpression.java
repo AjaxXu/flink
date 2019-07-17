@@ -32,8 +32,8 @@ import java.util.Objects;
  *
  * <p>Expressing a type is primarily needed for casting operations. This expression simplifies the
  * {@link Expression} design as it makes {@link CallExpression} the only expression that takes
- * subexpressions.表达类型主要用于cast操作。此表达式简化了{@link Expression}设计，因为它使{@link CallExpression}
- * 成为唯一采用子表达式的表达式。
+ * subexpressions.表达类型主要用于cast操作.此表达式简化了{@link Expression}设计，因为它使{@link CallExpression}
+ * 成为唯一采用子表达式的表达式.
  */
 @PublicEvolving
 public final class TypeLiteralExpression implements ResolvedExpression {

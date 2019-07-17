@@ -44,8 +44,8 @@ public interface CompositeStateHandle extends StateObject {
 	 * {@link SharedStateRegistry}. This method is called when the checkpoint
 	 * successfully completes or is recovered from failures.
 	 *
-	 * 在给定的{@link SharedStateRegistry}中注册新创建的和已引用的共享状态。
-	 * 当检查点成功完成或从故障中恢复时，将调用此方法。
+	 * 在给定的{@link SharedStateRegistry}中注册新创建的和已引用的共享状态.
+	 * 当检查点成功完成或从故障中恢复时，将调用此方法.
 	 *
 	 * <p>
 	 * After this is completed, newly created shared state is considered as published is no longer
@@ -53,8 +53,8 @@ public interface CompositeStateHandle extends StateObject {
 	 * {@link #discardState()}. Instead, {@link #discardState()} will trigger an unregistration
 	 * from the registry.
 	 *
-	 * 完成此操作后，新创建的共享状态被视为已发布不再由此句柄拥有。这意味着它不应再作为调用
-	 * {@link #discardState() }的一部分被删除。相反，{@link #discardState()} 将触发注册表的注销操作
+	 * 完成此操作后，新创建的共享状态被视为已发布不再由此句柄拥有.这意味着它不应再作为调用
+	 * {@link #discardState() }的一部分被删除.相反，{@link #discardState()} 将触发注册表的注销操作
 	 *
 	 * @param stateRegistry The registry where shared states are registered.
 	 */

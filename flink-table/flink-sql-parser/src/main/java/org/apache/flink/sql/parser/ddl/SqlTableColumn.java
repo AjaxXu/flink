@@ -38,7 +38,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * Table column of a CREATE TABLE DDL.
- * CREATE TABLE的DDL语句中Table列。
+ * CREATE TABLE的DDL语句中Table列.
  */
 public class SqlTableColumn extends SqlCall {
 	private static final SqlSpecialOperator OPERATOR =

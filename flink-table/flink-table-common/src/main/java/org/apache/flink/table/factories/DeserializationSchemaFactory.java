@@ -33,7 +33,7 @@ import java.util.Map;
 public interface DeserializationSchemaFactory<T> extends TableFormatFactory<T> {
 
 	/**
-	 * {@link DeserializationSchema}定义了如何将byte信息转化为数据类型，比如讲byte数组转化为row。
+	 * {@link DeserializationSchema}定义了如何将byte信息转化为数据类型，比如讲byte数组转化为row.
 	 * 以json举例：将byte转为字符串，然后解析成Row对象
 	 * Creates and configures a {@link DeserializationSchema} using the given properties.
 	 *

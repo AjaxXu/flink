@@ -164,7 +164,7 @@ public class RecordWriter<T extends IOReadableWritable> {
 		// We should reset the initial position of the intermediate serialization buffer before
 		// copying, so the serialization results can be copied to multiple target buffers.
 		// 这一步reset是为了在数据发送如果是broadcast这种一份数据需要发送多个下游通道的时候，就可以只序列化一次，后续数据发送的时候只需要将bytebuffer
-		// 的position值值置到0就可以了。
+		// 的position值值置到0就可以了.
 		serializer.reset();
 
 		boolean pruneTriggered = false;

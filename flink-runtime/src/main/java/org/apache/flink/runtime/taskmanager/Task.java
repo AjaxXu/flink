@@ -675,7 +675,7 @@ public class Task implements Runnable, TaskActions, PartitionProducerStateProvid
 
 			// now load and instantiate the task's invokable code
 			// 根据类加载器以及用户的可执行体在Flink中所对应的具体的实现类名来加载该类
-			// 这里的invokable即为operator对象实例，通过反射创建。具体地，即为OneInputStreamTask，或者SourceStreamTask等
+			// 这里的invokable即为operator对象实例，通过反射创建.具体地，即为OneInputStreamTask，或者SourceStreamTask等
 			invokable = loadAndInstantiateInvokable(userCodeClassLoader, nameOfInvokableClass, env);
 
 			// ----------------------------------------------------------------
@@ -700,7 +700,7 @@ public class Task implements Runnable, TaskActions, PartitionProducerStateProvid
 			executingThread.setContextClassLoader(userCodeClassLoader);
 
 			// run the invokable
-			// 这个方法就是用户代码所真正被执行的入口。比如我们写的什么new MapFunction()的逻辑，最终就是在这里被执行的。
+			// 这个方法就是用户代码所真正被执行的入口.比如我们写的什么new MapFunction()的逻辑，最终就是在这里被执行的.
 			invokable.invoke();
 
 			// make sure, we enter the catch block if the task leaves the invoke() method due

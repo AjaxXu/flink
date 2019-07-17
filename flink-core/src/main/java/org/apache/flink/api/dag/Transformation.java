@@ -34,21 +34,21 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * Transformation是所有transformation的抽象类，提供了实现transformation的基础功能。
- * 每一个DataStream都有一个与之对应的Transformation。
+ * Transformation是所有transformation的抽象类，提供了实现transformation的基础功能.
+ * 每一个DataStream都有一个与之对应的Transformation.
  *
  * A {@code Transformation} represents the operation that creates a
  * DataStream. Every DataStream has an underlying
  * {@code Transformation} that is the origin of said DataStream.
  *
  * 一些API操作，比如DataStream#map，将会在底层创建一个StreamTransformation树，
- * 而在程序的运行时，该拓扑结构会被翻译为StreamGraph。
+ * 而在程序的运行时，该拓扑结构会被翻译为StreamGraph.
  *
  * <p>API operations such as DataStream#map create
  * a tree of {@code Transformation}s underneath. When the stream program is to be executed
  * this graph is translated to a StreamGraph using StreamGraphGenerator.
  *
- * Transformation无关运行时的执行，它只是逻辑上的概念。
+ * Transformation无关运行时的执行，它只是逻辑上的概念.
  * <p>A {@code Transformation} does not necessarily correspond to a physical operation
  * at runtime. Some operations are only logical concepts. Examples of this are union,
  * split/select data stream, partitioning.

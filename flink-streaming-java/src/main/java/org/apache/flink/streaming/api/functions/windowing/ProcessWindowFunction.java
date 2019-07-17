@@ -26,7 +26,7 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
 /**
- * 使用用于检索额外信息的上下文在键控（分组）窗口上评估的函数的基本抽象类。
+ * 使用用于检索额外信息的上下文在键控（分组）窗口上评估的函数的基本抽象类.
  * Base abstract class for functions that are evaluated over keyed (grouped) windows using a context
  * for retrieving extra information.
  *

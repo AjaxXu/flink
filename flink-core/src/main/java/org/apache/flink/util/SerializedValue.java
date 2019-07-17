@@ -27,7 +27,7 @@ import java.util.Arrays;
  * This class is used to transfer (via serialization) objects whose classes are not available
  * in the system class loader. When those objects are deserialized without access to their
  * special class loader, the deserialization fails with a {@code ClassNotFoundException}.
- * 此类用于传输（通过序列化）其类在系统类加载器中不可用的对象。
+ * 此类用于传输（通过序列化）其类在系统类加载器中不可用的对象.
  * 当这些对象被反序列化而无法访问其特殊的类加载器时，反序列化失败并带有{@code ClassNotFoundException}
  *
  * <p>To work around that issue, the SerializedValue serialized data immediately into a byte array.

@@ -80,8 +80,8 @@ public class HeapBytesVector extends AbstractHeapVector implements BytesColumnVe
 	}
 
 	/**
-	 * 通过实际复制到本地缓冲区来设置字段。如果必须将数据实际复制到数组中，请使用此方法。
-	 * 不要使用此方法，除非使用setRef()通过引用设置数据是不切实际的。通过引用设置数据往往比复制数据运行得快得多。
+	 * 通过实际复制到本地缓冲区来设置字段.如果必须将数据实际复制到数组中，请使用此方法.
+	 * 不要使用此方法，除非使用setRef()通过引用设置数据是不切实际的.通过引用设置数据往往比复制数据运行得快得多.
 	 * Set a field by actually copying in to a local buffer.
 	 * If you must actually copy data in to the array, use this method.
 	 * DO NOT USE this method unless it's not practical to set data by reference with setRef().

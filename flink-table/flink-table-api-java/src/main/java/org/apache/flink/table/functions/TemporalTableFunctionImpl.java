@@ -26,15 +26,15 @@ import org.apache.flink.table.operations.QueryOperation;
 import java.sql.Timestamp;
 
 /**
- * 表示某些历史表上的时态表函数的类。 它需要一个参数{@code timeAttribute}，它返回{@code underlyingHistoryTable}的匹配版本，
- * 从中创建了这个{@link TemporalTableFunction}。
+ * 表示某些历史表上的时态表函数的类. 它需要一个参数{@code timeAttribute}，它返回{@code underlyingHistoryTable}的匹配版本，
+ * 从中创建了这个{@link TemporalTableFunction}.
  * Class representing temporal table function over some history table.
  * It takes one single argument, the {@code timeAttribute}, for which it returns matching version of
  * the {@code underlyingHistoryTable}, from which this {@link TemporalTableFunction} was created.
  *
  * <p>This function shouldn't be evaluated. Instead calls to it should be rewritten by the optimiser
  * into other operators (like Temporal Table Join).
- * 该函数不能执行。相反，调用它应该由优化器重写为其他运算符(如Temporal Table Join)
+ * 该函数不能执行.相反，调用它应该由优化器重写为其他运算符(如Temporal Table Join)
  */
 @Internal
 public final class TemporalTableFunctionImpl extends TemporalTableFunction {

@@ -21,9 +21,9 @@ package org.apache.flink.streaming.api.operators;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
- * 该枚举定义了operator的chain strategy(链接策略)。当一个operator链接到其前置operator时，
- * 意味着它们将在同一个线程上执行。StreamOperator的默认值是HEAD，这意味着它将没有前置operator，
- * 不过它有可能成为其他operator的前置operator。大部分StreamOperator将该枚举以ALWAYS覆盖，表示它们将链接到一个前置operator
+ * 该枚举定义了operator的chain strategy(链接策略).当一个operator链接到其前置operator时，
+ * 意味着它们将在同一个线程上执行.StreamOperator的默认值是HEAD，这意味着它将没有前置operator，
+ * 不过它有可能成为其他operator的前置operator.大部分StreamOperator将该枚举以ALWAYS覆盖，表示它们将链接到一个前置operator
  * Defines the chaining scheme for the operator. When an operator is chained to the
  * predecessor, it means that they run in the same thread. They become one operator
  * consisting of multiple steps.

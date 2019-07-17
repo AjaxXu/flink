@@ -35,7 +35,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
- * CoLocationConstraint管理task集合的位置。在co-location groups中，不同的JobVertices 的subtasks需要被运行在相同的{@link Instance}中。
+ * CoLocationConstraint管理task集合的位置.在co-location groups中，不同的JobVertices 的subtasks需要被运行在相同的{@link Instance}中.
  * 通过创建一个特殊的shared slot实现
  * A CoLocationConstraint manages the location of a set of tasks
  * (Execution Vertices). In co-location groups, the different subtasks of

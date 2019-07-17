@@ -27,7 +27,7 @@ import java.util.Objects;
 
 /**
  * ComputationState队列表示的是一系列当前匹配到的计算状态，
- * 每一个状态在拿到下一个元素的时候都会根据condition判断自己是能够继续往下匹配生成下一个computation state还是匹配失败。
+ * 每一个状态在拿到下一个元素的时候都会根据condition判断自己是能够继续往下匹配生成下一个computation state还是匹配失败.
  * Helper class which encapsulates the currentStateName of the NFA computation. It points to the current currentStateName,
  * the previous entry of the pattern, the current version and the starting timestamp
  * of the overall pattern.

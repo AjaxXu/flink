@@ -38,7 +38,7 @@ import java.util.List;
 
 /**
  * CREATE VIEW DDL sql call.
- * CREATE VIEW的DDL语法。
+ * CREATE VIEW的DDL语法.
  */
 public class SqlCreateView extends SqlCreate implements ExtendedSqlNode {
 	public static final SqlSpecialOperator OPERATOR = new SqlSpecialOperator("CREATE_VIEW", SqlKind.CREATE_VIEW);

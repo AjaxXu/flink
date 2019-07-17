@@ -25,7 +25,7 @@ import java.io.Serializable;
 /**
  * A {@link BundleTrigger} determines when a bundle of input elements should be evaluated and
  * trigger the callback which registered previously.
- * {@link BundleTrigger}确定何时应执行一组输入元素并触发先前注册的回调。
+ * {@link BundleTrigger}确定何时应执行一组输入元素并触发先前注册的回调.
  *
  * @param <T> The input element type.
  */

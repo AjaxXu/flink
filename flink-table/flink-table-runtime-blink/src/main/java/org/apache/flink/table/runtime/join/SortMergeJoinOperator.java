@@ -54,7 +54,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * An implementation that realizes the joining through a sort-merge join strategy.
- * 通过排序-合并连接策略实现join的实现。
+ * 通过排序-合并连接策略实现join的实现.
  * 1.In most cases, its performance is weaker than HashJoin.
  * 2.It is more stable than HashJoin, and most of the data can be sorted stably.
  * 3.SortMergeJoin should be the best choice if sort can be omitted in the case of multi-level join

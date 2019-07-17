@@ -21,7 +21,7 @@ import org.apache.flink.table.util.MurmurHashUtil;
 
 /**
  * Long hash set.
- * Long类型hash set。
+ * Long类型hash set.
  */
 public class LongHashSet extends OptimizableHashSet {
 

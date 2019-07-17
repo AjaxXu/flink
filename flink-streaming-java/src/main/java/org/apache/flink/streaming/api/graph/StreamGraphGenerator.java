@@ -675,7 +675,7 @@ public class StreamGraphGenerator {
 		}
 
 		// 在给StreamGraph创建并添加一个operator时，需要给该operator指定slotSharingGroup，
-		// 这时需要调用方法determineSlotSharingGroup来获得SlotSharingGroup的名称。
+		// 这时需要调用方法determineSlotSharingGroup来获得SlotSharingGroup的名称.
 		// 这个group用来定义当前我们在处理的这个操作符可以跟什么操作符chain到一个slot里进行操作
 		// 因为有时候我们可能不满意flink替我们做的chain聚合
 		// 一个slot就是一个执行task的基本容器

@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A simple iterator over the input read though an I/O channel.通过I/O通道读取输入的简单迭代器。
+ * A simple iterator over the input read though an I/O channel.通过I/O通道读取输入的简单迭代器.
  * Use {@link BinaryRowSerializer#deserializeFromPages}.
  */
 public class BinaryRowChannelInputViewIterator implements MutableObjectIterator<BinaryRow> {

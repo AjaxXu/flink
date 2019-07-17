@@ -209,9 +209,9 @@ class PartitionRequestQueue extends ChannelInboundHandlerAdapter {
 	}
 
 	/**
-	 * channelWritabilityChanged方法是ChannelInboundHandler的接口方法，当Channel的可写状态发生改变时会被调用。
-	 * Channel的isWritable()方法可以用来检测其可写性。可写性的阈值范围可以通过Channel.config().setWriteHighWaterMark()
-	 * 以及Channel.config().setWriteLowWaterMark()进行设置。
+	 * channelWritabilityChanged方法是ChannelInboundHandler的接口方法，当Channel的可写状态发生改变时会被调用.
+	 * Channel的isWritable()方法可以用来检测其可写性.可写性的阈值范围可以通过Channel.config().setWriteHighWaterMark()
+	 * 以及Channel.config().setWriteLowWaterMark()进行设置.
 	 */
 	@Override
 	public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {

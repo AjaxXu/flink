@@ -596,7 +596,7 @@ public class FlinkYarnSessionCli extends AbstractCustomCommandLine<ApplicationId
 
 		final AbstractYarnClusterDescriptor yarnClusterDescriptor = createClusterDescriptor(cmd);
 
-		// 2.根据命令行参数决定执行那种模式。
+		// 2.根据命令行参数决定执行那种模式.
 		try {
 			// Query cluster for metrics
 			// 第一种，判断命令是否包含 -q

@@ -137,8 +137,8 @@ public abstract class AbstractPagedInputView implements DataInputView {
 	 * of the byte after the last valid byte in the given memory segment. When the position returned by this
 	 * method is reached, the view will attempt to switch to the next memory segment.
 	 *
-	 * 获取从给定内存段读取字节的限制。此方法必须返回给定内存段中最后一个有效字节之后的字节位置。
-	 * 当达到此方法返回的位置时，视图将尝试切换到下一个内存段。
+	 * 获取从给定内存段读取字节的限制.此方法必须返回给定内存段中最后一个有效字节之后的字节位置.
+	 * 当达到此方法返回的位置时，视图将尝试切换到下一个内存段.
 	 *
 	 * @param segment The segment to determine the limit for.
 	 * @return The limit for the given memory segment.

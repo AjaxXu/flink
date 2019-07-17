@@ -21,7 +21,7 @@ package org.apache.flink.runtime.io.network.buffer;
 import org.apache.flink.core.memory.MemorySegment;
 
 /**
- * BufferRecycler接口有一个名为FreeingBufferRecycler的简单实现者，它的做法是直接释放内存段。
+ * BufferRecycler接口有一个名为FreeingBufferRecycler的简单实现者，它的做法是直接释放内存段.
  * A simple buffer recycler that frees the memory segments.
  */
 public class FreeingBufferRecycler implements BufferRecycler {

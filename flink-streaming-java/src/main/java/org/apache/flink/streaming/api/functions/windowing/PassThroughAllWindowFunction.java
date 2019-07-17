@@ -23,7 +23,7 @@ import org.apache.flink.streaming.api.windowing.windows.Window;
 import org.apache.flink.util.Collector;
 
 /**
- * 该类仅仅提供passthrough功能，也即直接通过发射器将窗口内的元素迭代发射出去，除此之外不进行任何操作。
+ * 该类仅仅提供passthrough功能，也即直接通过发射器将窗口内的元素迭代发射出去，除此之外不进行任何操作.
  * A {@link AllWindowFunction} that just emits each input element.
  */
 @Internal

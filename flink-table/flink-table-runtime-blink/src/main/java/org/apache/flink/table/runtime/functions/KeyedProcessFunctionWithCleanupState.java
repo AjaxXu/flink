@@ -29,7 +29,7 @@ import java.io.IOException;
 
 /**
  * A function that processes elements of a stream, and could cleanup state.
- * 一个处理流元素的函数，可以清理状态。
+ * 一个处理流元素的函数，可以清理状态.
  * @param <K> Type of the key.
  * @param <IN>  Type of the input elements.
  * @param <OUT> Type of the output elements.

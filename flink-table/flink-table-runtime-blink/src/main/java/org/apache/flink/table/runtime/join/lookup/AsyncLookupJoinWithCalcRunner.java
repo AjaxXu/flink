@@ -37,7 +37,7 @@ import java.util.Collection;
 
 /**
  * The async join runner with an additional calculate function on the dimension table.
- * 用于查找维度表的异步联接运行器，加了额外的计算函数。
+ * 用于查找维度表的异步联接运行器，加了额外的计算函数.
  */
 public class AsyncLookupJoinWithCalcRunner extends AsyncLookupJoinRunner {
 
@@ -114,7 +114,7 @@ public class AsyncLookupJoinWithCalcRunner extends AsyncLookupJoinRunner {
 			if (result == null || result.size() == 0) {
 				joinConditionResultFuture.complete(result);
 			} else {
-				// 如果不为null，则使用calc函数计算。计算后的内容放入calcCollector
+				// 如果不为null，则使用calc函数计算.计算后的内容放入calcCollector
 				for (BaseRow row : result) {
 					try {
 						calc.flatMap(row, calcCollector);

@@ -173,7 +173,7 @@ public class BinaryRowTest {
 		{
 			// multi memorySegments
 			String str = "啦啦啦啦啦我是快乐的粉刷匠，啦啦啦啦啦我是快乐的粉刷匠，" +
-					"啦啦啦啦啦我是快乐的粉刷匠。";
+					"啦啦啦啦啦我是快乐的粉刷匠.";
 			BinaryRow row = new BinaryRow(1);
 			BinaryRowWriter writer = new BinaryRowWriter(row);
 			writer.writeString(0, BinaryString.fromString(str));
@@ -199,8 +199,8 @@ public class BinaryRowTest {
 		{
 			// multi memorySegments
 			String str1 = "啦啦啦啦啦我是快乐的粉刷匠，啦啦啦啦啦我是快乐的粉刷匠，" +
-					"啦啦啦啦啦我是快乐的粉刷匠。";
-			String str2 = "啦啦啦啦啦我是快乐的粉刷匠。";
+					"啦啦啦啦啦我是快乐的粉刷匠.";
+			String str2 = "啦啦啦啦啦我是快乐的粉刷匠.";
 			BinaryRow row = new BinaryRow(2);
 			BinaryRowWriter writer = new BinaryRowWriter(row);
 			writer.writeString(0, BinaryString.fromString(str1));

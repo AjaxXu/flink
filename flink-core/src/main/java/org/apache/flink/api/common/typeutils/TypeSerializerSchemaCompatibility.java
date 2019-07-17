@@ -59,7 +59,7 @@ public class TypeSerializerSchemaCompatibility<T> {
 		COMPATIBLE_AFTER_MIGRATION,
 
 		/**
-		 * 这表明新serializer的重新配置版本是兼容的，应该使用它而不是原始的新序列化器。
+		 * 这表明新serializer的重新配置版本是兼容的，应该使用它而不是原始的新序列化器.
 		 * This indicates that a reconfigured version of the new serializer
 		 * is compatible, and should be used instead of the original new serializer.
 		 */

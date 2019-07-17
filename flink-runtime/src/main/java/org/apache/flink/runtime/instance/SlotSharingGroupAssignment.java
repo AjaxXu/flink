@@ -43,7 +43,7 @@ import java.util.Set;
 
 
 /**
- * SlotSharingGroupAssignment管理shared slots集合，它们在{@link org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup}的任务之间共享。
+ * SlotSharingGroupAssignment管理shared slots集合，它们在{@link org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup}的任务之间共享.
  * The SlotSharingGroupAssignment manages a set of shared slots, which are shared between
  * tasks of a {@link org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup}.
  * 
@@ -54,7 +54,7 @@ import java.util.Set;
  * sink vertex. Each shared slot holds the actual subtasks in child slots, which are (at the leaf level),
  * the {@link SimpleSlot}s.</p>
  *
- * 一个例外是co-location-constraints，表示vertex的第i个subtask必须和co-location-constraint的其他vertex的第i个subtask放在一起。
+ * 一个例外是co-location-constraints，表示vertex的第i个subtask必须和co-location-constraint的其他vertex的第i个subtask放在一起.
  * 为了管理这种关系，co-location-constraint获得他自己的shared slot
  * <p>An exception are the co-location-constraints, that define that the i-th subtask of one
  * vertex needs to be scheduled strictly together with the i-th subtasks of the vertices
@@ -251,7 +251,7 @@ public class SlotSharingGroupAssignment {
 				// 遍历可用的slot，把该shared slot 加入进去
 				for (Map.Entry<AbstractID, Map<ResourceID, List<SharedSlot>>> entry : availableSlotsPerJid.entrySet()) {
 					// there is already an entry for this groupID
-					// 该groupId已经存在一条，则直接跳过。因为已经被该groupId使用了，等release时可以加入
+					// 该groupId已经存在一条，则直接跳过.因为已经被该groupId使用了，等release时可以加入
 					if (entry.getKey().equals(groupIdForMap)) {
 						entryForNewJidExists = true;
 						continue;
@@ -279,7 +279,7 @@ public class SlotSharingGroupAssignment {
 	}
 
 	/**
-	 * 为task vertex 获取一个合适的slot。会根据locationPreferences(位置偏好)先获取
+	 * 为task vertex 获取一个合适的slot.会根据locationPreferences(位置偏好)先获取
 	 * Gets a slot suitable for the given task vertex. This method will prefer slots that are local
 	 * (with respect to {@link ExecutionVertex#getPreferredLocationsBasedOnInputs()}), but will return non local
 	 * slots if no local slot is available. The method returns null, when this sharing group has
@@ -443,7 +443,7 @@ public class SlotSharingGroupAssignment {
 
 				// set the flag that we failed a preferred location. If one will be found,
 				// we return early anyways and skip the flag evaluation
-				// 设置没有找到 preferred 位置。如果找到会直接返回，跳过该flag检测
+				// 设置没有找到 preferred 位置.如果找到会直接返回，跳过该flag检测
 				didNotGetPreferred = true;
 
 				SharedSlot slot = removeFromMultiMap(slotsForGroup, location.getResourceID());
@@ -477,7 +477,7 @@ public class SlotSharingGroupAssignment {
 	// ------------------------------------------------------------------------
 
 	/**
-	 * 从assignment group中释放。调用顺序为SimpleSlot.releaseSlot -> SharedSlot.releaseChild -> releaseSimpleSlot
+	 * 从assignment group中释放.调用顺序为SimpleSlot.releaseSlot -> SharedSlot.releaseChild -> releaseSimpleSlot
 	 * Releases the simple slot from the assignment group.
 	 * 
 	 * @param simpleSlot The SimpleSlot to be released

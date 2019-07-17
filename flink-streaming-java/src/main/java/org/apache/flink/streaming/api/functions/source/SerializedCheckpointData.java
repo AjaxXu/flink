@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 此类表示元素集合的序列化checkpoint数据。
+ * 此类表示元素集合的序列化checkpoint数据.
  * This class represents serialized checkpoint data for a collection of elements.
  */
 class SerializedCheckpointData implements java.io.Serializable {

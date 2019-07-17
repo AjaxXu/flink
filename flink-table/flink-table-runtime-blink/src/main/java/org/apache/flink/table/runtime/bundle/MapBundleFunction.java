@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * Basic interface for map bundle processing.
- * 以Map作为数据存储，来处理element的基本接口。用于微批函数处理
+ * 以Map作为数据存储，来处理element的基本接口.用于微批函数处理
  *
  * @param <K>   The type of the key in the bundle map
  * @param <V>   The type of the value in the bundle map

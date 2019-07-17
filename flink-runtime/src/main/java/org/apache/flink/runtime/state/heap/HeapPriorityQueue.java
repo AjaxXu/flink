@@ -121,7 +121,7 @@ public class HeapPriorityQueue<T extends HeapPriorityQueueElement>
 		final T currentElement = heap[idx];
 		int parentIdx = idx >>> 1;
 
-		// 每次将比较的index，缩小一半，如果被比较元素的优先级高于新插入的元素就将被比较元素后移，直至比较到第一个元素。
+		// 每次将比较的index，缩小一半，如果被比较元素的优先级高于新插入的元素就将被比较元素后移，直至比较到第一个元素.
 		// 这样能够保证idx为1的元素是最早时间触发的
 		while (parentIdx > 0 && isElementPriorityLessThen(currentElement, heap[parentIdx])) {
 			moveElementToIdx(heap[parentIdx], idx);

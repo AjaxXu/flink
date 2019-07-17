@@ -23,7 +23,7 @@ import org.apache.flink.runtime.clusterframework.types.ResourceProfile;
 import org.apache.flink.runtime.taskmanager.TaskManagerLocation;
 
 /**
- * 在slot的上下文中提供基本信息的接口。
+ * 在slot的上下文中提供基本信息的接口.
  * Interface that provides basic information in the context of a slot.
  */
 public interface SlotInfo {

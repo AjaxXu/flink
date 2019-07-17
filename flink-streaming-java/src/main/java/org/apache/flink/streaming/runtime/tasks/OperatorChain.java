@@ -412,7 +412,7 @@ public class OperatorChain<OUT, OP extends StreamOperator<OUT>> implements Strea
 		}
 	}
 
-	// 由于这个过程是递归的，所以chained operators实际上是从下游往上游去反向一个个创建和setup的。
+	// 由于这个过程是递归的，所以chained operators实际上是从下游往上游去反向一个个创建和setup的.
 	private <IN, OUT> WatermarkGaugeExposingOutput<StreamRecord<IN>> createChainedOperator(
 			StreamTask<?, ?> containingTask,
 			StreamConfig operatorConfig,
@@ -434,7 +434,7 @@ public class OperatorChain<OUT, OP extends StreamOperator<OUT>> implements Strea
 		// now create the operator and give it the output collector to write its output to
 		StreamOperatorFactory<OUT> chainedOperatorFactory = operatorConfig.getStreamOperatorFactory(userCodeClassloader);
 		// setup当前operator，其实是把下游operator的collector作为当前operator的output
-		// 这样当前operator调用collect的时候，就会调用下游operator的方法。
+		// 这样当前operator调用collect的时候，就会调用下游operator的方法.
 		OneInputStreamOperator<IN, OUT> chainedOperator = chainedOperatorFactory.createStreamOperator(
 				containingTask, operatorConfig, chainedOperatorOutput);
 

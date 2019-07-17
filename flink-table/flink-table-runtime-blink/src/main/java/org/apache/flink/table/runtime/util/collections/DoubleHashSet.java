@@ -21,7 +21,7 @@ import org.apache.flink.table.util.MurmurHashUtil;
 
 /**
  * Double hash set.
- * Double类型hash set。
+ * Double类型hash set.
  */
 public class DoubleHashSet extends OptimizableHashSet {
 

@@ -222,7 +222,7 @@ public abstract class MemorySegment {
 	 * <p>After this operation has been called, no further operations are possible on the memory
 	 * segment and will fail. The actual memory (heap or off-heap) will only be released after this
 	 * memory segment object has become garbage collected.
-	 * 调用此操作后，内存段上无法进一步操作，并且将失败。实际内存（堆或堆外）仅在此MemorySegment对象被回收后才会释放。
+	 * 调用此操作后，内存段上无法进一步操作，并且将失败.实际内存（堆或堆外）仅在此MemorySegment对象被回收后才会释放.
 	 */
 	public void free() {
 		// this ensures we can place no more data and trigger

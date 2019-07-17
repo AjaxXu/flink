@@ -560,7 +560,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 			LOG.info("Consumer subtask {} will start reading {} partitions with offsets in restored state: {}",
 				getRuntimeContext().getIndexOfThisSubtask(), subscribedPartitionsToStartOffsets.size(), subscribedPartitionsToStartOffsets);
 		} else {
-			// 因为restoreState为null，说明之前没有拉去过。使用partition discoverer去拉取初始的seed partitions，并且根据startup模式设置初始的offset
+			// 因为restoreState为null，说明之前没有拉去过.使用partition discoverer去拉取初始的seed partitions，并且根据startup模式设置初始的offset
 			// use the partition discoverer to fetch the initial seed partitions,
 			// and set their initial offsets depending on the startup mode.
 			// for SPECIFIC_OFFSETS and TIMESTAMP modes, we set the specific offsets now;
@@ -829,7 +829,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 		if (discoveryLoopThread != null) {
 
 			if (partitionDiscoverer != null) {
-				// 不能直接close，因为并发访问容易出错。只有wakeup the discoverer，发现循环将自动清理
+				// 不能直接close，因为并发访问容易出错.只有wakeup the discoverer，发现循环将自动清理
 				// we cannot close the discoverer here, as it is error-prone to concurrent access;
 				// only wakeup the discoverer, the discovery loop will clean itself up after it escapes
 				partitionDiscoverer.wakeup();
@@ -917,7 +917,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 		}
 	}
 
-	// kafka的snapshot逻辑就是记录一下当前消费的offsets，然后做成tuple（partitiion，offset）放进一个StateBackend里。
+	// kafka的snapshot逻辑就是记录一下当前消费的offsets，然后做成tuple（partitiion，offset）放进一个StateBackend里.
 	// StateBackend是flink抽象出来的一个用于保存状态的接口
 	@Override
 	public final void snapshotState(FunctionSnapshotContext context) throws Exception {

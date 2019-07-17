@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * table和view的共同父类。它有一个key-value对的map来定义table属性
+ * table和view的共同父类.它有一个key-value对的map来定义table属性
  * CatalogBaseTable is the common parent of table and view. It has a map of
  * key-value pairs defining the properties of the table.
  */

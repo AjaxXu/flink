@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Operator for batch sort.
- * 底层使用{@link BinaryExternalSorter}实现。
+ * 底层使用{@link BinaryExternalSorter}实现.
  */
 public class SortOperator extends TableStreamOperator<BinaryRow>
 		implements OneInputStreamOperator<BaseRow, BinaryRow>, BoundedOneInput {

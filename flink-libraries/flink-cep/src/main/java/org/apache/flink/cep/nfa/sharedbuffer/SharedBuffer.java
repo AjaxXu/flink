@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * SharedBuffer用于存储中间匹配命中的数据，这是一个基于论文实现的带版本的内存共享，主要解决的事情是在同一个元素触发多个分支的时候避免存储多次。
+ * SharedBuffer用于存储中间匹配命中的数据，这是一个基于论文实现的带版本的内存共享，主要解决的事情是在同一个元素触发多个分支的时候避免存储多次.
  * A shared buffer implementation which stores values under according state. Additionally, the values can be
  * versioned such that it is possible to retrieve their predecessor element in the buffer.
  *

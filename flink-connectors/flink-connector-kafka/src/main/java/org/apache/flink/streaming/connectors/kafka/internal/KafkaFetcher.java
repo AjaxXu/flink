@@ -47,7 +47,7 @@ import java.util.Properties;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
- * 通过Kafka consumer API从Kafka broker获取数据的提取程序。
+ * 通过Kafka consumer API从Kafka broker获取数据的提取程序.
  * A fetcher that fetches data from Kafka brokers via the Kafka consumer API.
  *
  * @param <T> The type of elements produced by the fetcher.

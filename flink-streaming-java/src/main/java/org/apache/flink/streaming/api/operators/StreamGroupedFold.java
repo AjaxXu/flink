@@ -33,7 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
- * 分组的fold operator，fold函数的执行依赖于一个初始化值initialValue。因此这里涉及到状态保存。并且状态是跟具体的分区关联的
+ * 分组的fold operator，fold函数的执行依赖于一个初始化值initialValue.因此这里涉及到状态保存.并且状态是跟具体的分区关联的
  * A {@link StreamOperator} for executing a {@link FoldFunction} on a
  * {@link org.apache.flink.streaming.api.datastream.KeyedStream}.
  *

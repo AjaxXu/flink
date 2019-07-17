@@ -26,8 +26,8 @@ import org.apache.flink.shaded.netty4.io.netty.buffer.ByteBufAllocator;
 import java.nio.ByteBuffer;
 
 /**
- * 缓冲（Buffer）是数据交换的载体，几乎所有的数据（当然事件是特殊的）交换都需要经过Buffer。
- * Buffer底层依赖于Flink自管理内存的内存段（MemorySegment）作为数据的容器。
+ * 缓冲（Buffer）是数据交换的载体，几乎所有的数据（当然事件是特殊的）交换都需要经过Buffer.
+ * Buffer底层依赖于Flink自管理内存的内存段（MemorySegment）作为数据的容器.
  * Buffer在内存段上做了一层封装，这一层封装是为了对基于引用计数的Buffer回收机制提供支持
  *
  * Wrapper for pooled {@link MemorySegment} instances with reference counting.

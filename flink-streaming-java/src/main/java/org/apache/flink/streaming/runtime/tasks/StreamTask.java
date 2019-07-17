@@ -736,7 +736,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>>
 
 		synchronized (lock) {
 			if (isRunning) {
-				//如果task还在运行，那就可以进行checkpoint。方法是先向下游所有出口广播一个Barrier，然后触发本task的State保存
+				//如果task还在运行，那就可以进行checkpoint.方法是先向下游所有出口广播一个Barrier，然后触发本task的State保存
 
 				if (checkpointOptions.getCheckpointType().isSynchronous()) {
 					syncSavepointLatch.setCheckpointId(checkpointId);

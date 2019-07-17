@@ -28,9 +28,9 @@ import org.apache.flink.runtime.execution.Environment;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * Task是在TaskManager中执行任务的统一抽象，它的核心仍然是如何执行，而不是如何表述。
+ * Task是在TaskManager中执行任务的统一抽象，它的核心仍然是如何执行，而不是如何表述.
  * 比如，批处理任务和流处理任务，它们有很大的差别，但我们需要一种表述层面上的抽象，使得它们最终都能被Task所接收，
- * 然后得到执行。而该表述层面上的抽象即为AbstractInvokable。它是所有在TaskManager中真正被执行的主体。
+ * 然后得到执行.而该表述层面上的抽象即为AbstractInvokable.它是所有在TaskManager中真正被执行的主体.
  *
  * This is the abstract base class for every task that can be executed by a TaskManager.
  * Concrete tasks extend this class, for example the streaming and batch tasks.

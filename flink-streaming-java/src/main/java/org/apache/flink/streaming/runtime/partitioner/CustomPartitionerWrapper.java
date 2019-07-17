@@ -24,7 +24,7 @@ import org.apache.flink.runtime.plugable.SerializationDelegate;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 /**
- * 自定义分区器包装器，该包装器封装了对于自定义的分区器的实现。自定义的分区测量依赖于Partitioner接口。
+ * 自定义分区器包装器，该包装器封装了对于自定义的分区器的实现.自定义的分区测量依赖于Partitioner接口.
  * Partitioner that selects the channel with a user defined partitioner function on a key.
  *
  * @param <K>

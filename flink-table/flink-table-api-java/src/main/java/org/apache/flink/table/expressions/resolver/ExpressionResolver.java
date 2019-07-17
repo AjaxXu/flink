@@ -71,7 +71,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.valueL
 public class ExpressionResolver {
 
 	/**
-	 * (可能)扩展未解析表达式列表的规则列表。
+	 * (可能)扩展未解析表达式列表的规则列表.
 	 * List of rules for (possibly) expanding the list of unresolved expressions.
 	 */
 	public static List<ResolverRule> getExpandingResolverRules() {
@@ -287,7 +287,7 @@ public class ExpressionResolver {
 	}
 
 	/**
-	 * 用于在实际解决方案发生后创建已解析表达式的工厂。当需要在以后的转换中修改已解析的表达式堆栈时，这是必需的
+	 * 用于在实际解决方案发生后创建已解析表达式的工厂.当需要在以后的转换中修改已解析的表达式堆栈时，这是必需的
 	 * Factory for creating resolved expressions after the actual resolution has happened. This is
 	 * required when a resolved expression stack needs to be modified in later transformations.
 	 *

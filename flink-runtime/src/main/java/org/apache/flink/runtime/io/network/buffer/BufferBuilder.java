@@ -160,7 +160,7 @@ public class BufferBuilder {
 		// 由于是多线程使用所以position的值需要被标记成volatile来保证数据的可见性，每次消费端拉取数据的时候，
 		// 对于没有写完的buffer同样可以进行消费,消费前更新一个buffer的position真实位置，这里用到了一个小技巧，由于数据在生产的时候需要频繁的更新position，
 		// 如果是volatile的，虽然比较轻量，频繁更新也是比较大的开销，因此加入了一个cachedPosition，在写数据的时候只需要更新builder中的cachedPosition，
-		// 生产端每次完成一批的书写才会commit给volatile position，以此来减少缓存刷新。
+		// 生产端每次完成一批的书写才会commit给volatile position，以此来减少缓存刷新.
 		private volatile int position = 0;
 
 		/**

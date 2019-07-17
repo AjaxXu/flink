@@ -33,13 +33,13 @@ import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 
 /**
- * BarrierTracker会对各个input channel接收到的检查点的barrier进行跟踪。
+ * BarrierTracker会对各个input channel接收到的检查点的barrier进行跟踪.
  * 一旦它观察到某个检查点的所有barrier都已经到达，它将会通知监听器检查点已完成，以触发相应地回调处理
  * The {@link CheckpointBarrierTracker} keeps track of what checkpoint barriers have been received from
  * which input channels. Once it has observed all checkpoint barriers for a checkpoint ID,
  * it notifies its listener of a completed checkpoint.
- * 不像BarrierBuffer，BarrierTracker不阻塞已经发送了barrier的input channel，所以它不能提供exactly-once的一致性保证。
- *  但是它可以提供at least once的一致性保证。
+ * 不像BarrierBuffer，BarrierTracker不阻塞已经发送了barrier的input channel，所以它不能提供exactly-once的一致性保证.
+ *  但是它可以提供at least once的一致性保证.
  * <p>Unlike the {@link CheckpointBarrierAligner}, the BarrierTracker does not block the input
  * channels that have sent barriers, so it cannot be used to gain "exactly-once" processing
  * guarantees. It can, however, be used to gain "at least once" processing guarantees.
@@ -47,7 +47,7 @@ import java.util.ArrayDeque;
  * <p>NOTE: This implementation strictly assumes that newer checkpoints have higher checkpoint IDs.
  *
  * 这里不阻塞input channel，也就说明不采用对齐机制，因此本检查点的数据会及时被处理，
- * 并且因此下一个检查点的数据可能会在该检查点还没有完成时就已经到来。所以，在恢复时只能提供AT_LEAST_ONCE保证
+ * 并且因此下一个检查点的数据可能会在该检查点还没有完成时就已经到来.所以，在恢复时只能提供AT_LEAST_ONCE保证
  */
 @Internal
 public class CheckpointBarrierTracker extends CheckpointBarrierHandler {

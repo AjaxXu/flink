@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 用户自定义的结构化的LogicalType。可以想象成一个类，该类有父类、子类及成员变量
+ * 用户自定义的结构化的LogicalType.可以想象成一个类，该类有父类、子类及成员变量
  * Logical type of a user-defined object structured type. Structured types contain one or more
  * attributes. Each attribute consists of a name and a type. A type cannot be defined so that one of
  * its attribute types (transitively) uses itself.

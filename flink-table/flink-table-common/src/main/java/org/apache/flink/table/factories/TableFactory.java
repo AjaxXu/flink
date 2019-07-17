@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 从基于字符串的属性创建不同的table相关实例的工厂。此工厂与Java的服务提供程序接口（SPI）一起用于发现。
- * 使用一组描述所需配置的规范化属性调用工厂。工厂允许匹配给定的属性集
+ * 从基于字符串的属性创建不同的table相关实例的工厂.此工厂与Java的服务提供程序接口（SPI）一起用于发现.
+ * 使用一组描述所需配置的规范化属性调用工厂.工厂允许匹配给定的属性集
  * A factory to create different table-related instances from string-based properties. This
  * factory is used with Java's Service Provider Interfaces (SPI) for discovering. A factory is
  * called with a set of normalized properties that describe the desired configuration. The factory

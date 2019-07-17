@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 /**
- * 缓冲池工厂（BufferPoolFactory）用于创建和销毁缓冲池，网络缓冲池（NetworkBufferPool）是其唯一的实现者。
+ * 缓冲池工厂（BufferPoolFactory）用于创建和销毁缓冲池，网络缓冲池（NetworkBufferPool）是其唯一的实现者.
  * A factory for buffer pools.
  */
 public interface BufferPoolFactory {

@@ -393,7 +393,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 				&& nextRow <= spilledChannelRowOffsets.get(size - 1);
 		}
 
-		// 在调用advanceNext()的过程中，发生了异常。而刚好要读取的数据在溢出的channel中，所以就需要更新
+		// 在调用advanceNext()的过程中，发生了异常.而刚好要读取的数据在溢出的channel中，所以就需要更新
 		private void updateIteratorIfNeeded() throws IOException {
 			if (iteratorNeedsUpdate()) {
 				reuse.clear();
@@ -576,7 +576,7 @@ public class ResettableExternalBuffer implements ResettableRowBuffer {
 
 	/**
 	 * In memory buffer that stores records to memorySegments, returns a iterator that map from memory.
-	 * 将记录存储到memorySegments的内存缓冲区，返回从内存映射的迭代器。
+	 * 将记录存储到memorySegments的内存缓冲区，返回从内存映射的迭代器.
 	 */
 	private class InMemoryBuffer implements Closeable {
 

@@ -77,9 +77,9 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * is put into panes. A pane is the bucket of elements that have the same key and same
  * {@code Window}. An element can be in multiple panes if it was assigned to multiple windows by
  * the {@code WindowAssigner}.
- * 当一个元素到达时，它会使用{@link KeySelector}分配一个key，并使用{@link WindowAssigner}将其分配给零个或多个窗口。
- * 基于此，元素被放入窗格中。窗格是具有相同key和相同{@code Window}的元素桶。如果{@code WindowAssigner}将元素分配给
- * 多个窗口，则该元素可以位于多个窗格中。
+ * 当一个元素到达时，它会使用{@link KeySelector}分配一个key，并使用{@link WindowAssigner}将其分配给零个或多个窗口.
+ * 基于此，元素被放入窗格中.窗格是具有相同key和相同{@code Window}的元素桶.如果{@code WindowAssigner}将元素分配给
+ * 多个窗口，则该元素可以位于多个窗格中.
  *
  * <p>Each pane gets its own instance of the provided {@code Trigger}. This trigger determines when
  * the contents of the pane should be processed to emit results. When a trigger fires,
@@ -426,7 +426,7 @@ public class WindowOperator<K, W extends Window>
 
 	/**
 	 * Emits the window result of the given window.
-	 * 发出给定窗口的窗口结果。
+	 * 发出给定窗口的窗口结果.
 	 */
 	private void emitWindowResult(W window) throws Exception {
 		BaseRow aggResult = windowFunction.getWindowAggregationResult(window);

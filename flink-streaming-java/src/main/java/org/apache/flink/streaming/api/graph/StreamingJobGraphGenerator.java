@@ -167,10 +167,10 @@ public class StreamingJobGraphGenerator {
 		//设置输入边edge
 		setPhysicalEdges();
 
-		//设置slot共享group,两种机制都用于限制算子的部署。其中，CoLocationGroup主要用于迭代算子的执行。
+		//设置slot共享group,两种机制都用于限制算子的部署.其中，CoLocationGroup主要用于迭代算子的执行.
 		setSlotSharingAndCoLocation();
 
-		//配置检查点。当用户的Flink程序配置了检查点信息，那么需要将检查点相关的配置加入到JobGraph中去，这部分逻辑通过方法configureCheckpointing来完
+		//配置检查点.当用户的Flink程序配置了检查点信息，那么需要将检查点相关的配置加入到JobGraph中去，这部分逻辑通过方法configureCheckpointing来完
 		configureCheckpointing();
 
 		JobGraphGenerator.addUserArtifactEntries(streamGraph.getUserArtifacts(), jobGraph);
@@ -304,7 +304,7 @@ public class StreamingJobGraphGenerator {
 				getOrCreateFormatContainer(startNodeId).addOutputFormat(currentOperatorId, currentNode.getOutputFormat());
 			}
 
-			//创建流配置对象，流配置对象针对单个作业顶点而言，包含了顶点相关的所有信息。
+			//创建流配置对象，流配置对象针对单个作业顶点而言，包含了顶点相关的所有信息.
 			//当创建配置对象的时候，如果当前节点即为起始节点（链接头），会先为该节点创建JobVertex对象
 			StreamConfig config = currentNodeId.equals(startNodeId)
 					? createJobVertex(startNodeId, hashes, legacyHashes, chainedOperatorHashes)
@@ -329,7 +329,7 @@ public class StreamingJobGraphGenerator {
 				for (StreamEdge edge : transitiveOutEdges) {
 					//给当前节点到不可链接的出边之间建立连接
 					//通过出边找到其下游流节点，根据边的分区器类型，构建下游流节点跟输入端上游流节点（也即起始节点）
-					//的连接关系。在这个构建的过程中也就创建了IntermediateDataSet及JobEdge并跟当前节点的JobVertex
+					//的连接关系.在这个构建的过程中也就创建了IntermediateDataSet及JobEdge并跟当前节点的JobVertex
 					//三者建立了关联关系
 					connect(startNodeId, edge);
 				}

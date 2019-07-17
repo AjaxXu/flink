@@ -52,7 +52,7 @@ import static org.apache.flink.table.types.utils.TypeConversions.fromDataTypeToL
 import static org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoToDataType;
 
 /**
- * 此规则检查{@link UnresolvedCallExpression}是否可以使用给定的参数并推断输出数据类型。
+ * 此规则检查{@link UnresolvedCallExpression}是否可以使用给定的参数并推断输出数据类型.
  * 应用此规则后，所有函数调用都会被解析{@link CallExpression}
  * This rule checks if a {@link UnresolvedCallExpression} can work with the given arguments and infers
  * the output data type. All function calls are resolved {@link CallExpression} after applying this
@@ -132,7 +132,7 @@ final class ResolveCallByArgumentsRule implements ResolverRule {
 			}
 		}
 
-		// 将混合的类型，变成扁平类型. 比如A[b,c,d]转变成A.get(b), A.get(c),A.get(d)。其中b、c、d为字段名
+		// 将混合的类型，变成扁平类型. 比如A[b,c,d]转变成A.get(b), A.get(c),A.get(d).其中b、c、d为字段名
 		private List<ResolvedExpression> flattenCompositeType(ResolvedExpression composite, CompositeType<?> resultType) {
 			return IntStream.range(0, resultType.getArity())
 				.mapToObj(idx ->

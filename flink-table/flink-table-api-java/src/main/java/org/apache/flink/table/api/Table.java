@@ -943,8 +943,8 @@ public interface Table {
 	Table addColumns(Expression... fields);
 
 	/**
-	 * 添加其他列。 与SQL SELECT语句类似。 字段表达式可以包含复杂表达式，但不能包含聚合。 如果添加列名称与现有列名称相同，
-	 * 则将替换现有字段。 此外，如果添加的字段具有重复的字段名称，则使用最后一个字段。
+	 * 添加其他列. 与SQL SELECT语句类似. 字段表达式可以包含复杂表达式，但不能包含聚合. 如果添加列名称与现有列名称相同，
+	 * 则将替换现有字段. 此外，如果添加的字段具有重复的字段名称，则使用最后一个字段.
 	 * Adds additional columns. Similar to a SQL SELECT statement. The field expressions
 	 * can contain complex expressions, but can not contain aggregations. Existing fields will be
      * replaced if add columns name is the same as the existing column name. Moreover, if the added

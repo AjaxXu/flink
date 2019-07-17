@@ -38,7 +38,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
  * In memory sort buffer for binary row.
- * binary row的内存排序缓冲区。
+ * binary row的内存排序缓冲区.
  */
 public final class BinaryInMemorySortBuffer extends BinaryIndexedSortable {
 
@@ -93,7 +93,7 @@ public final class BinaryInMemorySortBuffer extends BinaryIndexedSortable {
 
 	/**
 	 * Resets the sort buffer back to the state where it is empty. All contained data is discarded.
-	 * 将排序缓冲区重置回其为空的状态。所有包含的数据都被丢弃。
+	 * 将排序缓冲区重置回其为空的状态.所有包含的数据都被丢弃.
 	 */
 	public void reset() {
 
@@ -182,7 +182,7 @@ public final class BinaryInMemorySortBuffer extends BinaryIndexedSortable {
 
 	/**
 	 * Gets an iterator over all records in this buffer in their logical order.
-	 * 以逻辑顺序获取此缓冲区中所有记录的迭代器。
+	 * 以逻辑顺序获取此缓冲区中所有记录的迭代器.
 	 *
 	 * @return An iterator returning the records in their logical order.
 	 */

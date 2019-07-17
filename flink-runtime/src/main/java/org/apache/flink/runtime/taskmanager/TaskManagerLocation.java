@@ -32,8 +32,8 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * 该类封装了一个TaskManager的连接信息。它描述了TaskManager运行的主机及其用于数据交换的服务器端口。
- * 此类还包含用于处理TaskManager主机名的工具，该主机名用于本地化工作分配。
+ * 该类封装了一个TaskManager的连接信息.它描述了TaskManager运行的主机及其用于数据交换的服务器端口.
+ * 此类还包含用于处理TaskManager主机名的工具，该主机名用于本地化工作分配.
  * This class encapsulates the connection information of a TaskManager.
  * It describes the host where the TaskManager operates and its server port
  * for data exchange. This class also contains utilities to work with the
@@ -47,7 +47,7 @@ public class TaskManagerLocation implements Comparable<TaskManagerLocation>, jav
 
 	// ------------------------------------------------------------------------
 
-	/** 启动TaskManager的资源的ID。 这可以是例如YARN容器ID，Mesos容器ID或任何其他唯一标识符。
+	/** 启动TaskManager的资源的ID. 这可以是例如YARN容器ID，Mesos容器ID或任何其他唯一标识符.
 	 * The ID of the resource in which the TaskManager is started. This can be for example
 	 * the YARN container ID, Mesos container ID, or any other unique identifier. */
 	private final ResourceID resourceID;
@@ -142,7 +142,7 @@ public class TaskManagerLocation implements Comparable<TaskManagerLocation>, jav
 	}
 
 	/**
-	 * 返回TaskManager的完全限定域名。 如果无法确定名称，则返回值将是TaskManager的IP地址的文本表示
+	 * 返回TaskManager的完全限定域名. 如果无法确定名称，则返回值将是TaskManager的IP地址的文本表示
 	 * Returns the fully-qualified domain name the TaskManager. If the name could not be
 	 * determined, the return value will be a textual representation of the TaskManager's IP address.
 	 * 

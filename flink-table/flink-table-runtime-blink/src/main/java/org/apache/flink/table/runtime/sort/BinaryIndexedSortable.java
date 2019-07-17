@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 /**
  * abstract sortable, provide basic compare and swap. Support writing of index and normalizedKey.
- * 提供基本的对比和交换。
+ * 提供基本的对比和交换.
  */
 public abstract class BinaryIndexedSortable implements IndexedSortable {
 
@@ -118,7 +118,7 @@ public abstract class BinaryIndexedSortable implements IndexedSortable {
 
 	/**
 	 * check if we need request next index memory.
-	 * 检查是否需要请求下一个索引segment。这里如果检测到需要，会直接申请，申请失败才返回false
+	 * 检查是否需要请求下一个索引segment.这里如果检测到需要，会直接申请，申请失败才返回false
 	 */
 	protected boolean checkNextIndexOffset() {
 		if (this.currentSortIndexOffset > this.lastIndexEntryOffset) {

@@ -225,7 +225,7 @@ public class RestartStrategies {
 	}
 
 	/**
-	 * job使用集群重启策略的配置。特别是在通过flink-conf.yaml制定了用户定制的重启策略
+	 * job使用集群重启策略的配置.特别是在通过flink-conf.yaml制定了用户定制的重启策略
 	 * Restart strategy configuration that could be used by jobs to use cluster level restart
 	 * strategy. Useful especially when one has a custom implementation of restart strategy set via
 	 * flink-conf.yaml.

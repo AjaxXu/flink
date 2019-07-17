@@ -40,7 +40,7 @@ import static org.apache.flink.table.types.logical.LogicalTypeRoot.INTERVAL_DAY_
 import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
 
 /**
- * 使用相应的over窗口连接调用{@link BuiltInFunctionDefinitions#OVER}并创建完全解析的over聚合。
+ * 使用相应的over窗口连接调用{@link BuiltInFunctionDefinitions#OVER}并创建完全解析的over聚合.
  * Joins call to {@link BuiltInFunctionDefinitions#OVER} with corresponding over window
  * and creates a fully resolved over aggregation.
  */

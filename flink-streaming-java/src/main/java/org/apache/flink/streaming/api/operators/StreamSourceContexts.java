@@ -133,7 +133,7 @@ public class StreamSourceContexts {
 	}
 
 	/**
-	 * 该类是自动发送watermark的实现，在构造器中接收参数watermarkInterval来指定自动发送watermark的时间间隔。
+	 * 该类是自动发送watermark的实现，在构造器中接收参数watermarkInterval来指定自动发送watermark的时间间隔.
 	 * {@link SourceFunction.SourceContext} to be used for sources with automatic timestamps
 	 * and watermark emission.
 	 */

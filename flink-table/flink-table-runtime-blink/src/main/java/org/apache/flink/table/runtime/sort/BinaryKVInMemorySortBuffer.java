@@ -35,7 +35,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
  * In memory KV sortable buffer for binary row, it already has records in memory.
- * 用于binary row的内存K-V排序缓冲区，它已经在内存中有记录。
+ * 用于binary row的内存K-V排序缓冲区，它已经在内存中有记录.
  */
 public class BinaryKVInMemorySortBuffer extends BinaryIndexedSortable {
 

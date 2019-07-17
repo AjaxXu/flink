@@ -29,7 +29,7 @@ import java.io.Serializable;
 
 /**
  * The offset window frame calculates frames containing LEAD/LAG statements.
- * 偏移窗口框架计算包含LEAD/LAG语句的帧。
+ * 偏移窗口框架计算包含LEAD/LAG语句的帧.
  *
  * <p>See {@code LeadLagAggFunction}.
  */

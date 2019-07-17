@@ -188,7 +188,7 @@ public interface RecoverableWriter {
 	// ------------------------------------------------------------------------
 
 	/**
-	 * 具有已定义和持久数据量的正在进行的流的句柄。 句柄可用于从该点恢复流并发布结果文件
+	 * 具有已定义和持久数据量的正在进行的流的句柄. 句柄可用于从该点恢复流并发布结果文件
 	 * A handle to an in-progress stream with a defined and persistent amount of data.
 	 * The handle can be used to recover the stream as of exactly that point and
 	 * publish the result file.
@@ -196,7 +196,7 @@ public interface RecoverableWriter {
 	interface CommitRecoverable {}
 
 	/**
-	 * 具有已定义和持久数据量的正在进行的流的句柄。 句柄可用于完全恢复该点的流，并发布结果文件或继续将数据附加到流
+	 * 具有已定义和持久数据量的正在进行的流的句柄. 句柄可用于完全恢复该点的流，并发布结果文件或继续将数据附加到流
 	 * A handle to an in-progress stream with a defined and persistent amount of data.
 	 * The handle can be used to recover the stream exactly as of that point and either
 	 * publish the result file or keep appending data to the stream.

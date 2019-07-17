@@ -25,7 +25,7 @@ import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.table.api.ValidationException;
 
 /**
- * 用户定义的标量函数的基类。 用户定义的标量函数将零个，一个或多个标量值映射到新的标量值
+ * 用户定义的标量函数的基类. 用户定义的标量函数将零个，一个或多个标量值映射到新的标量值
  * Base class for a user-defined scalar function. A user-defined scalar functions maps zero, one,
  * or multiple scalar values to a new scalar value.
  *

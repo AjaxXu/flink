@@ -264,8 +264,8 @@ public class StateTtlConfig implements Serializable {
 		/**
 		 * Cleanup expired state incrementally cleanup local state.
 		 *
-		 * 在每个状态访问时，此清理策略会检查一堆状态密钥是否过期并清除过期状态密钥。
-		 * 如果后端支持它，它会通过所有键保持一个懒惰的迭代器，并具有宽松的一致性。 这样，如果经常访问任何状态，则应该定期检查和清除所有密钥。
+		 * 在每个状态访问时，此清理策略会检查一堆状态密钥是否过期并清除过期状态密钥.
+		 * 如果后端支持它，它会通过所有键保持一个懒惰的迭代器，并具有宽松的一致性. 这样，如果经常访问任何状态，则应该定期检查和清除所有密钥.
 		 * <p>Upon every state access this cleanup strategy checks a bunch of state keys for expiration
 		 * and cleans up expired ones. It keeps a lazy iterator through all keys with relaxed consistency
 		 * if backend supports it. This way all keys should be regularly checked and cleaned eventually over time
@@ -275,7 +275,7 @@ public class StateTtlConfig implements Serializable {
 		 * Caution: if there are a lot of registered states using this option,
 		 * they all will be iterated for every record to check if there is something to cleanup.
 		 *
-		 * 如果在{@code runCleanupForEveryRecord}的情况下没有访问此状态或没有处理任何记录，则过期状态将持续存在。
+		 * 如果在{@code runCleanupForEveryRecord}的情况下没有访问此状态或没有处理任何记录，则过期状态将持续存在.
 		 * <p>Note: if no access happens to this state or no records are processed
 		 * in case of {@code runCleanupForEveryRecord}, expired state will persist.
 		 *

@@ -32,8 +32,8 @@ import java.io.Serializable;
  * respect to the current row, which enables a frame to move within a partition depending on the location
  * of the current row within its partition. More information:
  * https://docs.oracle.com/cd/E17952_01/mysql-8.0-en/window-functions-frames.html
- * 窗口frame计算属于窗口frame的那些记录的结果。 在使用之前，必须通过传递当前分区中的所有记录来准备frame。frame是当前分区的子集，
- * frame子句指定如何定义子集。frame是根据当前行确定的，这使得frame能够在分区内移动，具体取决于其分区内当前行的位置。
+ * 窗口frame计算属于窗口frame的那些记录的结果. 在使用之前，必须通过传递当前分区中的所有记录来准备frame.frame是当前分区的子集，
+ * frame子句指定如何定义子集.frame是根据当前行确定的，这使得frame能够在分区内移动，具体取决于其分区内当前行的位置.
  *
  * <p>E.g.:
  * SELECT d, e, f,

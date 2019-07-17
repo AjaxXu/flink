@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 用于表示符号值的逻辑类型。符号类型是SQL标准的扩展，仅用作表达式堆栈中的帮助程序类型
+ * 用于表示符号值的逻辑类型.符号类型是SQL标准的扩展，仅用作表达式堆栈中的帮助程序类型
  * Logical type for representing symbol values. The symbol type is an extension to the SQL standard
  * and only serves as a helper type within the expression stack.
  *

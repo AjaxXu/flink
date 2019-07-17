@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 
 /**
- * 所谓的ResultSubpartitionView是由ResultSubpartition所创建的用于供消费者任务消费数据的视图对象。屏蔽底层的实现细节
+ * 所谓的ResultSubpartitionView是由ResultSubpartition所创建的用于供消费者任务消费数据的视图对象.屏蔽底层的实现细节
  * A view to consume a {@link ResultSubpartition} instance.
  */
 public interface ResultSubpartitionView {

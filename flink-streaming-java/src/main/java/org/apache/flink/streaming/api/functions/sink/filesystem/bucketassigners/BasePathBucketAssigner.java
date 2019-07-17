@@ -23,7 +23,7 @@ import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.streaming.api.functions.sink.filesystem.BucketAssigner;
 
 /**
- * {@link BucketAssigner}，不执行任何文件分组。 所有文件都写入基本路径。
+ * {@link BucketAssigner}，不执行任何文件分组. 所有文件都写入基本路径.
  * A {@link BucketAssigner} that does not perform any
  * bucketing of files. All files are written to the base path.
  */

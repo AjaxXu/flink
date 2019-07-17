@@ -31,7 +31,7 @@ import org.apache.flink.table.dataformat.BaseRow;
 
 /**
  * Base class for stream temporal sort operator.
- * 流时间排序算子的基类。
+ * 流时间排序算子的基类.
  */
 abstract class BaseTemporalSortOperator extends AbstractStreamOperator<BaseRow> implements
 		OneInputStreamOperator<BaseRow, BaseRow>, Triggerable<BaseRow, VoidNamespace> {

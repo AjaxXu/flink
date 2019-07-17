@@ -44,7 +44,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * tasks is crucial for simple pipelined / streamed execution, where both the sender and the receiver
  * are typically active at the same time.
  *
- * 该类是非同步的，调用者需要自己保证同步。在当前实现中，所有的并发修改操作都通过{@link SlotSharingGroupAssignment}，它是负责同步的。
+ * 该类是非同步的，调用者需要自己保证同步.在当前实现中，所有的并发修改操作都通过{@link SlotSharingGroupAssignment}，它是负责同步的.
  * <p><b>IMPORTANT:</b> This class contains no synchronization. Thus, the caller has to guarantee proper
  * synchronization. In the current implementation, all concurrently modifying operations are
  * passed through a {@link SlotSharingGroupAssignment} object which is responsible for

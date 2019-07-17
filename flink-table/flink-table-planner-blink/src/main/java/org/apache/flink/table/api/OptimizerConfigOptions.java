@@ -24,6 +24,7 @@ import static org.apache.flink.configuration.ConfigOptions.key;
 
 /**
  * This class holds configuration constants used by Flink's table planner module.
+ * 此类包含Flink的表计划器模块使用的配置常量.
  */
 public class OptimizerConfigOptions {
 

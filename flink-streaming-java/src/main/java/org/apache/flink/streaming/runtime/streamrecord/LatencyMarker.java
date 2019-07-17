@@ -22,7 +22,7 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.runtime.jobgraph.OperatorID;
 
 /**
- * 特殊记录类型，在源操作符处携带其创建时间的时间戳以及操作符的vertexId和子任务索引。
+ * 特殊记录类型，在源操作符处携带其创建时间的时间戳以及操作符的vertexId和子任务索引.
  * Special record type carrying a timestamp of its creation time at a source operator
  * and the vertexId and subtask index of the operator.
  *

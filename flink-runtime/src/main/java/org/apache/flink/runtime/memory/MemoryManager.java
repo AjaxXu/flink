@@ -44,12 +44,12 @@ import java.util.function.Function;
  * The memory manager governs the memory that Flink uses for sorting, hashing, and caching. Memory
  * is represented in segments of equal size. Operators allocate the memory by requesting a number
  * of memory segments.
- * 内存管理器管理Flink用于排序，散列和缓存的内存。内存以相同大小的段表示。运算符通过请求多个内存段来分配内存。
+ * 内存管理器管理Flink用于排序，散列和缓存的内存.内存以相同大小的段表示.运算符通过请求多个内存段来分配内存.
  *
  * <p>The memory may be represented as on-heap byte arrays or as off-heap memory regions
  * (both via {@link HybridMemorySegment}). Which kind of memory the MemoryManager serves can
  * be passed as an argument to the initialization.
- * 内存可以表示为Java堆上字节数组或堆外存储区域（均通过HybridMemorySegment）。 MemoryManager提供的内存类型可以在初始化时提供参数指定。
+ * 内存可以表示为Java堆上字节数组或堆外存储区域（均通过HybridMemorySegment）. MemoryManager提供的内存类型可以在初始化时提供参数指定.
  *
  * <p>The memory manager can either pre-allocate all memory, or allocate the memory on demand. In the
  * former version, memory will be occupied and reserved from start on, which means that no OutOfMemoryError
@@ -57,10 +57,10 @@ import java.util.function.Function;
  * On-demand allocation means that the memory manager only keeps track how many memory segments are
  * currently allocated (bookkeeping only). Releasing a memory segment will not add it back to the pool,
  * but make it re-claimable by the garbage collector.
- * 内存管理器可以预先分配所有内存，也可以按需分配内存。在以前的版本中，内存将从开始时被占用和保留，
- * 这意味着在请求内存时不会出现OutOfMemoryError。释放的内存也将返回到MemoryManager的池中。
- * 按需分配意味着内存管理器仅跟踪当前分配的内存段数（仅限簿记）。释放内存段不会将其添加回池中，
- * 但可以通过垃圾收集器对其进行重新回收。
+ * 内存管理器可以预先分配所有内存，也可以按需分配内存.在以前的版本中，内存将从开始时被占用和保留，
+ * 这意味着在请求内存时不会出现OutOfMemoryError.释放的内存也将返回到MemoryManager的池中.
+ * 按需分配意味着内存管理器仅跟踪当前分配的内存段数（仅限簿记）.释放内存段不会将其添加回池中，
+ * 但可以通过垃圾收集器对其进行重新回收.
  */
 public class MemoryManager {
 
@@ -79,18 +79,18 @@ public class MemoryManager {
 	private final Object lock = new Object();
 
 	/** The memory pool from which we draw memory segments. Specific to on-heap or off-heap memory
-	 * 从中抽取内存段的内存池。必须指定是堆上或堆外内存 */
+	 * 从中抽取内存段的内存池.必须指定是堆上或堆外内存 */
 	private final MemoryPool memoryPool;
 
 	/** Memory segments allocated per memory owner. */
 	private final HashMap<Object, Set<MemorySegment>> allocatedSegments;
 
 	/** The type of memory governed by this memory manager.
-	 * 由此内存管理器管理的内存类型。*/
+	 * 由此内存管理器管理的内存类型.*/
 	private final MemoryType memoryType;
 
 	/** Mask used to round down sizes to multiples of the page size.
-	 * 掩码用于将大小向下舍入到页面大小的倍数。*/
+	 * 掩码用于将大小向下舍入到页面大小的倍数.*/
 	private final long roundingMask;
 
 	/** The size of the memory segments. */
@@ -109,11 +109,11 @@ public class MemoryManager {
 	private final int numberOfSlots;
 
 	/** Flag marking whether the memory manager immediately allocates the memory.
-	 * 标记内存管理器是否立即分配内存的标志。*/
+	 * 标记内存管理器是否立即分配内存的标志.*/
 	private final boolean isPreAllocated;
 
 	/** The number of memory pages that have not been allocated and are available for lazy allocation.
-	 * 尚未分配且可用于延迟分配的内存页数。*/
+	 * 尚未分配且可用于延迟分配的内存页数.*/
 	private int numNonAllocatedPages;
 
 	/** Flag whether the close() has already been invoked. */
@@ -218,8 +218,8 @@ public class MemoryManager {
 	 * on implementation details, the memory does not necessarily become reclaimable by the
 	 * garbage collector, because there might still be references to allocated segments in the
 	 * code that allocated them from the memory manager.
-	 * 关闭内存管理器，尝试释放它管理的所有内存。根据实现细节，内存不一定可以被垃圾收集器回收，
-	 * 因为在代码中可能仍然存在对从内存管理器已分配段的引用。
+	 * 关闭内存管理器，尝试释放它管理的所有内存.根据实现细节，内存不一定可以被垃圾收集器回收，
+	 * 因为在代码中可能仍然存在对从内存管理器已分配段的引用.
 	 */
 	public void shutdown() {
 		// -------------------- BEGIN CRITICAL SECTION -------------------
@@ -582,7 +582,7 @@ public class MemoryManager {
 	 * Computes to how many pages the given number of bytes corresponds. If the given number of bytes is not an
 	 * exact multiple of a page size, the result is rounded down, such that a portion of the memory (smaller
 	 * than the page size) is not included.
-	 * 计算给定字节数对应的页数。如果给定的字节数不是页面大小的精确倍数，则向下舍入结果，使得不包括存储器的一部分（小于页面大小）。
+	 * 计算给定字节数对应的页数.如果给定的字节数不是页面大小的精确倍数，则向下舍入结果，使得不包括存储器的一部分（小于页面大小）.
 	 *
 	 * @param fraction the fraction of the total memory per slot
 	 * @return The number of pages to which

@@ -21,7 +21,7 @@ package org.apache.flink.streaming.runtime.tasks;
 import org.apache.flink.runtime.checkpoint.CheckpointMetaData;
 
 /**
- * 处理发生在checkpointing阶段发生的异常的处理器。处理器可以拒绝或者重新抛出异常
+ * 处理发生在checkpointing阶段发生的异常的处理器.处理器可以拒绝或者重新抛出异常
  * Handler for exceptions that happen on checkpointing. The handler can reject and rethrow the offered exceptions.
  */
 public interface CheckpointExceptionHandler {

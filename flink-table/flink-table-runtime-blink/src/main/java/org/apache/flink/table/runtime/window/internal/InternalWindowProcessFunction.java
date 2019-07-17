@@ -31,7 +31,7 @@ import java.util.Collection;
 
 /**
  * The internal interface for functions that process over grouped windows.
- * 用于处理分组窗口的函数的内部接口。
+ * 用于处理分组窗口的函数的内部接口.
  *
  * @param <W> type of window
  */

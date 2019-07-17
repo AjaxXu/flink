@@ -217,7 +217,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 		}
 		
 		// finalize the iterations
-		// 在对OptimizedPlan进行遍历之后，会对收集到的迭代节点进行处理。
+		// 在对OptimizedPlan进行遍历之后，会对收集到的迭代节点进行处理.
 		// 通过遍历迭代描述符（IterationDescriptor）并判断其代表的节点属于哪种迭代类型来进行特定的处理
 		for (IterationDescriptor iteration : this.iterations.values()) {
 			if (iteration.getIterationNode() instanceof BulkIterationPlanNode) {
@@ -319,7 +319,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 
 	/**
 	 * 它是遍历时的“前进”方法，它会对要遍历的PlanNode的具体类型进行枚举推断，针对不同的类型为其创建对应的JobVertex对象，
-	 * 接着为JobVertex对象设置相关属性，最后将其加入到一个公共的PlanNode与JobVertex的映射字典中去。
+	 * 接着为JobVertex对象设置相关属性，最后将其加入到一个公共的PlanNode与JobVertex的映射字典中去.
 	 * This methods implements the pre-visiting during a depth-first traversal. It create the job vertex and
 	 * sets local strategy.
 	 * 
@@ -478,7 +478,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 
 	/**
 	 * 它可以看成是遍历时的“后退”方法，当在某个节点上调用到postVisit方法时，
-	 * 表明该节点的前任（从正常的source往sink方向）都已经遍历完成。因此该方法在这里用来将当前节点与其前任建立连接
+	 * 表明该节点的前任（从正常的source往sink方向）都已经遍历完成.因此该方法在这里用来将当前节点与其前任建立连接
 	 * This method implements the post-visit during the depth-first traversal. When the post visit happens,
 	 * all of the descendants have been processed, so this method connects all of the current node's
 	 * predecessors to the current node.

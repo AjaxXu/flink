@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * Base class for typed IDs that are internally represented by a string. This class is not intended
  * for direct use, but should be subclassed for type-safety.
- * 内部由字符串表示的类型ID的基类。此类不用于直接使用，而是应该为了类型安全性进行子类化
+ * 内部由字符串表示的类型ID的基类.此类不用于直接使用，而是应该为了类型安全性进行子类化
  */
 public class StringBasedID implements Serializable {
 

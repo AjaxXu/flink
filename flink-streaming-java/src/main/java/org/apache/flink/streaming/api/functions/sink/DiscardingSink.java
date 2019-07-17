@@ -21,8 +21,8 @@ package org.apache.flink.streaming.api.functions.sink;
 import org.apache.flink.annotation.Public;
 
 /**
- * 这是最简单的SinkFunction的实现，它的实现等同于没有实现（其实现为空方法）。
- * 它的作用就是将记录丢弃掉。它的主要场景应该是那些无需最终处理结果的记录
+ * 这是最简单的SinkFunction的实现，它的实现等同于没有实现（其实现为空方法）.
+ * 它的作用就是将记录丢弃掉.它的主要场景应该是那些无需最终处理结果的记录
  * A stream sink that ignores all elements.
  *
  * @param <T> The type of elements received by the sink.

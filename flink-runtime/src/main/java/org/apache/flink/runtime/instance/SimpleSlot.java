@@ -236,7 +236,7 @@ public class SimpleSlot extends Slot implements LogicalSlot {
 				(Object ignored, Throwable throwable) -> {
 					// release directly (if we are directly allocated),
 					// otherwise release through the parent shared slot
-					// parent 为null，则直接释放。由于是simple slot，所以可以不通过SlotSharingGroupAssignment做同步处理
+					// parent 为null，则直接释放.由于是simple slot，所以可以不通过SlotSharingGroupAssignment做同步处理
 					if (getParent() == null) {
 						// we have to give back the slot to the owning instance
 						if (markCancelled()) {

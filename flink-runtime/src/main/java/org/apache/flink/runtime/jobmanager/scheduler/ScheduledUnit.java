@@ -26,7 +26,7 @@ import org.apache.flink.util.Preconditions;
 import javax.annotation.Nullable;
 
 /**
- * ScheduledUnit包含为给定的{@link JobVertexID}分配槽的必要信息。flink 调度器的调度单位被抽象为一个 ScheduledUnit，
+ * ScheduledUnit包含为给定的{@link JobVertexID}分配槽的必要信息.flink 调度器的调度单位被抽象为一个 ScheduledUnit，
  * 一个 ScheduledUnit 封装了以下信息：Execution、SlotSharingGroup、CoLocationConstraint
  * ScheduledUnit contains the information necessary to allocate a slot for the given
  * {@link JobVertexID}.

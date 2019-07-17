@@ -29,7 +29,7 @@ import org.apache.flink.util.Collector;
 
 /**
  * The join runner with an additional calculate function on the dimension table.
- * 用于查找维度表的同步联接运行器，加了额外的计算函数。即fetcher函数计算后——>calc函数计算
+ * 用于查找维度表的同步联接运行器，加了额外的计算函数.即fetcher函数计算后——>calc函数计算
  */
 public class LookupJoinWithCalcRunner extends LookupJoinRunner {
 

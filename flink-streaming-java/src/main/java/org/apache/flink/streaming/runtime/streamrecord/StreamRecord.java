@@ -20,7 +20,7 @@ package org.apache.flink.streaming.runtime.streamrecord;
 import org.apache.flink.annotation.Internal;
 
 /**
- * 数据流的一个值。包括value及可选的关联timestamp
+ * 数据流的一个值.包括value及可选的关联timestamp
  * One value in a data stream. This stores the value and an optional associated timestamp.
  *
  * @param <T> The type encapsulated with the stream record.

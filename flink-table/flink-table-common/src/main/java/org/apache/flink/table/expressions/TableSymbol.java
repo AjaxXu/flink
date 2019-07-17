@@ -21,7 +21,7 @@ package org.apache.flink.table.expressions;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
- * 所有表符号的基接口。符号可能是时间单位或其他枚举
+ * 所有表符号的基接口.符号可能是时间单位或其他枚举
  * The base interface for all table symbols. Symbols might be time units or other enumerations.
  */
 @PublicEvolving

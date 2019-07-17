@@ -63,7 +63,7 @@ public class Acknowledge implements Serializable {
 
 	/**
 	 * Read resolve to preserve the singleton object property.
-	 * 读取解析以保留单例对象属性。
+	 * 读取解析以保留单例对象属性.
 	 * 反正序列化，反序列化时破坏单例模式
 	 * (per best practices, this should have visibility 'protected')
 	 */

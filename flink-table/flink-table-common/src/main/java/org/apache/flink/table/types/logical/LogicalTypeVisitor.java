@@ -21,7 +21,7 @@ package org.apache.flink.table.types.logical;
 import org.apache.flink.annotation.PublicEvolving;
 
 /**
- * {@link LogicalType}的访问者定义。 访问者将逻辑类型转换为{@code R}的实例。
+ * {@link LogicalType}的访问者定义. 访问者将逻辑类型转换为{@code R}的实例.
  * The visitor definition of {@link LogicalType}. The visitor transforms a logical type into
  * instances of {@code R}.
  *

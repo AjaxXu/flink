@@ -40,9 +40,9 @@ import java.util.List;
  * 节点在Flink中对应的数据结构是StreamNode
  * Class representing the operators in the streaming programs, with all their properties.
  *
- * StreamNode其实是表示operator的数据结构，了解这一点很重要。
+ * StreamNode其实是表示operator的数据结构，了解这一点很重要.
  * 从Flink开始生成StreamGraph开始，source、sink都是图中的一个节点都是operator，都通过StreamNode这一数据结构来表示，
- * 我们常将它们单独拎出来讲是因为它们是流的的输入和输出，但在数据结构层面上它们是一致的。
+ * 我们常将它们单独拎出来讲是因为它们是流的的输入和输出，但在数据结构层面上它们是一致的.
  */
 @Internal
 public class StreamNode implements Serializable {

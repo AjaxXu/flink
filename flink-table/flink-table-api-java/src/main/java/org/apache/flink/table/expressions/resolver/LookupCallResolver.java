@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 使用函数名解析具有实际函数定义的调用。
+ * 使用函数名解析具有实际函数定义的调用.
  * Resolves calls with function names to calls with actual function definitions.
  */
 @Internal

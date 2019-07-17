@@ -143,7 +143,7 @@ public class FlinkKafkaInternalProducer<K, V> implements Producer<K, V> {
 	}
 
 	/**
-	 * 替代从事务协调器获取producerId和epoch，重新使用以前获得的，以便我们可以在重新启动后恢复事务。
+	 * 替代从事务协调器获取producerId和epoch，重新使用以前获得的，以便我们可以在重新启动后恢复事务.
 	 * Instead of obtaining producerId and epoch from the transaction coordinator, re-use previously obtained ones,
 	 * so that we can resume transaction after a restart. Implementation of this method is based on
 	 * {@link KafkaProducer#initTransactions}.

@@ -23,8 +23,8 @@ import org.apache.flink.runtime.jobmaster.slotpool.SlotProvider;
 import org.apache.flink.util.AbstractID;
 
 /**
- * 此ID标识Execution到{@link SlotPool} 或者 {@link SlotProvider}的logical slot请求。
- * 在slot sharing情况下，logical slot可以是physical slot或sub-slot。
+ * 此ID标识Execution到{@link SlotPool} 或者 {@link SlotProvider}的logical slot请求.
+ * 在slot sharing情况下，logical slot可以是physical slot或sub-slot.
  * This ID identifies the request for a logical slot from the Execution to the {@link SlotPool}
  * oe {@link SlotProvider}. The logical slot may be a physical slot or a sub-slot thereof, in
  * the case of slot sharing.

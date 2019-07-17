@@ -57,14 +57,14 @@ public abstract class AbstractPartitionDiscoverer {
 	/** Flag to determine whether or not the discoverer is closed. */
 	private volatile boolean closed = true;
 
-	/** 决定该discoverer 是否被唤醒。当设为true时，{@link #discoverPartitions()}将被中断。一旦被中断，该flag将重置
+	/** 决定该discoverer 是否被唤醒.当设为true时，{@link #discoverPartitions()}将被中断.一旦被中断，该flag将重置
 	 * Flag to determine whether or not the discoverer had been woken up.
 	 * When set to {@code true}, {@link #discoverPartitions()} would be interrupted as early as possible.
 	 * Once interrupted, the flag is reset.
 	 */
 	private volatile boolean wakeup;
 
-	/** topics到它们最大的 partition id。
+	/** topics到它们最大的 partition id.
 	 * Map of topics to they're largest discovered partition id seen by this subtask.
 	 * This state may be updated whenever {@link AbstractPartitionDiscoverer#discoverPartitions()} or
 	 * {@link AbstractPartitionDiscoverer#setAndCheckDiscoveredPartition(KafkaTopicPartition)} is called.
@@ -184,7 +184,7 @@ public abstract class AbstractPartitionDiscoverer {
 	}
 
 	/**
-	 * 设置partition为已发现的。
+	 * 设置partition为已发现的.
 	 * Sets a partition as discovered. Partitions are considered as new
 	 * if its partition id is larger than all partition ids previously
 	 * seen for the topic it belongs to. Therefore, for a set of

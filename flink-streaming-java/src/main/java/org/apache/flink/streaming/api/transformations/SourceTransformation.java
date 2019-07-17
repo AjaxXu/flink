@@ -31,7 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * 它表示一个source，它并不真正做转换工作，因为它没有输入，但它是任何拓扑的根StreamTransformation。
+ * 它表示一个source，它并不真正做转换工作，因为它没有输入，但它是任何拓扑的根StreamTransformation.
  * This represents a Source. This does not actually transform anything since it has no inputs but
  * it is the root {@code Transformation} of any topology.
  *
@@ -82,7 +82,7 @@ public class SourceTransformation<T> extends PhysicalTransformation<T> {
 		return operatorFactory;
 	}
 
-	// 因为其没有前置转换器，所以其返回只存储自身实例的集合对象。
+	// 因为其没有前置转换器，所以其返回只存储自身实例的集合对象.
 	@Override
 	public Collection<Transformation<?>> getTransitivePredecessors() {
 		return Collections.singleton(this);

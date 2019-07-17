@@ -35,7 +35,7 @@ import java.util.List;
 
 /**
  * Record merger for sort of BinaryRow.
- * BinaryRow的合并器。
+ * BinaryRow的合并器.
  */
 public class BinaryExternalMerger extends AbstractBinaryExternalMerger<BinaryRow> {
 

@@ -640,7 +640,7 @@ public class BinaryExternalSorter implements Sorter<BinaryRow> {
 
 	/**
 	 * Reports an exception to all threads that are waiting for the result iterator.
-	 * 报告给等待结果迭代器的所有线程的异常。
+	 * 报告给等待结果迭代器的所有线程的异常.
 	 *
 	 * @param ioex The exception to be reported to the threads that wait for the result iterator.
 	 */

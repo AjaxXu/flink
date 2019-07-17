@@ -36,8 +36,8 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * Scheduler / ExecutionGraph从SlotPool获取并用于将任务放入执行的slot的基类。
- * slot对应于AllocatedSlot（TaskManager资源的一部分），以及用于跟踪当前在该插槽中执行的内容的其他字段，或者slot是否仍在使用或处置（ExecutionGraph将其返回到池中）。
+ * Scheduler / ExecutionGraph从SlotPool获取并用于将任务放入执行的slot的基类.
+ * slot对应于AllocatedSlot（TaskManager资源的一部分），以及用于跟踪当前在该插槽中执行的内容的其他字段，或者slot是否仍在使用或处置（ExecutionGraph将其返回到池中）.
  * Base class for slots that the Scheduler / ExecutionGraph take from the SlotPool and use to place
  * tasks to execute into. A slot corresponds to an AllocatedSlot (a slice of a TaskManager's resources),
  * plus additional fields to track what is currently executed in that slot, or if the slot is still

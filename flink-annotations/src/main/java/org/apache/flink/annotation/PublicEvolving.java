@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * <p>Classes and methods with this annotation are intended for public use and have stable behavior.
  * However, their interfaces and signatures are not considered to be stable and might be changed
  * across versions.
- * 具有此注解的类和方法旨在供public使用，并具有稳定的行为。但是，它们的接口和签名不被认为是稳定的，并且可能会在不同版本中进行更改。
+ * 具有此注解的类和方法旨在供public使用，并具有稳定的行为.但是，它们的接口和签名不被认为是稳定的，并且可能会在不同版本中进行更改.
  *
  * <p>This annotation also excludes methods and classes with evolving interfaces / signatures
  * within classes annotated with {@link Public}.

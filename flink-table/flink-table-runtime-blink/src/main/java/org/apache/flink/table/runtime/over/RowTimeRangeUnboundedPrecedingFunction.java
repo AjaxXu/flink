@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * A ProcessFunction to support unbounded RANGE window.
- * 支持无限RANGE window的ProcessFunction。
+ * 支持无限RANGE window的ProcessFunction.
  * The RANGE option includes all the rows within the window frame
  * that have the same ORDER BY values as the current row.
  * 值<=当前行，没有following(因为order by rowtime)

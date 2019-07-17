@@ -47,7 +47,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
- * 状态描述符的基类。 {@code StateDescriptor}用于在有状态操作中创建分区{@link State}。
+ * 状态描述符的基类. {@code StateDescriptor}用于在有状态操作中创建分区{@link State}.
  * Base class for state descriptors. A {@code StateDescriptor} is used for creating partitioned
  * {@link State} in stateful operations.
  *

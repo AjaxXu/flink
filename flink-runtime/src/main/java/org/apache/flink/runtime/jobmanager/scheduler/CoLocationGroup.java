@@ -28,12 +28,12 @@ import org.apache.flink.util.Preconditions;
 
 /**
  * CoLocationGroup 是在 SlotSharingGroup 的基础上的硬限制，它限定了 CoLocationGroup 中的 JobVertex 中的 sub task 运行必须是一一对应的,
- * 且必须运行在相同的TaskManager上：假如 CoLocationGrou 限定了 JobVertex A 和 B ，那么 A 的编号为 i 的 sub task 必须和 B 的编号为 i 的 sub task 跑在一起。
+ * 且必须运行在相同的TaskManager上：假如 CoLocationGrou 限定了 JobVertex A 和 B ，那么 A 的编号为 i 的 sub task 必须和 B 的编号为 i 的 sub task 跑在一起.
  * A Co-location group is a group of JobVertices, where the <i>i-th</i> subtask of one vertex
  * has to be executed on the same TaskManager as the <i>i-th</i> subtask of all
  * other JobVertices in the same group.
  *
- * The co-location group用于例如确保第i个子任务的迭代头和迭代尾被调度到相同的TaskManager。
+ * The co-location group用于例如确保第i个子任务的迭代头和迭代尾被调度到相同的TaskManager.
  * <p>The co-location group is used for example to make sure that the i-th subtasks for iteration
  * head and iteration tail are scheduled to the same TaskManager.</p>
  */

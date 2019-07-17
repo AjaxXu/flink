@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 将{@link org.apache.flink.table.expressions.LookupCallExpression}解析为相应的{@link FunctionDefinition}。
+ * 将{@link org.apache.flink.table.expressions.LookupCallExpression}解析为相应的{@link FunctionDefinition}.
  * Resolves {@link org.apache.flink.table.expressions.LookupCallExpression} to
  * a corresponding {@link FunctionDefinition}.
  */

@@ -34,7 +34,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 /**
  * Extends around Netty's {@link PooledByteBufAllocator} with strict control
  * over the number of created arenas.
- * Netty自身提供了一个池化的字节缓冲分配器（PooledByteBufAllocator），Flink又在此基础上进行了包装并提供了Netty缓冲池（NettyBufferPool）。
+ * Netty自身提供了一个池化的字节缓冲分配器(PooledByteBufAllocator),Flink又在此基础上进行了包装并提供了Netty缓冲池（NettyBufferPool）.
  * 此举的目的是严格控制所创建的分配器（Arena）的个数，转而依赖TaskManager的相关配置指定
  */
 public class NettyBufferPool extends PooledByteBufAllocator {

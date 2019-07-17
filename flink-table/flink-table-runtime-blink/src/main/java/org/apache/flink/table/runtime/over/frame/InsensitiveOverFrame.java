@@ -28,7 +28,7 @@ import org.apache.flink.table.runtime.util.ResettableExternalBuffer;
 /**
  * The insensitive window frame calculates the statements which shouldn't care the window frame,
  * for example RANK/DENSE_RANK/PERCENT_RANK/CUME_DIST/ROW_NUMBER.
- * 不敏感的窗口框架计算"不关心窗口框架"的语句，例如RANK/DENSE_RANK/PERCENT_RANK/CUME_DIST/ROW_NUMBER。
+ * 不敏感的窗口框架计算"不关心窗口框架"的语句，例如RANK/DENSE_RANK/PERCENT_RANK/CUME_DIST/ROW_NUMBER.
  */
 public class InsensitiveOverFrame implements OverWindowFrame {
 

@@ -29,7 +29,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
- * {@link SimpleVersionedSerializer}的简单序列化/反序列化方法。
+ * {@link SimpleVersionedSerializer}的简单序列化/反序列化方法.
  * Simple serialization / deserialization methods for the {@link SimpleVersionedSerializer}.
  */
 @PublicEvolving

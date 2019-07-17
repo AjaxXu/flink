@@ -87,7 +87,7 @@ class UnknownInputChannel extends InputChannel {
 		// 占位目的的UnknowInputChannel不响应该方法，因为它最终会被确定为是LocalInputChannel
 		// 还是RemoteInputChannel，确定的时机通常是JobManager通知器其可消费，
 		// TaskManager调用当前SingleInputGate的updateInputChannel方法，
-		// 确定UnknowInputChannel会转变的具体的通道类型后再调用requestSubpartition方法。
+		// 确定UnknowInputChannel会转变的具体的通道类型后再调用requestSubpartition方法.
 	}
 
 	@Override

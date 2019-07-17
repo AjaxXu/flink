@@ -77,7 +77,7 @@ import java.io.Serializable;
 import java.util.Locale;
 
 /**
- * 该抽象类为实现一个具体的operator提供基本的支持，Flink内置提供的operator全部都直接或间接继承自AbstractStreamOperator。
+ * 该抽象类为实现一个具体的operator提供基本的支持，Flink内置提供的operator全部都直接或间接继承自AbstractStreamOperator.
  * Base class for all stream operators. Operators that contain a user function should extend the class
  * {@link AbstractUdfStreamOperator} instead (which is a specialized subclass of this class).
  *

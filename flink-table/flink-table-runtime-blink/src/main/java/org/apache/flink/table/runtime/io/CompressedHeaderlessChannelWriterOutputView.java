@@ -35,7 +35,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * A {@link org.apache.flink.core.memory.DataOutputView} that is backed by a {@link FileIOChannel},
  * making it effectively a data output stream. The view will compress its data before writing it
  * in blocks to the underlying channel.
- * 视图将在将其以块的形式写入底层通道之前压缩其数据。
+ * 视图将在将其以块的形式写入底层通道之前压缩其数据.
  */
 public final class CompressedHeaderlessChannelWriterOutputView
 		extends AbstractChannelWriterOutputView implements BufferRecycler {

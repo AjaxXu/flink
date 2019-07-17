@@ -24,7 +24,7 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 重平衡分区器，用于实现类似于round-robin这样的轮转模式的分区器。通过累加、取模的形式来实现对输出channel的切换。
+ * 重平衡分区器，用于实现类似于round-robin这样的轮转模式的分区器.通过累加、取模的形式来实现对输出channel的切换.
  * Partitioner that distributes the data equally by cycling through the output
  * channels.
  *

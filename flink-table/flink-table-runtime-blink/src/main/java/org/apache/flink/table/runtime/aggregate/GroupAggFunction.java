@@ -187,7 +187,7 @@ public class GroupAggFunction extends KeyedProcessFunctionWithCleanupState<BaseR
 					// We do not emit retraction and acc message.
 					// If state cleaning is enabled, we have to emit messages to prevent too early
 					// state eviction of downstream operators.
-					// newRow与之前相同，且未启用状态清除。我们不会发出撤消和acc消息。
+					// newRow与之前相同，且未启用状态清除.我们不会发出撤消和acc消息.
 					// 如果启用了状态清除，我们必须发出消息以防止下游算子过早的状态驱逐
 					return;
 				} else {

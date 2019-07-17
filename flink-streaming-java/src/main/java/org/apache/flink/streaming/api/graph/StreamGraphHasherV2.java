@@ -47,7 +47,7 @@ import java.util.Set;
 import static org.apache.flink.util.StringUtils.byteToHexString;
 
 /**
- * 包含重复的代码，以确保算法不会随着未来的Flink版本而改变。
+ * 包含重复的代码，以确保算法不会随着未来的Flink版本而改变.
  * StreamGraphHasher from Flink 1.2. This contains duplicated code to ensure that the algorithm does not change with
  * future Flink versions.
  *
