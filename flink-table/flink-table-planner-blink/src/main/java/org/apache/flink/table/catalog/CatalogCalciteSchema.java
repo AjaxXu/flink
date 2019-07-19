@@ -33,6 +33,8 @@ import java.util.Set;
  * A mapping between Flink's catalog and Calcite's schema. This enables to look up and access objects(tables, views,
  * functions, types) in SQL queries without registering them in advance. Databases are registered as sub-schemas
  * in the schema.
+ * Flink目录与Calcite schema之间的映射。这使得能够在SQL查询中查找和访问对象(表，视图，函数，类型)，而无需事先注册它们。
+ * 数据库在schema中注册为子sub-schemas。
  */
 @Internal
 public class CatalogCalciteSchema extends FlinkSchema {
@@ -47,6 +49,7 @@ public class CatalogCalciteSchema extends FlinkSchema {
 
 	/**
 	 * Look up a sub-schema (database) by the given sub-schema name.
+	 * 根据sub-schema名字查找sub-schema(database)
 	 *
 	 * @param schemaName name of sub-schema to look up
 	 * @return the sub-schema with a given database name, or null

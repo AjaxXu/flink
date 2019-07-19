@@ -28,6 +28,9 @@ import org.apache.flink.table.typeutils.TimeIndicatorTypeInfo
 
 import org.apache.calcite.rel.`type`.{RelDataType, RelDataTypeFactory}
 
+/**
+  * FlinkTable的抽象类.
+  */
 abstract class InlineTable[T](
     val dataType: DataType,
     val fieldIndexes: Array[Int],

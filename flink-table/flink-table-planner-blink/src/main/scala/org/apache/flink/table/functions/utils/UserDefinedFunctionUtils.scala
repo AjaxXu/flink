@@ -578,7 +578,7 @@ object UserDefinedFunctionUtils {
       } catch {
         case ite: InvalidTypesException =>
           throw new TableException(
-            "Cannot infer generic type of ${aggregateFunction.getClass}. " +
+            s"Cannot infer generic type of ${aggregateFunction.getClass}. " +
                 "You can override AggregateFunction.getAccumulatorType() to specify the type.",
             ite
           )

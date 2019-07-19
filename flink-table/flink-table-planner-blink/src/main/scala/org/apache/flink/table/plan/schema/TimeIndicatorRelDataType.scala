@@ -26,6 +26,7 @@ import java.lang
 /**
   * Creates a time indicator type for event-time or processing-time, but with similar properties
   * as a basic SQL type.
+  * 为event-time或processing-time创建的时间指示器类型，但具有与基本SQL类型类似的属性。
   */
 class TimeIndicatorRelDataType(
     val typeSystem: RelDataTypeSystem,

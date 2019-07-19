@@ -26,6 +26,7 @@ import org.apache.flink.table.sources.{TableSource, TableSourceUtil}
 /**
   * Abstract class which define the interfaces required to convert a [[TableSource]] to
   * a Calcite Table
+  * 用于定义将[[TableSource]]转换为Calcite表所需的接口的类
   */
 class TableSourceTable[T](
     val tableSource: TableSource[T],

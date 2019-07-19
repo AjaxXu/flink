@@ -31,6 +31,7 @@ import scala.collection.JavaConversions._
 
 /**
   * The class provides statistics for a [[org.apache.flink.table.plan.schema.FlinkTable]].
+  * 该类为提供[[org.apache.flink.table.plan.schema.FlinkTable]]的统计信息。
   */
 class FlinkStatistic(
     tableStats: TableStats,

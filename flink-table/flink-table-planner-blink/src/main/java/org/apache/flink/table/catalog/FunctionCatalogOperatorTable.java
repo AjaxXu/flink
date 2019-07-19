@@ -40,6 +40,7 @@ import java.util.Optional;
 
 /**
  * Thin adapter between {@link SqlOperatorTable} and {@link FunctionCatalog}.
+ * {@link SqlOperatorTable}和{@link FunctionCatalog}之间的适配器。
  */
 @Internal
 public class FunctionCatalogOperatorTable implements SqlOperatorTable {

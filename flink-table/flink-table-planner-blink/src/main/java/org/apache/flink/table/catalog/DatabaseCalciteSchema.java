@@ -50,6 +50,7 @@ import static java.lang.String.format;
 /**
  * A mapping between Flink catalog's database and Calcite's schema.
  * Tables are registered as tables in the schema.
+ * Flink catalog中数据库和Calcite schema之间的映射。Tables在schema中注册为tables。
  */
 class DatabaseCalciteSchema extends FlinkSchema {
 	private final String databaseName;

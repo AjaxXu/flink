@@ -28,6 +28,7 @@ import java.util.Map;
 
 /**
  * A {@link TableSourceQueryOperation} with {@link FlinkStatistic} and qualifiedName.
+ * 带有{@link FlinkStatistic}和qualifiedName的{@link TableSourceQueryOperation}。
  * TODO this class should be deleted after unique key in TableSchema is ready
  * and setting catalog statistic to TableSourceTable in DatabaseCalciteSchema is ready
  */

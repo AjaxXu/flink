@@ -30,6 +30,7 @@ import org.apache.calcite.rel.`type`.{RelDataType, RelDataTypeFactory}
 /**
   * A Typed Function is a Table Function which the result type has already been determined.
   * The result type will be determined before constructing the class.
+  * Typed Function是一个表函数，其结果类型已经确定。结构类型将在构造类之前确定。
   *
   * @param tableFunction The Table Function instance
   * @param externalResultType The result type which has been determined

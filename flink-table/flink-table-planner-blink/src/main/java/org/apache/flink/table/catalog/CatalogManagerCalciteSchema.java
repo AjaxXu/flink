@@ -33,6 +33,7 @@ import java.util.Set;
 /**
  * Bridge between the {@link CatalogManager} and the {@link Schema}. This way we can query Flink's specific catalogs
  * from Calcite.
+ * {@link CatalogManager}和{@link Schema}之间的桥梁。这样我们就可以从Calcite查询Flink的特定catalog。
  *
  * <p>The mapping for {@link Catalog}s is modeled as a strict two-level reference structure for Flink in Calcite,
  * the full path of objects is of format [catalog_name].[db_name].[meta-object_name].

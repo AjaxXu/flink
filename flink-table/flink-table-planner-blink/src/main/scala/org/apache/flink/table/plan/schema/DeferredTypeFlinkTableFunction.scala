@@ -29,6 +29,7 @@ import org.apache.calcite.rel.`type`.{RelDataType, RelDataTypeFactory}
 /**
   * A Deferred Type is a Table Function which the result type hasn't been determined yet.
   * It will determine the result type after the arguments are passed.
+  * 延迟类型是返回类型没有确定的表函数。它将在传递参数后确定结果类型。
   *
   * @param tableFunction The Table Function instance
   * @param implicitResultType Implicit result type.
@@ -48,6 +49,7 @@ class DeferredTypeFlinkTableFunction(
       TypeConversions.fromLegacyInfoToDataType(resultType)
     } else {
       // if user don't specific the result type, using the implicit type
+      // 如果用户没有指明返回类型，使用隐式类型
       implicitResultType
     }
   }

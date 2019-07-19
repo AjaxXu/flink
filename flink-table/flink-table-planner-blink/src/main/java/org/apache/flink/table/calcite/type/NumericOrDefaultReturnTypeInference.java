@@ -40,6 +40,7 @@ public class NumericOrDefaultReturnTypeInference implements SqlReturnTypeInferen
 	// We check from the `startTypeIdx`-th argument that
 	// if all the following arguments are of numeric type.
 	// Previous arguments are ignored.
+	// 我们从`startTypeIdx`-th参数检查是否之后所有参数都是数字类型。以前的参数被忽略。
 	private int startTypeIdx;
 
 	public NumericOrDefaultReturnTypeInference(int defaultTypeIdx) {

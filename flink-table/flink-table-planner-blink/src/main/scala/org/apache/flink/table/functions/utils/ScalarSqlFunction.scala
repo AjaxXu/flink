@@ -37,6 +37,7 @@ import scala.collection.JavaConverters._
 
 /**
   * Calcite wrapper for user-defined scalar functions.
+  * 用户定义scalar函数的Calcite包装.
   *
   * @param name           function name (used by SQL parser)
   * @param displayName    name to be displayed in operator name

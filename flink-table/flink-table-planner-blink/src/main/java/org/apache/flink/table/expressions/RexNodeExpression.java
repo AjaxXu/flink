@@ -28,6 +28,7 @@ import java.util.List;
 
 /**
  * Dummy wrapper for expressions that were converted to RexNode in a different way.
+ * 用于以不同方式转换为RexNode的表达式的虚拟包装器。
  */
 public class RexNodeExpression implements ResolvedExpression {
 

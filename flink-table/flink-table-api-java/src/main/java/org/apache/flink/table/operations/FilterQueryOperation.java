@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 过滤行
+ * 过滤行.
  * Filters out rows of underlying relational operation that do not match given condition.
  */
 @Internal

@@ -22,6 +22,7 @@ import org.apache.flink.table.expressions._
 
 /**
   * Logical super class for group windows.
+  * Group windows的逻辑父类。
   *
   * @param aliasAttribute window alias
   * @param timeAttribute time field indicating event-time or processing-time

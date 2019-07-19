@@ -44,6 +44,9 @@ import java.util.stream.Collectors;
  * A bridge between a Flink's specific {@link QueryOperationCatalogView} and a Calcite's
  * {@link org.apache.calcite.schema.Table}. It implements {@link TranslatableTable} interface. This enables
  * direct translation from {@link org.apache.flink.table.operations.QueryOperation} to {@link RelNode}.
+ * Flink的特定{@link QueryOperationCatalogView}和Calcite的{@link org.apache.calcite.schema.Table}之间的桥梁。
+ * 它实现了{@link TranslatableTable}接口。这样可以从{@link org.apache.flink.table.operations.QueryOperation}
+ * 直接转换为{@link RelNode}。
  *
  * <p>NOTE: Due to legacy inconsistency in null handling in the {@link TableSchema} the translation might introduce
  * additional cast to comply with manifested schema in

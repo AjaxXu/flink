@@ -38,6 +38,8 @@ import java.util
 
 /**
   * Calcite wrapper for user-defined table functions.
+  * 用户自定义的table函数的Calcite封装.
+  *
   *
   * @param name               function name (used by SQL parser)
   * @param udtf               user-defined table function to be called
@@ -64,7 +66,7 @@ class TableSqlFunction(
   /**
     * Get the user-defined table function.
     */
-  def getTableFunction = udtf
+  def getTableFunction: TableFunction[_] = udtf
 
   /**
     * Get the type information of the table returned by the table function.

@@ -27,6 +27,7 @@ import org.apache.calcite.rel.`type`.{RelDataType, RelDataTypeFactory}
 
 /**
   * The class that wraps [[DataStream]] as a Calcite Table.
+  * 将[[DataStream]]包装为Calcite表的类。
   */
 class DataStreamTable[T](
     val dataStream: DataStream[T],

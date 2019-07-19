@@ -47,6 +47,7 @@ import scala.collection.JavaConversions._
 
 /**
   * Flink specific [[RelBuilder]] that changes the default type factory to a [[FlinkTypeFactory]].
+  * Flink特定[[RelBuilder]]将默认类型工厂更改为[[FlinkTypeFactory]]。
   */
 class FlinkRelBuilder(
     context: Context,

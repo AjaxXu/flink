@@ -101,6 +101,7 @@ import static org.apache.flink.table.typeutils.TypeCheckUtils.isTimeInterval;
 
 /**
  * Visit expression to generator {@link RexNode}.
+ * 访问表达式以生成{@link RexNode}。
  *
  * <p>TODO actually we should use {@link ResolvedExpressionVisitor} here as it is the output of the API.
  * we will update it after introduce Expression resolve in AggCodeGen.

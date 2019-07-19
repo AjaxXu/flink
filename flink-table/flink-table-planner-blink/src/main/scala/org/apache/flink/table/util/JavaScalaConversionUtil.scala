@@ -27,6 +27,7 @@ import scala.collection.JavaConverters._
 
 /**
   * Utilities for interoperability between Scala and Java classes.
+  * 用于Scala和Java类之间互操作性的实用程序。
   */
 object JavaScalaConversionUtil {
 

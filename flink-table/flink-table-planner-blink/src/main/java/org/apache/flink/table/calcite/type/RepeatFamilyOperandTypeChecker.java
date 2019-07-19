@@ -38,6 +38,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * Parameter type-checking strategy where there must be more than one operands,
  * and all operands must have a same specific SqlTypeFamily type.
+ * 参数类型检查策略，其中必须有多个操作数，并且所有操作数必须具有相同的特定SqlTypeFamily类型。
  */
 public class RepeatFamilyOperandTypeChecker implements SqlOperandTypeChecker {
 
@@ -85,17 +86,11 @@ public class RepeatFamilyOperandTypeChecker implements SqlOperandTypeChecker {
 		boolean throwOnFailure) {
 
 		for (Ord<SqlNode> op : Ord.zip(callBinding.operands())) {
-			if (!checkSingleOperandType(
-				callBinding,
-				op.e,
-				false)) {
+			if (!checkSingleOperandType(callBinding, op.e, false)) {
 				// TODO: check type coercion when we support implicit type conversion
 				// recheck to validate.
 				for (Ord<SqlNode> op1 : Ord.zip(callBinding.operands())) {
-					if (!checkSingleOperandType(
-						callBinding,
-						op1.e,
-						throwOnFailure)) {
+					if (!checkSingleOperandType(callBinding, op1.e, throwOnFailure)) {
 						return false;
 					}
 				}

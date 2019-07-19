@@ -26,6 +26,7 @@ import java.lang
 
 /**
   * Generic type for encapsulating Flink's [[TypeInformationAnyType]].
+  * 封装了Flink's [[TypeInformationAnyType]]的通用类型。
   *
   * @param genericType LogicalType to encapsulate
   * @param nullable flag if type can be nullable

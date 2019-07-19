@@ -39,6 +39,7 @@ import java.util
 
 /**
   * Calcite wrapper for user-defined aggregate functions.
+  * 用户定义聚合函数的Calcite包装.
   *
   * @param name function name (used by SQL parser)
   * @param displayName name to be displayed in operator name

@@ -48,6 +48,7 @@ import scala.collection.mutable
 /**
   * Flink specific type factory that represents the interface between Flink's [[LogicalType]]
   * and Calcite's [[RelDataType]].
+  * Flink特定类型工厂，表示Flink的[[LogicalType]]和Calcite的[[RelDataType]]之间的接口。
   */
 class FlinkTypeFactory(typeSystem: RelDataTypeSystem) extends JavaTypeFactoryImpl(typeSystem) {
 
@@ -127,6 +128,7 @@ class FlinkTypeFactory(typeSystem: RelDataTypeSystem) extends JavaTypeFactoryImp
     }
 
     // Kind in TimestampType do not affect the hashcode and equals, So we can't put it to seenTypes
+    // 由于TimestampType的Kind不影响hashcode和equals，所以不能直接放到seenTypes map中
     val relType = t.getTypeRoot match {
       case LogicalTypeRoot.TIMESTAMP_WITHOUT_TIME_ZONE =>
         val timestampType = t.asInstanceOf[TimestampType]
@@ -176,6 +178,7 @@ class FlinkTypeFactory(typeSystem: RelDataTypeSystem) extends JavaTypeFactoryImp
     * Creates a table row type with the input fieldNames and input fieldTypes using
     * FlinkTypeFactory. Table row type is table schema for Calcite RelNode. See getRowType of
     * [[RelNode]]. Use FULLY_QUALIFIED to let each field must be referenced explicitly.
+    * 使用FlinkTypeFactory创建具有输入fieldNames和输入fieldTypes的表行类型。表行类型是Calcite RelNode的表模式。
     *
     * @param fieldNames field names
     * @param fieldTypes field types, every element is Flink's [[LogicalType]]

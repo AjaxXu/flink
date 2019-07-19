@@ -111,6 +111,7 @@ import static org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoT
 /**
  * Converter from Flink's specific relational representation: {@link QueryOperation} to Calcite's specific relational
  * representation: {@link RelNode}.
+ * 从Flink的特定关系表示转换：{@link QueryOperation}到Calcite的特定关系表示：{@link RelNode}。
  */
 @Internal
 public class QueryOperationConverter extends QueryOperationDefaultVisitor<RelNode> {

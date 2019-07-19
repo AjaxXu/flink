@@ -40,6 +40,7 @@ import static org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoT
 
 /**
  * The class to get {@link SqlAggFunctionVisitor} of CallExpression.
+ * 根据CallExpression获得SqlAggFunction。
  */
 public class SqlAggFunctionVisitor extends ExpressionDefaultVisitor<SqlAggFunction> {
 

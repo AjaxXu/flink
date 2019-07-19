@@ -29,6 +29,7 @@ import java.util.Set;
 
 /**
  * Base class for flink {@link Schema}, which provides some default implementations.
+ * 提供默认方法实现的{@link Schema}在flink中的基类。
  */
 public abstract class FlinkSchema implements Schema {
 

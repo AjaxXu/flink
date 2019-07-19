@@ -32,6 +32,7 @@ abstract class AbstractPlannerWindowProperty(
 
 /**
   * Indicate timeField type.
+  * 指示timeField的类型。
   */
 case class PlannerWindowReference(name: String, tpe: Option[LogicalType] = None) {
   override def toString: String = s"'$name"
