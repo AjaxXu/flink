@@ -20,7 +20,9 @@ package org.apache.flink.table.operations;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.table.plan.stats.FlinkStatistic;
+import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.table.sources.TableSource;
+import org.apache.flink.util.Preconditions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,8 @@ import java.util.Map;
  * 带有{@link FlinkStatistic}和qualifiedName的{@link TableSourceQueryOperation}。
  * TODO this class should be deleted after unique key in TableSchema is ready
  * and setting catalog statistic to TableSourceTable in DatabaseCalciteSchema is ready
+ *
+ * <p>This is only used for testing.
  */
 @Internal
 public class RichTableSourceQueryOperation<T> extends TableSourceQueryOperation<T> {
@@ -38,10 +42,11 @@ public class RichTableSourceQueryOperation<T> extends TableSourceQueryOperation<
 	private List<String> qualifiedName;
 
 	public RichTableSourceQueryOperation(
-		TableSource<T> tableSource,
-		boolean isBatch,
-		FlinkStatistic statistic) {
-		super(tableSource, isBatch);
+			TableSource<T> tableSource,
+			FlinkStatistic statistic) {
+		super(tableSource, false);
+		Preconditions.checkArgument(tableSource instanceof StreamTableSource,
+				"Blink planner should always use StreamTableSource.");
 		this.statistic = statistic;
 	}
 

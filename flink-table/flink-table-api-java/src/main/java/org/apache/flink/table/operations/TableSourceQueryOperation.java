@@ -36,6 +36,7 @@ import java.util.Map;
 public class TableSourceQueryOperation<T> implements QueryOperation {
 
 	private final TableSource<T> tableSource;
+	// Flag that tells if the tableSource is BatchTableSource.
 	private final boolean isBatch;
 
 	public TableSourceQueryOperation(TableSource<T> tableSource, boolean isBatch) {

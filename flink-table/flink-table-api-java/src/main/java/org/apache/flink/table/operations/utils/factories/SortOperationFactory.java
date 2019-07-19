@@ -41,10 +41,10 @@ import static org.apache.flink.table.functions.BuiltInFunctionDefinitions.ORDER_
 @Internal
 public class SortOperationFactory {
 
-	private final boolean isStreaming;
+	private final boolean isStreamingMode;
 
-	public SortOperationFactory(boolean isStreaming) {
-		this.isStreaming = isStreaming;
+	public SortOperationFactory(boolean isStreamingMode) {
+		this.isStreamingMode = isStreamingMode;
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class SortOperationFactory {
 	}
 
 	private void failIfStreaming() {
-		if (isStreaming) {
+		if (isStreamingMode) {
 			throw new ValidationException("A limit operation on unbounded tables is currently not supported.");
 		}
 	}

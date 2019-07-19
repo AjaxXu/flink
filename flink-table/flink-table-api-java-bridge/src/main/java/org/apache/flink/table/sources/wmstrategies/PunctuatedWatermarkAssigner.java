@@ -16,11 +16,25 @@
  * limitations under the License.
  */
 
-package org.apache.flink.table.expressions
+package org.apache.flink.table.sources.wmstrategies;
 
-import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.streaming.api.watermark.Watermark;
+import org.apache.flink.types.Row;
 
-case class ExestingFieldFieldReference(
-    name: String,
-    resultType: TypeInformation[_],
-    fieldIndex: Int) extends ResolvedFieldReference
+/**
+ * A punctuated watermark assigner.
+ */
+@PublicEvolving
+public abstract class PunctuatedWatermarkAssigner extends WatermarkStrategy {
+
+	/**
+	 * Returns the watermark for the current row or null if no watermark should be generated.
+	 *
+	 * @param row The current row.
+	 * @param timestamp The value of the timestamp attribute for the row.
+	 * @return The watermark for this row or null if no watermark should be generated.
+	 */
+	public abstract Watermark getWatermark(Row row, long timestamp);
+
+}
