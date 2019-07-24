@@ -30,6 +30,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in row_number aggregate function.
+ * 内置的row_number聚合函数。
  */
 public class RowNumberAggFunction extends DeclarativeAggregateFunction {
 	private UnresolvedReferenceExpression sequence = unresolvedRef("seq");

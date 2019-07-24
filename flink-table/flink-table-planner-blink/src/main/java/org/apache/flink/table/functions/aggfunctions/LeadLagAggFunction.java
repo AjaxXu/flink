@@ -49,6 +49,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
  *
  * <p>These two aggregate functions are special, and only are used by over window. So here the
  * concrete implementation is closely related to {@link OffsetOverFrame}.
+ * 这两个聚合函数是特殊的，只能由over window使用。 所以这里的具体实现与{@link OffsetOverFrame}密切相关。
  */
 public abstract class LeadLagAggFunction extends DeclarativeAggregateFunction {
 

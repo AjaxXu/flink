@@ -38,6 +38,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * Base class for built-in single value aggregate function.
+ * 单值聚合函数。
  */
 public abstract class SingleValueAggFunction extends DeclarativeAggregateFunction {
 

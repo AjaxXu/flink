@@ -24,6 +24,7 @@ import org.apache.flink.table.validate._
 
 /**
   * Returns the length of this `str`.
+  * 返回`str`的长度.
   */
 case class CharLength(child: PlannerExpression) extends UnaryExpression {
   override private[flink] def resultType: TypeInformation[_] = INT_TYPE_INFO
@@ -43,6 +44,7 @@ case class CharLength(child: PlannerExpression) extends UnaryExpression {
 /**
   * Returns str with the first letter of each word in uppercase.
   * All other letters are in lowercase. Words are delimited by white space.
+  * 返回每个单词的第一个字母大写的str。所有其他字母都是小写的。单词由空格分隔。
   */
 case class InitCap(child: PlannerExpression) extends UnaryExpression {
   override private[flink] def resultType: TypeInformation[_] = STRING_TYPE_INFO
@@ -191,6 +193,7 @@ case class Upper(child: PlannerExpression) extends UnaryExpression with InputTyp
 
 /**
   * Returns the position of string needle in string haystack.
+  * 返回字符串haystack中字符串needle的位置。
   */
 case class Position(needle: PlannerExpression, haystack: PlannerExpression)
     extends PlannerExpression with InputTypeSpec {

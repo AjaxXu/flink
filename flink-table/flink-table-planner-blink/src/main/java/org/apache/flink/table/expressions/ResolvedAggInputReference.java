@@ -28,6 +28,8 @@ import java.util.List;
  * Normally we should use {@link FieldReferenceExpression} to represent an input field.
  * {@link FieldReferenceExpression} uses name to locate the field, in aggregate case, we want to use
  * field index.
+ * 通常我们应该使用{@link FieldReferenceExpression}来表示输入字段。 {@link FieldReferenceExpression}使用name来
+ * 定位字段，在聚合情况下，我们要使用字段索引。
  */
 public class ResolvedAggInputReference implements Expression {
 

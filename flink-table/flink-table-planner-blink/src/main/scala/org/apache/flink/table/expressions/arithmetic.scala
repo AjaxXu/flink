@@ -26,6 +26,9 @@ import org.apache.flink.table.validate._
 
 import org.apache.calcite.sql.SqlOperator
 
+/**
+  * 数学表达式.
+  */
 abstract class BinaryArithmetic extends BinaryExpression {
   private[flink] def sqlOperator: SqlOperator
 

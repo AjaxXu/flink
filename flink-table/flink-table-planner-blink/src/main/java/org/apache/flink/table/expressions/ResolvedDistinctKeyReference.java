@@ -26,6 +26,7 @@ import java.util.List;
 
 /**
  * Resolved distinct key reference.
+ * 已解析的distinct key引用.
  */
 public class ResolvedDistinctKeyReference implements Expression {
 

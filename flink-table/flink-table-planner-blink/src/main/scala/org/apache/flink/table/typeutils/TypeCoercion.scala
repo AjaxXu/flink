@@ -24,6 +24,7 @@ import org.apache.flink.table.typeutils.TypeCheckUtils._
 
 /**
   * Utilities for type conversions.
+  * 类型转换的工具类。
   */
 object TypeCoercion {
 

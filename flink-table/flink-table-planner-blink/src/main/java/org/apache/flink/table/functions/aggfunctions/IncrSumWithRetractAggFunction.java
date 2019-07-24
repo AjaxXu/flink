@@ -39,6 +39,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 /**
  * built-in IncrSum with retract aggregate function,
  * negative number is discarded to ensure the monotonicity.
+ * 支持撤回的内置IncrSum聚合函数，负数被丢弃为了确保单调性。
  */
 public abstract class IncrSumWithRetractAggFunction extends DeclarativeAggregateFunction {
 	private UnresolvedReferenceExpression sum = unresolvedRef("sum");

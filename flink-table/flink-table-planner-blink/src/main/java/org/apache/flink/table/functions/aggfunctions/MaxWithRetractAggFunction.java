@@ -40,6 +40,7 @@ import java.util.Map;
 
 /**
  * built-in Max with retraction aggregate function.
+ * 支持撤回的内置Max聚合函数。
  */
 public abstract class MaxWithRetractAggFunction<T extends Comparable>
 		extends AggregateFunction<T, MaxWithRetractAggFunction.MaxWithRetractAccumulator<T>> {

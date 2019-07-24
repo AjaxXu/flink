@@ -31,6 +31,7 @@ import java.util.List;
 
 /**
  * An implementation of {@link Executor} that is backed by a {@link StreamExecutionEnvironment}.
+ * {@link Executor}的实现，由{@link StreamExecutionEnvironment}支持。
  */
 @Internal
 public abstract class ExecutorBase implements Executor {

@@ -40,6 +40,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in rank like aggregate function, e.g. rank, dense_rank
+ * 内置的类rank聚合函数，比如rank，dense_rank。
  */
 public abstract class RankLikeAggFunctionBase extends DeclarativeAggregateFunction {
 	protected UnresolvedReferenceExpression sequence = unresolvedRef("sequence");
@@ -97,6 +98,7 @@ public abstract class RankLikeAggFunctionBase extends DeclarativeAggregateFuncti
 		return ret.orElseGet(() -> literal(true));
 	}
 
+	// 产生初始的字面值
 	protected Expression generateInitLiteral(LogicalType orderType) {
 		switch (orderType.getTypeRoot()) {
 			case BOOLEAN:

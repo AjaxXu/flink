@@ -22,6 +22,9 @@ import org.apache.flink.api.common.typeinfo.{BasicTypeInfo, TypeInformation}
 import org.apache.flink.table.typeutils.TypeInfoCheckUtils
 import org.apache.flink.table.validate._
 
+/**
+  * 数学表达式.
+  */
 case class Abs(child: PlannerExpression) extends UnaryExpression {
   override private[flink] def resultType: TypeInformation[_] = child.resultType
 

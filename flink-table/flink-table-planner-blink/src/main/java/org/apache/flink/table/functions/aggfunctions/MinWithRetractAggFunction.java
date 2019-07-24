@@ -40,6 +40,7 @@ import java.util.Map;
 
 /**
  * built-in Min with retraction aggregate function.
+ * 支持撤回的内置的Min聚合函数。
  */
 public abstract class MinWithRetractAggFunction<T extends Comparable>
 		extends AggregateFunction<T, MinWithRetractAggFunction.MinWithRetractAccumulator<T>> {

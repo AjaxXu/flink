@@ -34,6 +34,7 @@ import org.apache.calcite.sql.validate.SqlMonotonicity;
 /**
  * Function that materializes a processing time attribute.
  * After materialization the result can be used in regular arithmetical calculations.
+ * 实现处理时间属性的函数。实现后，结果可用于常规算术计算。
  */
 public class ProctimeMaterializeSqlFunction extends SqlFunction {
 

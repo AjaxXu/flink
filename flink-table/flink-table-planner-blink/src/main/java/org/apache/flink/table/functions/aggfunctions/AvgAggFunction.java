@@ -39,6 +39,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in avg aggregate function.
+ * 内置avg聚合函数。
  */
 public abstract class AvgAggFunction extends DeclarativeAggregateFunction {
 

@@ -33,6 +33,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in min aggregate function.
+ * 内置的min聚合函数。
  */
 public abstract class MinAggFunction extends DeclarativeAggregateFunction {
 	private UnresolvedReferenceExpression min = unresolvedRef("min");

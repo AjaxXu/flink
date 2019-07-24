@@ -27,6 +27,7 @@ import org.apache.calcite.sql.type.SqlTypeFamily;
 
 /**
  * Function used to throw an exception, only used internally.
+ * 用于抛出异常的函数，仅在内部使用。
  */
 public class SqlThrowExceptionFunction extends SqlFunction {
 	public SqlThrowExceptionFunction() {

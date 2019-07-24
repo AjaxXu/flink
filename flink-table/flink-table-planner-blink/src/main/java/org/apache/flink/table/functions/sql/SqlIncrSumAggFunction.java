@@ -37,6 +37,8 @@ import java.util.List;
  * go into it like SUM. It differs in that the modified monotonicity of
  * INCR_SUM is INCREASING, while that of SUM should be inferred using
  * extra information.
+ * <code>INCR_SUM</code>是一个聚合器，它返回像SUM一样进入它的值的总和。
+ * 它的不同之处在于INCR_SUM的修正单调性是增加的，而SUM的修正单调性应该使用额外信息来推断。
  */
 public class SqlIncrSumAggFunction extends SqlAggFunction {
 

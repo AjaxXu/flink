@@ -19,6 +19,7 @@ package org.apache.flink.table.validate
 
 /**
   * Represents the result of a validation.
+  * 代表验证的结果。
   */
 sealed trait ValidationResult {
   def isFailure: Boolean = !isSuccess

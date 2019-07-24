@@ -33,6 +33,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in concat aggregate function.
+ * 内置concat聚合函数。
  */
 public class ConcatAggFunction extends DeclarativeAggregateFunction {
 	private int operandCount;

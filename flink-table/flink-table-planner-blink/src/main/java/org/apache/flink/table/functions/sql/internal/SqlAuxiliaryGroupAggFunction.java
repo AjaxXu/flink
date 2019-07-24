@@ -27,7 +27,7 @@ import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 
 /**
- * An internal [[SqlAggFunction]] to represents auxiliary group keys
+ * An internal {@link SqlAggFunction} to represents auxiliary group keys
  * which will not be computed as key and does not also affect the correctness of the final result.
  */
 @Internal

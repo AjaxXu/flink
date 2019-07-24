@@ -32,6 +32,7 @@ import java.util.Objects;
 
 /**
  * built-in concat with retraction aggregate function.
+ * 内置concat与撤回聚合函数。
  */
 public final class ConcatWithRetractAggFunction
 	extends AggregateFunction<BinaryString, ConcatWithRetractAggFunction.ConcatWithRetractAccumulator> {

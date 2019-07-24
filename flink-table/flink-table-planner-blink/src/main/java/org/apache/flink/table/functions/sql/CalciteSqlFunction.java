@@ -29,6 +29,8 @@ import org.apache.calcite.sql.type.SqlReturnTypeInference;
  * This is a simple override class for Calcite's {@link SqlFunction} which
  * provide {@link #isDeterministic()} as a constructor parameter to simplify
  * construct a new {@link SqlFunction} in {@link FlinkSqlOperatorTable}.
+ * 这是Calcite的{@link SqlFunction}的简单覆盖类，它提供{@link #isDeterministic()}作为构造函数参数，
+ * 以简化在{@link FlinkSqlOperatorTable}中构造新的{@link SqlFunction}。
  */
 public class CalciteSqlFunction extends SqlFunction {
 

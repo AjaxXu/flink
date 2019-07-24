@@ -33,6 +33,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in max aggregate function.
+ * 内置的max聚合函数。
  */
 public abstract class MaxAggFunction extends DeclarativeAggregateFunction {
 	private UnresolvedReferenceExpression max = unresolvedRef("max");

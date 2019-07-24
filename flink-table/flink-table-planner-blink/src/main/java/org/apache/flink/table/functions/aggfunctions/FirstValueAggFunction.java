@@ -34,6 +34,7 @@ import static org.apache.flink.table.types.TypeInfoLogicalTypeConverter.fromType
 
 /**
  * built-in FirstValue aggregate function.
+ * 内置的FirstValue聚合函数。
  */
 public abstract class FirstValueAggFunction<T> extends AggregateFunction<T, GenericRow> {
 

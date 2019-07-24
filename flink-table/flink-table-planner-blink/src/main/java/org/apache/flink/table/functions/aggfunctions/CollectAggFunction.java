@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Aggregate function for COLLECT.
+ * Aggregate function for COLLECT.COLLECT聚合函数.
  * @param <T> type of collect element.
  */
 public class CollectAggFunction<T>

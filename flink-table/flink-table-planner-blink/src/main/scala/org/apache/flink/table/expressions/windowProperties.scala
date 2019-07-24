@@ -48,14 +48,14 @@ abstract class AbstractWindowProperty(child: PlannerExpression)
 
 case class WindowStart(child: PlannerExpression) extends AbstractWindowProperty(child) {
 
-  override def resultType = SqlTimeTypeInfo.TIMESTAMP
+  override def resultType: TypeInformation[_] = SqlTimeTypeInfo.TIMESTAMP
 
   override def toString: String = s"start($child)"
 }
 
 case class WindowEnd(child: PlannerExpression) extends AbstractWindowProperty(child) {
 
-  override def resultType = SqlTimeTypeInfo.TIMESTAMP
+  override def resultType: TypeInformation[_] = SqlTimeTypeInfo.TIMESTAMP
 
   override def toString: String = s"end($child)"
 }

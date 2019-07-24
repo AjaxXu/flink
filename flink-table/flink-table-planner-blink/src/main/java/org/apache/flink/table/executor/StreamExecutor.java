@@ -31,6 +31,7 @@ import java.util.List;
 /**
  * An implementation of {@link Executor} that is backed by a {@link StreamExecutionEnvironment}.
  * This is the only executor that {@link org.apache.flink.table.planner.StreamPlanner} supports.
+ * 这是{@link org.apache.flink.table.planner.StreamPlanner}支持的唯一执行程序。
  */
 @Internal
 public class StreamExecutor extends ExecutorBase {

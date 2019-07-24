@@ -39,6 +39,7 @@ import static org.apache.flink.table.util.JavaScalaConversionUtil.toJava;
 
 /**
  * Implementation of {@link PlannerTypeInferenceUtil}.
+ * {@link PlannerTypeInferenceUtil}的实现类。
  */
 @Internal
 public final class PlannerTypeInferenceUtilImpl implements PlannerTypeInferenceUtil {

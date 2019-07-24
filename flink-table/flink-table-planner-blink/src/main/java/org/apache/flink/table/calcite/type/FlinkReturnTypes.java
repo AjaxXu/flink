@@ -37,7 +37,7 @@ import java.math.BigDecimal;
 
 /**
  * Type inference in Flink.
- * Flink中的类型推断.
+ * Flink中的返回类型推断.
  */
 public class FlinkReturnTypes {
 

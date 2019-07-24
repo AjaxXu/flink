@@ -36,6 +36,7 @@ import java.util.List;
 /**
  * <code>CONCAT_AGG</code> aggregate function returns the concatenation of
  * a list of values that are input to the function.
+ * <code>CONCAT_AGG</code>聚合函数返回输入到函数的值列表的串联。
  */
 public class SqlConcatAggFunction extends SqlAggFunction {
 

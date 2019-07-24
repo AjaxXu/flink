@@ -34,6 +34,7 @@ import static org.apache.flink.table.types.TypeInfoLogicalTypeConverter.fromType
 
 /**
  * built-in LastValue aggregate function.
+ * 内置LastValue聚合函数。
  */
 public class LastValueAggFunction<T> extends AggregateFunction<T, GenericRow> {
 

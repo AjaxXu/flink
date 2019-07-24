@@ -36,6 +36,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in sum0 aggregate function.
+ * 内置的sum0聚合函数。跟sum的区别是初始值是0不是null。
  */
 public abstract class Sum0AggFunction extends DeclarativeAggregateFunction {
 	private UnresolvedReferenceExpression sum0 = unresolvedRef("sum");

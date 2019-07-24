@@ -30,8 +30,9 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * This count1 aggregate function returns the count1 of values
- * which go into it like [[CountAggFunction]].
+ * which go into it like {@link CountAggFunction}.
  * It differs in that null values are also counted.
+ * 和{@link CountAggFunction}不同在于null值也被记录。
  */
 public class Count1AggFunction extends DeclarativeAggregateFunction {
 	private UnresolvedReferenceExpression count1 = unresolvedRef("count1");

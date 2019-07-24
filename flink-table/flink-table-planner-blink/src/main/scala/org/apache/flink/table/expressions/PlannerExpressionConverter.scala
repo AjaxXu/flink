@@ -31,6 +31,7 @@ import _root_.scala.collection.JavaConverters._
 
 /**
   * Visitor implementation for converting [[Expression]]s to [[PlannerExpression]]s.
+  * 将[[Expression]]转换为[[PlannerExpression]]的访客实现。
   */
 class PlannerExpressionConverter private extends ApiExpressionVisitor[PlannerExpression] {
 

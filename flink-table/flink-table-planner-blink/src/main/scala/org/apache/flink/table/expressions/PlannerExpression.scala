@@ -25,6 +25,9 @@ import java.util
 
 import _root_.scala.collection.JavaConversions._
 
+/**
+  * 计划器的表达式.
+  */
 abstract class PlannerExpression extends TreeNode[PlannerExpression] with Expression {
   /**
     * Returns the [[TypeInformation]] for evaluating this expression.

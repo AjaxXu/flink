@@ -27,6 +27,8 @@ import java.util.List;
  * Special reference which represent a local filed, such as aggregate buffers or constants.
  * We are stored as class members, so the field can be referenced directly.
  * We should use an unique name to locate the field.
+ * 表示本地字段的特殊引用，例如聚合缓冲区或常量。我们存储为类成员，因此可以直接引用该字段。
+ * 我们应该使用唯一的名称来定位该字段。
  *
  * <p>See {@link org.apache.flink.table.codegen.ExprCodeGenerator#visitLocalRef}.
  */

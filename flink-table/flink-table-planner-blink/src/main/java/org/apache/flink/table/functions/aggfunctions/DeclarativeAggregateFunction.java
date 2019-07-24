@@ -33,6 +33,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * API for aggregation functions that are expressed in terms of expressions.
+ * 用于聚合函数的API，以表达式表示。
  *
  * <p>When implementing a new expression-based aggregate function, you should first decide how many
  * operands your function will have by implementing {@link #operandCount} method. And then you can
@@ -132,6 +133,7 @@ public abstract class DeclarativeAggregateFunction extends UserDefinedFunction {
 
 	/**
 	 * Arg of accumulate and retract, the input value (usually obtained from a new arrived data).
+	 * 积累和撤回的参数，输入值(通常从新到达的数据获得)。
 	 */
 	public final UnresolvedReferenceExpression operand(int i) {
 		String name = String.valueOf(i);

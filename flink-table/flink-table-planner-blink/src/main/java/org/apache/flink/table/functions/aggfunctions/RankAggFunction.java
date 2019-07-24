@@ -37,6 +37,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in rank aggregate function.
+ * 内置的rank聚合函数。
  */
 public class RankAggFunction extends RankLikeAggFunctionBase {
 

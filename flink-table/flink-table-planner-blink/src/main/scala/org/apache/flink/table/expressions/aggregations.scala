@@ -27,6 +27,9 @@ import org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoToDataTy
 import org.apache.flink.table.typeutils.TypeInfoCheckUtils
 import org.apache.flink.table.validate.{ValidationFailure, ValidationResult, ValidationSuccess}
 
+/**
+  * 聚合表达式.
+  */
 abstract sealed class Aggregation extends PlannerExpression {
 
   override def toString = s"Aggregate"

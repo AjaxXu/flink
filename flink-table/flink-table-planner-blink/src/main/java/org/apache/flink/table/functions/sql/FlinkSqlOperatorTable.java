@@ -58,6 +58,7 @@ import static org.apache.flink.table.calcite.type.FlinkReturnTypes.VARCHAR_2000_
 
 /**
  * Operator table that contains only Flink-specific functions and operators.
+ * 仅包含Flink特定函数和运算符的运算符表。
  */
 public class FlinkSqlOperatorTable extends ReflectiveSqlOperatorTable {
 
@@ -106,6 +107,7 @@ public class FlinkSqlOperatorTable extends ReflectiveSqlOperatorTable {
 
 	// -----------------------------------------------------------------------------
 	// Flink specific built-in scalar SQL functions
+	// Flink特有的内置标量SQL函数
 	// -----------------------------------------------------------------------------
 
 	// OPERATORS

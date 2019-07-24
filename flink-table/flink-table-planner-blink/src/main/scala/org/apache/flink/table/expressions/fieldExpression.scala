@@ -29,11 +29,15 @@ import org.apache.flink.table.validate.{ValidationFailure, ValidationResult, Val
 
 import org.apache.calcite.rex.RexNode
 
+/**
+  * 名字表达式
+  */
 trait NamedExpression extends PlannerExpression {
   private[flink] def name: String
   private[flink] def toAttribute: Attribute
 }
 
+// 属性
 abstract class Attribute extends LeafExpression with NamedExpression {
   override private[flink] def toAttribute: Attribute = this
 
@@ -42,6 +46,7 @@ abstract class Attribute extends LeafExpression with NamedExpression {
 
 /**
   * Dummy wrapper for expressions that were converted to RexNode in a different way.
+  * 用于以不同方式转换为RexNode的表达式的虚拟包装器。
   */
 case class RexPlannerExpression(
     private[flink] val rexNode: RexNode)

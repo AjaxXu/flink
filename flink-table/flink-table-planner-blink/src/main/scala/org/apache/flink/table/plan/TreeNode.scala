@@ -20,8 +20,9 @@ package org.apache.flink.table.plan
 import org.apache.flink.table.typeutils.TypeInfoCheckUtils
 
 /**
- * Generic base class for trees that can be transformed and traversed.
- */
+  * Generic base class for trees that can be transformed and traversed.
+  * 可以转换和遍历的树的通用基类。
+  */
 abstract class TreeNode[A <: TreeNode[A]] extends Product { self: A =>
 
   /**
@@ -37,6 +38,7 @@ abstract class TreeNode[A <: TreeNode[A]] extends Product { self: A =>
 
   /**
     * Do tree transformation in post order.
+    * 后序转换。
     */
   private[flink] def postOrderTransform(rule: PartialFunction[A, A]): A = {
     def childrenTransform(rule: PartialFunction[A, A]): A = {

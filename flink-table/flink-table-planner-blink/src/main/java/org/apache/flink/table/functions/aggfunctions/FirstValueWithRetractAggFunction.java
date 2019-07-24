@@ -56,6 +56,7 @@ import static org.apache.flink.table.types.TypeInfoLogicalTypeConverter.fromType
 
 /**
  * built-in FirstValue with retraction aggregate function.
+ * 支持撤回的内置FirstValue聚合函数。
  */
 public abstract class FirstValueWithRetractAggFunction<T> extends AggregateFunction<T, GenericRow> {
 

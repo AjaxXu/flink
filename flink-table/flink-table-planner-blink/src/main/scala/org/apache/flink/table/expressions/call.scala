@@ -30,6 +30,7 @@ import org.apache.flink.table.validate.{ValidationFailure, ValidationResult, Val
 
 /**
   * Over call with unresolved alias for over window.
+  * 对于over窗口，使用未解析的别名进行over调用。
   *
   * @param agg The aggregation of the over call.
   * @param alias The alias of the referenced over window.
@@ -145,6 +146,7 @@ case class OverCall(
 
 /**
   * Expression for calling a user-defined scalar functions.
+  * 用于调用用户定义的标量函数的表达式。
   *
   * @param scalarFunction scalar function to be called (might be overloaded)
   * @param parameters actual parameters that determine target evaluation method
@@ -182,8 +184,8 @@ case class PlannerScalarFunctionCall(
 }
 
 /**
-  *
   * Expression for calling a user-defined table function with actual parameters.
+  * 用于使用实际参数调用用户定义的表函数的表达式。
   *
   * @param functionName function name
   * @param tableFunction user-defined table function

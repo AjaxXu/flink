@@ -36,6 +36,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in sum aggregate function with retraction.
+ * 支持撤回的sum聚合函数。
  */
 public abstract class SumWithRetractAggFunction extends DeclarativeAggregateFunction {
 	private UnresolvedReferenceExpression sum = unresolvedRef("sum");

@@ -24,6 +24,9 @@ import org.apache.flink.table.operations.QueryOperation
 import org.apache.flink.table.typeutils.TypeInfoCheckUtils._
 import org.apache.flink.table.validate.{ValidationFailure, ValidationResult, ValidationSuccess}
 
+/**
+  * In表达式.
+  */
 case class In(expression: PlannerExpression, elements: Seq[PlannerExpression])
   extends PlannerExpression  {
 

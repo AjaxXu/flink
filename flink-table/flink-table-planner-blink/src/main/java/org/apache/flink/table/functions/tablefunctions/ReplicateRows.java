@@ -30,6 +30,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
  * Replicate the row N times. N is specified as the first argument to the function.
  * This is an internal function solely used by optimizer to rewrite EXCEPT ALL AND
  * INTERSECT ALL queries.
+ * 将行复制N次。N被指定为函数的第一个参数。这是一个内部函数，仅由优化器用于重写EXCEPT ALL和INTERSECT ALL查询。
  */
 public class ReplicateRows extends TableFunction<Row> {
 
@@ -42,6 +43,7 @@ public class ReplicateRows extends TableFunction<Row> {
 		this.fieldTypes = fieldTypes;
 	}
 
+	// numRows, filed1, filed2...fieldn
 	public void eval(Object... inputs) {
 		checkArgument(inputs.length == fieldTypes.length + 1);
 		long numRows = (long) inputs[0];

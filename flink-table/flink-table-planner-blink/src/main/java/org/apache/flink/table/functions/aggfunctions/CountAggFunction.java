@@ -32,6 +32,7 @@ import static org.apache.flink.table.expressions.utils.ApiExpressionUtils.unreso
 
 /**
  * built-in count aggregate function.
+ * 内置的count聚合函数。
  */
 public class CountAggFunction extends DeclarativeAggregateFunction {
 	private UnresolvedReferenceExpression count = unresolvedRef("count");

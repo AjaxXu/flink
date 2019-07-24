@@ -21,6 +21,7 @@ package org.apache.flink.table.expressions
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo
 import org.apache.flink.table.typeutils.TimeIntervalTypeInfo
 
+// Over window的offset属性.
 case class CurrentRow() extends PlannerExpression {
   override private[flink] def resultType = BasicTypeInfo.LONG_TYPE_INFO
 

@@ -44,6 +44,7 @@ import static org.apache.flink.table.functions.InternalFunctionDefinitions.THROW
 
 /**
  * Builder for {@link Expression}s.
+ * {@link Expression}s的构建器。
  */
 public class ExpressionBuilder {
 

@@ -28,9 +28,9 @@ import org.apache.flink.table.types.inference.TypeInferenceUtil;
 import java.util.List;
 
 /**
- * 用于验证和输出类型推断的临时实用程序，直到所有{@code PlannerExpression}升级为与{@link TypeInferenceUtil}一起使用
  * Temporary utility for validation and output type inference until all {@code PlannerExpression} are
  * upgraded to work with {@link TypeInferenceUtil}.
+ * 用于验证和输出类型推断的临时实用程序，直到所有{@code PlannerExpression}升级为与{@link TypeInferenceUtil}一起使用。
  */
 @Internal
 public interface PlannerTypeInferenceUtil {

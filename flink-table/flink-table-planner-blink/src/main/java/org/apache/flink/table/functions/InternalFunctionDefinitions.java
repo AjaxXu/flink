@@ -24,6 +24,7 @@ import static org.apache.flink.table.functions.FunctionKind.SCALAR;
 
 /**
  * Dictionary of function definitions for all internal used functions.
+ * 所有内部使用函数的函数定义字典。
  */
 public class InternalFunctionDefinitions {
 

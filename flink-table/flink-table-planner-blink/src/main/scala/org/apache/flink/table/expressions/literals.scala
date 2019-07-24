@@ -48,6 +48,7 @@ object Literal {
   }
 }
 
+// 字面量类.
 case class Literal(value: Any, resultType: TypeInformation[_]) extends LeafExpression {
   override def toString: String = resultType match {
     case _: BasicTypeInfo[_] => value.toString
