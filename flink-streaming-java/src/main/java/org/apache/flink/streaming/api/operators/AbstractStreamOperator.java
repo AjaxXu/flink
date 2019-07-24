@@ -73,6 +73,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Locale;
 
@@ -389,14 +390,14 @@ public abstract class AbstractStreamOperator<OUT>
 
 		OperatorSnapshotFutures snapshotInProgress = new OperatorSnapshotFutures();
 
-		try (StateSnapshotContextSynchronousImpl snapshotContext = new StateSnapshotContextSynchronousImpl(
-				checkpointId,
-				timestamp,
-				factory,
-				keyGroupRange,
-				getContainingTask().getCancelables())) {
+		StateSnapshotContextSynchronousImpl snapshotContext = new StateSnapshotContextSynchronousImpl(
+			checkpointId,
+			timestamp,
+			factory,
+			keyGroupRange,
+			getContainingTask().getCancelables());
 
-			// 先调用AbstractStreamOperator.snapshotState方法，为rich function做state snapshot
+		try {
 			snapshotState(snapshotContext);
 
 			snapshotInProgress.setKeyedStateRawFuture(snapshotContext.getKeyedStateStreamFuture());
@@ -425,6 +426,11 @@ public abstract class AbstractStreamOperator<OUT>
 
 			if (!getContainingTask().isCanceled()) {
 				LOG.info(snapshotFailMessage, snapshotException);
+			}
+			try {
+				snapshotContext.closeExceptionally();
+			} catch (IOException e) {
+				snapshotException.addSuppressed(e);
 			}
 			throw new CheckpointException(snapshotFailMessage, CheckpointFailureReason.CHECKPOINT_DECLINED, snapshotException);
 		}
