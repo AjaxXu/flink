@@ -68,6 +68,7 @@ import org.junit.rules.{ExpectedException, TestName}
 import _root_.java.util
 
 import _root_.scala.collection.JavaConversions._
+import _root_.scala.io.Source
 
 /**
   * Test base for testing Table API / SQL plans.
@@ -408,7 +409,7 @@ abstract class TableTestUtilBase(test: TableTestBase, isStreamingMode: Boolean) 
     } else {
       explainResult
     }
-    assertEqualsOrExpand("explain", replaceStageId(actual), expand = false)
+    assertEqualsOrExpand("explain", TableTestUtil.replaceStageId(actual), expand = false)
   }
 
   protected def getOptimizedPlan(
@@ -439,14 +440,6 @@ abstract class TableTestUtilBase(test: TableTestBase, isStreamingMode: Boolean) 
             withRowType = withRowType)
         }.mkString("\n")
     }
-  }
-
-  /**
-    * Stage {id} is ignored, because id keeps incrementing in test class
-    * while StreamExecutionEnvironment is up
-    */
-  protected def replaceStageId(s: String): String = {
-    s.replaceAll("\\r\\n", "\n").replaceAll("Stage \\d+", "")
   }
 
   /**
@@ -1070,5 +1063,18 @@ object TableTestUtil {
     }
     createTableMethod.setAccessible(true)
     createTableMethod.invoke(tEnv, queryOperation).asInstanceOf[Table]
+  }
+
+  def readFromResource(path: String): String = {
+    val inputStream = getClass.getResource(path).getFile
+    Source.fromFile(inputStream).mkString
+  }
+
+  /**
+    * Stage {id} is ignored, because id keeps incrementing in test class
+    * while StreamExecutionEnvironment is up
+    */
+  def replaceStageId(s: String): String = {
+    s.replaceAll("\\r\\n", "\n").replaceAll("Stage \\d+", "")
   }
 }

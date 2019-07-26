@@ -17,16 +17,16 @@
  */
 package org.apache.flink.table.planner.expressions
 
-import org.apache.flink.api.common.typeinfo.{BasicTypeInfo, TypeInformation}
+import org.apache.flink.api.common.typeinfo.{BasicTypeInfo, TypeInformation, Types}
 import org.apache.flink.table.functions._
 import org.apache.flink.table.planner.functions.utils.UserDefinedFunctionUtils._
+import org.apache.flink.table.planner.validate.{ValidationFailure, ValidationResult, ValidationSuccess}
 import org.apache.flink.table.runtime.types.LogicalTypeDataTypeConverter.fromLogicalTypeToDataType
 import org.apache.flink.table.runtime.types.TypeInfoDataTypeConverter.fromDataTypeToTypeInfo
 import org.apache.flink.table.runtime.types.TypeInfoLogicalTypeConverter.fromTypeInfoToLogicalType
 import org.apache.flink.table.types.logical.LogicalType
 import org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoToDataType
 import org.apache.flink.table.typeutils.TimeIntervalTypeInfo
-import org.apache.flink.table.validate.{ValidationFailure, ValidationResult, ValidationSuccess}
 
 /**
   * Over call with unresolved alias for over window.
@@ -220,4 +220,22 @@ case class PlannerTableFunctionCall(
 
   override def toString =
     s"${tableFunction.getClass.getCanonicalName}(${parameters.mkString(", ")})"
+}
+
+case class ThrowException(msg: PlannerExpression, tp: TypeInformation[_]) extends UnaryExpression {
+
+  override private[flink] def resultType: TypeInformation[_] = tp
+
+  override private[flink] def child: PlannerExpression = msg
+
+  override private[flink] def validateInput(): ValidationResult = {
+    if (child.resultType == Types.STRING) {
+      ValidationSuccess
+    } else {
+      ValidationFailure(s"ThrowException operator requires String input, " +
+          s"but $child is of type ${child.resultType}")
+    }
+  }
+
+  override def toString: String = s"ThrowException($msg)"
 }
