@@ -52,6 +52,7 @@ import java.util.stream.Collectors;
 /**
  * Mix-in tool class for {@code SqlNode} that allows DDL commands to be
  * converted to {@link Operation}.
+ * {@code SqlNode}的混合工具类，允许将DDL命令转换为{@link Operation}。
  *
  * <p>For every kind of {@link SqlNode}, there needs to have a corresponding
  * #convert(type) method, the 'type' argument should be the subclass

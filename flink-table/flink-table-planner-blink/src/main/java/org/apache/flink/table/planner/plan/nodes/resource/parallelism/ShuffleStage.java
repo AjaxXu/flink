@@ -25,6 +25,7 @@ import java.util.Set;
 
 /**
  * There are no shuffle when transferring data in a shuffleStage.
+ * 在shuffleStage中传输数据时没有shuffle。
  */
 public class ShuffleStage {
 

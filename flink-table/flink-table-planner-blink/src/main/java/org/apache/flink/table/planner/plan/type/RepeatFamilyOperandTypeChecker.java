@@ -38,6 +38,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * Parameter type-checking strategy where there must be more than one operands,
  * and all operands must have a same specific SqlTypeFamily type.
+ * 参数类型检查策略，其中必须有多个操作数，并且所有操作数必须具有相同的特定SqlTypeFamily类型。
  */
 public class RepeatFamilyOperandTypeChecker implements SqlOperandTypeChecker {
 

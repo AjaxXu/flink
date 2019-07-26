@@ -34,9 +34,9 @@ import java.util.Set;
 
 /**
  * Parallelism calculator for shuffleStages.
+ * shuffleStages的并行度计算。
  */
 public class ShuffleStageParallelismCalculator {
-	private static final Logger LOG = LoggerFactory.getLogger(ShuffleStageParallelismCalculator.class);
 	private final Configuration tableConf;
 	private final int envParallelism;
 
@@ -57,6 +57,7 @@ public class ShuffleStageParallelismCalculator {
 	/**
 	 * If there are source nodes in a shuffleStage, its parallelism is the max parallelism of source
 	 * nodes. Otherwise, its parallelism is the default operator parallelism.
+	 * 如果shuffleStage中有源节点，则其并行性是源节点的最大并行度。否则，它的并行度是默认的运算符并行度。
 	 */
 	@VisibleForTesting
 	protected void calculate(ShuffleStage shuffleStage) {

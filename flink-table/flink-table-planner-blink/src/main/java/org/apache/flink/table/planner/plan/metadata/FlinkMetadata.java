@@ -34,6 +34,7 @@ import java.lang.reflect.Method;
 
 /**
  * Contains the interfaces for several specified metadata of flink.
+ * 包含flink的几个指定元数据的接口。
  */
 public abstract class FlinkMetadata {
 

@@ -65,6 +65,9 @@ import static java.util.Collections.singletonList;
  * a corresponding {@link org.apache.calcite.tools.Planner}. It tries to separate static elements in a
  * {@link org.apache.flink.table.api.TableEnvironment} like: root schema, cost factory, type system etc.
  * from a dynamic properties like e.g. default path to look for objects in the schema.
+ * 创建{@link org.apache.calcite.tools.RelBuilder}或{@link FrameworkConfig}的实用程序类用于创建相应的
+ * {@link org.apache.calcite.tools.Planner}。它试图在{@link org.apache.flink.table.api.TableEnvironment}
+ * 中分离静态元素，如：root schema，cost factory，type system等，来自动态属性，例如：查找架构中对象的默认路径。
  */
 @Internal
 public class PlannerContext {

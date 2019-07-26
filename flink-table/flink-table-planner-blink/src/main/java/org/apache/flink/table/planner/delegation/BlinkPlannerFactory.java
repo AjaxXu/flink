@@ -35,6 +35,7 @@ import java.util.Map;
 
 /**
  * Factory to construct a {@link BatchPlanner} or {@link StreamPlanner}.
+ * 工厂构建{@link BatchPlanner}或{@link StreamPlanner}。
  */
 @Internal
 public final class BlinkPlannerFactory implements PlannerFactory {

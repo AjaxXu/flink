@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
   * Flink specific [[RelOptCluster]] to use [[FlinkRelMetadataQuery]]
   * instead of [[RelMetadataQuery]].
+  * Flink特定[[RelOptCluster]]使用[[FlinkRelMetadataQuery]]而不是[[RelMetadataQuery]]。
   */
 class FlinkRelOptCluster(
     planner: RelOptPlanner,

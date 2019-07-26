@@ -22,6 +22,7 @@ import org.apache.flink.table.planner.delegation.PlannerBase;
 
 /**
  * Context for processors to process dag.
+ * 处理dag的上下文。
  */
 public class DAGProcessContext {
 

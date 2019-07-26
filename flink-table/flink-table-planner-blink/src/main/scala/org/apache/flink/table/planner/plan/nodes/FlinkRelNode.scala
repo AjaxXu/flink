@@ -29,6 +29,7 @@ import scala.collection.JavaConversions._
 
 /**
   * Base class for flink relational expression.
+  * flink关系表达式的基类。
   */
 trait FlinkRelNode extends RelNode {
 

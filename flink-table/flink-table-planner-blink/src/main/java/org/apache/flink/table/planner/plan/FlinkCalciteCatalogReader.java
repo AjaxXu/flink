@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 /**
  * Flink specific {@link CalciteCatalogReader} that changes the RelOptTable which wrapped a
  * FlinkTable to a {@link FlinkRelOptTable}.
+ * Flink特定的{@link CalciteCatalogReader}，它将包含FlinkTable的RelOptTable更改为{@link FlinkRelOptTable}。
  */
 public class FlinkCalciteCatalogReader extends CalciteCatalogReader {
 

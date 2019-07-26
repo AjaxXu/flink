@@ -24,6 +24,7 @@ import java.util.List;
 
 /**
  * DAGProcess plugin, use it can set resource of dag or change other node info.
+ * DAGProcess插件，使用它能设置dag资源或者改变其他节点信息。
  */
 public interface DAGProcessor {
 

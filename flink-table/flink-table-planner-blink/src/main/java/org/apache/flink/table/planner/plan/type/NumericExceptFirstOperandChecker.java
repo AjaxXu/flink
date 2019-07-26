@@ -33,6 +33,7 @@ import java.util.List;
 
 /**
  * Parameter type-checking strategy where all operand types except first one must be numeric type.
+ * 参数类型检查策略，其中除第一个之外的所有操作数类型必须是数字类型。
  */
 public class NumericExceptFirstOperandChecker implements SqlOperandTypeChecker {
 

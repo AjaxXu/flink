@@ -25,6 +25,7 @@ import org.apache.calcite.rel.RelNode
 
 /**
   * Base class for flink physical relational expression.
+  * flink物理关系表达式的基类。
   */
 trait FlinkPhysicalRel extends FlinkRelNode {
 

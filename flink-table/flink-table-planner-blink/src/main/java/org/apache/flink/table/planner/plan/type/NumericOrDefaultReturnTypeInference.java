@@ -32,6 +32,8 @@ import java.util.List;
  * We start to consider the arguments from the `startTypeIdx`-th one.
  * If one of the arguments is not of numeric type,
  * we return the type of the `defaultTypeIdx`-th argument instead.
+ * 使用数字参数确定函数的返回类型。返回类型是具有最大范围的参数的类型。
+ * 我们开始考虑来自`startTypeIdx`的参数。如果其中一个参数不是数字类型，我们将返回`defaultTypeIdx`-th参数的类型。
  */
 public class NumericOrDefaultReturnTypeInference implements SqlReturnTypeInference {
 	// Default argument whose type is returned

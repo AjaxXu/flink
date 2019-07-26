@@ -20,6 +20,7 @@ package org.apache.flink.table.planner.plan;
 
 /**
  * Enumerations for partial final aggregate types.
+ * 部分、最终聚合类型的枚举。
  *
  * @see org.apache.flink.table.planner.plan.rules.logical.SplitAggregateRule
  */

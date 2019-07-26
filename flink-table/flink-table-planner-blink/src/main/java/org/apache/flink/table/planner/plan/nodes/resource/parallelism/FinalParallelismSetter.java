@@ -39,6 +39,7 @@ import java.util.Set;
 /**
  * Set final parallelism if needed at the beginning time, if parallelism of a node is set to be final,
  * it will not be changed by other parallelism calculator.
+ * 如果需要在开始时设置最终并行度，如果节点的并行性设置为最终，则不会被其他并行计算器更改。
  */
 public class FinalParallelismSetter {
 

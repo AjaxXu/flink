@@ -35,7 +35,7 @@ import scala.collection.JavaConversions._
 
 /**
   * [[FlinkRelMdFilteredColumnInterval]] supplies a default implementation of
-  * [[FlinkRelMetadataQuery.getFilteredColumnInterval()]] for the standard logical algebra.
+  * [[FlinkRelMetadataQuery#getFilteredColumnInterval]] for the standard logical algebra.
   *
   * The [[FlinkRelMdFilteredColumnInterval]] is almost depend on the implementation of
   * [[FlinkRelMdColumnInterval]], except to handle filter argument in Calc RelNode.

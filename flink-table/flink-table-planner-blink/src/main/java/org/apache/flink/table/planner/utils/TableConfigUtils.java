@@ -34,11 +34,13 @@ import static org.apache.flink.table.api.config.OptimizerConfigOptions.SQL_OPTIM
 
 /**
  * Utility class for {@link TableConfig} related helper functions.
+ * {@link TableConfig}相关辅助函数的实用程序类。
  */
 public class TableConfigUtils {
 
 	/**
 	 * Returns whether the given operator type is disabled.
+	 * 返回是否禁用给定的运算符类型。
 	 *
 	 * @param tableConfig TableConfig object
 	 * @param operatorType operator type to check

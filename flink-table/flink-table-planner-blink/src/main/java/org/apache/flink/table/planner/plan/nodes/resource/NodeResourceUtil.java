@@ -24,6 +24,7 @@ import org.apache.flink.table.api.config.ExecutionConfigOptions;
 
 /**
  * Deal with resource config for {@link org.apache.flink.table.planner.plan.nodes.exec.ExecNode}.
+ * 处理{@link org.apache.flink.table.planner.plan.nodes.exec.ExecNode}的资源配置。
  */
 public class NodeResourceUtil {
 

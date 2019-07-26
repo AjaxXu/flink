@@ -27,6 +27,7 @@ import java.util
 
 /**
   * The representation of execution information for a [[FlinkPhysicalRel]].
+  * 代表[[FlinkPhysicalRel]]的执行信息。
   *
   * @tparam E The Planner
   * @tparam T The type of the elements that result from this [[Transformation]]

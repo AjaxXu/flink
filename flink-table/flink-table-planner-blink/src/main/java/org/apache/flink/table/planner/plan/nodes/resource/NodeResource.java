@@ -20,6 +20,7 @@ package org.apache.flink.table.planner.plan.nodes.resource;
 
 /**
  * Resource for node: parallelism. And other resource latitudes needed to add.
+ * 节点资源：并行度。
  */
 public class NodeResource {
 

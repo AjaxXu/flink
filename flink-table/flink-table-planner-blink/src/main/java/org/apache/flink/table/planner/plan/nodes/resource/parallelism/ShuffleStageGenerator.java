@@ -42,6 +42,9 @@ import static java.util.stream.Collectors.toList;
  * they are belong to different shuffleStages.
  * If there is no data shuffle between two adjacent exec nodes, but
  * they have different final parallelism, they are also belong to different shuffleStages.
+ * 根据{@link BatchExecExchange}将exec节点构建到shuffleStages。
+ * 如果两个相邻的exec节点之间存在数据shuffle，则它们属于不同的shuffleStages。
+ * 如果两个相邻的exec节点之间没有数据shuffle，但它们具有不同的最终并行性，则它们也属于不同的shuffleStages。
  */
 public class ShuffleStageGenerator {
 

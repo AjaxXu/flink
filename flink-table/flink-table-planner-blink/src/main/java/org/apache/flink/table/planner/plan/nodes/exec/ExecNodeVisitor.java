@@ -20,6 +20,7 @@ package org.apache.flink.table.planner.plan.nodes.exec;
 
 /**
  * Visitor pattern for traversing a dag of {@link ExecNode} objects.
+ * 遍历{@link ExecNode}对象的DAG图的Visitor。
  */
 public interface ExecNodeVisitor {
 

@@ -23,6 +23,7 @@ import org.apache.calcite.sql.validate.SqlMonotonicity
   * The RelModifiedMonotonicity is used to describe the modified monotonicity of a
   * relation expression. Every field has its own modified monotonicity which means
   * the direction of the field's value is updated.
+  * RelModifiedMonotonicity用于描述关系表达式的修改单调性。每个字段都有自己的修改单调性，这意味着字段值的更新方向。
   */
 class RelModifiedMonotonicity(val fieldMonotonicities: Array[SqlMonotonicity]) {
 

@@ -33,6 +33,7 @@ import _root_.scala.util.parsing.combinator.{JavaTokenParsers, PackratParsers}
 
 /**
   * The implementation of a [[PlannerExpressionParser]] which parsers expressions inside a String.
+  * [[PlannerExpressionParser]]的实现，它解析String中的表达式。
   *
   * <p><strong>WARNING</strong>: please keep this class in sync with PlannerExpressionParserImpl
   * variant in flink-table-planner module.
@@ -51,6 +52,7 @@ class PlannerExpressionParserImpl extends PlannerExpressionParser {
 /**
  * Parser for expressions inside a String. This parses exactly the same expressions that
  * would be accepted by the Scala Expression DSL.
+  * 解析String中的表达式。 这解析了与Scala Expression DSL接受的完全相同的表达式。
  *
  * See ImplicitExpressionConversions and ImplicitExpressionOperations for the constructs
  * available in the Scala Expression DSL. This parser must be kept in sync with the Scala DSL

@@ -42,7 +42,7 @@ import org.apache.calcite.tools.RelBuilderFactory;
  *
  * <p>SemiJoin(LogicalFilter(X), Y) &rarr; LogicalFilter(SemiJoin(X, Y))
  *
- * @see SemiJoinProjectTransposeRule
+ * @see org.apache.calcite.rel.rules.SemiJoinProjectTransposeRule
  */
 public class FlinkSemiAntiJoinFilterTransposeRule extends RelOptRule {
 	public static final FlinkSemiAntiJoinFilterTransposeRule INSTANCE =
