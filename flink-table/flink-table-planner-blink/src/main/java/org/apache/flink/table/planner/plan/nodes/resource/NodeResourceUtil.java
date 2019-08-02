@@ -40,7 +40,7 @@ public class NodeResourceUtil {
 	 */
 	public static int getSourceParallelism(Configuration tableConf, int envParallelism) {
 		int parallelism = tableConf.getInteger(
-				ExecutionConfigOptions.SQL_RESOURCE_SOURCE_PARALLELISM);
+				ExecutionConfigOptions.TABLE_EXEC_RESOURCE_SOURCE_PARALLELISM);
 		if (parallelism <= 0) {
 			parallelism = getOperatorDefaultParallelism(tableConf, envParallelism);
 		}
@@ -53,7 +53,7 @@ public class NodeResourceUtil {
 	 * @return the config parallelism for sink.
 	 */
 	public static int getSinkParallelism(Configuration tableConf) {
-		return tableConf.getInteger(ExecutionConfigOptions.SQL_RESOURCE_SINK_PARALLELISM);
+		return tableConf.getInteger(ExecutionConfigOptions.TABLE_EXEC_RESOURCE_SINK_PARALLELISM);
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class NodeResourceUtil {
 	 */
 	public static int getOperatorDefaultParallelism(Configuration tableConf, int envParallelism) {
 		int parallelism = tableConf.getInteger(
-				ExecutionConfigOptions.SQL_RESOURCE_DEFAULT_PARALLELISM);
+				ExecutionConfigOptions.TABLE_EXEC_RESOURCE_DEFAULT_PARALLELISM);
 		if (parallelism <= 0) {
 			parallelism = envParallelism;
 		}

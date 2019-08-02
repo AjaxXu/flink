@@ -19,8 +19,9 @@
 package org.apache.flink.table.catalog.hive;
 
 import org.apache.flink.annotation.VisibleForTesting;
+import org.apache.flink.api.java.hadoop.mapred.utils.HadoopUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.batch.connectors.hive.HiveTableFactory;
+import org.apache.flink.connectors.hive.HiveTableFactory;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.catalog.AbstractCatalog;
 import org.apache.flink.table.catalog.CatalogBaseTable;
@@ -52,6 +53,7 @@ import org.apache.flink.table.catalog.exceptions.TableNotPartitionedException;
 import org.apache.flink.table.catalog.exceptions.TablePartitionedException;
 import org.apache.flink.table.catalog.hive.client.HiveMetastoreClientFactory;
 import org.apache.flink.table.catalog.hive.client.HiveMetastoreClientWrapper;
+import org.apache.flink.table.catalog.hive.descriptors.HiveCatalogValidator;
 import org.apache.flink.table.catalog.hive.util.HiveStatsUtil;
 import org.apache.flink.table.catalog.hive.util.HiveTableUtil;
 import org.apache.flink.table.catalog.stats.CatalogColumnStatistics;
@@ -134,6 +136,8 @@ public class HiveCatalog extends AbstractCatalog {
 		this.hiveConf = hiveConf == null ? createHiveConf(null) : hiveConf;
 		checkArgument(!StringUtils.isNullOrWhitespaceOnly(hiveVersion), "hiveVersion cannot be null or empty");
 		this.hiveVersion = hiveVersion;
+		// add this to hiveConf to make sure table factory and source/sink see the same Hive version as HiveCatalog
+		this.hiveConf.set(HiveCatalogValidator.CATALOG_HIVE_VERSION, hiveVersion);
 
 		LOG.info("Created HiveCatalog '{}'", catalogName);
 	}
@@ -150,7 +154,14 @@ public class HiveCatalog extends AbstractCatalog {
 				String.format("Failed to get hive-site.xml from %s", hiveConfDir), e);
 		}
 
-		return new HiveConf();
+		// create HiveConf from hadoop configuration
+		return new HiveConf(HadoopUtils.getHadoopConfiguration(new org.apache.flink.configuration.Configuration()),
+			HiveConf.class);
+	}
+
+	@VisibleForTesting
+	public HiveConf getHiveConf() {
+		return hiveConf;
 	}
 
 	@VisibleForTesting
