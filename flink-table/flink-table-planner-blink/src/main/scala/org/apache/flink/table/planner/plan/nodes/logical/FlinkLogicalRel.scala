@@ -22,6 +22,7 @@ import org.apache.flink.table.planner.plan.nodes.FlinkRelNode
 
 /**
   * Base class for flink logical relational expression.
+  * flink逻辑关系表达式的基类。
   */
 trait FlinkLogicalRel extends FlinkRelNode {
 

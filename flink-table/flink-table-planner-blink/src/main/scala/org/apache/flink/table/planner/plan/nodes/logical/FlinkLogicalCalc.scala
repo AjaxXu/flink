@@ -35,6 +35,7 @@ import java.util.function.Supplier
 /**
   * Sub-class of [[Calc]] that is a relational expression which computes project expressions
   * and also filters in Flink.
+  * [[Calc]]的子类，它是一个关系表达式，用于计算投影表达式并在Flink中进行过滤。
   */
 class FlinkLogicalCalc(
     cluster: RelOptCluster,

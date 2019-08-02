@@ -22,6 +22,7 @@ import org.apache.calcite.plan.{RelOptCost, RelOptCostFactory}
 
 /**
   * A [[RelOptCostFactory]] that adds makeCost methods with network and memory parameters.
+  * 一个[[RelOptCostFactory]]，它为makeCost方法添加了网络和内存参数。
   */
 trait FlinkCostFactoryBase extends RelOptCostFactory {
 

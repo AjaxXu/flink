@@ -24,19 +24,22 @@ package org.apache.flink.runtime.operators;
  * strategy. The dam behavior describes whether records pass through the
  * algorithm (no dam), whether all records are collected before the first
  * is returned (full dam) or whether a certain large amount is collected before
- * the algorithm returns records. 
+ * the algorithm returns records.
+ * 数据流过的算法。
  */
 public enum DamBehavior {
 	
 	/**
 	 * Constant indicating that the algorithm does not come with any form of dam
 	 * and records pass through in a pipelined fashion.
+	 * 常量表示算法没有任何形式的大坝和记录以流水线方式通过。
 	 */
 	PIPELINED,
 	
 	/**
 	 * Constant indicating that the algorithm materialized (some) records, but may
 	 * return records before all records are read.
+	 * 常量表示算法具体化(某些)记录，但可以在读取所有记录之前返回记录。
 	 */
 	MATERIALIZING,
 	

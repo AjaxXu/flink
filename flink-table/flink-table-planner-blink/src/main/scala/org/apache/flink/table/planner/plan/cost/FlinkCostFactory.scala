@@ -22,6 +22,7 @@ import org.apache.calcite.plan.RelOptCost
 
 /**
   * This class is based on Apache Calcite's [[org.apache.calcite.plan.volcano.VolcanoCost#Factory]].
+  * 该类基于Apache Calcite的[[org.apache.calcite.plan.volcano.VolcanoCost#Factory]]。
   */
 class FlinkCostFactory extends FlinkCostFactoryBase {
 

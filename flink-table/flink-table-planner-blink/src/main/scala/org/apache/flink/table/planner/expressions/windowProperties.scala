@@ -22,6 +22,9 @@ import org.apache.flink.api.common.typeinfo.{SqlTimeTypeInfo, TypeInformation}
 import org.apache.flink.table.planner.calcite.FlinkRelBuilder.NamedWindowProperty
 import org.apache.flink.table.planner.validate.{ValidationFailure, ValidationSuccess}
 
+/**
+  * window属性，主要是WindowStart和WindowEnd.
+  */
 trait WindowProperty {
 
   def toNamedWindowProperty(name: String): NamedWindowProperty

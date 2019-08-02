@@ -44,6 +44,7 @@ import scala.collection.JavaConversions._
 /**
   * Contains factory interface and default implementation for creating various
   * flink logical rel nodes.
+  * 包含用于创建各种flink逻辑关系节点的工厂接口和默认实现。
   */
 object FlinkLogicalRelFactories {
 
@@ -82,7 +83,7 @@ object FlinkLogicalRelFactories {
   class ProjectFactoryImpl extends ProjectFactory {
     def createProject(
         input: RelNode,
-        childExprs: util.List[_ <: RexNode],
+        childExprs: util.List[_ <: RexNode], // project的列
         fieldNames: util.List[String]): RelNode = {
       val rexBuilder = input.getCluster.getRexBuilder
       val inputRowType = input.getRowType

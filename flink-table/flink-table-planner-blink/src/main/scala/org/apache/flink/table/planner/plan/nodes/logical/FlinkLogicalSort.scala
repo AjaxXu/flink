@@ -36,6 +36,7 @@ import org.apache.calcite.sql.`type`.SqlTypeName
 /**
   * Sub-class of [[Sort]] that is a relational expression which imposes
   * a particular sort order on its input without otherwise changing its content in Flink.
+  * [[Sort]]的子类，它是一个关系表达式，在其输入上强制使用特定的排序顺序，而不会在Flink中更改其内容。
   */
 class FlinkLogicalSort(
     cluster: RelOptCluster,

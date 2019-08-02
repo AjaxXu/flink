@@ -23,6 +23,7 @@ import org.apache.calcite.rel.RelNode
 /**
   * Likes [[org.apache.calcite.tools.Program]], FlinkOptimizeProgram transforms a relational
   * expression into another relational expression.
+  * 类似[[org.apache.calcite.tools.Program]]，FlinkOptimizeProgram将关系表达式转换为另一个关系表达式。
   *
   * @tparam OC OptimizeContext
   */

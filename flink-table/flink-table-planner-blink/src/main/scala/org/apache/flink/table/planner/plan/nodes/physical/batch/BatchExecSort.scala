@@ -45,8 +45,10 @@ import scala.collection.JavaConversions._
 
 /**
   * Batch physical RelNode for [[Sort]].
+  * [[Sort]]的批量物理RelNode。
   *
   * This node will output all data rather than `limit` records.
+  * 此节点将输出所有数据而不是“limit”记录。
   */
 class BatchExecSort(
     cluster: RelOptCluster,

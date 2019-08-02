@@ -25,6 +25,8 @@ import org.apache.calcite.runtime.Utilities
   * This class is based on Apache Calcite's [[org.apache.calcite.plan.volcano.VolcanoCost]]
   * and has an adapted cost comparison method `isLe(other: RelOptCost)`
   * that takes io, cpu, network and memory into account.
+  * 这个类基于Apache Calcite的[[org.apache.calcite.plan.volcano.VolcanoCost]]，并且有一个适应的
+  * 成本比较方法`isLe(other: RelOptCost)`，它考虑了io，cpu，网络和内存。
   */
 class FlinkCost(
     val rowCount: Double,
@@ -152,7 +154,7 @@ class FlinkCost(
     * Compares this to another cost.
     *
     * @param other another cost
-    * @return true iff this is strictly less than other cost
+    * @return true if this is strictly less than other cost
     */
   override def isLt(other: RelOptCost): Boolean = isLe(other) && !this.equals(other)
 

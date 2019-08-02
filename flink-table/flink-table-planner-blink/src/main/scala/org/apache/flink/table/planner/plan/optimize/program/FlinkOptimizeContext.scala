@@ -22,6 +22,7 @@ import org.apache.flink.table.planner.calcite.FlinkContext
 
 /**
   * A FlinkOptimizeContext allows to obtain table environment information when optimizing.
+  * FlinkOptimizeContext允许在优化时获取表环境信息。
   */
 trait FlinkOptimizeContext extends FlinkContext {
 

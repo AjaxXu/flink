@@ -21,6 +21,9 @@ package org.apache.flink.table.planner.calcite
 import org.apache.flink.table.api.TableConfig
 import org.apache.flink.table.catalog.FunctionCatalog
 
+/**
+  * [[FlinkContext]]的简单实现.
+  */
 class FlinkContextImpl(
     tableConfig: TableConfig,
     functionCatalog: FunctionCatalog)

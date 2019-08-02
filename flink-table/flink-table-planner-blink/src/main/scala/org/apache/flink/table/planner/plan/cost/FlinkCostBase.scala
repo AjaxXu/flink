@@ -22,6 +22,7 @@ import org.apache.calcite.plan.RelOptCost
 
 /**
   * A [[RelOptCost]] that extends network cost and memory cost.
+  * [[RelOptCost]]扩展了网络成本和内存成本。
   */
 trait FlinkCostBase extends RelOptCost {
 

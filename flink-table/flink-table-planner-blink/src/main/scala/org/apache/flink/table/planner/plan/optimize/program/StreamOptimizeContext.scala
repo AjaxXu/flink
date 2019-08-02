@@ -24,6 +24,7 @@ import org.apache.calcite.rex.RexBuilder
 
 /**
   * A OptimizeContext allows to obtain stream table environment information when optimizing.
+  * OptimizeContext允许在优化时获取流表环境信息。
   */
 trait StreamOptimizeContext extends FlinkOptimizeContext {
 
@@ -45,8 +46,9 @@ trait StreamOptimizeContext extends FlinkOptimizeContext {
   def getMiniBatchInterval: MiniBatchInterval
 
   /**
-    * Returns true if the output node needs final TimeIndicator conversion
-    * defined in [[org.apache.flink.table.api.TableEnvironment.optimize]].
+    * Returns true if the output node needs final TimeIndicator conversion defined in
+    * [[org.apache.flink.table.planner.plan.optimize.program.FlinkRelTimeIndicatorProgram.optimize]]
+    * .
     */
   def needFinalTimeIndicatorConversion: Boolean
 

@@ -74,7 +74,7 @@ class FlinkCalciteSqlValidator(
       isCollectionTable(join.getRight)) {
       join.getCondition match {
         case c: SqlLiteral if c.booleanValue() && c.getValue.asInstanceOf[Boolean] =>
-        // We accept only literal true
+        // We accept only literal true 只支持true字面量
         case c if null != c =>
           throw new ValidationException(
             s"Left outer joins with a table function do not accept a predicate such as $c. " +

@@ -31,13 +31,15 @@ import scala.collection.JavaConversions._
 
 
 /**
-  * A FlinkOptimizeProgram contains a sequence of [[FlinkOptimizeProgram]]s which are chained
+  * A FlinkChainedProgram contains a sequence of [[FlinkOptimizeProgram]]s which are chained
   * together.
+  * FlinkChainedProgram包含链接在一起的[[FlinkOptimizeProgram]]序列。
   *
   * The chained-order of programs can be adjusted by [[addFirst]], [[addLast]], [[addBefore]]
   * and [[remove]] methods.
   *
   * When [[optimize]] method called, each program's optimize method will be called in sequence.
+  * 调用[[optimize]]方法时，将按顺序调用每个程序的优化方法。
   *
   * @tparam OC OptimizeContext
   */
@@ -81,6 +83,8 @@ class FlinkChainedProgram[OC <: FlinkOptimizeContext]
     * not a [[FlinkRuleSetProgram]], return [[None]].
     * This method is mainly used for updating rules in FlinkRuleSetProgram for existed
     * FlinkChainedPrograms instance.
+    * 获取与给定名称关联的FlinkRuleSetProgram。如果找不到程序或不是[[FlinkRuleSetProgram]]，则返回[[None]]。
+    * 此方法主要用于更新现有FlinkChainedPrograms实例的FlinkRuleSetProgram中的规则。
     */
   def getFlinkRuleSetProgram(name: String): Option[FlinkRuleSetProgram[OC]] = {
     get(name).getOrElse(None) match {

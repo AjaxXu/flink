@@ -32,6 +32,7 @@ import scala.collection.JavaConversions._
 
 /**
   * Base class for flink [[Calc]].
+  * flink [[Calc]]的基类。
   */
 abstract class CommonCalc(
     cluster: RelOptCluster,
@@ -47,6 +48,8 @@ abstract class CommonCalc(
     // conditions, etc. We only want to account for computations, not for simple projections.
     // CASTs in RexProgram are reduced as far as possible by ReduceExpressionsRule
     // in normalization stage. So we should ignore CASTs here in optimization stage.
+    // 计算不访问字段或文字的表达式的数量，即计算，条件等。我们只想考虑计算，而不是简单的投影。
+    // RexProgram中的CAST在归一化阶段通过ReduceExpressionsRule尽可能地减少。所以我们应该在优化阶段忽略CAST。
     val compCnt = calcProgram.getProjectList.map(calcProgram.expandLocalRef).toList.count {
       case _: RexInputRef => false
       case _: RexLiteral => false

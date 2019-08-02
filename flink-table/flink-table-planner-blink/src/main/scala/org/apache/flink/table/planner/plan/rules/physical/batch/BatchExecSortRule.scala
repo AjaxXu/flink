@@ -36,6 +36,7 @@ import java.lang.{Boolean => JBoolean}
 /**
   * Rule that matches [[FlinkLogicalSort]] which sort fields is non-empty and both `fetch` and
   * `offset` are null, and converts it to [[BatchExecSort]].
+  * 与[[FlinkLogicalSort]]匹配的规则，哪些排序字段为非空，并且`fetch`和`offset`都为空，并将其转换为[[BatchExecSort]]。
   */
 class BatchExecSortRule extends ConverterRule(
   classOf[FlinkLogicalSort],

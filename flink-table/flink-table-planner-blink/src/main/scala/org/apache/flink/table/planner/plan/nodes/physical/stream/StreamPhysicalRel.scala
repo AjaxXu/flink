@@ -24,6 +24,7 @@ import org.apache.calcite.rel.RelNode
 
 /**
   * Base class for stream physical relational expression.
+  * 流物理关系表达的基类。
   */
 trait StreamPhysicalRel extends FlinkPhysicalRel {
 

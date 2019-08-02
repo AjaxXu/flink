@@ -32,16 +32,19 @@ import java.util.Properties
 
 /**
   * Builder for creating a Calcite configuration.
+  * 用于创建Calcite配置的构建器。
   */
 class CalciteConfigBuilder {
 
   /**
     * Defines the optimize program for batch table plan.
+    * 定义批处理表计划的优化程序。
     */
   private var batchProgram: Option[FlinkChainedProgram[BatchOptimizeContext]] = None
 
   /**
     * Defines the optimize program for stream table plan.
+    * 定义流处理表计划的优化程序。
     */
   private var streamProgram: Option[FlinkChainedProgram[StreamOptimizeContext]] = None
 

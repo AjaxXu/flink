@@ -25,6 +25,7 @@ import org.apache.calcite.plan.Context
 
 /**
   * A [[Context]] to allow the store data within the planner session and access it within rules.
+  * 一个[[Context]]允许在规划器会话中存储数据并在规则中访问它。
   */
 trait FlinkContext extends Context {
 
