@@ -90,7 +90,7 @@ object FlinkTypeSystem {
     case dt: DecimalType =>
       val result = inferAggAvgType(dt.getScale)
       new DecimalType(result.getPrecision, result.getScale)
-    case nt if TypeCheckUtils.isNumeric(nt) => new DoubleType()
+    case nt if TypeCheckUtils.isNumeric(nt) => nt
     case _ =>
       throw new RuntimeException("Unsupported argType for AVG(): " + argType)
   }

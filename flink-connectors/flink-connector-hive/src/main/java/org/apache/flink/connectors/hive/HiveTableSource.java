@@ -21,7 +21,6 @@ package org.apache.flink.connectors.hive;
 import org.apache.flink.api.common.io.InputFormat;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
-import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.catalog.CatalogTable;
 import org.apache.flink.table.catalog.ObjectPath;
@@ -66,6 +65,7 @@ public class HiveTableSource extends InputFormatTableSource<Row> implements Part
 	private List<Map<String, String>> partitionList = new ArrayList<>();
 	private Map<Map<String, String>, HiveTablePartition> partitionSpec2HiveTablePartition = new HashMap<>();
 	private boolean initAllPartitions;
+	private boolean partitionPruned;
 
 	public HiveTableSource(JobConf jobConf, ObjectPath tablePath, CatalogTable catalogTable) {
 		this.jobConf = Preconditions.checkNotNull(jobConf);
@@ -74,6 +74,7 @@ public class HiveTableSource extends InputFormatTableSource<Row> implements Part
 		this.hiveVersion = Preconditions.checkNotNull(jobConf.get(HiveCatalogValidator.CATALOG_HIVE_VERSION),
 				"Hive version is not defined");
 		initAllPartitions = false;
+		partitionPruned = false;
 	}
 
 	private HiveTableSource(JobConf jobConf, ObjectPath tablePath, CatalogTable catalogTable,
@@ -87,6 +88,7 @@ public class HiveTableSource extends InputFormatTableSource<Row> implements Part
 		this.hiveVersion = hiveVersion;
 		this.partitionList = partitionList;
 		this.initAllPartitions = true;
+		partitionPruned = true;
 	}
 
 	@Override
@@ -104,12 +106,7 @@ public class HiveTableSource extends InputFormatTableSource<Row> implements Part
 
 	@Override
 	public DataType getProducedDataType() {
-		TableSchema tableSchema = catalogTable.getSchema();
-		DataTypes.Field[] fields = new DataTypes.Field[tableSchema.getFieldCount()];
-		for (int i = 0; i < fields.length; i++) {
-			fields[i] = DataTypes.FIELD(tableSchema.getFieldName(i).get(), tableSchema.getFieldDataType(i).get());
-		}
-		return DataTypes.ROW(fields);
+		return getTableSchema().toRowDataType();
 	}
 
 	@Override
@@ -222,5 +219,11 @@ public class HiveTableSource extends InputFormatTableSource<Row> implements Part
 		}
 		throw new FlinkHiveException(
 				new IllegalArgumentException(String.format("Can not convert %s to type %s for partition value", valStr, type)));
+	}
+
+	@Override
+	public String explainSource() {
+		return super.explainSource() + String.format(" TablePath: %s, PartitionPruned: %s, PartitionNums: %d",
+													tablePath.getFullName(), partitionPruned, null == allHivePartitions ? 0 : allHivePartitions.size());
 	}
 }

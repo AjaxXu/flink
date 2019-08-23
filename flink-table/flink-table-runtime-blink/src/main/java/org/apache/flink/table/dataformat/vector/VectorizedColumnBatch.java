@@ -22,6 +22,7 @@ import org.apache.flink.table.dataformat.Decimal;
 import org.apache.flink.table.dataformat.vector.BytesColumnVector.Bytes;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
 /**
  * VectorizedColumnBatch是一组行，以每列作为向量进行组织. 它是查询执行的单元，用于最小化每行的成本.
@@ -115,7 +116,7 @@ public class VectorizedColumnBatch implements Serializable {
 
 	public String getString(int rowId, int colId) {
 		Bytes byteArray = getByteArray(rowId, colId);
-		return new String(byteArray.data, byteArray.offset, byteArray.len);
+		return new String(byteArray.data, byteArray.offset, byteArray.len, StandardCharsets.UTF_8);
 	}
 
 	public Decimal getDecimal(int rowId, int colId, int precision, int scale) {

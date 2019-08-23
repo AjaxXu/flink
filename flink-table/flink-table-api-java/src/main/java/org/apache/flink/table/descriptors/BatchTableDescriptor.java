@@ -22,15 +22,20 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.api.TableEnvironment;
 
 /**
- * 用于在batch传输环境中指定表源和/或接收器的描述符
- * Descriptor for specifying a table source and/or sink in a batch environment.
+ * Describes a table connected from a batch environment.
+ *
+ * <p>This class just exists for backwards compatibility use {@link ConnectTableDescriptor} for
+ * declarations.
  */
 @PublicEvolving
-public class BatchTableDescriptor extends ConnectTableDescriptor<BatchTableDescriptor> {
+public final class BatchTableDescriptor extends ConnectTableDescriptor {
 
-	public BatchTableDescriptor(
-		TableEnvironment tableEnv,
-		ConnectorDescriptor connectorDescriptor) {
+	public BatchTableDescriptor(TableEnvironment tableEnv, ConnectorDescriptor connectorDescriptor) {
 		super(tableEnv, connectorDescriptor);
+	}
+
+	@Override
+	public BatchTableDescriptor withSchema(Schema schema) {
+		return (BatchTableDescriptor) super.withSchema(schema);
 	}
 }

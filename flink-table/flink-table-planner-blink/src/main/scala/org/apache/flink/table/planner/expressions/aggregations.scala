@@ -189,21 +189,15 @@ case class VarSamp(child: PlannerExpression) extends Aggregation {
 }
 
 /**
-  * Expression for calling a user-defined aggregate function.
+  * Expression for calling a user-defined (table)aggregate function.
   * 用于调用用户定义的聚合函数的表达式。
   */
 case class AggFunctionCall(
-    val aggregateFunction: UserDefinedAggregateFunction[_, _],
+    aggregateFunction: UserDefinedAggregateFunction[_, _],
     resultTypeInfo: TypeInformation[_],
     accTypeInfo: TypeInformation[_],
     args: Seq[PlannerExpression])
   extends Aggregation {
-
-  if (aggregateFunction.isInstanceOf[TableAggregateFunction[_, _]]) {
-    throw new UnsupportedOperationException("TableAggregateFunction is unsupported now.")
-  }
-
-  private val aggFunction = aggregateFunction.asInstanceOf[AggregateFunction[_, _]]
 
   override private[flink] def children: Seq[PlannerExpression] = args
 
@@ -213,7 +207,7 @@ case class AggFunctionCall(
     val signature = children.map(_.resultType)
     // look for a signature that matches the input types
     val foundSignature = getAccumulateMethodSignature(
-      aggFunction,
+      aggregateFunction,
       signature.map(fromTypeInfoToLogicalType))
     if (foundSignature.isEmpty) {
       ValidationFailure(s"Given parameters do not match any signature. \n" +
