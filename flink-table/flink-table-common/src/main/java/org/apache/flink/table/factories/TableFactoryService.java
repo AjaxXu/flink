@@ -40,11 +40,9 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.apache.flink.table.descriptors.CatalogDescriptorValidator.CATALOG_PROPERTY_VERSION;
 import static org.apache.flink.table.descriptors.ConnectorDescriptorValidator.CONNECTOR_PROPERTY_VERSION;
-import static org.apache.flink.table.descriptors.ExternalCatalogDescriptorValidator.CATALOG_PROPERTY_VERSION;
 import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_PROPERTY_VERSION;
-import static org.apache.flink.table.descriptors.MetadataValidator.METADATA_PROPERTY_VERSION;
-import static org.apache.flink.table.descriptors.StatisticsValidator.STATISTICS_PROPERTY_VERSION;
 
 /**
  * 统一类，用于搜索从META-INF/services/下发现 提供的类型和属性的{@link TableFactory}
@@ -270,10 +268,7 @@ public class TableFactoryService {
 			// with the version we can provide mappings in case the format changes
 			plainContext.remove(CONNECTOR_PROPERTY_VERSION);
 			plainContext.remove(FORMAT_PROPERTY_VERSION);
-			plainContext.remove(METADATA_PROPERTY_VERSION);
-			plainContext.remove(STATISTICS_PROPERTY_VERSION);
 			plainContext.remove(CATALOG_PROPERTY_VERSION);
-			plainContext.remove(org.apache.flink.table.descriptors.CatalogDescriptorValidator.CATALOG_PROPERTY_VERSION);
 
 			// check if required context is met
 			return plainContext.keySet()
