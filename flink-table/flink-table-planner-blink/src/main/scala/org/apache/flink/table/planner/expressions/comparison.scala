@@ -25,6 +25,9 @@ import org.apache.flink.table.planner.validate._
 
 import org.apache.calcite.sql.SqlOperator
 
+/**
+  * 比较表达式.
+  */
 abstract class BinaryComparison extends BinaryExpression {
   private[flink] def sqlOperator: SqlOperator
 

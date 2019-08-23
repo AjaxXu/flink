@@ -32,6 +32,7 @@ import scala.collection.JavaConversions._
 /**
   * Relational expression that apply a number of projects to every input row,
   * hence we will get multiple output rows for an input row.
+  * 将多个投影应用于每个输入行的关系表达式，因此我们将为输入行获取多个输出行。
   *
   * <p/> Values of expand_id should be unique.
   *

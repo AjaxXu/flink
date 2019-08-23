@@ -36,6 +36,7 @@ import java.util.function.Supplier
 /**
   * Sub-class of [[Values]] that is a relational expression
   * whose value is a sequence of zero or more literal row values in Flink.
+  * [[Values]]的子类，它是一个关系表达式，其值是Flink中零个或多个文字行值的序列。
   */
 class FlinkLogicalValues(
     cluster: RelOptCluster,

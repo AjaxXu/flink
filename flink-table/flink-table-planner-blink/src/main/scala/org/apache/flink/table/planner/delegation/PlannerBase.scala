@@ -62,7 +62,7 @@ import _root_.scala.collection.JavaConversions._
   *
   * @param executor        instance of [[Executor]], needed to extract
   *                        [[StreamExecutionEnvironment]] for
-  *                        [[org.apache.flink.table.sources.StreamTableSource.getDataStream]]
+  *                        [[org.apache.flink.table.sources.StreamTableSource#getDataStream]]
   * @param config          mutable configuration passed from corresponding [[TableEnvironment]]
   * @param functionCatalog catalog of functions
   * @param catalogManager  manager of catalog meta objects such as tables, views, databases etc.
@@ -164,7 +164,7 @@ abstract class PlannerBase(
         LogicalSink.create(input, s.getSink, "UnregisteredSink")
 
       case catalogSink: CatalogSinkModifyOperation =>
-        val input = getRelBuilder.queryOperation(modifyOperation.getChild).build()
+        val input = getRelBuilder.queryOperation(catalogSink.getChild).build()
         getTableSink(catalogSink.getTablePath).map(sink => {
           TableSinkUtils.validateSink(catalogSink, catalogSink.getTablePath, sink)
           sink match {

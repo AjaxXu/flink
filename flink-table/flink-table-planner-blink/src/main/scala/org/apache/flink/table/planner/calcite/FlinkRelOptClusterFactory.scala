@@ -27,6 +27,8 @@ import org.apache.calcite.rex.RexBuilder
 /**
   * The utility class is to create special [[RelOptCluster]] instance which use
   * [[FlinkDefaultRelMetadataProvider]] instead of [[DefaultRelMetadataProvider]].
+  * 使用[[FlinkDefaultRelMetadataProvider]]而不是[[DefaultRelMetadataProvider]]
+  * 创建的特殊[[RelOptCluster]]实例的实用程序类.
   */
 object FlinkRelOptClusterFactory {
 

@@ -23,6 +23,7 @@ import org.apache.flink.table.dataview.{ListViewTypeInfo, MapViewTypeInfo}
 
 /**
   * Data view specification.
+  * 数据视图规范。
   */
 trait DataViewSpec {
   def stateId: String

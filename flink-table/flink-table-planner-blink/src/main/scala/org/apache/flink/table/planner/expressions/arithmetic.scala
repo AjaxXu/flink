@@ -26,6 +26,9 @@ import org.apache.flink.table.runtime.types.TypeInfoLogicalTypeConverter.{fromLo
 
 import org.apache.calcite.sql.SqlOperator
 
+/**
+  * 算术表达式.
+  */
 abstract class BinaryArithmetic extends BinaryExpression {
   private[flink] def sqlOperator: SqlOperator
 

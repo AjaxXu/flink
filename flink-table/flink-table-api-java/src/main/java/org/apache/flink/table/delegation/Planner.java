@@ -95,6 +95,7 @@ public interface Planner {
 	/**
 	 * Returns completion hints for the given statement at the given cursor position.
 	 * The completion happens case insensitively.
+	 * 返回给定光标位置的给定语句的完成提示。完成情况不区分大小写。
 	 *
 	 * @param statement Partial or slightly incorrect SQL statement
 	 * @param position cursor position

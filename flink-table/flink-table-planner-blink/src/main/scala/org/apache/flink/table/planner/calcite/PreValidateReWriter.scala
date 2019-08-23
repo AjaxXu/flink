@@ -39,7 +39,9 @@ import java.util
 import scala.collection.JavaConversions._
 
 /** Implements [[org.apache.calcite.sql.util.SqlVisitor]]
-  * interface to do some rewrite work before sql node validation. */
+  * interface to do some rewrite work before sql node validation.
+  * 实现[[org.apache.calcite.sql.util.SqlVisitor]]接口，在sql节点验证之前进行一些重写工作。
+  */
 class PreValidateReWriter(
     val catalogReader: CalciteCatalogReader,
     val typeFactory: RelDataTypeFactory) extends SqlBasicVisitor[Unit] {
@@ -59,6 +61,7 @@ object PreValidateReWriter {
   /**
     * Append the static partitions to the data source projection list. The columns are appended to
     * the corresponding positions.
+    * 将静态分区附加到数据源投影列表。列被附加到相应的位置。
     *
     * <p>If we have a table A with schema (&lt;a&gt;, &lt;b&gt;, &lt;c&gt) whose
     * partition columns are (&lt;a&gt;, &lt;c&gt;), and got a query

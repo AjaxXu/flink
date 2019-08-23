@@ -34,6 +34,7 @@ import scala.collection.JavaConversions._
 /**
   * Sub-class of [[Intersect]] that is a relational expression
   * which returns the intersection of the rows of its inputs in Flink.
+  * [[Intersect]]的子类，它是一个关系表达式，返回Flink中其输入行的交集。
   */
 class FlinkLogicalIntersect(
     cluster: RelOptCluster,

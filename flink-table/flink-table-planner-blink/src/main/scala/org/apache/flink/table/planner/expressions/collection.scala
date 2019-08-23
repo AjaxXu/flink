@@ -24,6 +24,9 @@ import org.apache.flink.api.java.typeutils.{MapTypeInfo, ObjectArrayTypeInfo, Ro
 import org.apache.flink.table.planner.typeutils.TypeInfoCheckUtils.{isArray, isMap}
 import org.apache.flink.table.planner.validate.{ValidationFailure, ValidationResult, ValidationSuccess}
 
+/**
+  * 集合类表达式.
+  */
 case class RowConstructor(elements: Seq[PlannerExpression]) extends PlannerExpression {
 
   override private[flink] def children: Seq[PlannerExpression] = elements

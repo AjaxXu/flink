@@ -24,6 +24,9 @@ import java.sql.{Date, Time, Timestamp}
 import java.time.{LocalDate, LocalDateTime, LocalTime => jLocalTime}
 import java.util.{Calendar, TimeZone}
 
+/**
+  * 字面量表达式.
+  */
 object Literal {
   private[flink] val UTC = TimeZone.getTimeZone("UTC")
 

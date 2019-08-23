@@ -28,10 +28,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 将关系查询转化为{@link StreamTransformation}
+ * 将关系查询转化为{@link Transformation}.
  * Special, internal kind of {@link ModifyOperation} that allows converting a tree of
  * {@link QueryOperation}s to a {@link Transformation} of given type described with
- * {@link TypeInformation}. This is used to convert a relational query to a datastream.
+ * {@link TypeInformation}. This is used to convert a relational query to a dataStream.
  */
 @Internal
 public class OutputConversionModifyOperation implements ModifyOperation {

@@ -47,6 +47,7 @@ import scala.collection.JavaConversions._
 
 /**
   * [[FlinkRelOptTable]] wraps a [[FlinkTable]]
+  * [[FlinkRelOptTable]]包装了[[FlinkTable]]
   *
   * @param schema  the [[RelOptSchema]] this table belongs to
   * @param rowType the type of rows returned by this table
@@ -214,6 +215,7 @@ class FlinkRelOptTable protected(
 
   /**
     * Converts this table into a [[RelNode]] relational expression.
+    * 将此表转换为[[RelNode]]关系表达式。
     *
     * @return the RelNode converted from this table
     */

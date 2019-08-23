@@ -46,6 +46,8 @@ import scala.collection.JavaConversions._
   * We need it in order to share the planner between the Table API relational plans
   * and the SQL relation plans that are created by the Calcite parser.
   * The main difference is that we do not create a new RelOptPlanner in the ready() method.
+  * 我们需要它来共享Table API关系计划和Calcite解析器创建的SQL关系计划之间的planner。
+  * 主要区别在于我们不在ready()方法中创建新的RelOptPlanner。
   */
 class FlinkPlannerImpl(
     config: FrameworkConfig,
@@ -77,8 +79,8 @@ class FlinkPlannerImpl(
       operatorTable,
       catalogReaderSupplier.apply(true), // ignore cases for lenient completion
       typeFactory,
-      config.getParserConfig.conformance())
-    val advisor = new SqlAdvisor(advisorValidator, config.getParserConfig)
+      parserConfig.conformance())
+    val advisor = new SqlAdvisor(advisorValidator, parserConfig)
     val replaced = Array[String](null)
     val hints = advisor.getCompletionHints(sql, cursor, replaced)
       .map(item => item.toIdentifier.toString)

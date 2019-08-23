@@ -33,6 +33,7 @@ import scala.collection.JavaConversions._
 /**
   * Relational expression that returns the rows in which the rank number of each row
   * is in the given range.
+  * 关系表达式，返回每行的排名在给定范围内的行。
   *
   * The node is an optimization of `OVER` for some special cases,
   * e.g.

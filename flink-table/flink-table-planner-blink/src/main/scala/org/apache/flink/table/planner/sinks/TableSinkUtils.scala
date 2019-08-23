@@ -34,6 +34,8 @@ object TableSinkUtils {
     * Checks if the given [[CatalogSinkModifyOperation]]'s query can be written to
     * the given [[TableSink]]. It checks if the names & the field types match. If the table
     * sink is a [[PartitionableTableSink]], also check that the partitions are valid.
+    * 检查给定[[CatalogSinkModifyOperation]]的查询是否可以写入给定的[[TableSink]]。
+    * 它检查名称和字段类型是否匹配。如果表接收器是[[PartitionableTableSink]]，还要检查分区是否有效。
     *
     * @param sinkOperation The sink operation with the query that is supposed to be written.
     * @param sinkPath      Tha path of the sink. It is needed just for logging. It does not

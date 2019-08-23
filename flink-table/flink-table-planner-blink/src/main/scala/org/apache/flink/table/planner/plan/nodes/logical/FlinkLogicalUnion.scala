@@ -34,6 +34,7 @@ import scala.collection.JavaConversions._
 /**
   * Sub-class of [[Union]] that is a relational expression
   * which returns the union of the rows of its inputs in Flink.
+  * [[Union]]的子类，它是一个关系表达式，它返回Flink中其输入行的并集。
   */
 class FlinkLogicalUnion(
     cluster: RelOptCluster,

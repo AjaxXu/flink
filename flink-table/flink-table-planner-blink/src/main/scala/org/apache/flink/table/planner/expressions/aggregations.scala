@@ -27,6 +27,9 @@ import org.apache.flink.table.planner.validate.{ValidationFailure, ValidationRes
 import org.apache.flink.table.runtime.types.TypeInfoLogicalTypeConverter.{fromLogicalTypeToTypeInfo, fromTypeInfoToLogicalType}
 import org.apache.flink.table.types.utils.TypeConversions.fromLegacyInfoToDataType
 
+/**
+  * 聚合表达式.
+  */
 abstract sealed class Aggregation extends PlannerExpression {
 
   override def toString = s"Aggregate"
@@ -187,6 +190,7 @@ case class VarSamp(child: PlannerExpression) extends Aggregation {
 
 /**
   * Expression for calling a user-defined aggregate function.
+  * 用于调用用户定义的聚合函数的表达式。
   */
 case class AggFunctionCall(
     val aggregateFunction: UserDefinedAggregateFunction[_, _],

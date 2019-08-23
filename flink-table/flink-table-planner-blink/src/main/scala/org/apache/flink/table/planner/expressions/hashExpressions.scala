@@ -21,6 +21,9 @@ package org.apache.flink.table.planner.expressions
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo._
 import org.apache.flink.api.common.typeinfo.{BasicTypeInfo, TypeInformation}
 
+/**
+  * Hash表达式.
+  */
 case class Md5(child: PlannerExpression) extends UnaryExpression with InputTypeSpec {
 
   override private[flink] def resultType: TypeInformation[_] = BasicTypeInfo.STRING_TYPE_INFO

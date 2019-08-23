@@ -25,6 +25,7 @@ import org.apache.calcite.rel.`type`.{RelDataType, RelDataTypeFactory}
 
 /**
   * Wrapper for both a [[TableSourceTable]] and [[TableSinkTable]] under a common name.
+  * 通用名称下的[[TableSourceTable]]和[[TableSinkTable]]的包装器。
   *
   * @param tableSourceTable table source table (if available)
   * @param tableSinkTable table sink table (if available)

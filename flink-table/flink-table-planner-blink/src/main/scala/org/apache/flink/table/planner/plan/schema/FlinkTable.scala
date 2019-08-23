@@ -25,6 +25,7 @@ import org.apache.calcite.schema.impl.AbstractTable
 
 /**
   * Base class for flink table.
+  * flink表的基类。
   */
 abstract class FlinkTable extends AbstractTable with TemporalTable {
 

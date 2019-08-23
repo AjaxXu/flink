@@ -27,6 +27,7 @@ import scala.language.{existentials, implicitConversions}
 
 /**
   * General expression class to represent a symbol.
+  * 用于表示符号的常规表达式类。
   */
 case class SymbolPlannerExpression(symbol: PlannerSymbol) extends LeafExpression {
 
@@ -115,6 +116,7 @@ object PlannerTimePointUnit extends PlannerSymbols {
 
 /**
   * Modes for trimming strings.
+  * trim字符串的模式。
   */
 object PlannerTrimMode extends PlannerSymbols {
 

@@ -23,6 +23,9 @@ import org.apache.flink.table.planner.typeutils.TypeCoercion
 import org.apache.flink.table.planner.validate._
 import org.apache.flink.table.runtime.types.TypeInfoLogicalTypeConverter.fromTypeInfoToLogicalType
 
+/**
+  * 重解释表达式.
+  */
 case class Reinterpret(child: PlannerExpression, resultType: TypeInformation[_],
                        checkOverflow: Boolean) extends UnaryExpression {
 

@@ -37,6 +37,7 @@ import scala.collection.mutable
 
 /**
   * A DeadlockBreakupProcessor that finds out all deadlocks in the DAG, and resolves them.
+  * DeadlockBreakupProcessor可以找出DAG中的所有死锁，并解决它们。
   *
   * NOTES: This processor can be only applied on [[BatchExecNode]] DAG.
   *

@@ -26,6 +26,7 @@ import org.apache.calcite.sql.`type`.SqlTypeName
 
 /**
   * Custom type system for Flink.
+  * Flink的自定义类型系统。
   */
 class FlinkTypeSystem extends RelDataTypeSystemImpl {
 
@@ -60,8 +61,11 @@ class FlinkTypeSystem extends RelDataTypeSystemImpl {
   // when union a number of CHAR types of different lengths, we should cast to a VARCHAR
   // this fixes the problem of CASE WHEN with different length string literals but get wrong
   // result with additional space suffix
+  // 当联合一些不同长度的CHAR类型时，我们应该强制转换为VARCHAR，这解决了CASE WHEN的问题，
+  // 使用不同长度的字符串文字，但是得到错误的结果并带有额外的空格后缀
   override def shouldConvertRaggedUnionTypesToVarying(): Boolean = true
 
+  // 产生平均聚合类型
   override def deriveAvgAggType(
       typeFactory: RelDataTypeFactory, argType: RelDataType): RelDataType = {
     val argTypeInfo = FlinkTypeFactory.toLogicalType(argType)
@@ -70,6 +74,7 @@ class FlinkTypeSystem extends RelDataTypeSystemImpl {
       avgType.copy(argType.isNullable))
   }
 
+  // 产生和类型
   override def deriveSumType(
       typeFactory: RelDataTypeFactory, argType: RelDataType): RelDataType = {
     val argTypeInfo = FlinkTypeFactory.toLogicalType(argType)

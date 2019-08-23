@@ -20,6 +20,9 @@ package org.apache.flink.table.planner.expressions
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo
 import org.apache.flink.table.planner.validate._
 
+/**
+  * 逻辑表达式.
+  */
 abstract class BinaryPredicate extends BinaryExpression {
   override private[flink] def resultType = BasicTypeInfo.BOOLEAN_TYPE_INFO
 

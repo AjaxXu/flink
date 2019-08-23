@@ -26,6 +26,7 @@ import org.apache.calcite.rel.RelNode
 /**
   * Tracks if a [[RelNode]] needs to send update and delete changes as
   * retraction messages.
+  * 如果[[RelNode]]需要发送更新和删除更改作为撤消消息，则跟踪。
   */
 class UpdateAsRetractionTrait(updateAsRetraction: Boolean) extends RelTrait {
 
@@ -74,6 +75,7 @@ object AccModeTrait {
 /**
   * The [[AccMode]] determines how insert, update, and delete changes of tables are encoded
   * by the messeages that an operator emits.
+  * [[AccMode]]确定表的插入，更新和删除更改如何由运算符发出的messeage编码。
   */
 object AccMode extends Enumeration {
   type AccMode = Value

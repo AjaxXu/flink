@@ -29,6 +29,7 @@ import java.util
   * Sub-class of [[Expand]] that is a relational expression
   * which returns multiple rows expanded from one input row.
   * This class corresponds to Calcite logical rel.
+  * [[Expand]]的子类，它是一个关系表达式，它返回从一个输入行扩展的多行。此类对应于Calcite logical rel。
   */
 final class LogicalExpand(
     cluster: RelOptCluster,

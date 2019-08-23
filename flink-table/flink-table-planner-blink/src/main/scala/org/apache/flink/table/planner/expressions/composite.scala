@@ -26,6 +26,7 @@ import org.apache.flink.table.planner.validate.{ValidationFailure, ValidationRes
 /**
   * Flattening of composite types. All flattenings are resolved into
   * `GetCompositeField` expressions.
+  * 复合类型的展平。 所有flattenings都被解析为`GetCompositeField`表达式。
   */
 case class Flattening(child: PlannerExpression) extends UnaryExpression {
 

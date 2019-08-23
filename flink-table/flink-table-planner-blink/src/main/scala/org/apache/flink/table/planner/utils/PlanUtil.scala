@@ -29,6 +29,7 @@ object PlanUtil extends Logging {
 
   /**
     * Converting an StreamGraph to a human-readable string.
+    * 将StreamGraph转换为人类可读的字符串。
     *
     * @param graph stream graph
     */

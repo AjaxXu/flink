@@ -24,6 +24,7 @@ import org.apache.flink.table.expressions.{Expression, ExpressionVisitor}
 
 /**
   * Bridges between API [[Expression]]s (for both Java and Scala) and final expression stack.
+  * API [[Expression]]s (Java和Scala)和最终表达式堆栈之间的桥梁。
   */
 class ExpressionBridge[E <: Expression](
     functionCatalog: FunctionLookup,

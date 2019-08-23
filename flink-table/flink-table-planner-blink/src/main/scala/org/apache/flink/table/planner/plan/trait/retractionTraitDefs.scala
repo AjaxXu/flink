@@ -23,6 +23,7 @@ import org.apache.calcite.rel.RelNode
 
 /**
   * Definition of the [[UpdateAsRetractionTrait]].
+  * [[UpdateAsRetractionTrait]]的定义。
   */
 class UpdateAsRetractionTraitDef extends RelTraitDef[UpdateAsRetractionTrait] {
   override def convert(

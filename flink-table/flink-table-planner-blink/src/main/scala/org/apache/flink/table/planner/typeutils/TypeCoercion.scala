@@ -24,6 +24,7 @@ import org.apache.flink.table.types.logical.{BigIntType, DoubleType, FloatType, 
 
 /**
   * Utilities for type conversions.
+  * 用于类型转换的实用程序。
   */
 object TypeCoercion {
 
@@ -62,6 +63,7 @@ object TypeCoercion {
 
   /**
     * Test if we can do cast safely without lose of type.
+    * 测试我们是否可以安全地进行cast而不会丢失类型。
     */
   def canSafelyCast(
       from: LogicalType, to: LogicalType): Boolean = (from.getTypeRoot, to.getTypeRoot) match {
@@ -141,6 +143,7 @@ object TypeCoercion {
 
   /**
     * All the supported reinterpret types in flink-table.
+    * flink-table中支持的所有重新解释类型。
     */
   def canReinterpret(
       from: LogicalType, to: LogicalType): Boolean = (from.getTypeRoot, to.getTypeRoot) match {

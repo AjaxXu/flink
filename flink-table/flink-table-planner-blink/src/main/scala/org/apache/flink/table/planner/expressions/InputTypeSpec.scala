@@ -25,6 +25,7 @@ import scala.collection.mutable
 
 /**
   * Expressions that have strict data type specification on its inputs.
+  * 在其输入上具有严格数据类型规范的表达式。
   */
 trait InputTypeSpec extends PlannerExpression {
 

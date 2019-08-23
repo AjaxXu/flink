@@ -35,6 +35,7 @@ import scala.collection.JavaConversions._
 /**
   * Sub-class of [[Rank]] that is a relational expression which returns
   * the rows in which the rank function value of each row is in the given range.
+  * [[Rank]]的子类，它是一个关系表达式，它返回每行的rank函数值在给定范围内的行。
   */
 class FlinkLogicalRank(
     cluster: RelOptCluster,

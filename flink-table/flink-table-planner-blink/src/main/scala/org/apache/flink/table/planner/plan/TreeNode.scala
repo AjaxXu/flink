@@ -21,6 +21,7 @@ import org.apache.flink.table.planner.typeutils.TypeInfoCheckUtils
 
 /**
  * Generic base class for trees that can be transformed and traversed.
+  * 可以转换和遍历的树的通用基类。
  */
 abstract class TreeNode[A <: TreeNode[A]] extends Product { self: A =>
 

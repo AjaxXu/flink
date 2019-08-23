@@ -23,6 +23,7 @@ import org.apache.calcite.rel.RelNode
 /**
   * The query [[Optimizer]] that transforms relational expressions into
   * semantically equivalent relational expressions.
+  * 查询[[Optimizer]]将关系表达式转换为语义上等效的关系表达式。
   */
 trait Optimizer {
 

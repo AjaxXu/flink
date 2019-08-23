@@ -40,6 +40,7 @@ import java.util.function.Supplier
 /**
   * Sub-class of [[TableScan]] that is a relational operator
   * which returns the contents of a [[TableSource]] in Flink.
+  * [[TableScan]]的子类，它是一个关系运算符，它返回Flink中[[TableSource]]的内容。
   */
 class FlinkLogicalTableSourceScan(
     cluster: RelOptCluster,

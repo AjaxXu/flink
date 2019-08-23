@@ -33,6 +33,7 @@ import scala.collection.JavaConversions._
 /**
   * Sub-class of [[Join]] that is a relational expression
   * which combines two relational expressions according to some condition in Flink.
+  * [[Join]]的子类，它是根据Flink中的某些条件组合两个关系表达式的关系表达式。
   */
 class FlinkLogicalJoin(
     cluster: RelOptCluster,

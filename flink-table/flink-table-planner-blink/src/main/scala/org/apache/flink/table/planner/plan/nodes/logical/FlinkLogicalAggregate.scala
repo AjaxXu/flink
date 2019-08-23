@@ -38,6 +38,7 @@ import scala.collection.JavaConversions._
 /**
   * Sub-class of [[Aggregate]] that is a relational operator which eliminates
   * duplicates and computes totals in Flink.
+  * [[Aggregate]]的子类，它是一个关系运算符，可以消除重复并计算Flink中的总数。
   */
 class FlinkLogicalAggregate(
     cluster: RelOptCluster,

@@ -31,6 +31,7 @@ import scala.collection.JavaConversions._
   * Sub-class of [[Sink]] that is a relational expression
   * which writes out data of input node into a [[TableSink]].
   * This class corresponds to Calcite logical rel.
+  * [[Sink]]的子类，它是将输入节点的数据写入[[TableSink]]的关系表达式。此类对应于Calcite logical rel。
   */
 final class LogicalSink(
     cluster: RelOptCluster,

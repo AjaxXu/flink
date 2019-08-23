@@ -35,6 +35,7 @@ object PlannerExpressionUtils {
     case _ => false
   }
 
+  // 是否是时间属性
   private[flink] def isTimeAttribute(expr: PlannerExpression): Boolean = expr match {
     case r: PlannerResolvedFieldReference if FlinkTypeFactory.isTimeIndicatorType(r.resultType) =>
       true

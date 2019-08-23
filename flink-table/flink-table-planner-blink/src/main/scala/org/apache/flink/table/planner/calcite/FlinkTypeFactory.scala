@@ -48,6 +48,7 @@ import scala.collection.mutable
 /**
   * Flink specific type factory that represents the interface between Flink's [[LogicalType]]
   * and Calcite's [[RelDataType]].
+  * Flink特定类型工厂，表示Flink的[[LogicalType]]和Calcite的[[RelDataType]]之间的转换接口。
   */
 class FlinkTypeFactory(typeSystem: RelDataTypeSystem) extends JavaTypeFactoryImpl(typeSystem) {
 

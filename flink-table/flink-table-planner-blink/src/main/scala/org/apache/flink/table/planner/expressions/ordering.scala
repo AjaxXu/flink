@@ -20,6 +20,9 @@ package org.apache.flink.table.planner.expressions
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.table.planner.validate._
 
+/**
+  * 排序表达式.
+  */
 abstract class Ordering extends UnaryExpression {
   override private[flink] def validateInput(): ValidationResult = {
     if (!child.isInstanceOf[NamedExpression]) {

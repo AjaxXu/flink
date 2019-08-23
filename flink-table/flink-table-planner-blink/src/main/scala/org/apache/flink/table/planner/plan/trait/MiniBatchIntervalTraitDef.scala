@@ -21,6 +21,9 @@ package org.apache.flink.table.planner.plan.`trait`
 import org.apache.calcite.plan.{RelOptPlanner, RelTraitDef}
 import org.apache.calcite.rel.RelNode
 
+/**
+  * [[MiniBatchIntervalTrait]]的定义
+  */
 class MiniBatchIntervalTraitDef extends RelTraitDef[MiniBatchIntervalTrait] {
 
   override def getTraitClass: Class[MiniBatchIntervalTrait] = classOf[MiniBatchIntervalTrait]

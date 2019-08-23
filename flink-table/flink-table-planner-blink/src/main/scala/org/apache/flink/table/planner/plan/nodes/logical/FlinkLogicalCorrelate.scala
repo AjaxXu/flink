@@ -30,6 +30,7 @@ import org.apache.calcite.util.ImmutableBitSet
 /**
   * Sub-class of [[Correlate]] that is a relational operator
   * which performs nested-loop joins in Flink.
+  * [[Correlate]]的子类，它是在Flink中执行嵌套循环连接的关系运算符。
   */
 class FlinkLogicalCorrelate(
     cluster: RelOptCluster,

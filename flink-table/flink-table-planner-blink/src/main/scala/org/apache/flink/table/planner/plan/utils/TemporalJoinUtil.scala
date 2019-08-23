@@ -25,6 +25,7 @@ import org.apache.calcite.sql.{SqlFunction, SqlFunctionCategory, SqlKind}
 
 /**
   * Utilities for temporal table join
+  * 时间表连接的辅助类
   */
 object TemporalJoinUtil {
 

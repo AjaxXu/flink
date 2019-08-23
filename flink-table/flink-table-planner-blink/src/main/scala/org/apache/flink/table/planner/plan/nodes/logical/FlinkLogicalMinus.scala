@@ -34,6 +34,7 @@ import scala.collection.JavaConversions._
 /**
   * Sub-class of [[Minus]] that is a relational expression which returns the rows of
   * its first input minus any matching rows from its other inputs in Flink.
+  * [[Minus]]的子类，它是一个关系表达式，它返回其第一个输入的行减去Flink中其他输入的任何匹配行。
   */
 class FlinkLogicalMinus(
     cluster: RelOptCluster,

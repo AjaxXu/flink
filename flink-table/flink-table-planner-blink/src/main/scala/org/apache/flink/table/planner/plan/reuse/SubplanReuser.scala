@@ -35,6 +35,7 @@ import scala.collection.JavaConversions._
 
 /**
   * An utility class for finding out duplicated sub-plans by digest and reusing them.
+  * 用于通过摘要查找重复的子计划并重用它们的辅助程序类，。
   *
   * <p>e.g.
   * if Project1-Scan1 and Project2-Scan2 have same digest, they could be reused,
@@ -100,6 +101,7 @@ object SubplanReuser {
 
     /**
       * Return the digest of the given rel node.
+      * 返回给定rel节点的摘要。
       */
     def getRelDigest(node: RelNode): String = {
       val digest = mapRelToDigest.get(node)
@@ -136,6 +138,7 @@ object SubplanReuser {
 
     /**
       * Returns true if the given nodes can be reused, else false.
+      * 如果可以重用给定节点，则返回true，否则返回false。
       */
     private def isReusableNodes(reusableNodes: List[RelNode]): Boolean = {
       if (reusableNodes.size() > 1) {

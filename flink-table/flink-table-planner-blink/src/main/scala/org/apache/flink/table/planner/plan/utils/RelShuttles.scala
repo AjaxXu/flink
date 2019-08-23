@@ -28,6 +28,10 @@ import org.apache.calcite.rex.{RexNode, RexShuttle, RexSubQuery}
 
 import scala.collection.JavaConversions._
 
+/**
+  * Visitor that has methods for the common logical relational expressions.
+  * 具有公共逻辑关系表达式方法的访问者。
+  */
 class DefaultRelShuttle extends RelShuttle {
 
   override def visit(rel: RelNode): RelNode = {
@@ -38,11 +42,7 @@ class DefaultRelShuttle extends RelShuttle {
         change = change || (input ne newInput)
         newInput
     }
-    if (change) {
-      rel.copy(rel.getTraitSet, newInputs)
-    } else {
-      rel
-    }
+    if (change) rel.copy(rel.getTraitSet, newInputs) else rel
   }
 
   override def visit(intersect: LogicalIntersect): RelNode = visit(intersect.asInstanceOf[RelNode])
@@ -84,6 +84,8 @@ class ExpandTableScanShuttle extends RelShuttleImpl {
     * Override this method to use `replaceInput` method instead of `copy` method
     * if any children change. This will not change any output of LogicalTableScan
     * when LogicalTableScan is replaced with RelNode tree in its RelTable.
+    * 重写此方法以使用`replaceInput`方法而不是`copy`方法如果有任何子项更改。
+    * 当LogicalTableScan在其RelTable中替换为RelNode树时，这不会更改LogicalTableScan的任何输出。
     */
   override def visitChild(parent: RelNode, i: Int, child: RelNode): RelNode = {
     stack.push(parent)

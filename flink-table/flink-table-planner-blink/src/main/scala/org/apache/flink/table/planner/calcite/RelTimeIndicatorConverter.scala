@@ -43,6 +43,8 @@ import scala.collection.mutable
   * Traverses a [[RelNode]] tree and converts fields with [[TimeIndicatorRelDataType]] type. If a
   * time attribute is accessed for a calculation, it will be materialized. Forwarding is allowed in
   * some cases, but not all.
+  * 遍历[[RelNode]]树并使用[[TimeIndicatorRelDataType]]类型转换字段。
+  * 如果访问时间属性进行计算，则将实现该属性。在某些情况下允许转发，但不是全部。
   */
 class RelTimeIndicatorConverter(rexBuilder: RexBuilder) extends RelShuttle {
 
@@ -353,7 +355,6 @@ class RelTimeIndicatorConverter(rexBuilder: RexBuilder) extends RelShuttle {
     val input = aggregate.getInput.accept(this)
 
     // add a project to materialize aggregation arguments/grouping keys
-
     val refIndices = gatherIndicesToMaterialize(aggregate, input)
 
     val needsMaterialization = refIndices.exists(idx =>
@@ -521,6 +522,7 @@ object RelTimeIndicatorConverter {
 /**
   * Takes `newResolvedInput` types of the [[RexNode]] and if those types have changed rewrites
   * the [[RexNode]] to make it consistent with new type.
+  * 采用[[RexNode]]的`newResolvedInput`类型，如果这些类型已更改，则重写[[RexNode]]以使其与新类型一致。
   */
 class RexTimeIndicatorMaterializer(
     private val rexBuilder: RexBuilder,

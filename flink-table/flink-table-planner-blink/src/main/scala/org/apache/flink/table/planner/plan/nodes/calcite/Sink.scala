@@ -28,6 +28,7 @@ import org.apache.calcite.rel.{RelNode, RelWriter, SingleRel}
 
 /**
   * Relational expression that writes out data of input node into a [[TableSink]].
+  * 将输入节点的数据写入[[TableSink]]的关系表达式。
   *
   * @param cluster  cluster that this relational expression belongs to
   * @param traitSet the traits of this rel

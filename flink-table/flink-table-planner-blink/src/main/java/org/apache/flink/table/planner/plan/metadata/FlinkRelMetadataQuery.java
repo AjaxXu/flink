@@ -31,7 +31,7 @@ import org.apache.calcite.util.ImmutableBitSet;
 /**
  * A RelMetadataQuery that defines extended metadata handler in Flink,
  * e.g ColumnInterval, ColumnNullCount.
- * RelMetadataQuery，用于定义Flink中的扩展元数据处理程序，例如ColumnInterval，ColumnNullCount。
+ * RelMetadataQuery，用于定义Flink中的扩展元数据处理程序，例如ColumnInterval，ColumnNullCount.
  */
 public class FlinkRelMetadataQuery extends RelMetadataQuery {
 

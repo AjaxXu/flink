@@ -24,6 +24,7 @@ import org.apache.flink.table.planner.validate._
 
 /**
   * Returns the length of this `str`.
+  * 返回`str`的长度.
   */
 case class CharLength(child: PlannerExpression) extends UnaryExpression {
   override private[flink] def resultType: TypeInformation[_] = INT_TYPE_INFO
@@ -208,6 +209,7 @@ case class Position(needle: PlannerExpression, haystack: PlannerExpression)
 /**
   * Replaces a substring of a string with a replacement string.
   * Starting at a position for a given length.
+  * 用替换字符串替换字符串的子字符串。从给定长度的位置开始。
   */
 case class Overlay(
     str: PlannerExpression,

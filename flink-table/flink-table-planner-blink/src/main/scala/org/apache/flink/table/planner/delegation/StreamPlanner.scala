@@ -39,6 +39,9 @@ import java.util
 
 import _root_.scala.collection.JavaConversions._
 
+/**
+  * Stream模式的计划器.
+  */
 class StreamPlanner(
     executor: Executor,
     config: TableConfig,

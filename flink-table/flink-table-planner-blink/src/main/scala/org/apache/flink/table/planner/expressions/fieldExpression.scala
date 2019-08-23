@@ -29,6 +29,9 @@ import org.apache.flink.table.typeutils.TimeIndicatorTypeInfo
 
 import org.apache.calcite.rex.RexNode
 
+/**
+  * 名称表达式.
+  */
 trait NamedExpression extends PlannerExpression {
   private[flink] def name: String
   private[flink] def toAttribute: Attribute
@@ -123,6 +126,9 @@ case class UnresolvedAlias(child: PlannerExpression) extends UnaryExpression wit
   override private[flink] lazy val valid = false
 }
 
+/**
+  * Window引用.
+  */
 case class WindowReference(name: String, tpe: Option[TypeInformation[_]] = None) extends Attribute {
 
   override private[flink] def resultType: TypeInformation[_] =
@@ -139,6 +145,9 @@ case class WindowReference(name: String, tpe: Option[TypeInformation[_]] = None)
   override def toString: String = s"'$name"
 }
 
+/**
+  * Table引用.
+  */
 case class TableReference(name: String, tableOperation: QueryOperation)
   extends LeafExpression
   with NamedExpression {

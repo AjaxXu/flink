@@ -36,6 +36,7 @@ import java.util.function.Supplier
 /**
   * Sub-class of [[TableScan]] that is a relational operator
   * which returns the contents of a [[DataStreamTable]] in Flink.
+  * [[TableScan]]的子类，它是一个关系运算符，它返回Flink中[[DataStreamTable]]的内容。
   */
 class FlinkLogicalDataStreamTableScan(
     cluster: RelOptCluster,

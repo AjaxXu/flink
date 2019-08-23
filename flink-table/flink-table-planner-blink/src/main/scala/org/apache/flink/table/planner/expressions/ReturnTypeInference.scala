@@ -32,6 +32,9 @@ import org.apache.calcite.sql.`type`.SqlTypeUtil
 
 import scala.collection.JavaConverters._
 
+/**
+  * 返回类型推断.
+  */
 object ReturnTypeInference {
 
   private lazy val typeSystem = new FlinkTypeSystem

@@ -39,6 +39,7 @@ object DataViewUtils {
 
   /**
     * Use NullSerializer for StateView fields from accumulator type information.
+    * 从累加器类型信息中为StateView字段使用NullSerializer。
     *
     * @param index index of aggregate function
     * @param aggFun aggregate function
@@ -133,7 +134,10 @@ object DataViewUtils {
     )
   }
 
-  /** Analyse dataview element types and decorate the dataview typeinfos */
+  /**
+    * Analyse dataview element types and decorate the dataview typeinfos
+    * 分析dataview元素类型并装饰dataview typeinfos
+    */
   def decorateDataViewTypeInfo(
       info: TypeInformation[_],
       instance: AnyRef,

@@ -107,6 +107,7 @@ object RelDigestUtil {
 
   /**
     * Gets the digest for a rel tree.
+    * 返回给定rel节点的摘要。
     *
     * @param rel rel node tree
     * @return The digest of given rel tree.

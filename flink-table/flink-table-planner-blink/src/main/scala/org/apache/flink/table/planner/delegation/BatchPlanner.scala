@@ -40,6 +40,9 @@ import java.util
 
 import _root_.scala.collection.JavaConversions._
 
+/**
+  * Batch模式的计划器.
+  */
 class BatchPlanner(
     executor: Executor,
     config: TableConfig,

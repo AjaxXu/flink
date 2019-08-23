@@ -23,5 +23,6 @@ import org.apache.flink.table.planner.utils.Logging
 
 /**
   * Base class for stream ExecNode.
+  * 流ExecNode的基类。
   */
 trait StreamExecNode[T] extends ExecNode[StreamPlanner, T] with Logging

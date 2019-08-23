@@ -27,6 +27,7 @@ import org.apache.calcite.rel.`type`.{RelDataType, RelDataTypeFactory}
 
 /**
   * Class which implements the logic to convert a [[TableSink]] to Calcite Table
+  * 实现将[[TableSink]]转换为Calcite表的逻辑的类
   */
 class TableSinkTable[T](
     val tableSink: TableSink[T],

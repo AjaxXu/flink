@@ -22,6 +22,9 @@ import org.apache.flink.table.planner.typeutils.TypeCoercion
 import org.apache.flink.table.planner.validate._
 import org.apache.flink.table.runtime.types.TypeInfoLogicalTypeConverter.fromTypeInfoToLogicalType
 
+/**
+  * 转换表达式.
+  */
 case class Cast(child: PlannerExpression, resultType: TypeInformation[_])
   extends UnaryExpression {
 
